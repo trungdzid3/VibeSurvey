@@ -483,6 +483,16 @@ class AuthController {
     }
   }
 
+  // Helper xác định callback URL động (tự động tương thích cả Render lẫn Localhost)
+  getGoogleCallbackUrl(req) {
+    if (process.env.GOOGLE_CALLBACK_URL) {
+      return process.env.GOOGLE_CALLBACK_URL;
+    }
+    const host = req.get('host');
+    const proto = req.headers['x-forwarded-proto'] || (host.includes('localhost') ? 'http' : 'https');
+    return `${proto}://${host}/api/v1/auth/google/callback`;
+  }
+
   // Chuyển hướng trình duyệt đến máy chủ OAuth 2.0 chính thức của Google
   initiateGoogleOAuth(req, res) {
     const clientId = config.GOOGLE.CLIENT_ID;
@@ -490,10 +500,11 @@ class AuthController {
       return res.redirect('/?google_auth_config=needed');
     }
 
+    const callbackUrl = this.getGoogleCallbackUrl(req);
     const mode = req.query.mode || 'login';
-    const redirectUri = encodeURIComponent(config.GOOGLE.CALLBACK_URL);
+    const redirectUri = encodeURIComponent(callbackUrl);
     const scope = encodeURIComponent('openid email profile');
-    const state = encodeURIComponent(JSON.stringify({ mode, ts: Date.now() }));
+    const state = encodeURIComponent(JSON.stringify({ mode, callbackUrl, ts: Date.now() }));
 
     const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code&scope=${scope}&access_type=offline&prompt=consent%20select_account&state=${state}`;
 
@@ -503,12 +514,21 @@ class AuthController {
   // Tiếp nhận kết quả ủy quyền từ Google và cấp phiên làm việc
   async handleGoogleOAuthCallback(req, res) {
     try {
-      const { code, error } = req.query;
+      const { code, error, state } = req.query;
       if (error) {
         return res.redirect(`/?error=${encodeURIComponent('Đã hủy ủy quyền Google: ' + error)}`);
       }
       if (!code) {
         return res.redirect('/?error=missing_google_code');
+      }
+
+      // Xác định lại redirect_uri đã dùng khi yêu cầu ủy quyền
+      let callbackUrl = this.getGoogleCallbackUrl(req);
+      if (state) {
+        try {
+          const parsedState = JSON.parse(decodeURIComponent(state));
+          if (parsedState.callbackUrl) callbackUrl = parsedState.callbackUrl;
+        } catch (_) {}
       }
 
       // Đổi mã code lấy tokens từ Google
@@ -519,7 +539,7 @@ class AuthController {
           code,
           client_id: config.GOOGLE.CLIENT_ID,
           client_secret: config.GOOGLE.CLIENT_SECRET,
-          redirect_uri: config.GOOGLE.CALLBACK_URL,
+          redirect_uri: callbackUrl,
           grant_type: 'authorization_code'
         })
       });
