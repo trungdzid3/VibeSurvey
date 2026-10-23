@@ -43,6 +43,8 @@ router.post('/surveys/:id/close', authenticateToken, requireRole(['RESPONDENT', 
 router.post('/surveys/parse-external', authenticateToken, requireRole(['RESPONDENT', 'CREATOR', 'ADMIN']), (req, res) => surveyController.parseExternalForm(req, res));
 router.post('/surveys/:id/sponsor-vouchers', authenticateToken, requireRole(['RESPONDENT', 'CREATOR', 'ADMIN']), (req, res) => surveyController.addSponsorVouchers(req, res));
 router.post('/surveys/:id/boost-fast-track', authenticateToken, requireRole(['RESPONDENT', 'CREATOR', 'ADMIN']), (req, res) => surveyController.boostFastTrack(req, res));
+router.post('/surveys/:id/pin', authenticateToken, requireRole(['RESPONDENT', 'CREATOR', 'ADMIN']), (req, res) => surveyController.pinSurvey(req, res));
+router.post('/surveys/:id/unpin', authenticateToken, requireRole(['RESPONDENT', 'CREATOR', 'ADMIN']), (req, res) => surveyController.unpinSurvey(req, res));
 router.get('/notifications', authenticateToken, (req, res) => surveyController.getNotifications(req, res));
 router.put('/notifications/:id/read', authenticateToken, (req, res) => surveyController.markNotificationAsRead(req, res));
 

@@ -191,6 +191,20 @@ const VibeApp = {
     </div>`;
   },
 
+  getProgressColorClass(pct) {
+    const p = Math.round(Number(pct) || 0);
+    if (p < 20) return 'bg-slate-400 dark:bg-slate-500';
+    if (p < 40) return 'bg-emerald-500';
+    if (p < 70) return 'bg-blue-600';
+    if (p < 90) return 'bg-amber-500';
+    return 'bg-rose-500 animate-pulse';
+  },
+
+  closeAllCustomDropdowns() {
+    document.querySelectorAll('.custom-dropdown-menu').forEach(d => d.classList.add('hidden'));
+    document.querySelectorAll('.dropdown-trigger-icon').forEach(i => i.classList.remove('rotate-180'));
+  },
+
   async init() {
     this.initTheme();
 
@@ -200,6 +214,16 @@ const VibeApp = {
       const btn = document.getElementById('user-profile-btn');
       if (dropdown && btn && !dropdown.contains(e.target) && !btn.contains(e.target)) {
         dropdown.classList.add('hidden');
+      }
+    });
+
+    
+    // Đóng custom dropdown popover khi click ra ngoài
+    document.addEventListener('click', (e) => {
+      const isDropdownTrigger = e.target.closest('button[onclick*="toggleCustomDropdown"]');
+      const isInsideDropdown = e.target.closest('.custom-dropdown-menu');
+      if (!isDropdownTrigger && !isInsideDropdown) {
+        this.closeAllCustomDropdowns();
       }
     });
 
@@ -1386,7 +1410,8 @@ const VibeApp = {
         { id: 'admin-overview', label: 'Tổng Quan', icon: 'pie-chart' },
         { id: 'admin-payouts', label: 'Duyệt Tiền', icon: 'check-circle' },
         { id: 'admin-fraud', label: 'Gian Lận', icon: 'shield-alert' },
-        { id: 'surveys', label: 'Khảo Sát', icon: 'layers' }
+        { id: 'surveys', label: 'Khảo Sát', icon: 'layers' },
+        { id: 'create-survey', label: 'Tạo Khảo Sát', icon: 'plus-circle' }
       ];
     } else {
       tabs = [
@@ -1528,9 +1553,9 @@ const VibeApp = {
     this.haptic('light');
     if (type === 'fast-category') {
       const input = document.getElementById('fast-category');
-      const label = document.getElementById('fast-cat-dropdown-label');
-      if (input) input.value = val;
-      if (label) label.innerText = displayLabel;
+      const labelEl = document.getElementById('fast-cat-dropdown-label');
+      if (input) input.value = value;
+      if (labelEl) labelEl.innerText = label;
       this.closeAllCustomDropdowns();
       return;
     }
@@ -1798,17 +1823,17 @@ const VibeApp = {
                     <span>Tất cả số câu</span>
                     ${this.state.lengthFilter === 'ALL' ? '<i data-lucide="check" class="w-3.5 h-3.5 text-blue-600 dark:text-sky-400"></i>' : ''}
                   </div>
-                  <div onclick="VibeApp.selectDropdownOption('length', 'SHORT', '1 - 3 câu')" class="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold cursor-pointer transition-colors hover:bg-slate-100 dark:hover:bg-slate-800 ${this.state.lengthFilter === 'SHORT' ? 'text-blue-600 dark:text-sky-400 font-bold bg-blue-50/60 dark:bg-blue-950/40' : 'text-slate-700 dark:text-slate-200'}">
-                    <span>1 - 3 câu</span>
-                    ${this.state.lengthFilter === 'SHORT' ? '<i data-lucide="check" class="w-3.5 h-3.5 text-blue-600 dark:text-sky-400"></i>' : ''}
+                  <div onclick="VibeApp.selectDropdownOption('length', 'UNDER_10', '< 10 câu')" class="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold cursor-pointer transition-colors hover:bg-slate-100 dark:hover:bg-slate-800 ${this.state.lengthFilter === 'UNDER_10' ? 'text-blue-600 dark:text-sky-400 font-bold bg-blue-50/60 dark:bg-blue-950/40' : 'text-slate-700 dark:text-slate-200'}">
+                    <span>< 10 câu</span>
+                    ${this.state.lengthFilter === 'UNDER_10' ? '<i data-lucide="check" class="w-3.5 h-3.5 text-blue-600 dark:text-sky-400"></i>' : ''}
                   </div>
-                  <div onclick="VibeApp.selectDropdownOption('length', 'MEDIUM', '4 - 7 câu')" class="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold cursor-pointer transition-colors hover:bg-slate-100 dark:hover:bg-slate-800 ${this.state.lengthFilter === 'MEDIUM' ? 'text-blue-600 dark:text-sky-400 font-bold bg-blue-50/60 dark:bg-blue-950/40' : 'text-slate-700 dark:text-slate-200'}">
-                    <span>4 - 7 câu</span>
-                    ${this.state.lengthFilter === 'MEDIUM' ? '<i data-lucide="check" class="w-3.5 h-3.5 text-blue-600 dark:text-sky-400"></i>' : ''}
+                  <div onclick="VibeApp.selectDropdownOption('length', 'UNDER_20', '< 20 câu')" class="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold cursor-pointer transition-colors hover:bg-slate-100 dark:hover:bg-slate-800 ${this.state.lengthFilter === 'UNDER_20' ? 'text-blue-600 dark:text-sky-400 font-bold bg-blue-50/60 dark:bg-blue-950/40' : 'text-slate-700 dark:text-slate-200'}">
+                    <span>< 20 câu</span>
+                    ${this.state.lengthFilter === 'UNDER_20' ? '<i data-lucide="check" class="w-3.5 h-3.5 text-blue-600 dark:text-sky-400"></i>' : ''}
                   </div>
-                  <div onclick="VibeApp.selectDropdownOption('length', 'LONG', '≥ 8 câu')" class="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold cursor-pointer transition-colors hover:bg-slate-100 dark:hover:bg-slate-800 ${this.state.lengthFilter === 'LONG' ? 'text-blue-600 dark:text-sky-400 font-bold bg-blue-50/60 dark:bg-blue-950/40' : 'text-slate-700 dark:text-slate-200'}">
-                    <span>≥ 8 câu</span>
-                    ${this.state.lengthFilter === 'LONG' ? '<i data-lucide="check" class="w-3.5 h-3.5 text-blue-600 dark:text-sky-400"></i>' : ''}
+                  <div onclick="VibeApp.selectDropdownOption('length', 'OVER_20', '> 20 câu')" class="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold cursor-pointer transition-colors hover:bg-slate-100 dark:hover:bg-slate-800 ${this.state.lengthFilter === 'OVER_20' ? 'text-blue-600 dark:text-sky-400 font-bold bg-blue-50/60 dark:bg-blue-950/40' : 'text-slate-700 dark:text-slate-200'}">
+                    <span>> 20 câu</span>
+                    ${this.state.lengthFilter === 'OVER_20' ? '<i data-lucide="check" class="w-3.5 h-3.5 text-blue-600 dark:text-sky-400"></i>' : ''}
                   </div>
                 </div>
               </div>
@@ -1830,17 +1855,17 @@ const VibeApp = {
 
               <!-- View Switcher (Grid 4 cột vs List 1 dòng) -->
               <div class="flex items-center bg-slate-100 dark:bg-slate-800/70 p-0.5 rounded-xl border border-slate-200/80 dark:border-slate-700">
-                <button onclick="VibeApp.setViewMode('grid')" class="px-2.5 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1 ${
+                <button id="view-btn-grid" onclick="VibeApp.setViewMode('grid')" class="px-2.5 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1 ${
                   this.state.viewMode === 'grid' 
-                    ? 'bg-white dark:bg-slate-700 text-blue-600 dark:text-white shadow-2xs' 
+                    ? 'bg-white dark:bg-slate-700 text-blue-600 dark:text-white shadow-2xs font-extrabold' 
                     : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
                 }" title="Dạng Lưới Tinh Gọn (4 Cột)">
                   <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i>
                   <span class="hidden sm:inline">Lưới</span>
                 </button>
-                <button onclick="VibeApp.setViewMode('list')" class="px-2.5 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1 ${
+                <button id="view-btn-list" onclick="VibeApp.setViewMode('list')" class="px-2.5 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1 ${
                   this.state.viewMode === 'list' 
-                    ? 'bg-white dark:bg-slate-700 text-blue-600 dark:text-white shadow-2xs' 
+                    ? 'bg-white dark:bg-slate-700 text-blue-600 dark:text-white shadow-2xs font-extrabold' 
                     : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
                 }" title="Dạng Danh Sách 1 Dòng (Xem Được Nhiều Bài Nhất)">
                   <i data-lucide="list" class="w-3.5 h-3.5"></i>
@@ -2137,7 +2162,7 @@ const VibeApp = {
             <span class="font-mono ${isNearFull ? 'text-rose-600 font-bold' : ''}">${progress}%</span>
           </div>
           <div class="w-full bg-slate-100 dark:bg-slate-900/90 h-1.5 rounded-full overflow-hidden">
-            <div class="h-full rounded-full ${isNearFull ? 'bg-rose-500' : 'bg-blue-600'}" style="width: ${progress}%"></div>
+            <div class="h-full rounded-full transition-all duration-300 ${this.getProgressColorClass(progress)}" style="width: ${progress}%"></div>
           </div>
         </div>
 
@@ -2199,12 +2224,12 @@ const VibeApp = {
       list = list.filter(s => !!(s.sponsor_brand_name || s.sponsor_voucher_title || s.reward_mode === 'VOUCHER_ONLY'));
     }
 
-    if (len === 'SHORT') {
-      list = list.filter(s => (s.question_count || 1) <= 3);
-    } else if (len === 'MEDIUM') {
-      list = list.filter(s => (s.question_count || 1) >= 4 && (s.question_count || 1) <= 7);
-    } else if (len === 'LONG') {
-      list = list.filter(s => (s.question_count || 1) >= 8);
+    if (len === 'UNDER_10' || len === 'SHORT') {
+      list = list.filter(s => (s.question_count || 1) < 10);
+    } else if (len === 'UNDER_20' || len === 'MEDIUM') {
+      list = list.filter(s => (s.question_count || 1) >= 10 && (s.question_count || 1) <= 20);
+    } else if (len === 'OVER_20' || len === 'LONG') {
+      list = list.filter(s => (s.question_count || 1) > 20);
     }
 
     if (q) {
@@ -2281,6 +2306,12 @@ const VibeApp = {
   setViewMode(mode) {
     this.haptic('light');
     this.state.viewMode = mode;
+    const btnGrid = document.getElementById('view-btn-grid');
+    const btnList = document.getElementById('view-btn-list');
+    const activeCls = 'px-2.5 py-1 rounded-lg text-xs font-extrabold transition-all flex items-center gap-1 bg-white dark:bg-slate-700 text-blue-600 dark:text-white shadow-2xs';
+    const inactiveCls = 'px-2.5 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1 text-slate-500 hover:text-slate-800 dark:hover:text-slate-200';
+    if (btnGrid) btnGrid.className = mode === 'grid' ? activeCls : inactiveCls;
+    if (btnList) btnList.className = mode === 'list' ? activeCls : inactiveCls;
     this._updateSurveyGrid();
   },
 
@@ -3702,6 +3733,7 @@ const VibeApp = {
                         <span class="px-2.5 py-0.5 rounded-md text-[10px] font-bold ${s.status === 'DRAFT' ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800'}">
                           ${s.status}
                         </span>
+                        ${s.is_pinned ? `<span class="px-2 py-0.5 rounded-md text-[10px] font-black bg-amber-100 dark:bg-amber-950/80 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-700">⭐ Ghim VIP</span>` : ''}
                         ${s.is_free_trial ? `<span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-teal-100 dark:bg-teal-950/80 text-teal-700 dark:text-teal-300 border border-teal-300 dark:border-teal-800">🎁 25 Lượt Free</span>` : ''}
                       </div>
                       <span class="font-mono text-slate-600 text-xs font-bold">${collected}/${target} phản hồi</span>
@@ -3713,11 +3745,20 @@ const VibeApp = {
                     </div>
                   </div>
 
-                  <div class="pt-3.5 border-t border-slate-100 flex items-center gap-2">
-                    <button onclick="VibeApp.navigate('analytics', { surveyId: '${s.id}' })" class="flex-1 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl text-xs font-bold transition-all active:scale-[0.98]">
-                      Xem báo cáo
+                  <div class="pt-3.5 border-t border-slate-100 dark:border-slate-800 flex items-center gap-2">
+                    <button onclick="VibeApp.navigate('analytics', { surveyId: '${s.id}' })" class="flex-1 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-850 dark:text-slate-100 rounded-xl text-xs font-bold transition-all active:scale-[0.98]">
+                      Báo cáo
                     </button>
-                    <button onclick="VibeApp.exportSurvey('${s.id}')" class="p-2 border border-slate-200 rounded-xl text-slate-600 hover:bg-slate-50 transition-colors" title="Xuất CSV">
+                    ${s.is_pinned ? `
+                      <button onclick="VibeApp.unpinSurveyAction('${s.id}')" class="px-3 py-2 bg-amber-50 hover:bg-amber-100 dark:bg-amber-950/40 dark:hover:bg-amber-900/60 text-amber-800 dark:text-amber-300 rounded-xl text-xs font-bold transition-all border border-amber-300 dark:border-amber-700" title="Gỡ khỏi vị trí ghim top">
+                        Gỡ Ghim
+                      </button>
+                    ` : `
+                      <button onclick="VibeApp.pinSurveyAction('${s.id}', '${(s.title || '').replace(/'/g, "\\'")}')" class="px-3 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-xs font-bold transition-all shadow-xs flex items-center gap-1 active:scale-[0.98]" title="Ghim lên đầu trang VIP">
+                        <span>⭐ Ghim</span>
+                      </button>
+                    `}
+                    <button onclick="VibeApp.exportSurvey('${s.id}')" class="p-2 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors" title="Xuất CSV">
                       <i data-lucide="download" class="w-4 h-4"></i>
                     </button>
                   </div>
@@ -3944,7 +3985,7 @@ const VibeApp = {
         `}
 
         <!-- Thông tin cơ bản -->
-        <div class="bento-card p-5 sm:p-6 space-y-4">
+        <div class="bento-card allow-overflow p-5 sm:p-6 space-y-4 relative z-30" style="overflow: visible !important;">
           <div class="flex items-center gap-2 pb-2 border-b border-slate-100 dark:border-slate-800">
             <i data-lucide="info" class="w-4 h-4 text-blue-600 dark:text-sky-400"></i>
             <h2 class="text-sm font-bold text-slate-900 dark:text-white">Thông Tin Khảo Sát</h2>
@@ -3966,7 +4007,7 @@ const VibeApp = {
                 <i data-lucide="chevron-down" class="dropdown-trigger-icon w-4 h-4 text-slate-400 transition-transform duration-200"></i>
               </button>
 
-              <div id="fast-cat-dropdown-menu" class="custom-dropdown-menu hidden absolute left-0 right-0 z-50 mt-1.5 p-1.5 rounded-2xl bg-white/95 dark:bg-[#131B2E]/95 backdrop-blur-xl border border-slate-200/90 dark:border-slate-700/80 shadow-xl space-y-0.5">
+              <div id="fast-cat-dropdown-menu" class="custom-dropdown-menu hidden absolute left-0 right-0 mt-1.5 p-1.5 rounded-2xl bg-white/95 dark:bg-[#131B2E]/95 backdrop-blur-xl border border-slate-200/90 dark:border-slate-700/80 shadow-2xl space-y-0.5" style="z-index: 9999;">
                 <div onclick="VibeApp.selectDropdownOption('fast-category', 'Thị trường', '🛒 Thị trường & Người tiêu dùng')" class="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 text-blue-600 dark:text-sky-400 font-bold bg-blue-50/60 dark:bg-blue-950/40">
                   <span>🛒 Thị trường & Người tiêu dùng</span>
                   <i data-lucide="check" class="w-3.5 h-3.5 text-blue-600 dark:text-sky-400"></i>
@@ -3989,7 +4030,7 @@ const VibeApp = {
         </div>
 
         <!-- Phương Thức Tạo Nội Dung -->
-        <div class="bento-card p-5 sm:p-6 space-y-5">
+        <div class="bento-card p-5 sm:p-6 space-y-5 relative z-10">
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100 dark:border-slate-800">
             <div class="flex items-center gap-2">
               <i data-lucide="layers" class="w-4 h-4 text-blue-600 dark:text-sky-400"></i>
@@ -4087,6 +4128,44 @@ const VibeApp = {
               <input type="number" id="fast-reward-points" value="200" oninput="VibeApp.updateFastEscrowCalculation()" min="50" step="50" class="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-sm font-mono font-bold focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
               <p class="text-[11px] text-slate-400">Tỷ giá: 1 Điểm = 10 VNĐ (VD: 200 Điểm tương đương 2.000 VNĐ cho đáp viên).</p>
             </div>
+          </div>
+        </div>
+
+        
+        <!-- TÙY CHỌN GHIM KHẢO SÁT LÊN VỊ TRÍ VIP ĐẦU TRANG -->
+        <div class="bento-card p-4 sm:p-5 rounded-2xl border border-amber-300/80 dark:border-amber-500/40 bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent space-y-3">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center font-bold text-lg shadow-sm">
+                ⭐
+              </div>
+              <div>
+                <div class="flex items-center gap-2">
+                  <h3 class="text-xs sm:text-sm font-extrabold text-slate-900 dark:text-white">Ghim Lên Khối Nổi Bật Đầu Trang (VIP)</h3>
+                  <span class="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-700 dark:text-amber-300 font-extrabold text-[10px] uppercase">Ưu Tiên 300%</span>
+                </div>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                  Bài khảo sát cố định vị trí VIP trên cùng, tiếp cận ngay 100% đáp viên, thu thập mẫu thần tốc.
+                </p>
+              </div>
+            </div>
+
+            <div class="flex-shrink-0 bg-white dark:bg-slate-800/90 p-3 rounded-xl border border-amber-500/30 shadow-xs">
+              <label class="custom-checkbox-wrapper group cursor-pointer text-xs font-bold text-slate-800 dark:text-slate-200 select-none">
+                <input type="checkbox" id="fast-pin-survey" onchange="VibeApp.updateFastEscrowCalculation()" class="custom-checkbox-input">
+                <div class="custom-checkbox-box">
+                  <svg class="custom-checkbox-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+                <span class="group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">Kích hoạt Ghim VIP</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="pt-2 border-t border-amber-200/60 dark:border-amber-800/40 flex items-center justify-between text-[11px] text-amber-900 dark:text-amber-300 font-semibold">
+            <span>Số vé ghim ưu tiên của bạn: <strong id="fast-user-pin-tickets" class="font-mono text-xs">${(user ? user.fast_track_tickets : 0) || 0} vé</strong></span>
+            <span class="text-slate-500 dark:text-slate-400">Nếu có vé: <strong>Trừ 1 vé miễn phí</strong> • Nếu không có vé: <strong>+50.000 VNĐ</strong></span>
           </div>
         </div>
 
@@ -4459,18 +4538,28 @@ const VibeApp = {
     const reward = rewardEl ? parseInt(rewardEl.value, 10) || 0 : 200;
     const isFree = freeTrialEl ? freeTrialEl.checked : false;
 
+    const isPinChecked = document.getElementById('fast-pin-survey')?.checked === true;
+    const userTickets = (this.state.currentUser ? this.state.currentUser.fast_track_tickets : 0) || 0;
+    const pinFee = isPinChecked && userTickets <= 0 ? 50000 : 0;
+
     if (isFree) {
-      if (displayEl) displayEl.innerText = '0 VNĐ';
+      const finalFreeVnd = pinFee;
+      if (displayEl) displayEl.innerText = finalFreeVnd > 0 ? finalFreeVnd.toLocaleString('vi-VN') + ' VNĐ' : '0 VNĐ';
       if (noteEl) {
-        noteEl.innerText = '(Được tài trợ 100% từ Gói Dùng Thử 25 lượt)';
+        noteEl.innerText = isPinChecked && userTickets > 0 
+          ? '(Tài trợ 100% từ Dùng Thử 25 lượt + Miễn phí 1 vé Ghim VIP)'
+          : (pinFee > 0 ? '(Gói dùng thử 0đ + Phí Ghim VIP 50.000đ)' : '(Được tài trợ 100% từ Gói Dùng Thử 25 lượt)');
         noteEl.className = 'text-xs font-semibold text-emerald-600 dark:text-emerald-400';
       }
-      if (submitLabelEl) submitLabelEl.innerText = 'Xuất Bản Miễn Phí (0đ)';
+      if (submitLabelEl) submitLabelEl.innerText = finalFreeVnd > 0 ? 'Xuất Bản & Khóa Quỹ Ghim' : 'Xuất Bản Miễn Phí (0đ)';
     } else {
-      const totalVnd = targets * reward * 10;
+      const baseVnd = targets * reward * 10;
+      const totalVnd = baseVnd + pinFee;
       if (displayEl) displayEl.innerText = totalVnd.toLocaleString('vi-VN') + ' VNĐ';
       if (noteEl) {
-        noteEl.innerText = '(Khóa ký quỹ tạm thời từ số dư Credit ví của bạn)';
+        noteEl.innerText = isPinChecked 
+          ? (userTickets > 0 ? '(Khóa ký quỹ từ Credit ví + Trừ 1 vé Ghim VIP)' : '(Khóa ký quỹ từ Credit ví gồm +50.000đ Ghim VIP)')
+          : '(Khóa ký quỹ tạm thời từ số dư Credit ví của bạn)';
         noteEl.className = 'text-xs font-semibold text-slate-500 dark:text-slate-400';
       }
       if (submitLabelEl) submitLabelEl.innerText = 'Xuất Bản & Khóa Quỹ Ký Quỹ';
@@ -4603,6 +4692,71 @@ const VibeApp = {
     this.showToast('Đã sao chép mã Google Apps Script!', 'success');
   },
 
+  async pinSurveyAction(surveyId, surveyTitle) {
+    this.haptic('medium');
+    const userTickets = (this.state.currentUser ? this.state.currentUser.fast_track_tickets : 0) || 0;
+    const ticketNotice = userTickets > 0 
+      ? `<p class="text-xs text-emerald-600 font-bold">✓ Bạn có ${userTickets} vé ghim: Thao tác này sẽ trừ 1 vé miễn phí.</p>`
+      : `<p class="text-xs text-amber-600 font-bold">⚠️ Bạn đã hết vé ghim: Thao tác này sẽ trừ 50.000đ Credit ví.</p>`;
+
+    this.showModal({
+      title: '⭐ Ghim Khảo Sát Lên Đầu Trang (VIP)',
+      content: `
+        <div class="space-y-4 py-1">
+          <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+            Bạn có chắc chắn muốn đưa bài khảo sát <strong>"${surveyTitle}"</strong> lên vị trí VIP cố định trên cùng để tăng 300% tốc độ thu thập mẫu?
+          </p>
+          <div class="p-3 bg-amber-50 dark:bg-amber-950/40 rounded-xl border border-amber-200 dark:border-amber-800 text-xs">
+            ${ticketNotice}
+          </div>
+          <div class="flex gap-2 pt-2">
+            <button onclick="VibeApp.confirmPinSurvey('${surveyId}')" class="flex-1 py-2.5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-xs font-bold transition-all shadow-xs">
+              Xác Nhận Ghim Bài
+            </button>
+            <button onclick="VibeApp.closeModal()" class="py-2.5 px-4 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-bold">
+              Đóng
+            </button>
+          </div>
+        </div>
+      `
+    });
+  },
+
+  async confirmPinSurvey(surveyId) {
+    try {
+      this.closeModal();
+      this.showToast('Đang xử lý ghim khảo sát...', 'info');
+      const res = await this.api(`/surveys/${surveyId}/pin`, { method: 'POST' });
+      if (res.success) {
+        this.haptic('success');
+        this.showToast(res.message, 'success');
+        if (this.state.currentUser) {
+          if (res.fast_track_tickets !== undefined) this.state.currentUser.fast_track_tickets = res.fast_track_tickets;
+          if (res.credit_balance !== undefined) this.state.currentUser.credit_balance = res.credit_balance;
+        }
+        this.applyUserInterface();
+        this.navigate(this.state.currentTab || 'creator-surveys');
+      }
+    } catch (err) {
+      this.showToast(err.message, 'error');
+    }
+  },
+
+  async unpinSurveyAction(surveyId) {
+    if (!confirm('Bạn có chắc chắn muốn gỡ ghim bài khảo sát này về danh sách thông thường?')) return;
+    try {
+      this.showToast('Đang gỡ ghim...', 'info');
+      const res = await this.api(`/surveys/${surveyId}/unpin`, { method: 'POST' });
+      if (res.success) {
+        this.haptic('success');
+        this.showToast(res.message, 'success');
+        this.navigate(this.state.currentTab || 'creator-surveys');
+      }
+    } catch (err) {
+      this.showToast(err.message, 'error');
+    }
+  },
+
   async submitFastCreate() {
     const title = document.getElementById('fast-title')?.value?.trim();
     const category = document.getElementById('fast-category')?.value || 'Thị trường';
@@ -4611,6 +4765,7 @@ const VibeApp = {
     const target = parseInt(document.getElementById('fast-target-count')?.value, 10) || 100;
     const pts = parseInt(document.getElementById('fast-reward-points')?.value, 10) || 200;
     const isFreeTrial = document.getElementById('fast-use-free-trial')?.checked === true;
+    const isPinnedChoice = document.getElementById('fast-pin-survey')?.checked === true;
     const currentTab = this.state.createSurveyTab || 'BUILDER';
 
     if (!title) {
@@ -4694,6 +4849,7 @@ const VibeApp = {
           google_sheets_webhook_url: webhookUrl || null,
           reward_mode: 'POINTS_ONLY',
           reward_points_per_response: pts,
+          is_pinned: isPinnedChoice,
           questions: questionsPayload
         })
       });
