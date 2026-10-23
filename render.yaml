@@ -20,4 +20,4 @@ services:
       - key: BREVO_SENDER_NAME
         value: VibeSurvey Platform
       - key: APP_URL
-        sync: false
+        value: https://vibesurvey.onrender.com
