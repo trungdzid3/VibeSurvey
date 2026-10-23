@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="vi" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#0F172A">
+  <meta name="description" content="VibeSurvey - Nền tảng Khảo sát Trực tuyến & Phân tích Dữ liệu Hàng Đầu">
+  <title>VibeSurvey • Khảo Sát Tích Điểm & Đổi Thưởng</title>
+
+  <!-- App Favicons & Icons -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="alternate icon" type="image/png" href="/favicon.png">
+  <link rel="apple-touch-icon" href="/icon-192.png">
+
+  <!-- Google Fonts: Plus Jakarta Sans & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Google Identity Services (GIS) for Real Google Sign-In & One Tap -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#EEF2FF',
+              100: '#E0E7FF',
+              200: '#C7D2FE',
+              300: '#A5B4FC',
+              400: '#818CF8',
+              500: '#6366F1',
+              600: '#4F46E5',
+              700: '#4338CA',
+              800: '#3730A3',
+              900: '#312E81',
+            },
+            accent: {
+              emerald: '#10B981',
+              teal: '#14B8A6',
+              amber: '#F59E0B',
+              rose: '#F43F5E',
+              violet: '#8B5CF6',
+              cyan: '#06B6D4',
+            },
+            dark: {
+              page: '#0B0F19',
+              card: '#131B2E',
+              subtle: '#1E293B',
+              border: '#2A374A',
+              borderLight: 'rgba(255, 255, 255, 0.08)'
+            }
+          },
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          boxShadow: {
+            'card': '0 2px 8px -2px rgba(15, 23, 42, 0.06), 0 1px 4px -1px rgba(15, 23, 42, 0.04)',
+            'card-hover': '0 16px 36px -6px rgba(79, 70, 229, 0.16), 0 6px 16px -3px rgba(15, 23, 42, 0.06)',
+            'card-dark': '0 4px 20px -2px rgba(0, 0, 0, 0.4), 0 0 1px 1px rgba(255, 255, 255, 0.05)',
+            'card-dark-hover': '0 16px 36px -6px rgba(99, 102, 241, 0.25), 0 0 0 1px rgba(129, 140, 248, 0.3)',
+            'glow-indigo': '0 0 24px -4px rgba(99, 102, 241, 0.35)',
+            'glow-emerald': '0 0 24px -4px rgba(16, 185, 129, 0.35)',
+            'glow-amber': '0 0 24px -4px rgba(245, 158, 11, 0.35)',
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body class="bg-[#F8FAFC] dark:bg-[#0B0F19] text-slate-800 dark:text-slate-100 min-h-screen flex flex-col font-sans selection:bg-indigo-500 selection:text-white antialiased safe-bottom">
+
+  <!-- ==================== HIGH-END SAAS NAVBAR ==================== -->
+  <header class="sticky top-0 z-40 bg-white/90 dark:bg-[#0F172A]/90 backdrop-blur-xl border-b border-slate-200/80 dark:border-slate-800/80">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6">
+      <div class="flex items-center justify-between h-16 gap-4">
+        
+        <!-- Left: Brand Logo & Navigation -->
+        <div class="flex items-center space-x-5 lg:space-x-8 min-w-0 flex-shrink-0">
+          <div class="flex items-center space-x-2.5 cursor-pointer select-none group flex-shrink-0" onclick="VibeApp.navigate('surveys')">
+            <img src="/logo.svg" alt="VibeSurvey Logo" class="w-8 h-8 sm:w-9 sm:h-9 rounded-xl shadow-md shadow-indigo-500/25 group-hover:scale-105 group-hover:shadow-indigo-500/40 transition-all flex-shrink-0 object-contain" style="width: 34px; height: 34px;">
+            <div class="flex items-center whitespace-nowrap">
+              <span class="text-base font-extrabold tracking-tight text-slate-900 dark:text-white">Vibe<span class="bg-gradient-to-r from-indigo-500 to-cyan-400 bg-clip-text text-transparent">Survey</span></span>
+            </div>
+          </div>
+
+          <!-- Desktop Nav Links (Pill Style) -->
+          <nav id="desktop-nav" class="hidden md:flex items-center space-x-1 bg-slate-100/90 dark:bg-slate-800/70 p-1 rounded-xl border border-slate-200/70 dark:border-slate-700/60 flex-shrink-0"></nav>
+        </div>
+
+        <!-- Right: Balance Widget, Theme Switcher & User Actions -->
+        <div class="flex items-center space-x-2 sm:space-x-2.5 flex-shrink-0">
+          
+          <!-- Quick Balance Widget (Fintech Style - Hidden for guests) -->
+          <div id="user-balance-pill" onclick="VibeApp.navigate('wallet')" class="hidden h-9 items-center space-x-2 px-3 rounded-xl bg-emerald-50/80 dark:bg-emerald-950/30 hover:bg-emerald-100/80 border border-emerald-500/25 dark:border-emerald-500/30 text-xs cursor-pointer shadow-xs transition-all active:scale-95 whitespace-nowrap flex-shrink-0" title="Xem ví & đổi thưởng">
+            <div class="w-5 h-5 rounded-lg bg-emerald-500 text-white flex items-center justify-center font-bold shadow-xs flex-shrink-0">
+              <i data-lucide="wallet" class="w-3 h-3 stroke-[2.4]"></i>
+            </div>
+            <div class="flex items-baseline space-x-1.5 whitespace-nowrap">
+              <span id="header-points-text" class="font-extrabold text-emerald-950 dark:text-emerald-200 font-mono text-xs whitespace-nowrap">0 Điểm</span>
+              <span class="text-emerald-400/80 font-normal text-[11px]">≈</span>
+              <span id="header-credit-text" class="text-emerald-600 dark:text-emerald-400 font-bold font-mono text-xs whitespace-nowrap">0đ</span>
+            </div>
+          </div>
+
+          <!-- Theme Toggle Button (Light/Dark Mode) -->
+          <button id="theme-toggle-btn" onclick="VibeApp.toggleTheme()" class="w-9 h-9 rounded-xl border border-slate-200/80 dark:border-slate-700/80 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700/80 text-slate-600 dark:text-amber-300 flex items-center justify-center shadow-xs transition-all active:scale-95 flex-shrink-0" title="Chuyển chế độ Sáng / Tối (Dark / Light)">
+            <i id="theme-icon" data-lucide="moon" class="w-4 h-4 stroke-[2.2]"></i>
+          </button>
+
+          <!-- Quick Create Button (Shown when logged in) -->
+          <button id="header-create-btn" onclick="VibeApp.openCreateSurveyModal()" class="hidden sm:inline-flex items-center space-x-1.5 h-9 px-3.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-xs transition-all active:scale-95 whitespace-nowrap flex-shrink-0" style="display: none;">
+            <i data-lucide="plus" class="w-3.5 h-3.5 stroke-[2.5]"></i>
+            <span class="whitespace-nowrap">Tạo Khảo Sát</span>
+          </button>
+
+          <!-- Guest Authentication Actions (When not logged in) -->
+          <div id="guest-auth-actions" class="flex items-center space-x-2 flex-shrink-0">
+            <button onclick="VibeApp.openAuthModal('login')" class="h-9 px-3.5 rounded-xl border border-slate-200/90 dark:border-slate-700/90 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-bold transition-all whitespace-nowrap flex-shrink-0">
+              Đăng Nhập
+            </button>
+            <button onclick="VibeApp.openAuthModal('register')" class="h-9 px-3.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-xs transition-all active:scale-95 whitespace-nowrap flex-shrink-0">
+              Đăng Ký
+            </button>
+          </div>
+
+          <!-- User Profile Menu (When logged in) -->
+          <div id="user-profile-menu" class="hidden relative flex-shrink-0">
+            <button id="user-profile-btn" onclick="VibeApp.toggleProfileDropdown()" class="h-9 flex items-center space-x-2 px-2.5 rounded-xl border border-slate-200/80 dark:border-slate-700/80 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700/80 text-slate-700 dark:text-slate-200 text-xs font-semibold shadow-xs transition-colors whitespace-nowrap flex-shrink-0">
+              <div id="user-avatar-circle" class="w-6 h-6 rounded-lg bg-blue-600 text-white flex items-center justify-center font-bold text-xs shadow-xs flex-shrink-0">
+                U
+              </div>
+              <span id="user-display-name" class="hidden sm:inline font-bold text-slate-800 dark:text-slate-200 max-w-[90px] truncate whitespace-nowrap">Tài khoản</span>
+              <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400 flex-shrink-0"></i>
+            </button>
+
+            <!-- Dropdown Menu -->
+            <div id="user-profile-dropdown" class="hidden absolute right-0 mt-2 w-80 bg-white dark:bg-[#131B2E] rounded-2xl shadow-2xl border border-slate-200/90 dark:border-slate-700/90 py-2 z-50">
+              <div id="user-profile-dropdown-content">
+                <!-- Sẽ được render động theo thông tin user thật -->
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+  </header>
+
+  <!-- ==================== MAIN CONTENT ==================== -->
+  <main class="flex-1 w-full max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+    <div id="app-root">
+      <div class="flex flex-col items-center justify-center py-20 space-y-3">
+        <div class="animate-spin rounded-full h-8 w-8 border-2 border-slate-300 border-t-blue-600"></div>
+        <p class="text-xs text-slate-500 font-medium">Đang tải VibeSurvey...</p>
+      </div>
+    </div>
+  </main>
+
+  <!-- ==================== MOBILE BOTTOM NAV ==================== -->
+  <nav id="mobile-bottom-nav" class="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-[#0F172A]/95 backdrop-blur-xl border-t border-slate-200/80 dark:border-slate-800/80 px-3 py-1 flex justify-around items-center transition-colors">
+    <!-- Render theo vai trò -->
+  </nav>
+
+  <!-- ==================== TOAST NOTIFICATION CONTAINER ==================== -->
+  <div id="toast-container"></div>
+
+  <!-- ==================== MODAL CONTAINER ==================== -->
+  <div id="modal-container" class="hidden fixed inset-0 z-50 overflow-y-auto modal-backdrop flex items-center justify-center p-4">
+    <div id="modal-card" class="bg-white dark:bg-[#131B2E] text-slate-800 dark:text-slate-100 rounded-3xl max-w-lg w-full p-6 sm:p-7 shadow-2xl border border-slate-100 dark:border-slate-800 transform transition-all relative">
+      <!-- Modal Content Rendered Dynamically -->
+    </div>
+  </div>
+
+  <!-- ==================== GOOGLE OAUTH CONSENT DIALOG (CHUẨN GOOGLE ACCOUNT) ==================== -->
+  <div id="google-oauth-modal" class="hidden fixed inset-0 z-[100] overflow-y-auto bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 transition-all duration-200">
+    <div class="max-w-4xl w-full">
+      <!-- Card Google OAuth -->
+      <div class="bg-[#131314] text-[#e3e3e3] rounded-[28px] border border-[#303030] shadow-2xl overflow-hidden p-7 sm:p-12 relative font-sans">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-14">
+          
+          <!-- Cột Trái -->
+          <div class="flex flex-col justify-between">
+            <div>
+              <!-- Header Google Brand -->
+              <div class="flex items-center gap-2.5 text-sm text-[#e3e3e3] font-medium select-none">
+                <svg class="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24">
+                  <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                  <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                  <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                  <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+                </svg>
+                <span>Đăng nhập bằng Google</span>
+              </div>
+
+              <!-- Logo VibeSurvey Tròn & Tiêu Đề -->
+              <div class="mt-8 sm:mt-12">
+                <div class="w-14 h-14 rounded-full bg-gradient-to-tr from-emerald-600 via-teal-600 to-cyan-500 text-white font-black text-2xl flex items-center justify-center shadow-lg mb-6 tracking-wider">
+                  V
+                </div>
+                <h2 id="google-dialog-heading" class="text-2xl sm:text-3xl font-normal text-white mb-6 tracking-tight leading-tight">
+                  Đăng nhập vào VibeSurvey
+                </h2>
+
+                <!-- Dropdown Chọn Tài Khoản (Account Picker Pill) -->
+                <div class="relative inline-block w-full sm:w-auto">
+                  <button type="button" onclick="VibeApp.toggleGoogleDropdown()" class="w-full sm:w-auto min-w-[260px] px-3.5 py-1.5 rounded-full bg-[#1e1f20] hover:bg-[#2a2b2e] border border-[#444746] flex items-center justify-between gap-3 text-left transition-colors">
+                    <div class="flex items-center gap-2.5 truncate">
+                      <div id="google-active-avatar" class="w-6 h-6 rounded-full bg-indigo-600 text-white flex items-center justify-center text-xs font-bold flex-shrink-0">T</div>
+                      <span id="google-active-email" class="text-xs font-medium text-[#e3e3e3] truncate">trungdzid3@gmail.com</span>
+                    </div>
+                    <svg class="w-4 h-4 text-[#9aa0a6] flex-shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5z"/></svg>
+                  </button>
+
+                  <!-- Danh Sách Chọn Tài Khoản Dropdown -->
+                  <div id="google-dropdown-menu" class="hidden absolute left-0 top-full mt-2 w-80 bg-[#1e1f20] border border-[#444746] rounded-2xl shadow-2xl z-50 py-2 divide-y divide-[#303030]">
+                    <div class="px-3 py-1.5 text-[11px] font-medium text-[#9aa0a6]">Chọn tài khoản Google:</div>
+                    <div class="p-1 space-y-1">
+                      <button type="button" onclick="VibeApp.switchGoogleAccount('trungdzid3@gmail.com', 'Trung Nguyễn Thành', 'T', 'bg-indigo-600')" class="w-full px-3 py-2 rounded-xl hover:bg-[#2a2b2e] flex items-center gap-3 text-left transition-colors">
+                        <div class="w-7 h-7 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold text-xs flex-shrink-0">T</div>
+                        <div class="truncate">
+                          <div class="text-xs font-medium text-white">Trung Nguyễn Thành</div>
+                          <div class="text-[11px] text-[#9aa0a6] truncate">trungdzid3@gmail.com</div>
+                        </div>
+                      </button>
+                      <button type="button" onclick="VibeApp.switchGoogleAccount('linharmykxbnvn@gmail.com', 'Nguyễn Thùy Linh', 'L', 'bg-emerald-600')" class="w-full px-3 py-2 rounded-xl hover:bg-[#2a2b2e] flex items-center gap-3 text-left transition-colors">
+                        <div class="w-7 h-7 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-xs flex-shrink-0">L</div>
+                        <div class="truncate">
+                          <div class="text-xs font-medium text-white">Nguyễn Thùy Linh</div>
+                          <div class="text-[11px] text-[#9aa0a6] truncate">linharmykxbnvn@gmail.com</div>
+                        </div>
+                      </button>
+                      <button type="button" onclick="VibeApp.promptCustomGoogleAccount()" class="w-full px-3 py-2 rounded-xl hover:bg-[#2a2b2e] flex items-center gap-3 text-left transition-colors text-sky-400">
+                        <div class="w-7 h-7 rounded-full border border-dashed border-[#5f6368] flex items-center justify-center text-xs flex-shrink-0">+</div>
+                        <span class="text-xs font-medium">Sử dụng một tài khoản khác...</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+
+          <!-- Cột Phải -->
+          <div class="flex flex-col justify-between">
+            <div>
+              <p class="text-sm text-[#e3e3e3] mb-6 font-normal">
+                Google sẽ cho phép <span class="text-white font-medium">VibeSurvey</span> truy cập vào thông tin này về bạn
+              </p>
+
+              <!-- Hai Khối Quyền Truy Cập -->
+              <div class="space-y-5 mb-8">
+                <!-- Tên và ảnh hồ sơ -->
+                <div class="flex items-start gap-4">
+                  <div class="w-6 h-6 text-[#9aa0a6] flex-shrink-0 mt-0.5">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="w-6 h-6">
+                      <circle cx="12" cy="8" r="4"/>
+                      <path d="M6 20v-2a6 6 0 0 1 12 0v2"/>
+                      <circle cx="12" cy="12" r="10"/>
+                    </svg>
+                  </div>
+                  <div>
+                    <div id="google-perm-name" class="text-sm font-medium text-white">Trung Nguyễn Thành</div>
+                    <div class="text-xs text-[#9aa0a6] mt-0.5">Tên và ảnh hồ sơ</div>
+                  </div>
+                </div>
+
+                <!-- Địa chỉ email -->
+                <div class="flex items-start gap-4">
+                  <div class="w-6 h-6 text-[#9aa0a6] flex-shrink-0 mt-0.5">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="w-6 h-6">
+                      <rect width="20" height="16" x="2" y="4" rx="2"/>
+                      <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+                    </svg>
+                  </div>
+                  <div>
+                    <div id="google-perm-email" class="text-sm font-medium text-white">trungdzid3@gmail.com</div>
+                    <div class="text-xs text-[#9aa0a6] mt-0.5">Địa chỉ email</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Chính Sách Quyền Riêng Tư Chuẩn Google -->
+              <div class="text-xs text-[#9aa0a6] leading-relaxed space-y-3 pt-4 border-t border-[#303030]/90">
+                <p>
+                  Xem <a href="javascript:void(0)" class="text-[#8ab4f8] hover:underline font-medium">Chính sách quyền riêng tư</a> và <a href="javascript:void(0)" class="text-[#8ab4f8] hover:underline font-medium">Điều khoản dịch vụ</a> của VibeSurvey để hiểu cách VibeSurvey sẽ xử lý và bảo vệ dữ liệu của bạn.
+                </p>
+                <p>
+                  Nếu bất cứ lúc nào bạn muốn thực hiện thay đổi, hãy truy cập <a href="javascript:void(0)" class="text-[#8ab4f8] hover:underline font-medium">Tài khoản Google</a> của bạn.
+                </p>
+                <p>
+                  Tìm hiểu thêm về tính năng <a href="javascript:void(0)" class="text-[#8ab4f8] hover:underline font-medium">Đăng nhập bằng Google</a>.
+                </p>
+              </div>
+            </div>
+
+            <!-- Nút Hành Động (Huỷ / Tiếp tục) -->
+            <div class="flex items-center justify-end gap-3 pt-8">
+              <button type="button" onclick="VibeApp.closeGoogleAuthModal()" class="px-7 py-2.5 rounded-full border border-[#5f6368] hover:bg-white/10 text-[#8ab4f8] hover:text-white text-xs font-medium transition-all active:scale-95">
+                Huỷ
+              </button>
+              <button type="button" id="google-auth-submit-btn" onclick="VibeApp.submitGoogleConsent()" class="px-8 py-2.5 rounded-full bg-[#1a73e8] hover:bg-[#1b66c9] text-white text-xs font-medium transition-all shadow-md active:scale-95 flex items-center justify-center gap-2">
+                <span>Tiếp tục</span>
+              </button>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Footer Dưới Cùng (Tiếng Việt / Trợ giúp / Quyền riêng tư / Điều khoản) -->
+      <div class="mt-4 px-3 flex flex-wrap items-center justify-between text-xs text-[#9aa0a6]">
+        <div class="flex items-center gap-1.5 cursor-pointer hover:text-white">
+          <span>Tiếng Việt</span>
+          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5z"/></svg>
+        </div>
+        <div class="flex items-center gap-6">
+          <a href="javascript:void(0)" class="hover:text-white">Trợ giúp</a>
+          <a href="javascript:void(0)" class="hover:text-white">Quyền riêng tư</a>
+          <a href="javascript:void(0)" class="hover:text-white">Điều khoản</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Application Script -->
+  <script src="/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VibeSurvey • Hệ Thống Nhận Diện Logo & Brand Assets</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="alternate icon" type="image/png" href="/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          }
+        }
+      }
+    }
+  </script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen font-sans selection:bg-indigo-500 selection:text-white antialiased p-6 sm:p-10">
+
+  <div class="max-w-6xl mx-auto space-y-10">
+    
+    <!-- Header -->
+    <header class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-8 border-b border-slate-800">
+      <div class="space-y-1">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-bold tracking-wide uppercase">
+          Brand Identity Kit
+        </div>
+        <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-white">VibeSurvey Logo &amp; Assets</h1>
+        <p class="text-slate-400 text-sm">Hệ thống biểu trưng nhận diện thương hiệu cho Web Responsive &amp; Android App</p>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <a href="/" class="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white text-xs font-bold rounded-xl border border-slate-800 transition-all flex items-center gap-2">
+          <i data-lucide="arrow-left" class="w-4 h-4"></i> Về Ứng Dụng
+        </a>
+        <a href="/logo.svg" download="vibesurvey-logo.svg" class="px-4 py-2 bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white text-xs font-bold rounded-xl shadow-lg shadow-indigo-500/25 transition-all flex items-center gap-2">
+          <i data-lucide="download" class="w-4 h-4"></i> Tải SVG Gốc
+        </a>
+      </div>
+    </header>
+
+    <!-- Main Grid: Logo Showcase -->
+    <section class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+      
+      <!-- Primary Brand Mark (512x512) -->
+      <div class="lg:col-span-5 bg-slate-900/80 rounded-3xl p-8 border border-slate-800/80 flex flex-col items-center justify-center text-center space-y-6 relative overflow-hidden group">
+        <div class="absolute inset-0 bg-gradient-to-b from-indigo-500/5 via-transparent to-transparent pointer-events-none"></div>
+        
+        <div class="relative w-56 h-56 sm:w-64 sm:h-64 transition-transform duration-300 group-hover:scale-105">
+          <img src="/logo.svg" alt="VibeSurvey Primary Logo" class="w-full h-full object-contain filter drop-shadow-[0_20px_35px_rgba(79,70,229,0.35)]">
+        </div>
+
+        <div class="space-y-2">
+          <h3 class="text-xl font-extrabold text-white">Biểu Trưng Vector (Primary Mark)</h3>
+          <p class="text-xs text-slate-400 max-w-sm">
+            Biểu tượng chữ <strong>V</strong> cách điệu tích hợp dấu <strong>Checkmark</strong> xác thực khảo sát, dải sóng nhịp điệu <strong>Vibe Waves</strong> và <strong>Ngôi Sao Kim Cương Vàng</strong> phần thưởng.
+          </p>
+        </div>
+
+        <div class="flex flex-wrap items-center justify-center gap-2 pt-2">
+          <a href="/logo.svg" download="vibesurvey-logo.svg" class="px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-xs font-semibold rounded-lg border border-slate-700 flex items-center gap-1.5 transition-colors">
+            <i data-lucide="file-code" class="w-3.5 h-3.5 text-cyan-400"></i> Vector SVG
+          </a>
+          <a href="/logo.png" download="vibesurvey-logo-512.png" class="px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-xs font-semibold rounded-lg border border-slate-700 flex items-center gap-1.5 transition-colors">
+            <i data-lucide="image" class="w-3.5 h-3.5 text-indigo-400"></i> PNG 512px
+          </a>
+          <a href="/favicon.svg" download="favicon.svg" class="px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-xs font-semibold rounded-lg border border-slate-700 flex items-center gap-1.5 transition-colors">
+            <i data-lucide="globe" class="w-3.5 h-3.5 text-amber-400"></i> Favicon
+          </a>
+        </div>
+      </div>
+
+      <!-- Horizontal Logos & Variants -->
+      <div class="lg:col-span-7 space-y-6">
+        
+        <!-- Horizontal Logo (Dark Surface) -->
+        <div class="bg-slate-900/80 rounded-3xl p-6 sm:p-8 border border-slate-800/80 space-y-4">
+          <div class="flex items-center justify-between text-xs font-bold text-slate-400">
+            <span>LOGO NGANG (NỀN TỐI / DARK THEME)</span>
+            <span class="font-mono text-indigo-400">720 x 160 px</span>
+          </div>
+          <div class="p-6 bg-[#0B0F19] rounded-2xl border border-slate-800/60 flex items-center justify-center">
+            <img src="/logo-horizontal.svg" alt="VibeSurvey Horizontal Logo Dark" class="max-h-24 w-auto object-contain filter invert hue-rotate-180 brightness-125 contrast-125 dark:filter-none">
+          </div>
+        </div>
+
+        <!-- Horizontal Logo (Light Surface) -->
+        <div class="bg-slate-900/80 rounded-3xl p-6 sm:p-8 border border-slate-800/80 space-y-4">
+          <div class="flex items-center justify-between text-xs font-bold text-slate-400">
+            <span>LOGO NGANG (NỀN SÁNG / LIGHT THEME)</span>
+            <span class="font-mono text-cyan-400">720 x 160 px</span>
+          </div>
+          <div class="p-6 bg-slate-50 rounded-2xl border border-slate-200 flex items-center justify-center">
+            <img src="/logo-horizontal.svg" alt="VibeSurvey Horizontal Logo Light" class="max-h-24 w-auto object-contain">
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- Android App Icons Suite -->
+    <section class="bg-slate-900/80 rounded-3xl p-8 border border-slate-800/80 space-y-6">
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+        <div>
+          <h2 class="text-xl font-extrabold text-white">Bộ Biểu Tượng Ứng Dụng Android (Capacitor Native)</h2>
+          <p class="text-xs text-slate-400">Tự động cấu hình chuẩn theo Google Material Design &amp; Android Adaptive Icons</p>
+        </div>
+        <span class="px-3 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold font-mono">
+          Ready for APK Build
+        </span>
+      </div>
+
+      <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-6 pt-2">
+        
+        <!-- Store Icon 512 -->
+        <div class="flex flex-col items-center p-4 bg-slate-950/60 rounded-2xl border border-slate-800/50 space-y-3 text-center">
+          <img src="/icon-512.png" alt="Google Play Store 512" class="w-16 h-16 rounded-2xl shadow-md">
+          <div class="space-y-0.5">
+            <p class="text-xs font-bold text-slate-200">Play Store</p>
+            <p class="text-[10px] text-slate-500 font-mono">512 x 512</p>
+          </div>
+        </div>
+
+        <!-- xxxhdpi 192 -->
+        <div class="flex flex-col items-center p-4 bg-slate-950/60 rounded-2xl border border-slate-800/50 space-y-3 text-center">
+          <img src="/icon-192.png" alt="xxxhdpi 192" class="w-14 h-14 rounded-xl shadow-md">
+          <div class="space-y-0.5">
+            <p class="text-xs font-bold text-slate-200">xxxhdpi</p>
+            <p class="text-[10px] text-slate-500 font-mono">192 x 192</p>
+          </div>
+        </div>
+
+        <!-- Round Icon (Circle) -->
+        <div class="flex flex-col items-center p-4 bg-slate-950/60 rounded-2xl border border-slate-800/50 space-y-3 text-center">
+          <div class="w-14 h-14 rounded-full overflow-hidden shadow-md flex items-center justify-center bg-slate-900 border border-slate-700">
+            <img src="/icon-192.png" alt="Round Launcher" class="w-full h-full object-cover rounded-full">
+          </div>
+          <div class="space-y-0.5">
+            <p class="text-xs font-bold text-slate-200">Round Icon</p>
+            <p class="text-[10px] text-slate-500 font-mono">Pixel Launcher</p>
+          </div>
+        </div>
+
+        <!-- xxhdpi 144 -->
+        <div class="flex flex-col items-center p-4 bg-slate-950/60 rounded-2xl border border-slate-800/50 space-y-3 text-center">
+          <img src="/icon-192.png" alt="xxhdpi" class="w-12 h-12 rounded-lg shadow-md">
+          <div class="space-y-0.5">
+            <p class="text-xs font-bold text-slate-200">xxhdpi</p>
+            <p class="text-[10px] text-slate-500 font-mono">144 x 144</p>
+          </div>
+        </div>
+
+        <!-- Favicon 64 & 32 -->
+        <div class="flex flex-col items-center p-4 bg-slate-950/60 rounded-2xl border border-slate-800/50 space-y-3 text-center">
+          <div class="w-10 h-10 flex items-center justify-center bg-slate-900 rounded-lg border border-slate-800">
+            <img src="/favicon.png" alt="Favicon" class="w-8 h-8">
+          </div>
+          <div class="space-y-0.5">
+            <p class="text-xs font-bold text-slate-200">Favicon</p>
+            <p class="text-[10px] text-slate-500 font-mono">64 x 64</p>
+          </div>
+        </div>
+
+        <!-- Browser Tab Simulation -->
+        <div class="flex flex-col items-center p-4 bg-slate-950/60 rounded-2xl border border-slate-800/50 space-y-3 text-center">
+          <div class="w-full px-2 py-1.5 bg-slate-800/80 rounded-lg flex items-center gap-1.5 text-[10px] text-slate-300">
+            <img src="/favicon.svg" alt="Favicon Tab" class="w-3.5 h-3.5 flex-shrink-0">
+            <span class="truncate font-medium">VibeSurvey</span>
+          </div>
+          <div class="space-y-0.5">
+            <p class="text-xs font-bold text-slate-200">Browser Tab</p>
+            <p class="text-[10px] text-slate-500 font-mono">Live Preview</p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Brand Color Tokens & Philosophy -->
+    <section class="grid grid-cols-1 md:grid-cols-2 gap-8">
+      
+      <!-- Color Palette -->
+      <div class="bg-slate-900/80 rounded-3xl p-8 border border-slate-800/80 space-y-4">
+        <h3 class="text-lg font-extrabold text-white">Bảng Màu Nhận Diện (Brand Tokens)</h3>
+        
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-2">
+          <div class="p-3 rounded-xl bg-slate-950/60 border border-slate-800 space-y-1.5">
+            <div class="w-full h-8 rounded-lg bg-[#4F46E5]"></div>
+            <p class="text-xs font-bold text-slate-200">Indigo Primary</p>
+            <p class="text-[10px] font-mono text-slate-500">#4F46E5</p>
+          </div>
+
+          <div class="p-3 rounded-xl bg-slate-950/60 border border-slate-800 space-y-1.5">
+            <div class="w-full h-8 rounded-lg bg-[#2563EB]"></div>
+            <p class="text-xs font-bold text-slate-200">Royal Blue</p>
+            <p class="text-[10px] font-mono text-slate-500">#2563EB</p>
+          </div>
+
+          <div class="p-3 rounded-xl bg-slate-950/60 border border-slate-800 space-y-1.5">
+            <div class="w-full h-8 rounded-lg bg-[#06B6D4]"></div>
+            <p class="text-xs font-bold text-slate-200">Vibrant Cyan</p>
+            <p class="text-[10px] font-mono text-slate-500">#06B6D4</p>
+          </div>
+
+          <div class="p-3 rounded-xl bg-slate-950/60 border border-slate-800 space-y-1.5">
+            <div class="w-full h-8 rounded-lg bg-[#F59E0B]"></div>
+            <p class="text-xs font-bold text-slate-200">Reward Amber</p>
+            <p class="text-[10px] font-mono text-slate-500">#F59E0B</p>
+          </div>
+
+          <div class="p-3 rounded-xl bg-slate-950/60 border border-slate-800 space-y-1.5">
+            <div class="w-full h-8 rounded-lg bg-[#0F172A]"></div>
+            <p class="text-xs font-bold text-slate-200">Midnight Base</p>
+            <p class="text-[10px] font-mono text-slate-500">#0F172A</p>
+          </div>
+
+          <div class="p-3 rounded-xl bg-slate-950/60 border border-slate-800 space-y-1.5">
+            <div class="w-full h-8 rounded-lg bg-[#10B981]"></div>
+            <p class="text-xs font-bold text-slate-200">Emerald Mint</p>
+            <p class="text-[10px] font-mono text-slate-500">#10B981</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Design Rationale -->
+      <div class="bg-slate-900/80 rounded-3xl p-8 border border-slate-800/80 space-y-4">
+        <h3 class="text-lg font-extrabold text-white">Ý Nghĩa Cấu Trúc Biểu Tượng</h3>
+        
+        <div class="space-y-3 text-xs text-slate-300 leading-relaxed">
+          <div class="flex items-start gap-3">
+            <div class="w-6 h-6 rounded-lg bg-indigo-500/10 text-indigo-400 flex items-center justify-center font-bold flex-shrink-0 mt-0.5">1</div>
+            <div>
+              <strong class="text-white">Chữ V &amp; Checkmark:</strong> Biểu thị tên gọi VibeSurvey, đồng thời là dấu tích hoàn tất bài khảo sát thành công với độ chính xác cao.
+            </div>
+          </div>
+
+          <div class="flex items-start gap-3">
+            <div class="w-6 h-6 rounded-lg bg-cyan-500/10 text-cyan-400 flex items-center justify-center font-bold flex-shrink-0 mt-0.5">2</div>
+            <div>
+              <strong class="text-white">Dải Sóng Nhịp Điệu (Vibe Pulse):</strong> 3 cột sóng dữ liệu năng động biểu thị phản hồi người dùng thời gian thực và năng lượng trẻ trung.
+            </div>
+          </div>
+
+          <div class="flex items-start gap-3">
+            <div class="w-6 h-6 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center font-bold flex-shrink-0 mt-0.5">3</div>
+            <div>
+              <strong class="text-white">Ngôi Sao Kim Cương Vàng:</strong> Tượng trưng cho phần thưởng, điểm thưởng tích lũy và thu nhập chuyển đổi tiền mặt/voucher minh bạch.
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <script>
+    lucide.createIcons();
+  </script>
+</body>
+</html>

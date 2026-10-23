@@ -1,0 +1,614 @@
+/* ==========================================================================
+   VibeSurvey - High-End Modern SaaS & Fintech Design System (v3.3 Pro Max)
+   Phong cách: Vibrant Linear / Stripe / Raycast (Đậm đà màu sắc, Chiều sâu thị giác, Full Dark/Light Mode)
+   ========================================================================== */
+
+:root {
+  --bg-page: #F8FAFC;
+  --bg-card: #FFFFFF;
+  --bg-card-subtle: #F1F5F9;
+  
+  --border-subtle: #E2E8F0;
+  --border-hover: #C7D2FE;
+  --border-focus: #4F46E5;
+  
+  --text-main: #0F172A;
+  --text-body: #334155;
+  --text-muted: #64748B;
+  --text-subtle: #94A3B8;
+  
+  --brand-primary: #4F46E5;
+  --brand-secondary: #06B6D4;
+  --brand-gradient: linear-gradient(135deg, #4F46E5 0%, #2563EB 50%, #06B6D4 100%);
+  --brand-surface-glow: radial-gradient(50% 50% at 50% 0%, rgba(79, 70, 229, 0.08) 0%, rgba(248, 250, 252, 0) 100%);
+
+  --card-shadow: 0 2px 8px -2px rgba(15, 23, 42, 0.06), 0 1px 4px -1px rgba(15, 23, 42, 0.04);
+  --card-shadow-hover: 0 16px 36px -6px rgba(79, 70, 229, 0.16), 0 6px 16px -3px rgba(15, 23, 42, 0.06);
+
+  --accent-emerald: #10B981;
+  --accent-amber: #F59E0B;
+  --accent-rose: #F43F5E;
+  --accent-violet: #8B5CF6;
+}
+
+/* ==================== DARK MODE TOKENS ==================== */
+html.dark {
+  --bg-page: #080C15;
+  --bg-card: rgba(18, 25, 42, 0.75);
+  --bg-card-subtle: #141C2E;
+  
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --border-hover: rgba(99, 102, 241, 0.4);
+  --border-focus: #6366F1;
+  
+  --text-main: #F8FAFC;
+  --text-body: #CBD5E1;
+  --text-muted: #94A3B8;
+  --text-subtle: #64748B;
+
+  --brand-surface-glow: radial-gradient(ellipse 70% 45% at 50% -10%, rgba(99, 102, 241, 0.16) 0%, rgba(6, 182, 212, 0.06) 50%, transparent 100%);
+
+  --card-shadow: 0 4px 24px -2px rgba(0, 0, 0, 0.6), inset 0 1px 0 0 rgba(255, 255, 255, 0.08);
+  --card-shadow-hover: 0 16px 40px -6px rgba(0, 0, 0, 0.7), 0 0 24px rgba(99, 102, 241, 0.18), inset 0 1px 0 0 rgba(255, 255, 255, 0.15);
+}
+
+html, body {
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background-color: var(--bg-page);
+  color: var(--text-body);
+  margin: 0;
+  padding: 0;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Ambient Radial Glow Lighting */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 1200px;
+  height: 520px;
+  background: var(--brand-surface-glow);
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* Safe area padding cho thiết bị di động */
+.safe-bottom {
+  padding-bottom: calc(env(safe-area-inset-bottom, 16px) + 68px);
+}
+@media (min-width: 768px) {
+  .safe-bottom {
+    padding-bottom: 40px;
+  }
+}
+
+/* ==================== BENTO CARD HIỆN ĐẠI ==================== */
+.bento-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 20px;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease, border-color 0.2s ease;
+  box-shadow: var(--card-shadow);
+  position: relative;
+  overflow: hidden;
+}
+.bento-card:hover {
+  border-color: var(--border-hover);
+  box-shadow: var(--card-shadow-hover);
+  transform: translateY(-2px);
+}
+
+/* Nav Link Item */
+.nav-link {
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  transition: all 0.18s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  user-select: none;
+  white-space: nowrap;
+  flex-shrink: 0;
+  height: 32px;
+  line-height: 1;
+}
+.nav-link:hover {
+  color: var(--text-main);
+  background-color: rgba(255, 255, 255, 0.6);
+}
+html.dark .nav-link:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+  color: #FFFFFF;
+}
+.nav-link.active {
+  color: #4F46E5;
+  background-color: #FFFFFF;
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.08);
+}
+html.dark .nav-link.active {
+  color: #818CF8;
+  background-color: #1E293B;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+}
+
+/* ==================== STEPPER SURVEY PLAYER ==================== */
+.stepper-focus-box {
+  max-width: 680px;
+  margin: 0 auto;
+}
+
+.stepper-choice-btn {
+  width: 100%;
+  text-align: left;
+  padding: 16px 20px;
+  border-radius: 16px;
+  border: 1.5px solid var(--border-subtle);
+  background: var(--bg-card);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  user-select: none;
+}
+.stepper-choice-btn:hover {
+  border-color: #818CF8;
+  background-color: var(--bg-card-subtle);
+  transform: translateY(-1px);
+}
+.stepper-choice-btn.selected {
+  border-color: #4F46E5;
+  background: linear-gradient(135deg, rgba(79, 70, 229, 0.08) 0%, var(--bg-card) 100%);
+  box-shadow: 0 0 0 1.5px #4F46E5, 0 6px 18px rgba(79, 70, 229, 0.15);
+  color: #4338CA;
+}
+html.dark .stepper-choice-btn.selected {
+  border-color: #818CF8;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.2) 0%, #131B2E 100%);
+  box-shadow: 0 0 0 1.5px #818CF8, 0 6px 18px rgba(99, 102, 241, 0.25);
+  color: #C7D2FE;
+}
+
+/* Phím tắt [1], [2], [3] */
+.shortcut-badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 6px;
+  background: var(--bg-card-subtle);
+  color: var(--text-muted);
+  border: 1px solid var(--border-subtle);
+  transition: all 0.15s ease;
+}
+.stepper-choice-btn:hover .shortcut-badge {
+  background: #E0E7FF;
+  color: #3730A3;
+  border-color: #C7D2FE;
+}
+html.dark .stepper-choice-btn:hover .shortcut-badge {
+  background: #312E81;
+  color: #C7D2FE;
+  border-color: #4338CA;
+}
+.stepper-choice-btn.selected .shortcut-badge {
+  background: #4F46E5;
+  color: #FFFFFF;
+  border-color: #4F46E5;
+}
+html.dark .stepper-choice-btn.selected .shortcut-badge {
+  background: #6366F1;
+  color: #FFFFFF;
+  border-color: #6366F1;
+}
+
+/* Likert Clean Buttons */
+.likert-clean-btn {
+  border: 1.5px solid var(--border-subtle);
+  border-radius: 14px;
+  padding: 14px 10px;
+  background: var(--bg-card);
+  text-align: center;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
+  user-select: none;
+}
+.likert-clean-btn:hover {
+  border-color: #6366F1;
+  background: var(--bg-card-subtle);
+  transform: translateY(-2px);
+}
+.likert-clean-btn.selected {
+  border-color: #4F46E5;
+  background: linear-gradient(135deg, #4F46E5 0%, #3730A3 100%);
+  color: #FFFFFF;
+  box-shadow: 0 6px 18px rgba(79, 70, 229, 0.35);
+  transform: translateY(-2px) scale(1.02);
+}
+
+/* ==================== VOUCHER TICKET CARDS ==================== */
+.voucher-clean-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 18px;
+  padding: 20px;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: var(--card-shadow);
+}
+.voucher-clean-card:hover {
+  border-color: var(--border-hover);
+  box-shadow: var(--card-shadow-hover);
+  transform: translateY(-2px);
+}
+
+/* Fintech Platinum Card */
+.fintech-card-bg {
+  background: linear-gradient(135deg, #0F172A 0%, #1E1B4B 45%, #312E81 80%, #4338CA 100%);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 24px 48px -12px rgba(15, 23, 42, 0.45), 0 0 24px -4px rgba(99, 102, 241, 0.3);
+}
+
+/* Modal Backdrop */
+.modal-backdrop {
+  background-color: rgba(11, 15, 25, 0.7);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* ==================== TOAST NOTIFICATION SYSTEM (UI-UX-PRO-MAX) ==================== */
+#toast-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 99999;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  pointer-events: none;
+  max-width: 420px;
+  width: calc(100% - 32px);
+}
+@media (max-width: 640px) {
+  #toast-container {
+    top: 14px;
+    left: 16px;
+    right: 16px;
+    width: auto;
+  }
+}
+
+.toast-pro-card {
+  pointer-events: auto;
+  position: relative;
+  overflow: hidden;
+  border-radius: 18px;
+  padding: 13px 16px;
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(226, 232, 240, 0.95);
+  box-shadow: 0 20px 40px -8px rgba(15, 23, 42, 0.16), 0 2px 6px -1px rgba(15, 23, 42, 0.05);
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  animation: toastSlideIn 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.22s ease, opacity 0.22s ease, margin-top 0.22s ease;
+}
+html.dark .toast-pro-card {
+  background: rgba(19, 27, 46, 0.94);
+  border-color: rgba(255, 255, 255, 0.09);
+  box-shadow: 0 20px 40px -8px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+@keyframes toastSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-14px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.toast-progress-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 2.5px;
+  width: 100%;
+  transform-origin: left;
+  animation: toastCountdown linear forwards;
+}
+
+@keyframes toastCountdown {
+  from { transform: scaleX(1); }
+  to { transform: scaleX(0); }
+}
+
+/* Hide scrollbars */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* ==================== DARK MODE HIGH CONTRAST & SAAS POLISH ==================== */
+html.dark {
+  background-color: #080C15;
+  color: #F8FAFC;
+}
+
+html.dark body {
+  background-color: #080C15;
+  color: #F8FAFC;
+}
+
+/* Header Navbar in Dark Mode */
+html.dark header {
+  background-color: rgba(8, 12, 21, 0.85) !important;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+/* Nav Links Pill Container & Links */
+html.dark #desktop-nav {
+  background-color: rgba(255, 255, 255, 0.04) !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+html.dark .nav-link {
+  color: #94A3B8 !important;
+}
+html.dark .nav-link:hover {
+  background-color: rgba(255, 255, 255, 0.08) !important;
+  color: #FFFFFF !important;
+}
+html.dark .nav-link.active {
+  color: #A5B4FC !important;
+  background-color: rgba(99, 102, 241, 0.2) !important;
+  border: 1px solid rgba(99, 102, 241, 0.35) !important;
+  box-shadow: 0 0 12px rgba(99, 102, 241, 0.25) !important;
+}
+
+/* Balance Widget in Dark Mode */
+html.dark #user-balance-pill {
+  background-color: rgba(16, 185, 129, 0.1) !important;
+  border-color: rgba(16, 185, 129, 0.3) !important;
+  box-shadow: 0 0 14px rgba(16, 185, 129, 0.12) !important;
+}
+html.dark #header-points-text {
+  color: #6EE7B7 !important;
+}
+html.dark #header-credit-text {
+  color: #34D399 !important;
+}
+
+/* Typography contrast in Dark Mode */
+html.dark .text-slate-900,
+html.dark .text-slate-800 {
+  color: #F8FAFC !important;
+}
+
+html.dark .text-slate-700,
+html.dark .text-slate-600 {
+  color: #CBD5E1 !important;
+}
+
+html.dark .text-slate-500 {
+  color: #94A3B8 !important;
+}
+
+html.dark .text-slate-400 {
+  color: #64748B !important;
+}
+
+/* Thẻ Card, Bento Card trong Dark Mode (Glassmorphism & Fine Layering) */
+html.dark .bento-card,
+html.dark .voucher-clean-card {
+  background: linear-gradient(180deg, rgba(22, 31, 52, 0.8) 0%, rgba(14, 20, 36, 0.9) 100%) !important;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 0 4px 24px -2px rgba(0, 0, 0, 0.5), inset 0 1px 0 0 rgba(255, 255, 255, 0.08) !important;
+}
+
+html.dark .bento-card:hover,
+html.dark .voucher-clean-card:hover {
+  border-color: rgba(99, 102, 241, 0.4) !important;
+  box-shadow: 0 16px 36px -6px rgba(0, 0, 0, 0.7), inset 0 1px 0 0 rgba(255, 255, 255, 0.15), 0 0 20px rgba(99, 102, 241, 0.12) !important;
+}
+
+/* Thẻ Hero Bento 1: Daily Earnings & Welcome */
+html.dark .bento-card.bg-gradient-to-tr {
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.85) 0%, rgba(15, 23, 42, 0.95) 50%, rgba(49, 46, 129, 0.25) 100%) !important;
+  border: 1px solid rgba(99, 102, 241, 0.25) !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Thẻ Hero Bento 2: Voucher Hot */
+html.dark .bento-card.bg-gradient-to-br,
+html.dark .bento-card.border-amber-200\/60 {
+  background: linear-gradient(135deg, rgba(55, 28, 10, 0.45) 0%, rgba(15, 23, 42, 0.95) 60%, rgba(26, 36, 56, 0.7) 100%) !important;
+  border: 1px solid rgba(245, 158, 11, 0.28) !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+}
+
+/* Vouchers & Hot Chips trong Dark Mode */
+html.dark span.bg-amber-100 {
+  background: rgba(245, 158, 11, 0.15) !important;
+  color: #FBBF24 !important;
+  border: 1px solid rgba(245, 158, 11, 0.3) !important;
+}
+html.dark .text-amber-800 {
+  color: #FCD34D !important;
+}
+html.dark .border-amber-100 {
+  border-color: rgba(245, 158, 11, 0.15) !important;
+}
+html.dark .bg-amber-50 {
+  background: rgba(245, 158, 11, 0.1) !important;
+  border-color: rgba(245, 158, 11, 0.2) !important;
+  color: #FCD34D !important;
+}
+
+/* Badge "Khảo Sát Khả Dụng Hôm Nay" */
+html.dark span.bg-blue-50 {
+  background: rgba(56, 189, 248, 0.12) !important;
+  color: #38BDF8 !important;
+  border-color: rgba(56, 189, 248, 0.3) !important;
+}
+
+/* Điểm & Số dư nổi bật trong Dark Mode */
+html.dark .text-blue-600,
+html.dark .text-blue-700,
+html.dark .text-indigo-600 {
+  color: #38BDF8 !important;
+}
+
+html.dark .text-emerald-700,
+html.dark .text-emerald-600 {
+  color: #34D399 !important;
+  text-shadow: 0 0 14px rgba(52, 211, 153, 0.25);
+}
+
+/* Nút Action Primary CTA trong Card (Làm bài, v.v...) */
+html.dark .bento-card button.bg-slate-900,
+html.dark button.bg-slate-900:not(.nav-link) {
+  background: linear-gradient(135deg, #4F46E5, #3B82F6) !important;
+  color: #FFFFFF !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  box-shadow: 0 2px 10px rgba(59, 130, 246, 0.3) !important;
+}
+html.dark .bento-card button.bg-slate-900:hover,
+html.dark button.bg-slate-900:not(.nav-link):hover {
+  background: linear-gradient(135deg, #4338CA, #2563EB) !important;
+  box-shadow: 0 4px 16px rgba(59, 130, 246, 0.5) !important;
+}
+
+/* Category Filter Tabs (Tất cả, Thưởng cao, Tặng Voucher) */
+html.dark .overflow-x-auto button.bg-white,
+html.dark .overflow-x-auto button:not(.bg-slate-900):not(.bg-indigo-600) {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: #CBD5E1 !important;
+}
+html.dark .overflow-x-auto button.bg-white:hover,
+html.dark .overflow-x-auto button:not(.bg-slate-900):not(.bg-indigo-600):hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border-color: rgba(255, 255, 255, 0.18) !important;
+  color: #FFFFFF !important;
+}
+
+/* Đường ray thanh tiến độ (Progress Track) trong Dark Mode */
+html.dark .bg-slate-100,
+html.dark .bg-slate-200 {
+  background-color: #090D16 !important;
+  border-color: rgba(255, 255, 255, 0.06) !important;
+}
+
+/* Đường phân cách (Borders & Dividers) trong Dark Mode */
+html.dark .border-slate-100,
+html.dark .border-slate-200,
+html.dark .border-slate-200\/80,
+html.dark .border-slate-200\/70,
+html.dark .border-slate-200\/60,
+html.dark .border-slate-200\/50 {
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+/* Ô nhập liệu Input, Select, Textarea trong Dark Mode */
+html.dark input,
+html.dark select,
+html.dark textarea {
+  background-color: rgba(14, 20, 36, 0.85) !important;
+  color: #F8FAFC !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+}
+html.dark input:focus,
+html.dark select:focus,
+html.dark textarea:focus {
+  border-color: #6366F1 !important;
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.25) !important;
+}
+
+/* Nút phụ / Nút hủy / Nút xám trong Dark Mode */
+html.dark .bg-slate-100:not(.nav-link),
+html.dark .bg-slate-50 {
+  background-color: rgba(255, 255, 255, 0.06) !important;
+  color: #CBD5E1 !important;
+  border: 1px solid rgba(255, 255, 255, 0.06) !important;
+}
+
+html.dark .hover\:bg-slate-50:hover,
+html.dark .hover\:bg-slate-100:hover,
+html.dark .hover\:bg-slate-200:hover {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  color: #FFFFFF !important;
+}
+
+/* Modal Popup & Dropdown Menu trong Dark Mode */
+html.dark #modal-card,
+html.dark #demo-role-dropdown {
+  background: linear-gradient(180deg, #162035 0%, #0E1525 100%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  color: #F8FAFC !important;
+  box-shadow: 0 25px 60px -12px rgba(0, 0, 0, 0.85), 0 0 24px rgba(99, 102, 241, 0.15) !important;
+}
+
+/* Modal Card Info Boxes & Summaries trong Dark Mode */
+html.dark #modal-card .bg-blue-50,
+html.dark #modal-card .bg-blue-50\/80,
+html.dark #modal-card .bg-blue-50\/70,
+html.dark #modal-card .bg-blue-50\/60 {
+  background-color: rgba(30, 58, 138, 0.28) !important;
+  border-color: rgba(59, 130, 246, 0.35) !important;
+  color: #BAE6FD !important;
+}
+
+html.dark #modal-card .bg-slate-50,
+html.dark #modal-card .bg-slate-50\/80 {
+  background-color: rgba(15, 23, 42, 0.8) !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+html.dark #modal-card .bg-amber-50,
+html.dark #modal-card .bg-amber-50\/80,
+html.dark #modal-card .bg-amber-50\/60 {
+  background-color: rgba(120, 53, 15, 0.28) !important;
+  border-color: rgba(245, 158, 11, 0.35) !important;
+  color: #FDE68A !important;
+}
+
+/* Các nút trắng / pill trắng trong Dark Mode */
+html.dark button.bg-white,
+html.dark div.bg-white {
+  background-color: rgba(30, 41, 59, 0.85) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  color: #F8FAFC !important;
+}
+html.dark button.bg-white:hover {
+  background-color: rgba(51, 65, 85, 0.95) !important;
+  border-color: rgba(99, 102, 241, 0.4) !important;
+}
+
+/* Bảng dữ liệu / Nhật ký giao dịch trong Dark Mode */
+html.dark table thead {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+  color: #94A3B8 !important;
+}
+html.dark table tbody tr:hover {
+  background-color: rgba(255, 255, 255, 0.04) !important;
+}

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">VibeSurvey</string>
+    <string name="title_activity_main">VibeSurvey</string>
+    <string name="package_name">com.vibesurvey.app</string>
+    <string name="custom_url_scheme">com.vibesurvey.app</string>
+</resources>

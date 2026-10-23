@@ -1,0 +1,13 @@
+{
+  "folders": [
+    {
+      "name": "SurveyPlatform-Root",
+      "path": "."
+    }
+  ],
+  "settings": {
+    "files.encoding": "utf8",
+    "editor.tabSize": 2,
+    "editor.formatOnSave": true
+  }
+}

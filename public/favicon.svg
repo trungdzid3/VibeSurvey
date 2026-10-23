@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="100%" height="100%">
+  <defs>
+    <linearGradient id="favBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0F172A" />
+      <stop offset="100%" stop-color="#1E1B4B" />
+    </linearGradient>
+    <linearGradient id="favCheck" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#818CF8" />
+      <stop offset="40%" stop-color="#4F46E5" />
+      <stop offset="100%" stop-color="#06B6D4" />
+    </linearGradient>
+    <linearGradient id="favStar" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FEF08A" />
+      <stop offset="100%" stop-color="#F59E0B" />
+    </linearGradient>
+  </defs>
+
+  <!-- Background Squircle -->
+  <rect x="2" y="2" width="60" height="60" rx="16" fill="url(#favBg)" stroke="rgba(255, 255, 255, 0.18)" stroke-width="1.5" />
+
+  <!-- High-contrast V Checkmark -->
+  <path d="M 18 33 L 28 46 C 29 47.5, 31 47.5, 32 46 L 47 22" 
+        fill="none" 
+        stroke="url(#favCheck)" 
+        stroke-width="7" 
+        stroke-linecap="round" 
+        stroke-linejoin="round" />
+
+  <!-- Inner Sparkline Light -->
+  <path d="M 19 32.5 L 28 44.5 C 29 45.5, 30.5 45.5, 31.5 44.5 L 46 22" 
+        fill="none" 
+        stroke="#FFFFFF" 
+        stroke-width="1.8" 
+        stroke-linecap="round" 
+        stroke-linejoin="round" 
+        opacity="0.8" />
+
+  <!-- Golden Reward Star -->
+  <g transform="translate(48, 18)">
+    <path d="M 0 -6 C 0.5 -1.5, 1.5 -0.5, 6 0 C 1.5 0.5, 0.5 1.5, 0 6 C -0.5 1.5, -1.5 0.5, -6 0 C -1.5 -0.5, -0.5 -1.5, 0 -6 Z" 
+          fill="url(#favStar)" />
+    <circle cx="0" cy="0" r="1.3" fill="#FFFFFF" />
+  </g>
+</svg>

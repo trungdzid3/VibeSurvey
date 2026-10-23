@@ -1,0 +1,44 @@
+{
+  "name": "vibesurvey-platform",
+  "version": "1.0.0",
+  "description": "Nền tảng Khảo sát Trực tuyến Kiếm Điểm & Kiếm Lợi Nhuận (Web & Android App)",
+  "main": "server/app.js",
+  "scripts": {
+    "start": "node server/app.js",
+    "dev": "node --watch server/app.js",
+    "test": "node tests/run_all_tests.js",
+    "test:anti-fraud": "node tests/test_anti_fraud.js",
+    "test:ledger": "node tests/test_ledger_acid.js",
+    "test:api": "node tests/test_api_endpoints.js",
+    "test:simulation": "node tests/test_simulation.js",
+    "test:export": "node tests/test_export.js",
+    "test:vouchers": "node tests/test_vouchers_and_parser.js",
+    "generate:icons": "node scripts/generate_icons.js",
+    "tunnel": "npx cloudflared tunnel --region us --url http://localhost:3000",
+    "build:android": "scripts\\build-apk.bat"
+  },
+  "keywords": [
+    "survey",
+    "rewards",
+    "points",
+    "fintech",
+    "android",
+    "capacitor",
+    "monetization"
+  ],
+  "author": "Antigravity Argon Vibe Studio",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "helmet": "^8.0.0",
+    "jsonwebtoken": "^9.0.2"
+  },
+  "devDependencies": {
+    "@capacitor/android": "^6.2.0",
+    "@capacitor/cli": "^6.2.0",
+    "@capacitor/core": "^6.2.0"
+  }
+}
