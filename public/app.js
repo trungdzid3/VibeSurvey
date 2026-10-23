@@ -10,6 +10,8 @@ const VibeApp = {
     currentTab: 'surveys',
     categoryFilter: 'ALL',
     searchQuery: '',
+    hideFinished: true, // Tự động ẩn khảo sát gần xong hoặc đã hoàn thành
+    viewMode: 'grid', // 'grid' | 'list'
     surveys: [],
     creatorSurveys: [],
     voucherCatalog: [],
@@ -340,13 +342,6 @@ const VibeApp = {
             : `<button onclick="VibeApp.linkGoogleAccount()" class="font-bold text-amber-600 dark:text-amber-400 hover:underline flex items-center gap-0.5">🔗 Liên kết ngay</button>`
           }
         </div>
-        <div class="flex items-center justify-between">
-          <span class="text-slate-500 dark:text-slate-400">Xác thực Email:</span>
-          ${isEmailVerified 
-            ? `<span class="font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">✓ Đã xác thực</span>`
-            : `<button onclick="VibeApp.verifyEmailAccount()" class="font-bold text-amber-600 dark:text-amber-400 hover:underline flex items-center gap-0.5">✉️ Xác thực</button>`
-          }
-        </div>
       </div>
 
       <!-- Menu Shortcuts -->
@@ -546,6 +541,23 @@ const VibeApp = {
             </div>
           </div>
 
+          <!-- Mã xác thực Email OTP (Gửi qua Brevo) -->
+          <div>
+            <div class="flex items-center justify-between mb-1">
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300">Mã xác thực Email (OTP 6 số)</label>
+              <button type="button" id="btn-send-reg-otp" onclick="VibeApp.sendRegistrationOtp()" class="text-[11px] font-bold text-blue-600 dark:text-sky-400 hover:underline flex items-center gap-1">
+                <i data-lucide="send" class="w-3 h-3"></i>
+                <span id="reg-otp-btn-text">Gửi mã qua Email</span>
+              </button>
+            </div>
+            <div class="relative">
+              <i data-lucide="shield-check" class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+              <input type="text" id="auth-reg-otp" maxlength="6" pattern="[0-9]{6}" placeholder="Nhập 6 số được gửi về email..." 
+                     class="w-full pl-10 pr-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-mono font-bold tracking-widest text-slate-900 dark:text-white placeholder:font-sans placeholder:font-normal placeholder:tracking-normal placeholder:text-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all">
+            </div>
+            <p class="text-[10px] text-slate-400 mt-1">Bấm <strong>"Gửi mã qua Email"</strong> để Brevo gửi mã xác thực 6 số vào hòm thư của bạn.</p>
+          </div>
+
           <div>
             <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Diện tài khoản</label>
             <div class="grid grid-cols-2 gap-2.5">
@@ -661,6 +673,67 @@ const VibeApp = {
     }
   },
 
+  async sendRegistrationOtp() {
+    this.haptic('light');
+    const email = document.getElementById('auth-reg-email')?.value?.trim();
+    const name = document.getElementById('auth-reg-name')?.value?.trim();
+    const btn = document.getElementById('btn-send-reg-otp');
+    const btnText = document.getElementById('reg-otp-btn-text');
+    const errorAlert = document.getElementById('auth-error-alert');
+    const errorText = document.getElementById('auth-error-text');
+
+    if (!email || !email.includes('@')) {
+      if (errorAlert && errorText) {
+        errorText.textContent = 'Vui lòng nhập địa chỉ email hợp lệ trước khi bấm gửi mã';
+        errorAlert.classList.remove('hidden');
+      }
+      this.showToast('Vui lòng nhập địa chỉ email hợp lệ', 'warning');
+      return;
+    }
+
+    if (btn) btn.disabled = true;
+    if (btnText) btnText.textContent = 'Đang gửi mã...';
+    this.showToast('Đang gửi mã xác thực đến email của bạn...', 'info');
+
+    try {
+      const res = await this.api('/auth/send-registration-otp', {
+        method: 'POST',
+        body: JSON.stringify({ email, name })
+      });
+
+      if (res.success) {
+        this.showToast(res.message || 'Mã xác thực 6 số đã được gửi vào email!', 'success');
+        if (errorAlert) errorAlert.classList.add('hidden');
+        
+        // Đếm ngược 60s
+        let countdown = 60;
+        if (btnText) btnText.textContent = `Gửi lại (${countdown}s)`;
+        const timer = setInterval(() => {
+          countdown--;
+          if (countdown <= 0) {
+            clearInterval(timer);
+            if (btn) btn.disabled = false;
+            if (btnText) btnText.textContent = 'Gửi lại mã OTP';
+          } else {
+            if (btnText) btnText.textContent = `Gửi lại (${countdown}s)`;
+          }
+        }, 1000);
+
+        // Focus vào ô OTP
+        const otpInput = document.getElementById('auth-reg-otp');
+        if (otpInput) otpInput.focus();
+      }
+    } catch (err) {
+      if (errorAlert && errorText) {
+        errorText.textContent = err.message || 'Không thể gửi mã xác thực';
+        errorAlert.classList.remove('hidden');
+      }
+      this.showToast(err.message, 'error');
+      if (btn) btn.disabled = false;
+      if (btnText) btnText.textContent = 'Gửi mã qua Email';
+    }
+  },
+
   async handleRegisterSubmit(event) {
     if (event) event.preventDefault();
     const name = document.getElementById('auth-reg-name')?.value.trim();
@@ -687,6 +760,7 @@ const VibeApp = {
     }
 
     const role = document.querySelector('input[name="auth-reg-role"]:checked')?.value || 'RESPONDENT';
+    const otp = document.getElementById('auth-reg-otp')?.value?.trim();
 
     if (submitBtn) {
       submitBtn.disabled = true;
@@ -696,7 +770,7 @@ const VibeApp = {
     try {
       const res = await this.api('/auth/register', {
         method: 'POST',
-        body: JSON.stringify({ name, email, password, role })
+        body: JSON.stringify({ name, email, password, role, otp })
       });
 
       if (res.success) {
@@ -3145,9 +3219,6 @@ const VibeApp = {
                       <button type="button" onclick="VibeApp.linkGoogleAccount()" class="px-2.5 py-1.5 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 rounded-lg text-[11px] font-bold text-slate-700 dark:text-slate-200 shadow-2xs flex items-center gap-1.5 active:scale-95 transition-all">
                         <svg class="w-3.5 h-3.5" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/></svg>
                         <span>Liên Kết Google (1-Click)</span>
-                      </button>
-                      <button type="button" onclick="VibeApp.verifyEmailAccount()" class="px-2.5 py-1.5 bg-blue-50 dark:bg-blue-950/60 hover:bg-blue-100 text-blue-700 dark:text-sky-300 rounded-lg text-[11px] font-bold active:scale-95 transition-all">
-                        <span>Xác Thực Email</span>
                       </button>
                     </div>
                   </div>

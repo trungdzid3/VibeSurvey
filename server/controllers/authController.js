@@ -6,9 +6,88 @@ const db = require('../db/database');
 const antiFraudService = require('../services/antiFraudService');
 
 class AuthController {
+  /**
+   * Gửi mã OTP xác thực trước khi đăng ký tài khoản (Brevo Email Relay)
+   */
+  sendRegistrationOtp(req, res) {
+    try {
+      const { email, name } = req.body;
+      if (!email || typeof email !== 'string' || !email.includes('@')) {
+        return res.status(400).json({ success: false, message: 'Vui lòng cung cấp địa chỉ email hợp lệ' });
+      }
+
+      const cleanEmail = email.toLowerCase().trim();
+
+      // Kiểm tra email đã tồn tại chưa
+      const existing = db.prepare('SELECT id FROM users WHERE email = ?').get(cleanEmail);
+      if (existing) {
+        return res.status(409).json({ success: false, message: 'Email này đã được sử dụng. Vui lòng đăng nhập hoặc dùng email khác.' });
+      }
+
+      // Tạo mã OTP ngẫu nhiên 6 chữ số
+      const otp = Math.floor(100000 + Math.random() * 900000).toString();
+      const expiresAt = Date.now() + 10 * 60 * 1000; // 10 phút
+
+      // Lưu hoặc cập nhật OTP vào bảng registration_otps
+      db.prepare(`
+        INSERT INTO registration_otps (email, otp, expires_at)
+        VALUES (?, ?, ?)
+        ON CONFLICT(email) DO UPDATE SET otp = excluded.otp, expires_at = excluded.expires_at, created_at = CURRENT_TIMESTAMP
+      `).run(cleanEmail, otp, expiresAt);
+
+      console.log(`\n=======================================================\n📧 [REGISTRATION OTP] Gửi mã xác thực đăng ký đến: ${cleanEmail}\n🔑 MÃ XÁC THỰC 6 CHỮ SỐ LÀ: [ ${otp} ] (Hết hạn sau 10 phút)\n=======================================================\n`);
+
+      // Gửi email qua Brevo API nếu có cấu hình
+      if (config.BREVO && config.BREVO.API_KEY) {
+        const notificationService = require('../services/notificationService');
+        const emailSubject = `[VibeSurvey] 🔐 Mã xác thực đăng ký tài khoản: ${otp}`;
+        const emailHtml = `
+          <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 500px; margin: 0 auto; background: #ffffff; border-radius: 16px; overflow: hidden; border: 1px solid #e2e8f0; box-shadow: 0 4px 20px rgba(0,0,0,0.05);">
+            <div style="background: linear-gradient(135deg, #0F172A, #1E293B); padding: 24px; text-align: center; color: #ffffff;">
+              <h2 style="margin: 0; font-size: 20px; font-weight: 800; color: #ffffff;">⚡ VIBESURVEY XÁC THỰC ĐĂNG KÝ</h2>
+              <p style="margin: 6px 0 0; font-size: 13px; color: #94a3b8;">Xác minh email để hoàn tất tạo tài khoản & nhận 25 lượt free</p>
+            </div>
+            <div style="padding: 28px 24px; text-align: center;">
+              <p style="font-size: 15px; color: #334155; margin-top: 0;">Chào <strong>${name || 'bạn'}</strong>,</p>
+              <p style="font-size: 13px; color: #64748b; line-height: 1.6;">Dưới đây là mã xác thực OTP 6 chữ số dùng để kích hoạt tài khoản mới của bạn trên VibeSurvey:</p>
+              <div style="margin: 24px 0; background: #f8fafc; border: 2px dashed #0056D2; border-radius: 12px; padding: 16px; display: inline-block;">
+                <span style="font-size: 32px; font-weight: 800; font-family: monospace; letter-spacing: 6px; color: #0056D2;">${otp}</span>
+              </div>
+              <p style="font-size: 12px; color: #94a3b8; margin: 0;">Mã có hiệu lực trong <strong>10 phút</strong>. Tuyệt đối không chia sẻ mã này cho người khác.</p>
+            </div>
+            <div style="background: #f8fafc; border-top: 1px solid #e2e8f0; padding: 14px; text-align: center; font-size: 11px; color: #94a3b8;">
+              © 2026 VibeSurvey Platform • Nền tảng khảo sát & đổi thưởng uy tín
+            </div>
+          </div>
+        `;
+
+        notificationService.sendBrevoEmail({
+          toEmail: cleanEmail,
+          toName: name || 'Người dùng mới',
+          subject: emailSubject,
+          htmlContent: emailHtml,
+          textContent: `Mã OTP xác thực đăng ký tài khoản VibeSurvey của bạn là: ${otp}. Có hiệu lực trong 10 phút.`
+        }).catch(err => console.warn('Lỗi gửi Brevo registration OTP:', err.message));
+      }
+
+      const parts = cleanEmail.split('@');
+      const maskedEmail = parts[0].slice(0, 2) + '***' + (parts[0].length > 3 ? parts[0].slice(-1) : '') + '@' + parts[1];
+
+      return res.json({
+        success: true,
+        message: `Mã xác thực gồm 6 chữ số đã được gửi đến hộp thư ${maskedEmail}. Vui lòng nhập mã để hoàn tất đăng ký!`,
+        maskedEmail,
+        debugOtp: config.NODE_ENV !== 'production' ? otp : undefined
+      });
+    } catch (err) {
+      console.error('Lỗi sendRegistrationOtp:', err);
+      return res.status(500).json({ success: false, message: 'Lỗi gửi mã xác thực: ' + err.message });
+    }
+  }
+
   register(req, res) {
     try {
-      const { email, password, name, role = 'RESPONDENT', google_id } = req.body;
+      const { email, password, name, role = 'RESPONDENT', google_id, otp } = req.body;
 
       if (!email || !password || !name) {
         return res.status(400).json({ success: false, message: 'Vui lòng cung cấp đầy đủ email, mật khẩu và họ tên' });
@@ -16,6 +95,35 @@ class AuthController {
 
       if (!['RESPONDENT', 'CREATOR'].includes(role)) {
         return res.status(400).json({ success: false, message: 'Vai trò chỉ có thể là RESPONDENT hoặc CREATOR' });
+      }
+
+      const cleanEmail = email.toLowerCase().trim();
+      const cleanName = name.trim();
+
+      // Nếu tạo tài khoản thường bằng email (không qua Google), kiểm tra mã xác thực OTP
+      const googleId = (google_id && typeof google_id === 'string') ? google_id.trim() : null;
+      let isEmailVerified = 0;
+
+      if (googleId) {
+        isEmailVerified = 1;
+      } else if (otp) {
+        // Có mã OTP từ form đăng ký -> kiểm tra đối chiếu
+        const otpRecord = db.prepare('SELECT otp, expires_at FROM registration_otps WHERE email = ?').get(cleanEmail);
+        if (!otpRecord) {
+          return res.status(400).json({ success: false, message: 'Mã xác thực không hợp lệ hoặc chưa được gửi. Vui lòng bấm "Gửi mã"' });
+        }
+        if (Date.now() > Number(otpRecord.expires_at)) {
+          return res.status(400).json({ success: false, message: 'Mã xác thực đã hết hạn. Vui lòng gửi lại mã mới' });
+        }
+        if (otpRecord.otp !== String(otp).trim()) {
+          return res.status(400).json({ success: false, message: 'Mã xác thực OTP không chính xác. Vui lòng kiểm tra lại' });
+        }
+        // Khớp OTP -> Đánh dấu email đã xác thực và xóa OTP đã dùng
+        isEmailVerified = 1;
+        db.prepare('DELETE FROM registration_otps WHERE email = ?').run(cleanEmail);
+      } else {
+        // Nếu không có Google ID và không truyền OTP: Chưa xác thực email
+        isEmailVerified = 0;
       }
 
       const rawIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress || req.ip;
@@ -28,12 +136,11 @@ class AuthController {
         return res.status(403).json({ success: false, isBanned: true, message: abuseErr.message });
       }
 
-      const existing = db.prepare('SELECT id FROM users WHERE email = ?').get(email.toLowerCase().trim());
+      const existing = db.prepare('SELECT id FROM users WHERE email = ?').get(cleanEmail);
       if (existing) {
         return res.status(409).json({ success: false, message: 'Email này đã được đăng ký trong hệ thống' });
       }
 
-      const googleId = (google_id && typeof google_id === 'string') ? google_id.trim() : null;
       if (googleId) {
         const existingGoogle = db.prepare('SELECT id FROM users WHERE google_id = ?').get(googleId);
         if (existingGoogle) {
@@ -56,8 +163,8 @@ class AuthController {
           id, email, password_hash, name, role, credit_balance, point_balance, 
           trust_score, status, free_trial_surveys_available, is_google_linked, google_id, is_email_verified, demographics_json
         )
-        VALUES (?, ?, ?, ?, ?, 0.0, 0, 100.0, 'ACTIVE', 1, ?, ?, 0, ?)
-      `).run(userId, email.toLowerCase().trim(), passwordHash, name.trim(), role, isGoogleLinked, googleId, demographicsPayload);
+        VALUES (?, ?, ?, ?, ?, 0.0, 0, 100.0, 'ACTIVE', 1, ?, ?, ?, ?)
+      `).run(userId, cleanEmail, passwordHash, cleanName, role, isGoogleLinked, googleId, isEmailVerified, demographicsPayload);
 
       // Ghi nhận nhật ký IP liên kết với User mới tạo
       antiFraudService.trackAndVerifyDeviceIp({ userId, rawIp, deviceFingerprint, action: 'REGISTER' });
@@ -82,7 +189,7 @@ class AuthController {
           trust_score: 100.0,
           free_trial_surveys_available: 1,
           is_google_linked: isGoogleLinked,
-          is_email_verified: 0,
+          is_email_verified: isEmailVerified,
           demographics: req.body.demographics || null
         }
       });

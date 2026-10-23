@@ -85,7 +85,7 @@ class SurveyController {
         SELECT s.id, s.title, s.description, s.category, s.target_responses, 
                s.collected_responses, s.reward_points_per_response, s.min_completion_time_sec,
                s.survey_source, s.external_form_url, s.academic_tags_json, s.target_demographics_json,
-               s.reward_mode, s.sponsor_campaign_id,
+               s.reward_mode, s.sponsor_campaign_id, s.is_pinned, s.is_featured,
                vc.brand_name AS sponsor_brand_name, vc.brand_logo AS sponsor_brand_logo, vc.title AS sponsor_voucher_title, vc.face_value_vnd AS sponsor_face_value,
                r.status AS user_response_status, r.points_rewarded,
                (SELECT COUNT(*) FROM questions q WHERE q.survey_id = s.id) AS question_count

@@ -276,13 +276,21 @@ function initSchema() {
     'ALTER TABLE users ADD COLUMN email_otp_expires_at INTEGER;',
     'ALTER TABLE surveys ADD COLUMN is_free_trial INTEGER DEFAULT 0;',
     'ALTER TABLE surveys ADD COLUMN normalized_form_url TEXT;',
+    'ALTER TABLE surveys ADD COLUMN is_pinned INTEGER DEFAULT 0;',
+    'ALTER TABLE surveys ADD COLUMN is_featured INTEGER DEFAULT 0;',
     'ALTER TABLE questions ADD COLUMN is_screener INTEGER DEFAULT 0;',
     'ALTER TABLE questions ADD COLUMN qualifying_answer TEXT;',
     'CREATE UNIQUE INDEX IF NOT EXISTS idx_users_google_id ON users(google_id) WHERE google_id IS NOT NULL;',
     'CREATE INDEX IF NOT EXISTS idx_surveys_normalized_url ON surveys(normalized_form_url);',
     'CREATE UNIQUE INDEX IF NOT EXISTS idx_voucher_codes_unique_response ON voucher_codes(claimed_response_id) WHERE claimed_response_id IS NOT NULL;',
     'CREATE UNIQUE INDEX IF NOT EXISTS idx_voucher_codes_unique_survey_user ON voucher_codes(survey_id, claimed_by_user_id) WHERE survey_id IS NOT NULL AND claimed_by_user_id IS NOT NULL;',
-    'CREATE UNIQUE INDEX IF NOT EXISTS idx_voucher_codes_campaign_code ON voucher_codes(campaign_id, code);'
+    'CREATE UNIQUE INDEX IF NOT EXISTS idx_voucher_codes_campaign_code ON voucher_codes(campaign_id, code);',
+    `CREATE TABLE IF NOT EXISTS registration_otps (
+      email TEXT PRIMARY KEY,
+      otp TEXT NOT NULL,
+      expires_at INTEGER NOT NULL,
+      created_at TEXT DEFAULT CURRENT_TIMESTAMP
+    );`
   ];
 
   for (const sql of migrations) {

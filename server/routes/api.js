@@ -14,6 +14,7 @@ router.use(checkIpBannedMiddleware);
 
 // === 1. Tuyến Đường Xác Thực & Hồ Sơ (Auth & Profile) ===
 router.post('/auth/register', (req, res) => authController.register(req, res));
+router.post('/auth/send-registration-otp', (req, res) => authController.sendRegistrationOtp(req, res));
 router.post('/auth/login', (req, res) => authController.login(req, res));
 router.post('/auth/google-auth', (req, res) => authController.googleAuth(req, res));
 router.get('/auth/google', (req, res) => authController.initiateGoogleOAuth(req, res));
