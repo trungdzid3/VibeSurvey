@@ -35,6 +35,7 @@ router.patch('/surveys/:id', authenticateToken, requireRole(['RESPONDENT', 'CREA
 router.post('/surveys/:id/publish', authenticateToken, requireRole(['RESPONDENT', 'CREATOR', 'ADMIN']), (req, res) => surveyController.publishSurvey(req, res));
 router.post('/surveys/:id/start-session', authenticateToken, requireRole(['RESPONDENT', 'ADMIN']), (req, res) => surveyController.startSession(req, res));
 router.post('/surveys/:id/submit', authenticateToken, requireRole(['RESPONDENT', 'ADMIN']), (req, res) => surveyController.submitSurvey(req, res));
+router.post('/surveys/:id/screen-out', authenticateToken, requireRole(['RESPONDENT', 'ADMIN']), (req, res) => surveyController.screenOut(req, res));
 router.get('/surveys/:id/analytics', authenticateToken, requireRole(['RESPONDENT', 'CREATOR', 'ADMIN']), (req, res) => surveyController.getAnalytics(req, res));
 router.get('/surveys/:id/export', authenticateToken, requireRole(['RESPONDENT', 'CREATOR', 'ADMIN']), (req, res) => surveyController.exportSurveyData(req, res));
 router.post('/surveys/:id/close', authenticateToken, requireRole(['RESPONDENT', 'CREATOR', 'ADMIN']), (req, res) => surveyController.closeSurvey(req, res));

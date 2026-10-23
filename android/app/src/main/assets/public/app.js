@@ -546,6 +546,26 @@ const VibeApp = {
             </div>
           </div>
 
+          <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Diện tài khoản</label>
+            <div class="grid grid-cols-2 gap-2.5">
+              <label class="relative flex flex-col p-3 rounded-xl border border-blue-500 bg-blue-50/50 dark:bg-blue-950/30 cursor-pointer transition-all role-select-card" id="role-card-respondent">
+                <input type="radio" name="auth-reg-role" value="RESPONDENT" checked class="sr-only" onchange="VibeApp.selectRegisterRole('RESPONDENT')">
+                <span class="text-xs font-bold text-blue-700 dark:text-sky-300 flex items-center gap-1.5">
+                  <i data-lucide="user-check" class="w-3.5 h-3.5"></i> Cá Nhân
+                </span>
+                <span class="text-[10px] text-slate-500 dark:text-slate-400 mt-1 leading-tight">Làm khảo sát tích điểm đổi quà, rút tiền</span>
+              </label>
+              <label class="relative flex flex-col p-3 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 cursor-pointer transition-all role-select-card" id="role-card-creator">
+                <input type="radio" name="auth-reg-role" value="CREATOR" class="sr-only" onchange="VibeApp.selectRegisterRole('CREATOR')">
+                <span class="text-xs font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1.5">
+                  <i data-lucide="building-2" class="w-3.5 h-3.5"></i> Doanh Nghiệp
+                </span>
+                <span class="text-[10px] text-slate-500 dark:text-slate-400 mt-1 leading-tight">Tạo khảo sát, thu thập dữ liệu & nghiên cứu</span>
+              </label>
+            </div>
+          </div>
+
           <!-- Free Trial Perk Notice -->
           <div class="p-3 rounded-xl bg-gradient-to-r from-emerald-500/10 via-teal-500/10 to-blue-500/10 border border-emerald-500/20 text-xs text-emerald-800 dark:text-emerald-300 flex items-start gap-2.5">
             <span class="text-base">🎁</span>
@@ -560,6 +580,19 @@ const VibeApp = {
           </button>
         </form>
       `;
+    }
+  },
+
+  selectRegisterRole(role) {
+    const cardResp = document.getElementById('role-card-respondent');
+    const cardCreator = document.getElementById('role-card-creator');
+    if (!cardResp || !cardCreator) return;
+    if (role === 'RESPONDENT') {
+      cardResp.className = 'relative flex flex-col p-3 rounded-xl border border-blue-500 bg-blue-50/50 dark:bg-blue-950/30 cursor-pointer transition-all role-select-card';
+      cardCreator.className = 'relative flex flex-col p-3 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 cursor-pointer transition-all role-select-card';
+    } else {
+      cardCreator.className = 'relative flex flex-col p-3 rounded-xl border border-blue-500 bg-blue-50/50 dark:bg-blue-950/30 cursor-pointer transition-all role-select-card';
+      cardResp.className = 'relative flex flex-col p-3 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 cursor-pointer transition-all role-select-card';
     }
   },
 
@@ -653,6 +686,8 @@ const VibeApp = {
       return;
     }
 
+    const role = document.querySelector('input[name="auth-reg-role"]:checked')?.value || 'RESPONDENT';
+
     if (submitBtn) {
       submitBtn.disabled = true;
       submitBtn.innerHTML = '<span class="animate-spin inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2"></span> Đang tạo tài khoản...';
@@ -661,7 +696,7 @@ const VibeApp = {
     try {
       const res = await this.api('/auth/register', {
         method: 'POST',
-        body: JSON.stringify({ name, email, password, role: 'RESPONDENT' })
+        body: JSON.stringify({ name, email, password, role })
       });
 
       if (res.success) {
@@ -1407,6 +1442,7 @@ const VibeApp = {
         </div>
 
         <!-- ==================== SURVEYS BENTO GRID ==================== -->
+        <div class="surveys-grid-section">
         ${filteredSurveys.length === 0 ? `
           <div class="bento-card p-12 text-center space-y-3">
             <div class="w-12 h-12 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center mx-auto">
@@ -1423,6 +1459,7 @@ const VibeApp = {
             ${filteredSurveys.map(s => this.renderBentoCard(s)).join('')}
           </div>
         `}
+        </div>
 
       </div>
     `;
@@ -1570,8 +1607,46 @@ const VibeApp = {
     this.state.searchQuery = query;
     clearTimeout(this._searchTimeout);
     this._searchTimeout = setTimeout(() => {
-      this.renderSurveysView(document.getElementById('app-root'));
+      // Chỉ cập nhật phần grid, không re-render toàn bộ view để giữ focus ô search
+      this._updateSurveyGrid();
     }, 180);
+  },
+
+  _updateSurveyGrid() {
+    const root = document.getElementById('app-root');
+    if (!root) return;
+    // Tìm phần tử grid container trong view hiện tại
+    const gridSection = root.querySelector('.surveys-grid-section');
+    if (!gridSection) {
+      // Fallback: Re-render toàn view
+      this.renderSurveysView(root);
+      return;
+    }
+
+    const surveys = this.state.surveys || [];
+    let filteredSurveys = this.filterSurveys(surveys);
+
+    if (filteredSurveys.length === 0) {
+      gridSection.innerHTML = `
+        <div class="bento-card p-12 text-center space-y-3">
+          <div class="w-12 h-12 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center mx-auto">
+            <i data-lucide="inbox" class="w-6 h-6 stroke-[2]"></i>
+          </div>
+          <h3 class="text-sm font-bold text-slate-800">Không tìm thấy khảo sát phù hợp</h3>
+          <p class="text-xs text-slate-400 max-w-sm mx-auto">Thử chọn bộ lọc khác hoặc nhập từ khóa tìm kiếm chung.</p>
+          <button onclick="VibeApp.resetFilters()" class="px-4 py-2 bg-slate-900 text-white rounded-xl text-xs font-bold hover:bg-slate-800 transition-colors">
+            Xem lại tất cả
+          </button>
+        </div>
+      `;
+    } else {
+      gridSection.innerHTML = `
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          ${filteredSurveys.map(s => this.renderBentoCard(s)).join('')}
+        </div>
+      `;
+    }
+    if (window.lucide) window.lucide.createIcons();
   },
 
   resetFilters() {
@@ -1656,9 +1731,9 @@ const VibeApp = {
         
         <!-- Header Controls -->
         <div class="flex items-center justify-between text-xs text-slate-500 pb-3 border-b border-slate-200">
-          <button onclick="VibeApp.confirmExitSurvey()" class="hover:text-slate-900 flex items-center gap-1 font-bold transition-colors">
-            <i data-lucide="arrow-left" class="w-4 h-4 stroke-[2.2]"></i>
-            Tạm dừng
+          <button onclick="VibeApp.confirmExitSurvey()" class="hover:text-red-600 flex items-center gap-1 font-bold transition-colors">
+            <i data-lucide="x" class="w-4 h-4 stroke-[2.2]"></i>
+            Thoát Khảo Sát
           </button>
           
           <div class="flex items-center space-x-3">
@@ -1853,7 +1928,7 @@ const VibeApp = {
     }, 1500);
   },
 
-  nextQuestion() {
+  async nextQuestion() {
     this.haptic('light');
     const session = this.state.activeSession;
     if (session.isPacingLocked) {
@@ -1868,10 +1943,80 @@ const VibeApp = {
       return;
     }
 
+    // Kiểm tra câu hỏi sàng lọc Screener
+    if (curQ.is_screener && curQ.qualifying_answer) {
+      const isQualified = String(ans).trim().toLowerCase() === String(curQ.qualifying_answer).trim().toLowerCase();
+      if (!isQualified) {
+        // Đáp viên không đạt điều kiện sàng lọc -> gọi screen-out và hiển thị màn hình an ủi
+        await this.handleScreenOut(session.surveyId);
+        return;
+      }
+    }
+
     if (session.currentIndex < session.questions.length - 1) {
       session.currentIndex++;
       this.triggerPacingLock();
       this.renderTakeSurveyView(document.getElementById('app-root'), session.surveyId);
+    }
+  },
+
+  async handleScreenOut(surveyId) {
+    if (this.state.activeSession && this.state.activeSession.timerId) {
+      clearInterval(this.state.activeSession.timerId);
+    }
+
+    try {
+      const res = await this.api(`/surveys/${surveyId}/screen-out`, { method: 'POST' });
+      const pts = res.consolationPoints || 20;
+
+      // Cộng điểm an ủi vào state người dùng nếu có
+      if (this.state.currentUser) {
+        this.state.currentUser.point_balance = (this.state.currentUser.point_balance || 0) + pts;
+      }
+
+      this.state.activeSession = null;
+
+      // Hiển thị màn hình Cảm ơn & Điểm an ủi
+      const root = document.getElementById('app-root');
+      if (root) {
+        root.innerHTML = `
+          <div class="stepper-focus-box py-8 text-center space-y-6">
+            <div class="w-16 h-16 rounded-3xl bg-amber-50 dark:bg-amber-950/60 text-amber-500 mx-auto flex items-center justify-center border border-amber-200/80 dark:border-amber-800/80">
+              <i data-lucide="smile" class="w-8 h-8"></i>
+            </div>
+            
+            <div class="space-y-2">
+              <h2 class="text-xl font-extrabold text-slate-900 dark:text-white">
+                Khảo sát chưa hoàn toàn phù hợp với bạn
+              </h2>
+              <p class="text-xs text-slate-500 dark:text-slate-400 max-w-md mx-auto leading-relaxed">
+                Rất cảm ơn bạn đã dành thời gian tham gia! Dựa trên câu trả lời sàng lọc, nhóm nghiên cứu đang tìm kiếm đối tượng khác cho đợt khảo sát này.
+              </p>
+            </div>
+
+            <div class="p-4 rounded-2xl bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/40 dark:to-orange-950/40 border border-amber-200/80 dark:border-amber-800/80 max-w-sm mx-auto space-y-1">
+              <span class="text-[11px] font-bold text-amber-800 dark:text-amber-300">Quà tặng khích lệ:</span>
+              <div class="text-2xl font-extrabold text-amber-600 dark:text-amber-400 font-mono">
+                +${pts} Điểm
+              </div>
+              <p class="text-[10px] text-amber-700/80 dark:text-amber-400/80">
+                Điểm an ủi đã được cộng trực tiếp vào ví của bạn.
+              </p>
+            </div>
+
+            <div class="pt-2">
+              <button onclick="VibeApp.navigate('surveys')" class="px-6 py-2.5 bg-slate-900 dark:bg-indigo-600 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition-all shadow-md active:scale-95">
+                Khám Phá Khảo Sát Khác
+              </button>
+            </div>
+          </div>
+        `;
+        if (window.lucide) window.lucide.createIcons();
+      }
+      this.applyUserInterface();
+    } catch (err) {
+      this.showToast(err.message, 'error');
+      this.navigate('surveys');
     }
   },
 
@@ -1885,7 +2030,7 @@ const VibeApp = {
   },
 
   confirmExitSurvey() {
-    if (confirm('Bạn có muốn tạm dừng khảo sát? Dữ liệu đã chọn sẽ không bị mất.')) {
+    if (confirm('Bạn có chắc muốn thoát khảo sát này? Bài làm sẽ không được ghi nhận.')) {
       if (this.state.activeSession && this.state.activeSession.timerId) {
         clearInterval(this.state.activeSession.timerId);
       }
@@ -3226,6 +3371,25 @@ const VibeApp = {
                 ` : ''}
               </div>
             `).join('')}
+
+            <!-- Câu hỏi sàng lọc Screener -->
+            <div class="pt-2 border-t border-slate-200/60 dark:border-slate-800 flex items-center justify-between flex-wrap gap-2">
+              <label class="flex items-center gap-1.5 cursor-pointer text-[11px] font-semibold text-slate-700 dark:text-slate-300">
+                <input type="checkbox" ${q.is_screener ? 'checked' : ''} onchange="VibeApp.toggleBuilderScreener(${qIdx}, this.checked)" class="rounded text-blue-600 focus:ring-0">
+                <span>🎯 Câu hỏi sàng lọc đối tượng (Screener)</span>
+              </label>
+
+              ${q.is_screener ? `
+                <div class="flex items-center gap-1.5 text-[11px]">
+                  <span class="text-slate-500">Chỉ đi tiếp nếu chọn:</span>
+                  <select onchange="VibeApp.updateBuilderQualifyingAnswer(${qIdx}, this.value)" class="py-0.5 px-2 rounded border border-blue-300 bg-blue-50/50 dark:bg-blue-950/40 text-blue-800 dark:text-sky-300 font-bold focus:outline-none text-[11px]">
+                    ${(q.options || []).map(opt => `
+                      <option value="${(opt || '').replace(/"/g, '&quot;')}" ${q.qualifying_answer === opt ? 'selected' : ''}>${opt}</option>
+                    `).join('')}
+                  </select>
+                </div>
+              ` : ''}
+            </div>
           </div>
         ` : `
           <div class="p-2 bg-slate-100 dark:bg-slate-800/60 rounded-lg text-[11px] text-slate-500 italic">
@@ -3234,6 +3398,23 @@ const VibeApp = {
         `}
       </div>
     `).join('');
+  },
+
+  toggleBuilderScreener(qIdx, isChecked) {
+    if (this.state.builderQuestions && this.state.builderQuestions[qIdx]) {
+      this.state.builderQuestions[qIdx].is_screener = isChecked;
+      if (isChecked && !this.state.builderQuestions[qIdx].qualifying_answer) {
+        const opts = this.state.builderQuestions[qIdx].options || [];
+        this.state.builderQuestions[qIdx].qualifying_answer = opts[0] || '';
+      }
+      this.refreshBuilderQuestionsView();
+    }
+  },
+
+  updateBuilderQualifyingAnswer(qIdx, val) {
+    if (this.state.builderQuestions && this.state.builderQuestions[qIdx]) {
+      this.state.builderQuestions[qIdx].qualifying_answer = val;
+    }
   },
 
   refreshBuilderQuestionsView() {
@@ -3595,7 +3776,9 @@ const VibeApp = {
           type: q.type || 'SINGLE_CHOICE',
           content: content,
           options: validOptions.length > 0 ? validOptions : null,
-          is_attention_check: false
+          is_attention_check: false,
+          is_screener: q.is_screener === true,
+          qualifying_answer: q.is_screener ? (q.qualifying_answer || validOptions[0] || null) : null
         });
       }
 
@@ -3924,12 +4107,15 @@ const VibeApp = {
       const msg = String(messageOrConfig || '');
 
       // Bộ phân loại ngôn ngữ thông minh (Smart Humanized Parser)
-      if (type === 'error' || msg.includes('không có quyền') || msg.includes('Yêu cầu vai trò')) {
+      if (msg.includes('không có quyền') || msg.includes('Yêu cầu vai trò') || msg.includes('không thuộc quyền')) {
         type = 'error';
         title = 'Yêu Cầu Quyền Hạn';
         description = msg.includes('Yêu cầu vai trò') 
           ? 'Thao tác này yêu cầu tài khoản phù hợp hoặc phiên làm việc tương ứng.' 
           : msg;
+      } else if (type === 'error') {
+        title = 'Có Lỗi Xảy Ra';
+        description = msg;
       } else if (msg.includes('Số dư không đủ') || msg.includes('không đủ để ký quỹ')) {
         type = 'warning';
         title = 'Số Dư Chưa Đủ Ký Quỹ';

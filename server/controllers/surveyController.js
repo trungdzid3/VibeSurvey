@@ -167,7 +167,9 @@ class SurveyController {
           order_index: q.order_index,
           type: q.type,
           content: q.content,
-          options: q.options_json ? JSON.parse(q.options_json) : null
+          options: q.options_json ? JSON.parse(q.options_json) : null,
+          is_screener: q.is_screener === 1,
+          qualifying_answer: q.qualifying_answer || null
         }));
 
         let existingResponse = null;
@@ -372,8 +374,8 @@ class SurveyController {
         );
 
         const insertQ = db.prepare(`
-          INSERT INTO questions (id, survey_id, order_index, type, content, options_json, is_attention_check, expected_answer)
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+          INSERT INTO questions (id, survey_id, order_index, type, content, options_json, is_attention_check, expected_answer, is_screener, qualifying_answer)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `);
 
         for (let i = 0; i < questions.length; i++) {
@@ -387,7 +389,9 @@ class SurveyController {
             q.content.trim(),
             q.options ? JSON.stringify(q.options) : null,
             q.is_attention_check ? 1 : 0,
-            q.expected_answer || null
+            q.expected_answer || null,
+            q.is_screener ? 1 : 0,
+            q.qualifying_answer || null
           );
         }
 
@@ -709,14 +713,16 @@ class SurveyController {
         `).run(responseId);
       }
 
-      // Lấy danh sách câu hỏi đã xóa dấu vết câu bẫy (Sanitized)
-      const questions = db.prepare('SELECT id, order_index, type, content, options_json FROM questions WHERE survey_id = ? ORDER BY order_index ASC').all(id);
+      // Lấy danh sách câu hỏi đã xóa dấu vết câu bẫy (Sanitized), giữ cờ screener cho client xử lý sàng lọc
+      const questions = db.prepare('SELECT id, order_index, type, content, options_json, is_screener, qualifying_answer FROM questions WHERE survey_id = ? ORDER BY order_index ASC').all(id);
       const sanitizedQuestions = questions.map(q => ({
         id: q.id,
         order_index: q.order_index,
         type: q.type,
         content: q.content,
-        options: q.options_json ? JSON.parse(q.options_json) : null
+        options: q.options_json ? JSON.parse(q.options_json) : null,
+        is_screener: q.is_screener === 1,
+        qualifying_answer: q.qualifying_answer || null
       }));
 
       return res.json({
@@ -1082,18 +1088,27 @@ class SurveyController {
         return `"${str.replace(/"/g, '""')}"`;
       };
 
-      // Xây dựng danh sách tiêu đề cột (Headers)
-      const headers = [
-        'Mã Phản Hồi (Response ID)',
-        'Mã Ứng Viên (Respondent ID)',
-        'Tên Người Trả Lời (Respondent Name)',
-        'Email Người Trả Lời (Respondent Email)',
-        'Thời Gian Làm Bài (Giây)',
-        'Điểm Chất Lượng (%)',
-        'Điểm Thưởng Nhận Được',
-        'Thời Điểm Nộp Bài',
-        ...questions.map(q => `Câu ${q.order_index}: ${q.content.replace(/[\r\n]+/g, ' ')}`)
-      ];
+      // Xây dựng danh sách tiêu đề cột (Headers): Hỗ trợ format google_forms chuẩn Google Forms hoặc full chuẩn sàn
+      const isGoogleFormsFormat = req.query.style === 'google_forms' || req.query.google_forms === 'true';
+
+      const headers = isGoogleFormsFormat
+        ? [
+            'Dấu thời gian',
+            'Địa chỉ email',
+            'Họ và tên',
+            ...questions.map(q => q.content.replace(/[\r\n]+/g, ' '))
+          ]
+        : [
+            'Mã Phản Hồi (Response ID)',
+            'Mã Ứng Viên (Respondent ID)',
+            'Tên Người Trả Lời (Respondent Name)',
+            'Email Người Trả Lời (Respondent Email)',
+            'Thời Gian Làm Bài (Giây)',
+            'Điểm Chất Lượng (%)',
+            'Điểm Thưởng Nhận Được',
+            'Thời Điểm Nộp Bài',
+            ...questions.map(q => q.content.replace(/[\r\n]+/g, ' '))
+          ];
 
       const csvRows = [headers.map(escapeCSV).join(',')];
 
@@ -1114,17 +1129,24 @@ class SurveyController {
           return String(val);
         });
 
-        const row = [
-          r.id,
-          r.respondent_id,
-          r.respondent_name,
-          r.respondent_email,
-          r.duration_sec,
-          Math.round((r.quality_score || 0) * 100),
-          r.points_rewarded,
-          r.submitted_at,
-          ...questionValues
-        ];
+        const row = isGoogleFormsFormat
+          ? [
+              r.submitted_at || '',
+              r.respondent_email || '',
+              r.respondent_name || '',
+              ...questionValues
+            ]
+          : [
+              r.id,
+              r.respondent_id,
+              r.respondent_name,
+              r.respondent_email,
+              r.duration_sec,
+              Math.round((r.quality_score || 0) * 100),
+              r.points_rewarded,
+              r.submitted_at,
+              ...questionValues
+            ];
 
         csvRows.push(row.map(escapeCSV).join(','));
       }
@@ -1206,6 +1228,62 @@ class SurveyController {
     } catch (err) {
       console.error('Lỗi parseExternalForm:', err);
       return res.status(400).json({ success: false, message: err.message });
+    }
+  }
+
+  /**
+   * POST /api/v1/surveys/:id/screen-out
+   * Xử lý khi đáp viên không đạt câu hỏi sàng lọc (Screener)
+   * Tặng điểm an ủi (20 điểm) vào ví và kết thúc phiên làm bài sớm
+   */
+  screenOut(req, res) {
+    try {
+      const { id } = req.params;
+      const user = req.user;
+
+      const survey = db.prepare('SELECT * FROM surveys WHERE id = ?').get(id);
+      if (!survey || survey.status !== 'ACTIVE') {
+        return res.status(400).json({ success: false, message: 'Khảo sát không tồn tại hoặc không còn hoạt động' });
+      }
+
+      // Tìm hoặc tạo response
+      let response = db.prepare('SELECT * FROM responses WHERE survey_id = ? AND respondent_id = ?').get(id, user.id);
+      if (!response) {
+        const responseId = crypto.randomUUID();
+        db.prepare(`
+          INSERT INTO responses (id, survey_id, respondent_id, status, started_at, submitted_at)
+          VALUES (?, ?, ?, 'SCREENED_OUT', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+        `).run(responseId, id, user.id);
+        response = { id: responseId };
+      } else if (response.status === 'VALIDATED') {
+        return res.status(400).json({ success: false, message: 'Bạn đã hoàn thành khảo sát này rồi' });
+      } else if (response.status === 'SCREENED_OUT') {
+        return res.status(400).json({ success: false, message: 'Bạn đã được ghi nhận kết thúc sớm khảo sát này' });
+      } else {
+        // Cập nhật status thành SCREENED_OUT
+        db.prepare(`
+          UPDATE responses SET status = 'SCREENED_OUT', submitted_at = CURRENT_TIMESTAMP WHERE id = ?
+        `).run(response.id);
+      }
+
+      // Tặng điểm an ủi 20 điểm
+      const consolationPoints = 20;
+      try {
+        ledgerService.awardConsolationReward(response.id, user.id, id, consolationPoints);
+      } catch (ledgerErr) {
+        console.error('Lỗi tặng điểm an ủi:', ledgerErr);
+        // Không throw lỗi vì screened out vẫn nên được ghi nhận
+      }
+
+      return res.json({
+        success: true,
+        message: 'Khảo sát chưa phù hợp với bạn. Cảm ơn bạn đã tham gia!',
+        consolationPoints,
+        screened_out: true
+      });
+    } catch (err) {
+      console.error('Lỗi screenOut:', err);
+      return res.status(500).json({ success: false, message: 'Lỗi xử lý sàng lọc: ' + err.message });
     }
   }
 

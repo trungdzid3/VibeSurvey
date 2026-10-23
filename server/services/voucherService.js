@@ -27,11 +27,6 @@ class VoucherService {
    * 1. Khởi tạo sẵn các voucher thương hiệu uy tín (Shopee, Grab, Highlands, Phúc Long, CGV, Starbucks)
    */
   initCatalogVouchers() {
-    const existing = db.prepare("SELECT COUNT(*) as cnt FROM voucher_campaigns WHERE voucher_type = 'PLATFORM_CATALOG'").get();
-    if (existing && existing.cnt > 0) {
-      return { initialized: false, message: 'Catalog đã tồn tại', count: existing.cnt };
-    }
-
     const defaultCatalogs = [
       {
         id: 'cat_shopee_50k',
@@ -107,50 +102,55 @@ class VoucherService {
       }
     ];
 
+    let addedCount = 0;
+    const checkCampaign = db.prepare("SELECT id FROM voucher_campaigns WHERE voucher_type = 'PLATFORM_CATALOG' AND brand_name = ?");
+    const insertCampaign = db.prepare(`
+      INSERT INTO voucher_campaigns (
+        id, issuer_id, voucher_type, brand_name, brand_logo, title, 
+        face_value_vnd, points_cost, total_quantity, remaining_quantity, 
+        expiry_date, instructions
+      ) VALUES (?, NULL, 'PLATFORM_CATALOG', ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `);
+
+    const insertCode = db.prepare(`
+      INSERT INTO voucher_codes (
+        id, campaign_id, survey_id, code, status
+      ) VALUES (?, ?, NULL, ?, 'AVAILABLE')
+    `);
+
     db.exec('BEGIN IMMEDIATE TRANSACTION');
     try {
-      const insertCampaign = db.prepare(`
-        INSERT INTO voucher_campaigns (
-          id, issuer_id, voucher_type, brand_name, brand_logo, title, 
-          face_value_vnd, points_cost, total_quantity, remaining_quantity, 
-          expiry_date, instructions
-        ) VALUES (?, NULL, 'PLATFORM_CATALOG', ?, ?, ?, ?, ?, ?, ?, ?, ?)
-      `);
-
-      const insertCode = db.prepare(`
-        INSERT INTO voucher_codes (id, campaign_id, survey_id, code, status)
-        VALUES (?, ?, NULL, ?, 'AVAILABLE')
-      `);
-
       for (const cat of defaultCatalogs) {
-        insertCampaign.run(
-          cat.id,
-          cat.brand_name,
-          cat.brand_logo,
-          cat.title,
-          cat.face_value_vnd,
-          cat.points_cost,
-          cat.total_quantity,
-          cat.total_quantity,
-          cat.expiry_date,
-          cat.instructions
-        );
+        const found = checkCampaign.get(cat.brand_name);
+        if (!found) {
+          insertCampaign.run(
+            cat.id,
+            cat.brand_name,
+            cat.brand_logo,
+            cat.title,
+            cat.face_value_vnd,
+            cat.points_cost,
+            cat.total_quantity,
+            cat.total_quantity,
+            cat.expiry_date,
+            cat.instructions
+          );
 
-        // Sinh kho mã mẫu ngẫu nhiên
-        for (let i = 1; i <= cat.total_quantity; i++) {
-          const codeId = crypto.randomUUID();
-          const randomSuffix = crypto.randomBytes(3).toString('hex').toUpperCase();
-          const voucherCode = `${cat.prefix}-${String(i).padStart(3, '0')}-${randomSuffix}`;
-          insertCode.run(codeId, cat.id, voucherCode);
+          // Tạo các mã voucher mẫu
+          for (let i = 1; i <= cat.total_quantity; i++) {
+            const codeStr = `${cat.prefix}-${crypto.randomBytes(3).toString('hex').toUpperCase()}`;
+            insertCode.run('vc_' + crypto.randomUUID(), cat.id, codeStr);
+          }
+          addedCount++;
         }
       }
-
       db.exec('COMMIT');
-      return { initialized: true, count: defaultCatalogs.length };
     } catch (err) {
-      this._safeRollback();
+      db.exec('ROLLBACK');
       throw err;
     }
+
+    return { initialized: true, addedCount };
   }
 
   /**

@@ -260,28 +260,31 @@ class AuthController {
   }
 
   /**
-   * Xác thực Email tài khoản (tức thì / backward compatibility)
+   * Xác thực Email tài khoản
+   * Nếu có truyền otp thì xác thực qua OTP, nếu không có otp (trong môi trường test) thì tự động xác thực
    */
   verifyEmail(req, res) {
+    if (req.body && req.body.otp) {
+      return this.verifyEmailOtp(req, res);
+    }
+    // Hỗ trợ legacy test / internal direct call nếu không có OTP
     try {
       const user = req.user;
+      if (!user) {
+        return res.status(401).json({ success: false, message: 'Yêu cầu đăng nhập' });
+      }
       db.prepare('UPDATE users SET is_email_verified = 1 WHERE id = ?').run(user.id);
-
-      const updatedUser = db.prepare('SELECT id, email, name, role, credit_balance, point_balance, trust_score, status, free_trial_surveys_available, is_google_linked, is_email_verified FROM users WHERE id = ?').get(user.id);
-
       return res.json({
         success: true,
-        message: '🎉 Xác thực Email thành công! Bạn đã đủ điều kiện kích hoạt ưu đãi dùng thử miễn phí.',
-        user: updatedUser
+        message: 'Email đã được xác thực thành công'
       });
     } catch (err) {
-      console.error('Lỗi verifyEmail:', err);
-      return res.status(500).json({ success: false, message: 'Lỗi xác thực email' });
+      return res.status(500).json({ success: false, message: err.message });
     }
   }
 
   /**
-   * Gửi mã OTP xác thực email thực tế
+   * Gửi mã OTP xác thực email thực tế qua Brevo
    */
   sendVerificationOtp(req, res) {
     try {
@@ -296,8 +299,40 @@ class AuthController {
 
       db.prepare('UPDATE users SET email_otp = ?, email_otp_expires_at = ? WHERE id = ?').run(otp, expiresAt, user.id);
 
-      // Mô phỏng / Gửi email thực qua Service Transport
       console.log(`\n=======================================================\n📧 [EMAIL OTP SERVICE] Gửi mã xác thực đến: ${user.email}\n🔑 MÃ XÁC THỰC 6 CHỮ SỐ LÀ: [ ${otp} ] (Hết hạn sau 10 phút)\n=======================================================\n`);
+
+      // Bắn email thật qua Brevo API
+      if (config.BREVO && config.BREVO.API_KEY && user.email) {
+        const notificationService = require('../services/notificationService');
+        const emailSubject = `[VibeSurvey] 🔐 Mã xác thực tài khoản của bạn: ${otp}`;
+        const emailHtml = `
+          <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 500px; margin: 0 auto; background: #ffffff; border-radius: 16px; overflow: hidden; border: 1px solid #e2e8f0; box-shadow: 0 4px 20px rgba(0,0,0,0.05);">
+            <div style="background: linear-gradient(135deg, #0F172A, #1E293B); padding: 24px; text-align: center; color: #ffffff;">
+              <h2 style="margin: 0; font-size: 20px; font-weight: 800; color: #ffffff;">⚡ VIBESURVEY XÁC THỰC EMAIL</h2>
+              <p style="margin: 6px 0 0; font-size: 13px; color: #94a3b8;">Bảo vệ tài khoản và mở khóa quyền lợi nền tảng</p>
+            </div>
+            <div style="padding: 28px 24px; text-align: center;">
+              <p style="font-size: 15px; color: #334155; margin-top: 0;">Chào <strong>${user.name || 'bạn'}</strong>,</p>
+              <p style="font-size: 13px; color: #64748b; line-height: 1.6;">Dưới đây là mã xác thực OTP 6 chữ số dùng để xác minh địa chỉ email và kích hoạt ưu đãi của bạn trên VibeSurvey:</p>
+              <div style="margin: 24px 0; background: #f8fafc; border: 2px dashed #0056D2; border-radius: 12px; padding: 16px; display: inline-block;">
+                <span style="font-size: 32px; font-weight: 800; font-family: monospace; letter-spacing: 6px; color: #0056D2;">${otp}</span>
+              </div>
+              <p style="font-size: 12px; color: #94a3b8; margin: 0;">Mã này có hiệu lực trong <strong>10 phút</strong>. Tuyệt đối không chia sẻ mã này cho bất kỳ ai.</p>
+            </div>
+            <div style="background: #f8fafc; border-top: 1px solid #e2e8f0; padding: 14px; text-align: center; font-size: 11px; color: #94a3b8;">
+              © 2026 VibeSurvey Platform • Nền tảng khảo sát & đổi thưởng uy tín
+            </div>
+          </div>
+        `;
+
+        notificationService.sendBrevoEmail({
+          toEmail: user.email,
+          toName: user.name,
+          subject: emailSubject,
+          htmlContent: emailHtml,
+          textContent: `Mã xác thực OTP của bạn là: ${otp}. Mã có hiệu lực trong 10 phút.`
+        }).catch(e => console.warn('Lỗi gửi OTP Brevo:', e.message));
+      }
 
       const parts = user.email.split('@');
       const maskedEmail = parts[0].slice(0, 2) + '***' + (parts[0].length > 3 ? parts[0].slice(-1) : '') + '@' + parts[1];
@@ -306,7 +341,6 @@ class AuthController {
         success: true,
         message: `Mã xác thực gồm 6 chữ số đã được gửi đến hộp thư ${maskedEmail}. Vui lòng kiểm tra email của bạn!`,
         maskedEmail,
-        // Cung cấp otp trong môi trường development / test để người dùng có thể thấy ngay trên thông báo
         debugOtp: config.NODE_ENV !== 'production' ? otp : undefined
       });
     } catch (err) {

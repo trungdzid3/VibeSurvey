@@ -642,6 +642,49 @@ class LedgerService {
       throw err;
     }
   }
+
+  /**
+   * Tặng điểm an ủi (Consolation Reward) khi đáp viên không thuộc nhóm đối tượng sàng lọc (Screened Out)
+   * Giúp tri ân thời gian của người làm bài và giữ chân người dùng vui vẻ.
+   */
+  awardConsolationReward(responseId, respondentId, surveyId, points = 20) {
+    db.exec('BEGIN IMMEDIATE TRANSACTION');
+    try {
+      // 1. Cập nhật trạng thái response thành SCREENED_OUT
+      db.prepare(`
+        UPDATE responses 
+        SET status = 'SCREENED_OUT', points_rewarded = ?, submitted_at = CURRENT_TIMESTAMP
+        WHERE id = ?
+      `).run(points, responseId);
+
+      // 2. Cộng điểm an ủi cho đáp viên
+      db.prepare(`
+        UPDATE users 
+        SET point_balance = point_balance + ?, trust_score = MIN(100.0, trust_score + 0.1)
+        WHERE id = ?
+      `).run(points, respondentId);
+
+      // 3. Ghi sổ cái kép Point Ledger
+      const pointTxId = 'ptx_consolation_' + crypto.randomUUID();
+      db.prepare(`
+        INSERT INTO point_transactions (id, user_id, response_id, amount, balance_after, type, description)
+        VALUES (?, ?, ?, ?, (SELECT point_balance FROM users WHERE id = ?), 'CREDIT_EARNED', 'Điểm an ủi tri ân tham gia khảo sát sàng lọc')
+      `).run(pointTxId, respondentId, responseId, points, respondentId);
+
+      const updatedUser = db.prepare('SELECT point_balance FROM users WHERE id = ?').get(respondentId);
+
+      db.exec('COMMIT');
+
+      return {
+        success: true,
+        consolationPoints: points,
+        newPointBalance: updatedUser ? updatedUser.point_balance : points
+      };
+    } catch (err) {
+      this._safeRollback();
+      throw err;
+    }
+  }
 }
 
 module.exports = new LedgerService();
