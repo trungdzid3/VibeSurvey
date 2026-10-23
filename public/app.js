@@ -3248,25 +3248,24 @@ const VibeApp = {
     if (window.lucide) window.lucide.createIcons();
   },
 
-  // ==================== MODAL: TẠO KHẢO SÁT & WEBHOOK ====================
+  // ==================== VIEW: TRANG TẠO KHẢO SÁT CHUYÊN DỤNG (TAB TẠO KHẢO SÁT) ====================
   openCreateSurveyModal() {
-    if (!this.state.currentUser) {
-      this.showToast('Vui lòng đăng nhập để tạo khảo sát!', 'info');
-      this.openAuthModal('login');
-      return;
-    }
-    this.openFastCreateModal();
+    this.navigate('create-survey');
   },
 
-  openFastCreateModal() {
-    this.haptic('light');
+  async renderCreateSurveyView(root) {
+    if (!this.state.currentUser) {
+      this.renderGuestLockedView(root, 'Tạo Khảo Sát', 'Vui lòng đăng nhập để bắt đầu thiết kế biểu mẫu khảo sát và thu thập dữ liệu từ cộng đồng.');
+      return;
+    }
+
     const userCredit = Number(this.state.currentUser?.credit_balance || 0);
     const hasFreeTrial = (this.state.currentUser?.free_trial_surveys_available || 0) > 0;
     const isVerified = !!(this.state.currentUser?.is_google_linked || this.state.currentUser?.is_email_verified);
     const defaultTarget = hasFreeTrial ? 25 : 100;
 
     // Khởi tạo tab và danh sách câu hỏi mẫu nếu chưa có
-    this.state.createSurveyTab = 'BUILDER'; // 'BUILDER' | 'SMART_PASTE' | 'EXTERNAL_URL'
+    if (!this.state.createSurveyTab) this.state.createSurveyTab = 'BUILDER';
     if (!this.state.builderQuestions || !Array.isArray(this.state.builderQuestions) || this.state.builderQuestions.length === 0) {
       this.state.builderQuestions = [
         {
@@ -3276,187 +3275,239 @@ const VibeApp = {
         },
         {
           type: 'LIKERT_SCALE',
-          content: 'Mức độ sẵn sàng giới thiệu nền tảng này cho bạn bè hoặc người quen?',
+          content: 'Mức độ sẵn sàng giới thiệu nền tảng này cho bạn bè hoặc đồng nghiệp?',
           options: ['1 - Rất không sẵn sàng', '2 - Không sẵn sàng', '3 - Bình thường', '4 - Sẵn sàng', '5 - Rất sẵn sàng']
         }
       ];
     }
 
-    this.showModal({
-      title: 'Tạo Khảo Sát Mới',
-      content: `
-        <div class="space-y-4 text-left max-h-[80vh] overflow-y-auto pr-1">
-          
-          ${hasFreeTrial ? `
-            <div class="p-3 bg-gradient-to-r from-emerald-500/10 via-teal-500/10 to-sky-500/10 border ${isVerified ? 'border-emerald-500/30 dark:border-emerald-500/40' : 'border-amber-500/40 dark:border-amber-500/50 bg-amber-500/5'} rounded-2xl flex items-start gap-2.5">
-              <div class="w-8 h-8 rounded-xl ${isVerified ? 'bg-emerald-500' : 'bg-amber-500'} text-white flex items-center justify-center flex-shrink-0 shadow-sm mt-0.5">
-                <i data-lucide="${isVerified ? 'gift' : 'shield-alert'}" class="w-4 h-4 stroke-[2.5]"></i>
+    root.innerHTML = `
+      <div class="max-w-4xl mx-auto space-y-6 pb-12">
+        
+        <!-- Header Page -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200 dark:border-slate-800">
+          <div>
+            <div class="flex items-center gap-2 mb-1">
+              <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-blue-50 dark:bg-blue-950/70 text-blue-600 dark:text-sky-400 border border-blue-200/80 dark:border-blue-800/80">
+                Studio Soạn Thảo Biểu Mẫu
+              </span>
+              <span class="text-xs text-slate-400">• Đa định dạng Google Forms / MS Forms</span>
+            </div>
+            <h1 class="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 dark:text-white">Thiết Kế Khảo Sát Mới</h1>
+            <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">Soạn thảo trực quan toàn màn hình, hỗ trợ trắc nghiệm, hộp kiểm, menu thả xuống, đánh giá sao, ngày tháng và liên kết ngoài.</p>
+          </div>
+
+          <div class="flex items-center gap-2.5 flex-shrink-0">
+            <button onclick="VibeApp.navigate('creator-surveys')" class="py-2.5 px-4 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl text-xs font-bold transition-all active:scale-[0.98] flex items-center gap-1.5">
+              <i data-lucide="arrow-left" class="w-4 h-4"></i>
+              <span>Khảo Sát Của Tôi</span>
+            </button>
+            <button onclick="VibeApp.submitFastCreate()" class="py-2.5 px-5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-md shadow-blue-500/25 transition-all active:scale-[0.98] flex items-center gap-2">
+              <i data-lucide="send" class="w-4 h-4"></i>
+              <span>${hasFreeTrial ? 'Xuất Bản Miễn Phí (0đ)' : 'Xuất Bản & Ký Quỹ'}</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Banner Ưu Đãi hoặc Số dư Credit -->
+        ${hasFreeTrial ? `
+          <div class="p-4 sm:p-5 bg-gradient-to-r from-emerald-500/10 via-teal-500/10 to-sky-500/10 border ${isVerified ? 'border-emerald-500/30 dark:border-emerald-500/40' : 'border-amber-500/40 dark:border-amber-500/50 bg-amber-500/5'} rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div class="flex items-start gap-3">
+              <div class="w-10 h-10 rounded-2xl ${isVerified ? 'bg-emerald-500' : 'bg-amber-500'} text-white flex items-center justify-center flex-shrink-0 shadow-sm">
+                <i data-lucide="${isVerified ? 'gift' : 'shield-alert'}" class="w-5 h-5 stroke-[2.5]"></i>
               </div>
-              <div class="flex-1 text-xs">
-                <div class="flex items-center justify-between">
-                  <strong class="${isVerified ? 'text-emerald-700 dark:text-emerald-400' : 'text-amber-700 dark:text-amber-400'} font-bold">🎁 Ưu Đãi Người Mới: Khảo Sát Đầu Tay Miễn Phí</strong>
+              <div class="text-xs space-y-1">
+                <div class="flex items-center gap-2">
+                  <strong class="${isVerified ? 'text-emerald-700 dark:text-emerald-400' : 'text-amber-700 dark:text-amber-400'} font-bold text-sm">🎁 Ưu Đãi Khảo Sát Đầu Tay Miễn Phí</strong>
                   <span class="px-2 py-0.5 text-[10px] font-bold ${isVerified ? 'bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 border-emerald-300 dark:border-emerald-800' : 'bg-amber-100 dark:bg-amber-950/80 text-amber-700 dark:text-amber-300 border-amber-300 dark:border-amber-800'} rounded-full border">Còn 1 Suất</span>
                 </div>
-                <p class="text-slate-600 dark:text-slate-300 text-[11px] mt-0.5 leading-relaxed">
-                  Bạn được tặng <strong>25 lượt phản hồi MIỄN PHÍ 100%</strong> (Trị giá 50.000đ). Sàn tự động tài trợ tiền thưởng cho người làm bài, bạn không cần nạp tiền!
+                <p class="text-slate-600 dark:text-slate-300 text-xs leading-relaxed max-w-xl">
+                  Bạn được tặng <strong>25 lượt phản hồi MIỄN PHÍ 100%</strong> (Trị giá 50.000đ). Sàn tự động tài trợ thù lao cho đáp viên, bạn không phải bỏ ra bất kỳ chi phí nào!
                 </p>
-
                 ${isVerified ? `
-                  <div class="mt-2 text-[11px] text-emerald-700 dark:text-emerald-300 flex items-center gap-1.5 font-bold">
-                    <i data-lucide="check-circle" class="w-3.5 h-3.5"></i>
-                    <span>Tài khoản đã liên kết Google/Email (Đủ điều kiện nhận ưu đãi)</span>
+                  <div class="pt-1 flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400 font-bold">
+                    <i data-lucide="check-circle" class="w-4 h-4"></i>
+                    <span>Tài khoản đã xác thực hợp lệ (Đủ điều kiện nhận ưu đãi)</span>
                   </div>
-                  <label class="mt-2 flex items-center gap-2 cursor-pointer font-bold text-slate-800 dark:text-slate-200">
-                    <input type="checkbox" id="fast-use-free-trial" checked onchange="VibeApp.toggleFreeTrialSelection(this.checked)" class="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500">
-                    <span>Áp dụng 25 lượt phản hồi miễn phí (Ký quỹ: <span id="fast-escrow-badge" class="text-emerald-600 dark:text-emerald-400 font-mono font-bold">0 VNĐ</span>)</span>
-                  </label>
                 ` : `
-                  <div class="mt-2.5 p-2.5 bg-amber-500/10 border border-amber-500/20 rounded-xl space-y-2">
-                    <p class="text-[11px] font-bold text-amber-800 dark:text-amber-300 flex items-center gap-1">
-                      <i data-lucide="lock" class="w-3.5 h-3.5"></i>
-                      <span>Để chống tạo acc ảo cày lượt free, vui lòng liên kết trước:</span>
-                    </p>
-                    <div class="flex items-center gap-2">
-                      <button type="button" onclick="VibeApp.linkGoogleAccount()" class="px-2.5 py-1.5 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 rounded-lg text-[11px] font-bold text-slate-700 dark:text-slate-200 shadow-2xs flex items-center gap-1.5 active:scale-95 transition-all">
-                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/></svg>
-                        <span>Liên Kết Google (1-Click)</span>
-                      </button>
-                    </div>
+                  <div class="pt-2 flex flex-wrap items-center gap-2">
+                    <span class="text-[11px] text-amber-700 dark:text-amber-300 font-semibold">Để chống acc ảo, vui lòng liên kết trước:</span>
+                    <button type="button" onclick="VibeApp.linkGoogleAccount()" class="px-3 py-1 bg-white dark:bg-slate-800 hover:bg-slate-50 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1.5">
+                      <span>Liên Kết Google</span>
+                    </button>
+                    <button type="button" onclick="VibeApp.verifyEmailAccount()" class="px-3 py-1 bg-blue-50 dark:bg-blue-950/60 hover:bg-blue-100 text-blue-700 dark:text-sky-300 rounded-lg text-xs font-bold">
+                      <span>Xác Thực Email</span>
+                    </button>
                   </div>
                 `}
               </div>
             </div>
-          ` : `
-            <div class="p-2.5 bg-blue-50/70 dark:bg-blue-950/40 border border-blue-100 dark:border-blue-800/50 rounded-xl flex items-center justify-between text-xs">
-              <div class="flex items-center gap-1.5 text-slate-700 dark:text-slate-300">
-                <i data-lucide="wallet" class="w-3.5 h-3.5 text-blue-600 dark:text-sky-400"></i>
-                <span>Số dư Credit hiện có: <strong class="font-mono text-slate-900 dark:text-white">${userCredit.toLocaleString('vi-VN')} Credit</strong></span>
-              </div>
-              <button type="button" onclick="VibeApp.openDepositModal()" class="text-[11px] font-bold text-blue-600 dark:text-sky-400 hover:text-blue-700 dark:hover:text-sky-300 flex items-center gap-0.5">
-                <span>+ Nạp Quỹ</span>
-                <i data-lucide="arrow-right" class="w-3 h-3"></i>
-              </button>
-            </div>
-          `}
 
-          <!-- Thông tin cơ bản -->
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-            <div class="sm:col-span-2">
-              <label class="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">Tiêu đề khảo sát *</label>
-              <input type="text" id="fast-title" placeholder="VD: Khảo sát thói quen dùng ví điện tử Gen Z..." 
-                     class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-xs font-medium focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
+            ${isVerified ? `
+              <div class="flex-shrink-0 bg-white dark:bg-slate-800/80 p-3 rounded-xl border border-emerald-500/20 shadow-xs">
+                <label class="flex items-center gap-2.5 cursor-pointer font-bold text-xs text-slate-800 dark:text-slate-200">
+                  <input type="checkbox" id="fast-use-free-trial" checked onchange="VibeApp.toggleFreeTrialSelection(this.checked)" class="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500">
+                  <span>Dùng 25 lượt free (Ký quỹ: <strong id="fast-escrow-badge" class="text-emerald-600 dark:text-emerald-400 font-mono">0 VNĐ</strong>)</span>
+                </label>
+              </div>
+            ` : ''}
+          </div>
+        ` : `
+          <div class="p-3.5 bg-blue-50/70 dark:bg-blue-950/40 border border-blue-100 dark:border-blue-800/50 rounded-2xl flex items-center justify-between text-xs">
+            <div class="flex items-center gap-2 text-slate-700 dark:text-slate-300">
+              <div class="w-7 h-7 rounded-lg bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-sky-400 flex items-center justify-center">
+                <i data-lucide="wallet" class="w-4 h-4"></i>
+              </div>
+              <span>Số dư Credit khả dụng: <strong class="font-mono text-sm font-bold text-slate-900 dark:text-white">${userCredit.toLocaleString('vi-VN')} Credit</strong></span>
             </div>
-            <div>
-              <label class="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">Chủ đề</label>
-              <select id="fast-category" class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-xs font-medium focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
-                <option value="Thị trường">Thị trường</option>
-                <option value="Công nghệ">Công nghệ & AI</option>
-                <option value="Học thuật">Học thuật & Luận văn</option>
-                <option value="Thương mại điện tử">Thương mại điện tử</option>
-                <option value="Đời sống">Đời sống & Xã hội</option>
+            <button type="button" onclick="VibeApp.openDepositModal()" class="py-1.5 px-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold flex items-center gap-1">
+              <span>+ Nạp Quỹ</span>
+              <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+            </button>
+          </div>
+        `}
+
+        <!-- Thông tin cơ bản -->
+        <div class="bento-card p-5 sm:p-6 space-y-4">
+          <div class="flex items-center gap-2 pb-2 border-b border-slate-100 dark:border-slate-800">
+            <i data-lucide="info" class="w-4 h-4 text-blue-600 dark:text-sky-400"></i>
+            <h2 class="text-sm font-bold text-slate-900 dark:text-white">Thông Tin Khảo Sát</h2>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div class="sm:col-span-2 space-y-1.5">
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-200">Tiêu đề khảo sát *</label>
+              <input type="text" id="fast-title" placeholder="VD: Khảo sát hành vi tiêu dùng và trải nghiệm ứng dụng tài chính..." 
+                     class="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-xs sm:text-sm font-medium focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
+            </div>
+            <div class="space-y-1.5">
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-200">Lĩnh vực nghiên cứu</label>
+              <select id="fast-category" class="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-xs sm:text-sm font-medium focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
+                <option value="Thị trường">Thị trường & Người tiêu dùng</option>
+                <option value="Công nghệ">Công nghệ, Phần mềm & AI</option>
+                <option value="Học thuật">Học thuật, Luận văn & Sinh viên</option>
+                <option value="Thương mại điện tử">Thương mại điện tử & Bán lẻ</option>
+                <option value="Đời sống">Đời sống, Sức khỏe & Xã hội</option>
               </select>
             </div>
           </div>
+        </div>
 
-          <!-- Tab Selection (3 Chế Độ Tạo Khảo Sát) -->
-          <div class="space-y-2">
-            <label class="block text-xs font-bold text-slate-700 dark:text-slate-200">Phương thức tạo nội dung:</label>
-            <div class="grid grid-cols-3 gap-1.5 p-1 bg-slate-100 dark:bg-slate-800 rounded-xl text-xs font-bold">
-              <button type="button" id="tab-btn-builder" onclick="VibeApp.switchCreateSurveyTab('BUILDER')" class="py-2 px-2 rounded-lg transition-all ${this.state.createSurveyTab === 'BUILDER' ? 'bg-white dark:bg-slate-900 text-blue-600 dark:text-sky-400 shadow-xs' : 'text-slate-500 dark:text-slate-400 hover:text-slate-900'} flex items-center justify-center gap-1.5">
+        <!-- Phương Thức Tạo Nội Dung -->
+        <div class="bento-card p-5 sm:p-6 space-y-5">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100 dark:border-slate-800">
+            <div class="flex items-center gap-2">
+              <i data-lucide="layers" class="w-4 h-4 text-blue-600 dark:text-sky-400"></i>
+              <h2 class="text-sm font-bold text-slate-900 dark:text-white">Phương Thức Tạo Biểu Mẫu</h2>
+            </div>
+            
+            <div class="grid grid-cols-3 gap-1.5 p-1 bg-slate-100 dark:bg-slate-800/80 rounded-2xl text-xs font-bold">
+              <button type="button" id="tab-btn-builder" onclick="VibeApp.switchCreateSurveyTab('BUILDER')" class="py-2 px-3 rounded-xl transition-all ${this.state.createSurveyTab === 'BUILDER' ? 'bg-white dark:bg-slate-800 text-blue-600 dark:text-sky-400 shadow-xs font-bold' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 font-semibold'} flex items-center justify-center gap-1.5">
                 <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
-                <span class="truncate">Soạn Trực Tiếp</span>
+                <span>Soạn Trực Tiếp</span>
               </button>
-              <button type="button" id="tab-btn-paste" onclick="VibeApp.switchCreateSurveyTab('SMART_PASTE')" class="py-2 px-2 rounded-lg transition-all ${this.state.createSurveyTab === 'SMART_PASTE' ? 'bg-white dark:bg-slate-900 text-blue-600 dark:text-sky-400 shadow-xs' : 'text-slate-500 dark:text-slate-400 hover:text-slate-900'} flex items-center justify-center gap-1.5">
+              <button type="button" id="tab-btn-paste" onclick="VibeApp.switchCreateSurveyTab('SMART_PASTE')" class="py-2 px-3 rounded-xl transition-all ${this.state.createSurveyTab === 'SMART_PASTE' ? 'bg-white dark:bg-slate-800 text-blue-600 dark:text-sky-400 shadow-xs font-bold' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 font-semibold'} flex items-center justify-center gap-1.5">
                 <i data-lucide="file-text" class="w-3.5 h-3.5"></i>
-                <span class="truncate">Dán Text Nhanh</span>
+                <span>Dán Text Nhanh</span>
               </button>
-              <button type="button" id="tab-btn-url" onclick="VibeApp.switchCreateSurveyTab('EXTERNAL_URL')" class="py-2 px-2 rounded-lg transition-all ${this.state.createSurveyTab === 'EXTERNAL_URL' ? 'bg-white dark:bg-slate-900 text-blue-600 dark:text-sky-400 shadow-xs' : 'text-slate-500 dark:text-slate-400 hover:text-slate-900'} flex items-center justify-center gap-1.5">
+              <button type="button" id="tab-btn-url" onclick="VibeApp.switchCreateSurveyTab('EXTERNAL_URL')" class="py-2 px-3 rounded-xl transition-all ${this.state.createSurveyTab === 'EXTERNAL_URL' ? 'bg-white dark:bg-slate-800 text-blue-600 dark:text-sky-400 shadow-xs font-bold' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 font-semibold'} flex items-center justify-center gap-1.5">
                 <i data-lucide="link-2" class="w-3.5 h-3.5"></i>
-                <span class="truncate">Google/MS Forms</span>
+                <span>Google / MS Forms</span>
               </button>
             </div>
           </div>
 
           <!-- TAB 1: FORM BUILDER TRỰC TIẾP -->
-          <div id="create-tab-content-BUILDER" class="${this.state.createSurveyTab === 'BUILDER' ? '' : 'hidden'} space-y-3">
+          <div id="create-tab-content-BUILDER" class="${this.state.createSurveyTab === 'BUILDER' ? '' : 'hidden'} space-y-4">
             <div class="flex items-center justify-between">
-              <span class="text-xs font-bold text-slate-700 dark:text-slate-200">
-                Danh sách câu hỏi (<span id="builder-q-count">${this.state.builderQuestions.length}</span> câu):
+              <span class="text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-200 flex items-center gap-2">
+                <span>Danh sách câu hỏi:</span>
+                <span class="px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-sky-300 font-mono text-xs font-bold" id="builder-q-count">${this.state.builderQuestions.length}</span>
               </span>
-              <button type="button" onclick="VibeApp.addBuilderQuestion()" class="px-2.5 py-1 bg-blue-50 dark:bg-blue-950/60 hover:bg-blue-100 text-blue-700 dark:text-sky-300 rounded-lg text-[11px] font-bold flex items-center gap-1 transition-colors">
-                <i data-lucide="plus" class="w-3 h-3"></i>
+              <button type="button" onclick="VibeApp.addBuilderQuestion()" class="py-2 px-3.5 bg-blue-50 dark:bg-blue-950/60 hover:bg-blue-100 text-blue-700 dark:text-sky-300 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors">
+                <i data-lucide="plus" class="w-3.5 h-3.5 stroke-[2.5]"></i>
                 <span>Thêm Câu Hỏi</span>
               </button>
             </div>
 
             <!-- List Questions Container -->
-            <div id="builder-questions-list" class="space-y-3">
+            <div id="builder-questions-list" class="space-y-4">
               ${this.renderBuilderQuestionsHtml()}
             </div>
           </div>
 
           <!-- TAB 2: SMART TEXT PASTE -->
-          <div id="create-tab-content-SMART_PASTE" class="${this.state.createSurveyTab === 'SMART_PASTE' ? '' : 'hidden'} space-y-2.5">
-            <div class="p-2.5 bg-blue-50/60 dark:bg-blue-950/30 border border-blue-100 dark:border-blue-900/40 rounded-xl text-xs text-slate-600 dark:text-slate-300">
-              💡 <strong>Mẹo dán văn bản:</strong> Bạn có thể copy câu hỏi từ Word, Notion hoặc Google Docs dán vào đây. Hệ thống sẽ tự động tách thành câu hỏi và các lựa chọn đáp án.
+          <div id="create-tab-content-SMART_PASTE" class="${this.state.createSurveyTab === 'SMART_PASTE' ? '' : 'hidden'} space-y-3">
+            <div class="p-3 bg-blue-50/70 dark:bg-blue-950/30 border border-blue-100 dark:border-blue-900/40 rounded-xl text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+              💡 <strong>Mẹo dán văn bản:</strong> Sao chép toàn bộ nội dung từ Word, Notion hoặc Google Docs và dán vào đây. Hệ thống sẽ tự động tách số thứ tự, câu hỏi và danh sách đáp án A, B, C, D hoặc thang điểm 1-5.
             </div>
-            <textarea id="smart-paste-input" rows="5" placeholder="Câu 1: Bạn thường dùng thiết bị nào để học tập?&#10;A. Laptop&#10;B. Điện thoại thông minh&#10;C. Máy tính bảng&#10;&#10;Câu 2: Bạn hài lòng với chất lượng mạng wifi trường không?&#10;1 - Rất tệ&#10;2 - Tệ&#10;3 - Bình thường&#10;4 - Tốt&#10;5 - Rất tốt" 
-                      class="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-xs font-mono leading-relaxed focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"></textarea>
-            <button type="button" onclick="VibeApp.handleSmartPasteSubmit()" class="w-full py-2 px-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all">
-              <i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-400"></i>
-              <span>Tự Động Nhận Diện & Nạp Câu Hỏi Vào Khảo Sát</span>
+            <textarea id="smart-paste-input" rows="8" placeholder="Câu 1: Bạn thường sử dụng thiết bị nào khi học trực tuyến?&#10;A. Máy tính xách tay (Laptop)&#10;B. Điện thoại thông minh&#10;C. Máy tính bảng (Tablet)&#10;&#10;Câu 2: Bạn hài lòng với tốc độ đường truyền internet hiện tại không?&#10;1 - Rất tệ&#10;2 - Tệ&#10;3 - Bình thường&#10;4 - Tốt&#10;5 - Rất tốt" 
+                      class="w-full p-4 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-xs font-mono leading-relaxed focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"></textarea>
+            <button type="button" onclick="VibeApp.handleSmartPasteSubmit()" class="w-full py-3 px-4 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all shadow-xs">
+              <i data-lucide="sparkles" class="w-4 h-4 text-amber-400"></i>
+              <span>Tự Động Nhận Diện & Nạp Vào Bộ Soạn Thảo</span>
             </button>
           </div>
 
           <!-- TAB 3: EXTERNAL URL (GOOGLE/MS FORMS) -->
-          <div id="create-tab-content-EXTERNAL_URL" class="${this.state.createSurveyTab === 'EXTERNAL_URL' ? '' : 'hidden'} space-y-3">
-            <div>
-              <label class="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">Đường dẫn Google Forms / MS Forms:</label>
-              <input type="url" id="fast-form-url" placeholder="https://docs.google.com/forms/d/..." 
-                     class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-xs focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
+          <div id="create-tab-content-EXTERNAL_URL" class="${this.state.createSurveyTab === 'EXTERNAL_URL' ? '' : 'hidden'} space-y-4">
+            <div class="space-y-1.5">
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-200">Đường dẫn Google Forms / Microsoft Forms:</label>
+              <input type="url" id="fast-form-url" placeholder="https://docs.google.com/forms/d/e/.../viewform hoặc https://forms.office.com/..." 
+                     class="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-xs sm:text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
+              <p class="text-[11px] text-slate-400">Nền tảng hỗ trợ liên kết ngoài từ Google Forms và Microsoft Forms có xác thực qua link.</p>
             </div>
 
             <!-- Google Sheets Webhook Sync -->
-            <div class="space-y-1">
+            <div class="space-y-2 pt-2 border-t border-slate-100 dark:border-slate-800">
               <div class="flex items-center justify-between">
-                <label class="block text-xs font-bold text-slate-700 dark:text-slate-200">Google Sheets Webhook URL (Tùy chọn):</label>
-                <button type="button" onclick="VibeApp.openGoogleAppsScriptGuide()" class="text-[11px] font-bold text-blue-600 dark:text-sky-400 hover:text-blue-700 dark:hover:text-sky-300 flex items-center gap-1 transition-colors">
-                  <i data-lucide="code" class="w-3 h-3"></i>
-                  <span>Xem mẫu Apps Script (1-Click)</span>
+                <label class="block text-xs font-bold text-slate-700 dark:text-slate-200">Google Sheets Webhook URL (Tự động đồng bộ thời gian thực):</label>
+                <button type="button" onclick="VibeApp.openGoogleAppsScriptGuide()" class="text-xs font-bold text-blue-600 dark:text-sky-400 hover:text-blue-700 flex items-center gap-1">
+                  <i data-lucide="code" class="w-3.5 h-3.5"></i>
+                  <span>Xem mã Apps Script (1-Click)</span>
                 </button>
               </div>
               <input type="url" id="fast-google-sheets-url" placeholder="https://script.google.com/macros/s/AKfycb.../exec" 
-                     class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-xs font-mono focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
-              <p class="text-[10px] text-slate-500 dark:text-slate-400">Tự động bắn dữ liệu câu trả lời của đáp viên về Google Sheets của bạn theo thời gian thực.</p>
+                     class="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-xs font-mono focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
+              <p class="text-[11px] text-slate-400">Mỗi khi có đáp viên nộp bài hợp lệ, hệ thống sẽ tự động gửi câu trả lời về file Google Sheets của bạn.</p>
             </div>
           </div>
-
-          <!-- Cài đặt số lượng mẫu & Điểm thưởng -->
-          <div class="grid grid-cols-2 gap-3 pt-1 border-t border-slate-100 dark:border-slate-800">
-            <div>
-              <label class="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">Số mẫu mục tiêu:</label>
-              <input type="number" id="fast-target-count" value="${defaultTarget}" min="10" step="5" class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-xs font-mono font-bold focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
-            </div>
-            <div>
-              <label class="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">Điểm thưởng mỗi mẫu:</label>
-              <input type="number" id="fast-reward-points" value="200" min="50" step="50" class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-xs font-mono font-bold focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
-            </div>
-          </div>
-
-          <!-- Nút hành động -->
-          <div class="flex gap-2.5 pt-2">
-            <button onclick="VibeApp.submitFastCreate()" class="flex-1 py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-md shadow-blue-500/20 transition-all active:scale-[0.98] flex items-center justify-center gap-1.5">
-              <i data-lucide="send" class="w-4 h-4"></i>
-              <span>${hasFreeTrial ? 'Xuất Bản Khảo Sát Miễn Phí (0đ)' : 'Xuất Bản & Ký Quỹ Khảo Sát'}</span>
-            </button>
-            <button onclick="VibeApp.closeModal()" class="py-3 px-4 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-bold transition-all active:scale-[0.98]">
-              Hủy
-            </button>
-          </div>
-
         </div>
-      `
-    });
+
+        <!-- Cài đặt số lượng mẫu & Điểm thưởng -->
+        <div class="bento-card p-5 sm:p-6 space-y-4">
+          <div class="flex items-center gap-2 pb-2 border-b border-slate-100 dark:border-slate-800">
+            <i data-lucide="settings-2" class="w-4 h-4 text-blue-600 dark:text-sky-400"></i>
+            <h2 class="text-sm font-bold text-slate-900 dark:text-white">Quy Mô Khảo Sát & Điểm Thưởng Cho Đáp Viên</h2>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="space-y-1.5">
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-200">Số lượng phản hồi mục tiêu:</label>
+              <input type="number" id="fast-target-count" value="${defaultTarget}" min="10" step="5" class="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-sm font-mono font-bold focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
+              <p class="text-[11px] text-slate-400">Khảo sát sẽ tự động đóng lại khi thu thập đủ số lượng mẫu này.</p>
+            </div>
+            <div class="space-y-1.5">
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-200">Điểm thưởng mỗi lượt làm bài:</label>
+              <input type="number" id="fast-reward-points" value="200" min="50" step="50" class="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-sm font-mono font-bold focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
+              <p class="text-[11px] text-slate-400">Tỷ giá: 1 Điểm = 10 VNĐ (VD: 200 Điểm tương đương 2.000 VNĐ cho đáp viên).</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Thanh nút Submit cuối trang -->
+        <div class="flex flex-col sm:flex-row items-center justify-end gap-3 pt-4">
+          <button onclick="VibeApp.navigate('creator-surveys')" class="w-full sm:w-auto py-3 px-6 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 text-slate-700 dark:text-slate-200 text-xs font-bold transition-all">
+            Hủy & Về Danh Sách
+          </button>
+          <button onclick="VibeApp.submitFastCreate()" class="w-full sm:w-auto py-3.5 px-8 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-extrabold shadow-lg shadow-blue-500/25 transition-all active:scale-[0.98] flex items-center justify-center gap-2">
+            <i data-lucide="send" class="w-4 h-4"></i>
+            <span>${hasFreeTrial ? 'Xuất Bản Khảo Sát Miễn Phí (0đ)' : 'Xuất Bản & Khóa Quỹ Ký Quỹ'}</span>
+          </button>
+        </div>
+
+      </div>
+    `;
 
     if (window.lucide) window.lucide.createIcons();
   },
@@ -3474,9 +3525,9 @@ const VibeApp = {
       }
       if (btnEl) {
         if (t === tab) {
-          btnEl.className = 'py-2 px-2 rounded-lg transition-all bg-white dark:bg-slate-900 text-blue-600 dark:text-sky-400 shadow-xs flex items-center justify-center gap-1.5';
+          btnEl.className = 'py-2.5 px-3 rounded-xl transition-all bg-white dark:bg-slate-800 text-blue-600 dark:text-sky-400 shadow-xs flex items-center justify-center gap-2 font-bold';
         } else {
-          btnEl.className = 'py-2 px-2 rounded-lg transition-all text-slate-500 dark:text-slate-400 hover:text-slate-900 flex items-center justify-center gap-1.5';
+          btnEl.className = 'py-2.5 px-3 rounded-xl transition-all text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 flex items-center justify-center gap-2 font-semibold';
         }
       }
     });
@@ -3503,11 +3554,21 @@ const VibeApp = {
           </div>
 
           <div class="flex items-center gap-2">
-            <select onchange="VibeApp.updateBuilderQuestionType(${qIdx}, this.value)" class="py-1 px-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-[11px] font-medium text-slate-700 dark:text-slate-200 focus:outline-none">
-              <option value="SINGLE_CHOICE" ${q.type === 'SINGLE_CHOICE' ? 'selected' : ''}>Trắc nghiệm (1 đáp án)</option>
-              <option value="MULTIPLE_CHOICE" ${q.type === 'MULTIPLE_CHOICE' ? 'selected' : ''}>Hộp kiểm (Nhiều đáp án)</option>
-              <option value="LIKERT_SCALE" ${q.type === 'LIKERT_SCALE' ? 'selected' : ''}>Thang đo Likert (1-5 sao)</option>
-              <option value="OPEN_TEXT" ${q.type === 'OPEN_TEXT' ? 'selected' : ''}>Ý kiến tự luận</option>
+            <select onchange="VibeApp.updateBuilderQuestionType(${qIdx}, this.value)" class="py-1 px-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-[11px] font-bold text-blue-600 dark:text-sky-400 focus:outline-none">
+              <optgroup label="Lựa chọn có sẵn">
+                <option value="SINGLE_CHOICE" ${q.type === 'SINGLE_CHOICE' ? 'selected' : ''}>Trắc nghiệm (1 đáp án)</option>
+                <option value="MULTIPLE_CHOICE" ${q.type === 'MULTIPLE_CHOICE' ? 'selected' : ''}>Hộp kiểm (Nhiều đáp án)</option>
+                <option value="DROPDOWN" ${q.type === 'DROPDOWN' ? 'selected' : ''}>Menu thả xuống (Dropdown)</option>
+              </optgroup>
+              <optgroup label="Thang đo & Đánh giá">
+                <option value="LIKERT_SCALE" ${q.type === 'LIKERT_SCALE' ? 'selected' : ''}>Thang đo Likert (1-5 mức độ)</option>
+                <option value="RATING_STARS" ${q.type === 'RATING_STARS' ? 'selected' : ''}>Đánh giá xếp hạng (1-5 Sao)</option>
+              </optgroup>
+              <optgroup label="Nhập liệu văn bản & dữ liệu">
+                <option value="OPEN_TEXT" ${q.type === 'OPEN_TEXT' ? 'selected' : ''}>Văn bản tự luận (Ý kiến mở)</option>
+                <option value="NUMBER_INPUT" ${q.type === 'NUMBER_INPUT' ? 'selected' : ''}>Nhập số liệu (Number)</option>
+                <option value="DATE_INPUT" ${q.type === 'DATE_INPUT' ? 'selected' : ''}>Chọn ngày tháng (Date)</option>
+              </optgroup>
             </select>
 
             ${list.length > 1 ? `
@@ -3523,7 +3584,7 @@ const VibeApp = {
                  class="w-full p-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-xs font-semibold focus:ring-1 focus:ring-blue-500 focus:outline-none">
         </div>
 
-        ${q.type !== 'OPEN_TEXT' ? `
+        ${['SINGLE_CHOICE', 'MULTIPLE_CHOICE', 'DROPDOWN', 'LIKERT_SCALE'].includes(q.type) ? `
           <div class="pl-4 border-l-2 border-slate-200 dark:border-slate-700 space-y-1.5 pt-1">
             <div class="text-[11px] font-semibold text-slate-500 dark:text-slate-400 flex items-center justify-between">
               <span>Các lựa chọn trả lời:</span>
@@ -3563,11 +3624,26 @@ const VibeApp = {
               ` : ''}
             </div>
           </div>
-        ` : `
-          <div class="p-2 bg-slate-100 dark:bg-slate-800/60 rounded-lg text-[11px] text-slate-500 italic">
-            (Người làm khảo sát sẽ tự nhập câu trả lời dạng văn bản tự do)
+        ` : (q.type === 'RATING_STARS' ? `
+          <div class="p-3 bg-amber-50/60 dark:bg-amber-950/30 rounded-xl border border-amber-200/60 dark:border-amber-800/40 text-[11px] text-amber-800 dark:text-amber-300 flex items-center gap-2">
+            <i data-lucide="star" class="w-4 h-4 fill-amber-400 text-amber-400 flex-shrink-0"></i>
+            <span>Định dạng đánh giá trực quan từ 1 đến 5 sao theo chuẩn quốc tế.</span>
           </div>
-        `}
+        ` : (q.type === 'NUMBER_INPUT' ? `
+          <div class="p-3 bg-blue-50/60 dark:bg-blue-950/30 rounded-xl border border-blue-200/60 dark:border-blue-800/40 text-[11px] text-blue-800 dark:text-sky-300 flex items-center gap-2 font-mono">
+            <i data-lucide="hash" class="w-4 h-4 flex-shrink-0"></i>
+            <span>Chỉ cho phép đáp viên nhập các giá trị số (tuổi tác, thu nhập, số lượng,...).</span>
+          </div>
+        ` : (q.type === 'DATE_INPUT' ? `
+          <div class="p-3 bg-indigo-50/60 dark:bg-indigo-950/30 rounded-xl border border-indigo-200/60 dark:border-indigo-800/40 text-[11px] text-indigo-800 dark:text-indigo-300 flex items-center gap-2">
+            <i data-lucide="calendar" class="w-4 h-4 flex-shrink-0"></i>
+            <span>Hiển thị bộ chọn ngày tháng năm (Date Picker) thông minh.</span>
+          </div>
+        ` : `
+          <div class="p-3 bg-slate-100 dark:bg-slate-800/60 rounded-xl text-[11px] text-slate-500 italic">
+            (Người làm khảo sát sẽ tự nhập câu trả lời dạng văn bản tự do không giới hạn)
+          </div>
+        `)))}
       </div>
     `).join('');
   },
@@ -3633,7 +3709,7 @@ const VibeApp = {
       this.state.builderQuestions[qIdx].type = newType;
       if (newType === 'LIKERT_SCALE' && (!this.state.builderQuestions[qIdx].options || this.state.builderQuestions[qIdx].options.length < 3)) {
         this.state.builderQuestions[qIdx].options = ['1 - Rất không hài lòng', '2 - Không hài lòng', '3 - Bình thường', '4 - Hài lòng', '5 - Rất hài lòng'];
-      } else if (newType !== 'OPEN_TEXT' && (!this.state.builderQuestions[qIdx].options || this.state.builderQuestions[qIdx].options.length === 0)) {
+      } else if (['SINGLE_CHOICE', 'MULTIPLE_CHOICE', 'DROPDOWN'].includes(newType) && (!this.state.builderQuestions[qIdx].options || this.state.builderQuestions[qIdx].options.length === 0)) {
         this.state.builderQuestions[qIdx].options = ['Lựa chọn A', 'Lựa chọn B', 'Lựa chọn C'];
       }
       this.refreshBuilderQuestionsView();
@@ -3935,10 +4011,10 @@ const VibeApp = {
         if (!content) continue; // Bỏ qua câu hỏi rỗng
 
         let validOptions = [];
-        if (q.type !== 'OPEN_TEXT') {
+        if (['SINGLE_CHOICE', 'MULTIPLE_CHOICE', 'DROPDOWN', 'LIKERT_SCALE'].includes(q.type)) {
           validOptions = (q.options || []).map(o => (o || '').trim()).filter(Boolean);
           if (validOptions.length < 2) {
-            this.showToast(`Câu hỏi ${i + 1} cần có ít nhất 2 lựa chọn đáp án!`, 'warning');
+            this.showToast(`Câu hỏi ${i + 1} (${q.type}) cần có ít nhất 2 lựa chọn đáp án!`, 'warning');
             return;
           }
         }

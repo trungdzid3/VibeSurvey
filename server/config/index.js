@@ -76,5 +76,22 @@ module.exports = {
     API_KEY: process.env.BREVO_API_KEY || '',
     SENDER_EMAIL: process.env.BREVO_SENDER_EMAIL || 'no-reply@vibesurvey.com',
     SENDER_NAME: process.env.BREVO_SENDER_NAME || 'VibeSurvey Platform'
+  },
+
+  // Cấu hình dịch vụ Email SMTP dự phòng (Gmail / Outlook / Custom SMTP)
+  SMTP: {
+    HOST: process.env.SMTP_HOST || 'smtp.gmail.com',
+    PORT: parseInt(process.env.SMTP_PORT, 10) || 465,
+    USER: process.env.SMTP_USER || '',
+    PASS: process.env.SMTP_PASS || '',
+    FROM_EMAIL: process.env.SMTP_FROM_EMAIL || process.env.SMTP_USER || '',
+    FROM_NAME: process.env.SMTP_FROM_NAME || 'VibeSurvey Platform'
+  },
+
+  // Cấu hình dịch vụ Email Resend (resend.com API v1)
+  RESEND: {
+    API_KEY: process.env.RESEND_API_KEY || '',
+    FROM_EMAIL: process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev',
+    FROM_NAME: process.env.RESEND_FROM_NAME || 'VibeSurvey Platform'
   }
 };

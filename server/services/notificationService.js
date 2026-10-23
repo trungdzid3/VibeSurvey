@@ -74,8 +74,10 @@ class NotificationService {
         insertEmailLog.run(emailLogId, respondent.id, respondent.email, survey.id, emailSubject, emailBodySnippet);
         emailCount++;
 
-        // Nếu có BREVO_API_KEY, bắn email thật qua Brevo API (bất đồng bộ non-blocking)
-        if (config.BREVO && config.BREVO.API_KEY && respondent.email) {
+        // Chỉ gửi email thật qua Brevo cho email cá nhân của Creator/Admin hoặc nếu không phải môi trường test
+        // Tránh tình trạng Gom Mẫu Hỏa Tốc loop qua hàng trăm dummy respondent làm cạn kiệt 300 email/ngày của Brevo Free
+        const isRealUserEmail = respondent.email && !respondent.email.includes('example.com') && !respondent.email.includes('test') && !respondent.email.includes('spammer') && !respondent.email.includes('bot');
+        if (config.BREVO && config.BREVO.API_KEY && isRealUserEmail && config.NODE_ENV === 'production') {
           this.sendBrevoEmail({
             toEmail: respondent.email,
             toName: respondent.name,
@@ -220,6 +222,183 @@ class NotificationService {
       console.error('Lỗi gọi Brevo API:', err.message);
       return { success: false, error: err.message };
     }
+  }
+
+  /**
+   * Gửi email qua SMTP SSL (Gmail, Outlook, v.v.) thuần Node.js không cần cài thêm thư viện
+   */
+  async sendSmtpEmail({ toEmail, toName, subject, htmlContent, textContent }) {
+    const host = config.SMTP && config.SMTP.HOST;
+    const port = (config.SMTP && config.SMTP.PORT) || 465;
+    const user = config.SMTP && config.SMTP.USER;
+    const pass = config.SMTP && config.SMTP.PASS;
+    const fromEmail = (config.SMTP && config.SMTP.FROM_EMAIL) || user;
+    const fromName = (config.SMTP && config.SMTP.FROM_NAME) || 'VibeSurvey Platform';
+
+    if (!user || !pass) {
+      return { success: false, reason: 'SMTP chưa được cấu hình USER hoặc PASS trong .env' };
+    }
+
+    const tls = require('tls');
+    return new Promise((resolve) => {
+      const socket = tls.connect(port, host, () => {
+        let step = 0;
+        let buffer = '';
+
+        const sendCmd = (cmd) => {
+          socket.write(cmd + '\r\n');
+        };
+
+        socket.on('data', (data) => {
+          buffer += data.toString();
+          const lines = buffer.split('\r\n');
+          const lastLine = lines[lines.length - 2] || lines[lines.length - 1];
+
+          if (step === 0 && lastLine.startsWith('220')) {
+            step = 1;
+            sendCmd(`EHLO ${host}`);
+          } else if (step === 1 && (lastLine.startsWith('250 ') || lastLine.startsWith('250-'))) {
+            if (lastLine.startsWith('250 ')) {
+              step = 2;
+              sendCmd('AUTH LOGIN');
+            }
+          } else if (step === 2 && lastLine.startsWith('334')) {
+            step = 3;
+            sendCmd(Buffer.from(user).toString('base64'));
+          } else if (step === 3 && lastLine.startsWith('334')) {
+            step = 4;
+            sendCmd(Buffer.from(pass).toString('base64'));
+          } else if (step === 4 && lastLine.startsWith('235')) {
+            step = 5;
+            sendCmd(`MAIL FROM:<${fromEmail}>`);
+          } else if (step === 5 && lastLine.startsWith('250')) {
+            step = 6;
+            sendCmd(`RCPT TO:<${toEmail}>`);
+          } else if (step === 6 && lastLine.startsWith('250')) {
+            step = 7;
+            sendCmd('DATA');
+          } else if (step === 7 && lastLine.startsWith('354')) {
+            step = 8;
+            const boundary = '----=_Part_' + Date.now();
+            const rawMessage = [
+              `From: "${fromName}" <${fromEmail}>`,
+              `To: "${toName || 'User'}" <${toEmail}>`,
+              `Subject: =?UTF-8?B?${Buffer.from(subject).toString('base64')}?=`,
+              'MIME-Version: 1.0',
+              `Content-Type: multipart/alternative; boundary="${boundary}"`,
+              '',
+              `--${boundary}`,
+              'Content-Type: text/plain; charset=UTF-8',
+              'Content-Transfer-Encoding: base64',
+              '',
+              Buffer.from(textContent || '').toString('base64'),
+              '',
+              `--${boundary}`,
+              'Content-Type: text/html; charset=UTF-8',
+              'Content-Transfer-Encoding: base64',
+              '',
+              Buffer.from(htmlContent || '').toString('base64'),
+              '',
+              `--${boundary}--`,
+              '.'
+            ].join('\r\n');
+            socket.write(rawMessage + '\r\n');
+          } else if (step === 8 && lastLine.startsWith('250')) {
+            step = 9;
+            sendCmd('QUIT');
+            socket.end();
+            resolve({ success: true, mode: 'LIVE_SMTP' });
+          } else if (lastLine.startsWith('5') || lastLine.startsWith('4')) {
+            socket.end();
+            console.warn('Lỗi SMTP response:', lastLine);
+            resolve({ success: false, error: lastLine });
+          }
+        });
+
+        socket.on('error', (err) => {
+          console.warn('Lỗi kết nối SMTP socket:', err.message);
+          resolve({ success: false, error: err.message });
+        });
+      });
+    });
+  }
+
+  /**
+   * Gửi email qua Resend REST API v1 (resend.com)
+   * Sử dụng native fetch Node.js, zero dependencies
+   */
+  async sendResendEmail({ toEmail, toName, subject, htmlContent, textContent }) {
+    const apiKey = config.RESEND && config.RESEND.API_KEY;
+    if (!apiKey) {
+      return { success: false, reason: 'Chưa cấu hình RESEND_API_KEY trong .env' };
+    }
+
+    try {
+      const fromName = config.RESEND.FROM_NAME || 'VibeSurvey Platform';
+      const fromEmail = config.RESEND.FROM_EMAIL || 'onboarding@resend.dev';
+      const response = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          from: `${fromName} <${fromEmail}>`,
+          to: [toEmail],
+          subject: subject,
+          html: htmlContent,
+          text: textContent
+        })
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        console.warn('Cảnh báo phản hồi Resend API:', response.status, data);
+        return { success: false, status: response.status, error: data };
+      }
+
+      return { success: true, mode: 'LIVE_RESEND', id: data.id };
+    } catch (err) {
+      console.error('Lỗi gọi Resend API:', err.message);
+      return { success: false, error: err.message };
+    }
+  }
+
+  /**
+   * Bộ điều phối gửi Email thông minh đa kênh (Hybrid Fallback Email Dispatcher):
+   * 1. Kênh 1: Resend API (Hiện đại, độ tin cậy cao, 100 email/ngày)
+   * 2. Kênh 2: Brevo API (300 email/ngày)
+   * 3. Kênh 3: SMTP SSL (Gmail, Outlook với App Password)
+   */
+  async sendSmartEmail({ toEmail, toName, subject, htmlContent, textContent }) {
+    // 1. Kênh 1: Thử Resend nếu có cấu hình
+    if (config.RESEND && config.RESEND.API_KEY) {
+      const resendRes = await this.sendResendEmail({ toEmail, toName, subject, htmlContent, textContent });
+      if (resendRes && resendRes.success) {
+        return resendRes;
+      }
+      console.warn('Kênh Resend không khả dụng hoặc lỗi, thử tiếp kênh Brevo...');
+    }
+
+    // 2. Kênh 2: Thử Brevo
+    if (config.BREVO && config.BREVO.API_KEY) {
+      const brevoRes = await this.sendBrevoEmail({ toEmail, toName, subject, htmlContent, textContent });
+      if (brevoRes && brevoRes.success) {
+        return brevoRes;
+      }
+      console.warn('Kênh Brevo không khả dụng hoặc hết quota, chuyển tiếp sang Kênh SMTP dự phòng...');
+    }
+
+    // 3. Kênh 3: Thử SMTP (Gmail / Outlook) nếu có cấu hình
+    if (config.SMTP && config.SMTP.USER && config.SMTP.PASS) {
+      const smtpRes = await this.sendSmtpEmail({ toEmail, toName, subject, htmlContent, textContent });
+      if (smtpRes && smtpRes.success) {
+        return smtpRes;
+      }
+      console.warn('Kênh SMTP dự phòng cũng thất bại:', smtpRes.error || smtpRes.reason);
+    }
+
+    return { success: false, reason: 'Không có kênh gửi email nào khả dụng hoặc tất cả đều hết quota' };
   }
 
   /**

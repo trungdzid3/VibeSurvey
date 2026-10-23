@@ -7,9 +7,9 @@ const antiFraudService = require('../services/antiFraudService');
 
 class AuthController {
   /**
-   * Gửi mã OTP xác thực trước khi đăng ký tài khoản (Brevo Email Relay)
+   * Gửi mã OTP xác thực trước khi đăng ký tài khoản (Đa kênh: Resend -> Brevo -> SMTP)
    */
-  sendRegistrationOtp(req, res) {
+  async sendRegistrationOtp(req, res) {
     try {
       const { email, name } = req.body;
       if (!email || typeof email !== 'string' || !email.includes('@')) {
@@ -37,47 +37,65 @@ class AuthController {
 
       console.log(`\n=======================================================\n📧 [REGISTRATION OTP] Gửi mã xác thực đăng ký đến: ${cleanEmail}\n🔑 MÃ XÁC THỰC 6 CHỮ SỐ LÀ: [ ${otp} ] (Hết hạn sau 10 phút)\n=======================================================\n`);
 
-      // Gửi email qua Brevo API nếu có cấu hình
-      if (config.BREVO && config.BREVO.API_KEY) {
-        const notificationService = require('../services/notificationService');
-        const emailSubject = `[VibeSurvey] 🔐 Mã xác thực đăng ký tài khoản: ${otp}`;
-        const emailHtml = `
-          <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 500px; margin: 0 auto; background: #ffffff; border-radius: 16px; overflow: hidden; border: 1px solid #e2e8f0; box-shadow: 0 4px 20px rgba(0,0,0,0.05);">
-            <div style="background: linear-gradient(135deg, #0F172A, #1E293B); padding: 24px; text-align: center; color: #ffffff;">
-              <h2 style="margin: 0; font-size: 20px; font-weight: 800; color: #ffffff;">⚡ VIBESURVEY XÁC THỰC ĐĂNG KÝ</h2>
-              <p style="margin: 6px 0 0; font-size: 13px; color: #94a3b8;">Xác minh email để hoàn tất tạo tài khoản & nhận 25 lượt free</p>
-            </div>
-            <div style="padding: 28px 24px; text-align: center;">
-              <p style="font-size: 15px; color: #334155; margin-top: 0;">Chào <strong>${name || 'bạn'}</strong>,</p>
-              <p style="font-size: 13px; color: #64748b; line-height: 1.6;">Dưới đây là mã xác thực OTP 6 chữ số dùng để kích hoạt tài khoản mới của bạn trên VibeSurvey:</p>
-              <div style="margin: 24px 0; background: #f8fafc; border: 2px dashed #0056D2; border-radius: 12px; padding: 16px; display: inline-block;">
-                <span style="font-size: 32px; font-weight: 800; font-family: monospace; letter-spacing: 6px; color: #0056D2;">${otp}</span>
-              </div>
-              <p style="font-size: 12px; color: #94a3b8; margin: 0;">Mã có hiệu lực trong <strong>10 phút</strong>. Tuyệt đối không chia sẻ mã này cho người khác.</p>
-            </div>
-            <div style="background: #f8fafc; border-top: 1px solid #e2e8f0; padding: 14px; text-align: center; font-size: 11px; color: #94a3b8;">
-              © 2026 VibeSurvey Platform • Nền tảng khảo sát & đổi thưởng uy tín
-            </div>
-          </div>
-        `;
+      // Gửi email qua Bộ điều phối thông minh đa kênh (Resend -> Brevo -> SMTP)
+      let emailSent = false;
+      let emailError = null;
+      let emailMode = null;
+      const notificationService = require('../services/notificationService');
 
-        notificationService.sendBrevoEmail({
+      const emailSubject = `[VibeSurvey] 🔐 Mã xác thực đăng ký tài khoản: ${otp}`;
+      const emailHtml = `
+        <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 500px; margin: 0 auto; background: #ffffff; border-radius: 16px; overflow: hidden; border: 1px solid #e2e8f0; box-shadow: 0 4px 20px rgba(0,0,0,0.05);">
+          <div style="background: linear-gradient(135deg, #0F172A, #1E293B); padding: 24px; text-align: center; color: #ffffff;">
+            <h2 style="margin: 0; font-size: 20px; font-weight: 800; color: #ffffff;">⚡ VIBESURVEY XÁC THỰC ĐĂNG KÝ</h2>
+            <p style="margin: 6px 0 0; font-size: 13px; color: #94a3b8;">Xác minh email để hoàn tất tạo tài khoản & nhận 25 lượt free</p>
+          </div>
+          <div style="padding: 28px 24px; text-align: center;">
+            <p style="font-size: 15px; color: #334155; margin-top: 0;">Chào <strong>${name || 'bạn'}</strong>,</p>
+            <p style="font-size: 13px; color: #64748b; line-height: 1.6;">Dưới đây là mã xác thực OTP 6 chữ số dùng để kích hoạt tài khoản mới của bạn trên VibeSurvey:</p>
+            <div style="margin: 24px 0; background: #f8fafc; border: 2px dashed #0056D2; border-radius: 12px; padding: 16px; display: inline-block;">
+              <span style="font-size: 32px; font-weight: 800; font-family: monospace; letter-spacing: 6px; color: #0056D2;">${otp}</span>
+            </div>
+            <p style="font-size: 12px; color: #94a3b8; margin: 0;">Mã có hiệu lực trong <strong>10 phút</strong>. Tuyệt đối không chia sẻ mã này cho người khác.</p>
+          </div>
+          <div style="background: #f8fafc; border-top: 1px solid #e2e8f0; padding: 14px; text-align: center; font-size: 11px; color: #94a3b8;">
+            © 2026 VibeSurvey Platform • Nền tảng khảo sát & đổi thưởng uy tín
+          </div>
+        </div>
+      `;
+
+      try {
+        const sendResult = await notificationService.sendSmartEmail({
           toEmail: cleanEmail,
           toName: name || 'Người dùng mới',
           subject: emailSubject,
           htmlContent: emailHtml,
           textContent: `Mã OTP xác thực đăng ký tài khoản VibeSurvey của bạn là: ${otp}. Có hiệu lực trong 10 phút.`
-        }).catch(err => console.warn('Lỗi gửi Brevo registration OTP:', err.message));
+        });
+        emailSent = sendResult && sendResult.success;
+        emailMode = sendResult && sendResult.mode;
+      } catch (err) {
+        console.warn('Lỗi gửi Registration OTP đa kênh:', err.message);
+        emailError = err.message;
       }
 
       const parts = cleanEmail.split('@');
       const maskedEmail = parts[0].slice(0, 2) + '***' + (parts[0].length > 3 ? parts[0].slice(-1) : '') + '@' + parts[1];
 
+      // Nếu tất cả kênh email đều hết quota hoặc gửi thất bại:
+      // Tự động trả về debugOtp kèm cảnh báo để người dùng vẫn nhập được mã và không bị tắc quy trình
+      const returnOtp = (!emailSent || config.NODE_ENV !== 'production') ? otp : undefined;
+      const responseMessage = emailSent 
+        ? `Mã xác thực gồm 6 chữ số đã được gửi đến hộp thư ${maskedEmail}. Vui lòng nhập mã để hoàn tất đăng ký!`
+        : `Các kênh gửi email đạt giới hạn hoặc chưa cấu hình. Mã xác thực của bạn là: ${otp}`;
+
       return res.json({
         success: true,
-        message: `Mã xác thực gồm 6 chữ số đã được gửi đến hộp thư ${maskedEmail}. Vui lòng nhập mã để hoàn tất đăng ký!`,
+        message: responseMessage,
         maskedEmail,
-        debugOtp: config.NODE_ENV !== 'production' ? otp : undefined
+        debugOtp: returnOtp,
+        quotaExceeded: !emailSent,
+        channel: emailMode
       });
     } catch (err) {
       console.error('Lỗi sendRegistrationOtp:', err);
@@ -408,8 +426,8 @@ class AuthController {
 
       console.log(`\n=======================================================\n📧 [EMAIL OTP SERVICE] Gửi mã xác thực đến: ${user.email}\n🔑 MÃ XÁC THỰC 6 CHỮ SỐ LÀ: [ ${otp} ] (Hết hạn sau 10 phút)\n=======================================================\n`);
 
-      // Bắn email thật qua Brevo API
-      if (config.BREVO && config.BREVO.API_KEY && user.email) {
+      // Bắn email thật qua bộ điều phối thông minh đa kênh (Resend -> Brevo -> SMTP)
+      if (user.email) {
         const notificationService = require('../services/notificationService');
         const emailSubject = `[VibeSurvey] 🔐 Mã xác thực tài khoản của bạn: ${otp}`;
         const emailHtml = `
@@ -432,13 +450,13 @@ class AuthController {
           </div>
         `;
 
-        notificationService.sendBrevoEmail({
+        notificationService.sendSmartEmail({
           toEmail: user.email,
           toName: user.name,
           subject: emailSubject,
           htmlContent: emailHtml,
           textContent: `Mã xác thực OTP của bạn là: ${otp}. Mã có hiệu lực trong 10 phút.`
-        }).catch(e => console.warn('Lỗi gửi OTP Brevo:', e.message));
+        }).catch(e => console.warn('Lỗi gửi OTP Verification đa kênh:', e.message));
       }
 
       const parts = user.email.split('@');
