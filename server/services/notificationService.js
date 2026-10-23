@@ -324,78 +324,27 @@ class NotificationService {
   }
 
   /**
-   * Gửi email qua Resend REST API v1 (resend.com)
-   * Sử dụng native fetch Node.js, zero dependencies
-   */
-  async sendResendEmail({ toEmail, toName, subject, htmlContent, textContent }) {
-    const apiKey = config.RESEND && config.RESEND.API_KEY;
-    if (!apiKey) {
-      return { success: false, reason: 'Chưa cấu hình RESEND_API_KEY trong .env' };
-    }
-
-    try {
-      const fromName = config.RESEND.FROM_NAME || 'VibeSurvey Platform';
-      const fromEmail = config.RESEND.FROM_EMAIL || 'onboarding@resend.dev';
-      const response = await fetch('https://api.resend.com/emails', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${apiKey}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          from: `${fromName} <${fromEmail}>`,
-          to: [toEmail],
-          subject: subject,
-          html: htmlContent,
-          text: textContent
-        })
-      });
-
-      const data = await response.json();
-      if (!response.ok) {
-        console.warn('Cảnh báo phản hồi Resend API:', response.status, data);
-        return { success: false, status: response.status, error: data };
-      }
-
-      return { success: true, mode: 'LIVE_RESEND', id: data.id };
-    } catch (err) {
-      console.error('Lỗi gọi Resend API:', err.message);
-      return { success: false, error: err.message };
-    }
-  }
-
-  /**
-   * Bộ điều phối gửi Email thông minh đa kênh (Hybrid Fallback Email Dispatcher):
-   * 1. Kênh 1: Resend API (Hiện đại, độ tin cậy cao, 100 email/ngày)
-   * 2. Kênh 2: Brevo API (300 email/ngày)
-   * 3. Kênh 3: SMTP SSL (Gmail, Outlook với App Password)
+   * Bộ điều phối gửi Email thông minh (Hybrid Fallback Email Dispatcher):
+   * 1. Kênh 1: Gmail SMTP SSL (Cổng 465 - 500 email/ngày, không cần tên miền, trực tiếp vào Inbox)
+   * 2. Kênh 2: Brevo API (Sendinblue - 300 email/ngày)
    */
   async sendSmartEmail({ toEmail, toName, subject, htmlContent, textContent }) {
-    // 1. Kênh 1: Thử Resend nếu có cấu hình
-    if (config.RESEND && config.RESEND.API_KEY) {
-      const resendRes = await this.sendResendEmail({ toEmail, toName, subject, htmlContent, textContent });
-      if (resendRes && resendRes.success) {
-        return resendRes;
-      }
-      console.warn('Kênh Resend không khả dụng hoặc lỗi, thử tiếp kênh Brevo...');
-    }
-
-    // 2. Kênh 2: Thử Brevo
-    if (config.BREVO && config.BREVO.API_KEY) {
-      const brevoRes = await this.sendBrevoEmail({ toEmail, toName, subject, htmlContent, textContent });
-      if (brevoRes && brevoRes.success) {
-        return brevoRes;
-      }
-      console.warn('Kênh Brevo không khả dụng hoặc hết quota, chuyển tiếp sang Kênh SMTP dự phòng...');
-    }
-
-    // 3. Kênh 3: Thử SMTP (Gmail / Outlook) nếu có cấu hình
+    // 1. Kênh 1: Ưu tiên Gmail / Outlook SMTP SSL nếu đã cấu hình
     if (config.SMTP && config.SMTP.USER && config.SMTP.PASS) {
       const smtpRes = await this.sendSmtpEmail({ toEmail, toName, subject, htmlContent, textContent });
       if (smtpRes && smtpRes.success) {
         return smtpRes;
       }
-      console.warn('Kênh SMTP dự phòng cũng thất bại:', smtpRes.error || smtpRes.reason);
+      console.warn('Kênh SMTP (Gmail) gặp lỗi hoặc chưa sẵn sàng, chuyển tiếp sang Brevo API...', smtpRes.error || smtpRes.reason);
+    }
+
+    // 2. Kênh 2: Thử Brevo API
+    if (config.BREVO && config.BREVO.API_KEY) {
+      const brevoRes = await this.sendBrevoEmail({ toEmail, toName, subject, htmlContent, textContent });
+      if (brevoRes && brevoRes.success) {
+        return brevoRes;
+      }
+      console.warn('Kênh Brevo không khả dụng hoặc hết quota:', brevoRes.error);
     }
 
     return { success: false, reason: 'Không có kênh gửi email nào khả dụng hoặc tất cả đều hết quota' };
