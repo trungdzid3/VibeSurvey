@@ -33,7 +33,16 @@ const VibeApp = {
 
     try {
       const res = await fetch('/api/v1' + endpoint, { ...options, headers });
-      const data = await res.json();
+      const text = await res.text();
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch (jsonErr) {
+        if (!res.ok) {
+          throw new Error(`Máy chủ đang cập nhật (${res.status}). Vui lòng tải lại trang sau giây lát.`);
+        }
+        throw new Error('Định dạng phản hồi không hợp lệ từ máy chủ');
+      }
       if (!res.ok) throw new Error(data.message || 'Yêu cầu không thành công');
       return data;
     } catch (err) {
@@ -397,6 +406,10 @@ const VibeApp = {
 
     this._activeAuthTab = initialTab;
 
+    // Responsive: Tab đăng ký có nhiều trường hơn nên mở rộng chiều ngang (max-w-2xl) trên màn hình md trở lên
+    const cardMaxWidth = initialTab === 'register' ? 'max-w-2xl' : 'max-w-lg';
+    card.className = `bg-white dark:bg-[#131B2E] text-slate-800 dark:text-slate-100 rounded-3xl ${cardMaxWidth} w-full p-6 sm:p-7 shadow-2xl border border-slate-100 dark:border-slate-800 transform transition-all relative max-h-[92vh] overflow-y-auto`;
+
     card.innerHTML = `
       <div class="relative">
         <!-- Close Button -->
@@ -443,12 +456,19 @@ const VibeApp = {
   switchAuthTab(tab) {
     this.haptic('light');
     this._activeAuthTab = tab;
+    const card = document.getElementById('modal-card');
     const loginBtn = document.getElementById('auth-tab-btn-login');
     const regBtn = document.getElementById('auth-tab-btn-register');
     const formBody = document.getElementById('auth-form-body');
     const errorAlert = document.getElementById('auth-error-alert');
 
     if (errorAlert) errorAlert.classList.add('hidden');
+
+    // Chuyển đổi độ rộng modal tương ứng với số lượng trường
+    if (card) {
+      const cardMaxWidth = tab === 'register' ? 'max-w-2xl' : 'max-w-lg';
+      card.className = `bg-white dark:bg-[#131B2E] text-slate-800 dark:text-slate-100 rounded-3xl ${cardMaxWidth} w-full p-6 sm:p-7 shadow-2xl border border-slate-100 dark:border-slate-800 transform transition-all relative max-h-[92vh] overflow-y-auto`;
+    }
 
     if (tab === 'login') {
       loginBtn.className = 'flex-1 py-2 text-xs font-extrabold rounded-xl transition-all bg-white dark:bg-[#131B2E] text-blue-600 dark:text-sky-400 shadow-xs';
@@ -510,82 +530,91 @@ const VibeApp = {
     } else {
       return `
         <form onsubmit="VibeApp.handleRegisterSubmit(event)" class="space-y-3.5">
-          <div>
-            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Họ và Tên</label>
-            <div class="relative">
-              <i data-lucide="user" class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
-              <input type="text" id="auth-reg-name" required placeholder="Nguyễn Văn A" 
-                     class="w-full pl-10 pr-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-medium text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all">
-            </div>
-          </div>
+          <!-- Bố cục 2 cột trên màn hình md trở lên -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+            <!-- Cột 1: Thông tin cơ bản -->
+            <div class="space-y-3">
+              <div>
+                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Họ và Tên</label>
+                <div class="relative">
+                  <i data-lucide="user" class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+                  <input type="text" id="auth-reg-name" required placeholder="Nguyễn Văn A" 
+                         class="w-full pl-10 pr-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-medium text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all">
+                </div>
+              </div>
 
-          <div>
-            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Email</label>
-            <div class="relative">
-              <i data-lucide="mail" class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
-              <input type="email" id="auth-reg-email" required placeholder="nhap-email@gmail.com" 
-                     class="w-full pl-10 pr-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-medium text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all">
-            </div>
-          </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Email</label>
+                <div class="relative">
+                  <i data-lucide="mail" class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+                  <input type="email" id="auth-reg-email" required placeholder="nhap-email@gmail.com" 
+                         class="w-full pl-10 pr-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-medium text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all">
+                </div>
+              </div>
 
-          <div>
-            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Mật khẩu</label>
-            <div class="relative">
-              <i data-lucide="lock" class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
-              <input type="password" id="auth-reg-password" required minlength="6" placeholder="Tối thiểu 6 ký tự" 
-                     class="w-full pl-10 pr-10 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-medium text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all">
-              <button type="button" onclick="VibeApp.togglePasswordVisibility('auth-reg-password')" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
-                <i data-lucide="eye" class="w-4 h-4"></i>
-              </button>
+              <div>
+                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Mật khẩu</label>
+                <div class="relative">
+                  <i data-lucide="lock" class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+                  <input type="password" id="auth-reg-password" required minlength="6" placeholder="Tối thiểu 6 ký tự" 
+                         class="w-full pl-10 pr-10 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-medium text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all">
+                  <button type="button" onclick="VibeApp.togglePasswordVisibility('auth-reg-password')" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+                    <i data-lucide="eye" class="w-4 h-4"></i>
+                  </button>
+                </div>
+              </div>
             </div>
-          </div>
 
-          <!-- Mã xác thực Email OTP (Gửi qua Brevo) -->
-          <div>
-            <div class="flex items-center justify-between mb-1">
-              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300">Mã xác thực Email (OTP 6 số)</label>
-              <button type="button" id="btn-send-reg-otp" onclick="VibeApp.sendRegistrationOtp()" class="text-[11px] font-bold text-blue-600 dark:text-sky-400 hover:underline flex items-center gap-1">
-                <i data-lucide="send" class="w-3 h-3"></i>
-                <span id="reg-otp-btn-text">Gửi mã qua Email</span>
-              </button>
-            </div>
-            <div class="relative">
-              <i data-lucide="shield-check" class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
-              <input type="text" id="auth-reg-otp" maxlength="6" pattern="[0-9]{6}" placeholder="Nhập 6 số được gửi về email..." 
-                     class="w-full pl-10 pr-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-mono font-bold tracking-widest text-slate-900 dark:text-white placeholder:font-sans placeholder:font-normal placeholder:tracking-normal placeholder:text-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all">
-            </div>
-            <p class="text-[10px] text-slate-400 mt-1">Bấm <strong>"Gửi mã qua Email"</strong> để Brevo gửi mã xác thực 6 số vào hòm thư của bạn.</p>
-          </div>
+            <!-- Cột 2: Xác thực OTP & Diện tài khoản -->
+            <div class="space-y-3">
+              <!-- Mã xác thực Email OTP (Gửi qua Brevo) -->
+              <div>
+                <div class="flex items-center justify-between mb-1">
+                  <label class="block text-xs font-bold text-slate-700 dark:text-slate-300">Xác thực Email (OTP 6 số)</label>
+                  <button type="button" id="btn-send-reg-otp" onclick="VibeApp.sendRegistrationOtp()" class="text-[11px] font-bold text-blue-600 dark:text-sky-400 hover:underline flex items-center gap-1">
+                    <i data-lucide="send" class="w-3 h-3"></i>
+                    <span id="reg-otp-btn-text">Gửi mã</span>
+                  </button>
+                </div>
+                <div class="relative">
+                  <i data-lucide="shield-check" class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+                  <input type="text" id="auth-reg-otp" maxlength="6" pattern="[0-9]{6}" placeholder="Nhập 6 số được gửi về email..." 
+                         class="w-full pl-10 pr-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-mono font-bold tracking-widest text-slate-900 dark:text-white placeholder:font-sans placeholder:font-normal placeholder:tracking-normal placeholder:text-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all">
+                </div>
+                <p class="text-[10px] text-slate-400 mt-1">Bấm <strong>"Gửi mã"</strong> để nhận mã OTP qua hòm thư.</p>
+              </div>
 
-          <div>
-            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Diện tài khoản</label>
-            <div class="grid grid-cols-2 gap-2.5">
-              <label class="relative flex flex-col p-3 rounded-xl border border-blue-500 bg-blue-50/50 dark:bg-blue-950/30 cursor-pointer transition-all role-select-card" id="role-card-respondent">
-                <input type="radio" name="auth-reg-role" value="RESPONDENT" checked class="sr-only" onchange="VibeApp.selectRegisterRole('RESPONDENT')">
-                <span class="text-xs font-bold text-blue-700 dark:text-sky-300 flex items-center gap-1.5">
-                  <i data-lucide="user-check" class="w-3.5 h-3.5"></i> Cá Nhân
-                </span>
-                <span class="text-[10px] text-slate-500 dark:text-slate-400 mt-1 leading-tight">Làm khảo sát tích điểm đổi quà, rút tiền</span>
-              </label>
-              <label class="relative flex flex-col p-3 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 cursor-pointer transition-all role-select-card" id="role-card-creator">
-                <input type="radio" name="auth-reg-role" value="CREATOR" class="sr-only" onchange="VibeApp.selectRegisterRole('CREATOR')">
-                <span class="text-xs font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1.5">
-                  <i data-lucide="building-2" class="w-3.5 h-3.5"></i> Doanh Nghiệp
-                </span>
-                <span class="text-[10px] text-slate-500 dark:text-slate-400 mt-1 leading-tight">Tạo khảo sát, thu thập dữ liệu & nghiên cứu</span>
-              </label>
+              <div>
+                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Diện tài khoản</label>
+                <div class="grid grid-cols-2 gap-2">
+                  <label class="relative flex flex-col p-2.5 rounded-xl border border-blue-500 bg-blue-50/50 dark:bg-blue-950/30 cursor-pointer transition-all role-select-card" id="role-card-respondent">
+                    <input type="radio" name="auth-reg-role" value="RESPONDENT" checked class="sr-only" onchange="VibeApp.selectRegisterRole('RESPONDENT')">
+                    <span class="text-xs font-bold text-blue-700 dark:text-sky-300 flex items-center gap-1.5">
+                      <i data-lucide="user-check" class="w-3.5 h-3.5"></i> Cá Nhân
+                    </span>
+                    <span class="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 leading-tight">Làm khảo sát nhận thưởng</span>
+                  </label>
+                  <label class="relative flex flex-col p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-300 cursor-pointer transition-all role-select-card" id="role-card-creator">
+                    <input type="radio" name="auth-reg-role" value="CREATOR" class="sr-only" onchange="VibeApp.selectRegisterRole('CREATOR')">
+                    <span class="text-xs font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1.5">
+                      <i data-lucide="building-2" class="w-3.5 h-3.5"></i> Doanh Nghiệp
+                    </span>
+                    <span class="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 leading-tight">Tạo & nghiên cứu khảo sát</span>
+                  </label>
+                </div>
+              </div>
             </div>
           </div>
 
           <!-- Free Trial Perk Notice -->
-          <div class="p-3 rounded-xl bg-gradient-to-r from-emerald-500/10 via-teal-500/10 to-blue-500/10 border border-emerald-500/20 text-xs text-emerald-800 dark:text-emerald-300 flex items-start gap-2.5">
+          <div class="p-2.5 rounded-xl bg-gradient-to-r from-emerald-500/10 via-teal-500/10 to-blue-500/10 border border-emerald-500/20 text-xs text-emerald-800 dark:text-emerald-300 flex items-center gap-2">
             <span class="text-base">🎁</span>
             <div class="leading-relaxed">
-              <span class="font-extrabold">Ưu đãi tài khoản mới:</span> Tặng ngay <strong>25 lượt tạo khảo sát miễn phí</strong> (trị giá 50.000 VNĐ) khi xác thực email hoặc liên kết Google!
+              <span class="font-extrabold">Ưu đãi tài khoản mới:</span> Tặng ngay <strong>25 lượt tạo khảo sát miễn phí</strong> (trị giá 50.000 VNĐ)!
             </div>
           </div>
 
-          <button type="submit" id="auth-submit-btn" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-md shadow-blue-500/20 transition-all active:scale-95 flex items-center justify-center gap-2">
+          <button type="submit" id="auth-submit-btn" class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-md shadow-blue-500/20 transition-all active:scale-95 flex items-center justify-center gap-2">
             <i data-lucide="user-plus" class="w-4 h-4"></i>
             Tạo Tài Khoản & Bắt Đầu
           </button>
@@ -1178,7 +1207,13 @@ const VibeApp = {
                     <div class="pl-6 grid grid-cols-1 sm:grid-cols-2 gap-1 text-[11px] text-slate-500 dark:text-slate-400">
                       ${q.options.map(opt => `<div>• ${opt}</div>`).join('')}
                     </div>
-                  ` : ''}
+                  ` : (q.type === 'RATING_STARS' ? `
+                    <div class="pl-6 text-[11px] text-amber-500 font-medium">★ Đánh giá 1 đến 5 sao</div>
+                  ` : (q.type === 'NUMBER_INPUT' ? `
+                    <div class="pl-6 text-[11px] text-slate-400 italic">Nhập số liệu [123]</div>
+                  ` : (q.type === 'DATE_INPUT' ? `
+                    <div class="pl-6 text-[11px] text-slate-400 italic">Chọn ngày [YYYY-MM-DD]</div>
+                  ` : '')))}
                 </div>
               `).join('')}
             </div>
@@ -1250,6 +1285,7 @@ const VibeApp = {
     } else {
       tabs = [
         { id: 'surveys', label: 'Khảo Sát', icon: 'compass' },
+        { id: 'create-survey', label: 'Tạo Khảo Sát', icon: 'plus-circle' },
         { id: 'creator-surveys', label: 'Khảo Sát Của Tôi', icon: 'folder-kanban' },
         { id: 'voucher-market', label: 'Chợ Voucher', icon: 'gift' },
         { id: 'wallet', label: 'Ví & Rút Tiền', icon: 'wallet' }
@@ -1334,8 +1370,7 @@ const VibeApp = {
           break;
         case 'fast-create':
         case 'create-survey':
-          this.openCreateSurveyModal();
-          await this.renderSurveysView(root);
+          await this.renderCreateSurveyView(root);
           break;
         case 'analytics':
           await this.renderAnalyticsView(root, params.surveyId);
@@ -1928,6 +1963,73 @@ const VibeApp = {
               </button>
             `;
           }).join('')}
+        </div>
+      `;
+    }
+
+    if (q.type === 'DROPDOWN') {
+      const opts = q.options || [];
+      return `
+        <div class="space-y-2">
+          <select onchange="VibeApp.selectSingleOption('${q.id}', encodeURIComponent(this.value))" 
+                  class="w-full p-3.5 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
+            <option value="">-- Nhấp để chọn đáp án --</option>
+            ${opts.map(opt => `
+              <option value="${(opt || '').replace(/"/g, '&quot;')}" ${currentAnswer === opt ? 'selected' : ''}>
+                ${opt}
+              </option>
+            `).join('')}
+          </select>
+          <p class="text-[11px] text-slate-400">Chọn 1 tùy chọn phù hợp từ menu thả xuống</p>
+        </div>
+      `;
+    }
+
+    if (q.type === 'RATING_STARS') {
+      const stars = [1, 2, 3, 4, 5];
+      const curRating = parseInt(currentAnswer, 10) || 0;
+      return `
+        <div class="py-4 text-center space-y-3">
+          <div class="flex items-center justify-center gap-3">
+            ${stars.map(star => {
+              const isFilled = star <= curRating;
+              return `
+                <button type="button" onclick="VibeApp.selectSingleOption('${q.id}', '${star}')" 
+                        class="p-2 sm:p-3 rounded-2xl transition-all transform active:scale-90 ${isFilled ? 'text-amber-400 scale-110' : 'text-slate-300 dark:text-slate-600 hover:text-amber-300'}">
+                  <i data-lucide="star" class="w-8 h-8 sm:w-10 sm:h-10 ${isFilled ? 'fill-amber-400 stroke-amber-400' : 'stroke-[1.8]'}"></i>
+                  <div class="text-[11px] font-bold font-mono mt-1 text-slate-600 dark:text-slate-400">${star} Sao</div>
+                </button>
+              `;
+            }).join('')}
+          </div>
+          ${curRating > 0 ? `
+            <div class="text-xs font-bold text-amber-500">Bạn đã chọn đánh giá: ${curRating} / 5 Sao</div>
+          ` : `
+            <div class="text-xs text-slate-400">Chạm vào sao để đánh giá</div>
+          `}
+        </div>
+      `;
+    }
+
+    if (q.type === 'NUMBER_INPUT') {
+      const numVal = currentAnswer !== undefined && currentAnswer !== null ? currentAnswer : '';
+      return `
+        <div class="space-y-2">
+          <input type="number" value="${numVal}" oninput="VibeApp.updateOpenText('${q.id}', this.value)" 
+                 placeholder="Nhập giá trị số..." 
+                 class="w-full p-3.5 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm font-mono font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
+          <p class="text-[11px] text-slate-400">Nhập số nguyên hoặc số thập phân hợp lệ</p>
+        </div>
+      `;
+    }
+
+    if (q.type === 'DATE_INPUT') {
+      const dateVal = currentAnswer || '';
+      return `
+        <div class="space-y-2">
+          <input type="date" value="${dateVal}" onchange="VibeApp.selectSingleOption('${q.id}', encodeURIComponent(this.value))" 
+                 class="w-full p-3.5 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
+          <p class="text-[11px] text-slate-400">Chọn ngày tháng năm từ lịch biểu</p>
         </div>
       `;
     }

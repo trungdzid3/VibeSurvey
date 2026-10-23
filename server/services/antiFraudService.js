@@ -112,7 +112,7 @@ class AntiFraudService {
     const scaleAnswers = [];
     for (const q of validQuestions) {
       if (!q) continue;
-      if (q.type === 'LIKERT_SCALE' || q.type === 'SINGLE_CHOICE') {
+      if (q.type === 'LIKERT_SCALE' || q.type === 'SINGLE_CHOICE' || q.type === 'DROPDOWN' || q.type === 'RATING_STARS') {
         const val = payload[q.id];
         if (val !== undefined && val !== null) {
           scaleAnswers.push(String(val));
