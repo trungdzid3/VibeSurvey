@@ -324,21 +324,159 @@ class NotificationService {
   }
 
   /**
-   * Bộ điều phối gửi Email thông minh (Hybrid Fallback Email Dispatcher):
-   * 1. Kênh 1: Gmail SMTP SSL (Cổng 465 - 500 email/ngày, không cần tên miền, trực tiếp vào Inbox)
-   * 2. Kênh 2: Brevo API (Sendinblue - 300 email/ngày)
+   * Gửi email qua Microsoft Outlook / Office 365 SMTP (Cổng 587 STARTTLS)
+   */
+  async sendOutlookEmail({ toEmail, toName, subject, htmlContent, textContent }) {
+    const host = (config.OUTLOOK && config.OUTLOOK.HOST) || 'smtp.office365.com';
+    const port = (config.OUTLOOK && config.OUTLOOK.PORT) || 587;
+    const user = config.OUTLOOK && config.OUTLOOK.USER;
+    const pass = config.OUTLOOK && config.OUTLOOK.PASS;
+    const fromEmail = (config.OUTLOOK && config.OUTLOOK.FROM_EMAIL) || user;
+    const fromName = (config.OUTLOOK && config.OUTLOOK.FROM_NAME) || 'VibeSurvey Platform';
+
+    if (!user || !pass) {
+      return { success: false, reason: 'Outlook chưa được cấu hình USER hoặc PASS trong .env' };
+    }
+
+    const net = require('net');
+    const tls = require('tls');
+
+    return new Promise((resolve) => {
+      let socket = net.createConnection(port, host);
+      let step = 0;
+      let buffer = '';
+
+      const sendCmd = (cmd) => {
+        socket.write(cmd + '\r\n');
+      };
+
+      const handleData = (data) => {
+        buffer += data.toString();
+        const lines = buffer.split('\r\n');
+        const lastLine = lines[lines.length - 2] || lines[lines.length - 1];
+
+        if (step === 0 && lastLine.startsWith('220')) {
+          step = 1;
+          sendCmd(`EHLO ${host}`);
+        } else if (step === 1 && (lastLine.startsWith('250 ') || lastLine.startsWith('250-'))) {
+          if (lastLine.startsWith('250 ')) {
+            step = 2;
+            sendCmd('STARTTLS');
+          }
+        } else if (step === 2 && lastLine.startsWith('220')) {
+          // Nâng cấp socket thường lên TLS Socket
+          step = 3;
+          socket.removeAllListeners('data');
+          socket.removeAllListeners('error');
+
+          const secureSocket = tls.connect({
+            socket: socket,
+            host: host,
+            rejectUnauthorized: false
+          }, () => {
+            sendCmd(`EHLO ${host}`);
+          });
+
+          socket = secureSocket;
+          buffer = '';
+
+          secureSocket.on('data', handleData);
+          secureSocket.on('error', (err) => {
+            console.warn('Lỗi Outlook TLS Socket:', err.message);
+            resolve({ success: false, error: err.message });
+          });
+        } else if (step === 3 && (lastLine.startsWith('250 ') || lastLine.startsWith('250-'))) {
+          if (lastLine.startsWith('250 ')) {
+            step = 4;
+            sendCmd('AUTH LOGIN');
+          }
+        } else if (step === 4 && lastLine.startsWith('334')) {
+          step = 5;
+          sendCmd(Buffer.from(user).toString('base64'));
+        } else if (step === 5 && lastLine.startsWith('334')) {
+          step = 6;
+          sendCmd(Buffer.from(pass).toString('base64'));
+        } else if (step === 6 && lastLine.startsWith('235')) {
+          step = 7;
+          sendCmd(`MAIL FROM:<${fromEmail}>`);
+        } else if (step === 7 && lastLine.startsWith('250')) {
+          step = 8;
+          sendCmd(`RCPT TO:<${toEmail}>`);
+        } else if (step === 8 && lastLine.startsWith('250')) {
+          step = 9;
+          sendCmd('DATA');
+        } else if (step === 9 && lastLine.startsWith('354')) {
+          step = 10;
+          const boundary = '----=_Part_' + Date.now();
+          const rawMessage = [
+            `From: "${fromName}" <${fromEmail}>`,
+            `To: "${toName || 'User'}" <${toEmail}>`,
+            `Subject: =?UTF-8?B?${Buffer.from(subject).toString('base64')}?=`,
+            'MIME-Version: 1.0',
+            `Content-Type: multipart/alternative; boundary="${boundary}"`,
+            '',
+            `--${boundary}`,
+            'Content-Type: text/plain; charset=UTF-8',
+            'Content-Transfer-Encoding: base64',
+            '',
+            Buffer.from(textContent || '').toString('base64'),
+            '',
+            `--${boundary}`,
+            'Content-Type: text/html; charset=UTF-8',
+            'Content-Transfer-Encoding: base64',
+            '',
+            Buffer.from(htmlContent || '').toString('base64'),
+            '',
+            `--${boundary}--`,
+            '.'
+          ].join('\r\n');
+          socket.write(rawMessage + '\r\n');
+        } else if (step === 10 && lastLine.startsWith('250')) {
+          step = 11;
+          sendCmd('QUIT');
+          socket.end();
+          resolve({ success: true, mode: 'LIVE_OUTLOOK' });
+        } else if (lastLine.startsWith('5') || lastLine.startsWith('4')) {
+          socket.end();
+          console.warn('Lỗi Outlook SMTP response:', lastLine);
+          resolve({ success: false, error: lastLine });
+        }
+      };
+
+      socket.on('data', handleData);
+      socket.on('error', (err) => {
+        console.warn('Lỗi kết nối Outlook SMTP socket:', err.message);
+        resolve({ success: false, error: err.message });
+      });
+    });
+  }
+
+  /**
+   * Bộ điều phối gửi Email thông minh đa kênh (Hybrid Fallback Email Dispatcher):
+   * 1. Kênh 1: Gmail SMTP SSL (Cổng 465 - 500 email/ngày)
+   * 2. Kênh 2: Microsoft Outlook / Office 365 SMTP (Cổng 587 - 300 email/ngày)
+   * 3. Kênh 3: Brevo API (Sendinblue - 300 email/ngày)
    */
   async sendSmartEmail({ toEmail, toName, subject, htmlContent, textContent }) {
-    // 1. Kênh 1: Ưu tiên Gmail / Outlook SMTP SSL nếu đã cấu hình
+    // 1. Kênh 1: Ưu tiên Gmail SMTP SSL nếu đã cấu hình
     if (config.SMTP && config.SMTP.USER && config.SMTP.PASS) {
       const smtpRes = await this.sendSmtpEmail({ toEmail, toName, subject, htmlContent, textContent });
       if (smtpRes && smtpRes.success) {
         return smtpRes;
       }
-      console.warn('Kênh SMTP (Gmail) gặp lỗi hoặc chưa sẵn sàng, chuyển tiếp sang Brevo API...', smtpRes.error || smtpRes.reason);
+      console.warn('Kênh Gmail SMTP gặp lỗi hoặc chưa sẵn sàng, chuyển tiếp sang Outlook...', smtpRes.error || smtpRes.reason);
     }
 
-    // 2. Kênh 2: Thử Brevo API
+    // 2. Kênh 2: Thử Microsoft Outlook SMTP nếu đã cấu hình
+    if (config.OUTLOOK && config.OUTLOOK.USER && config.OUTLOOK.PASS) {
+      const outlookRes = await this.sendOutlookEmail({ toEmail, toName, subject, htmlContent, textContent });
+      if (outlookRes && outlookRes.success) {
+        return outlookRes;
+      }
+      console.warn('Kênh Outlook SMTP gặp lỗi, chuyển tiếp sang Brevo API...', outlookRes.error || outlookRes.reason);
+    }
+
+    // 3. Kênh 3: Thử Brevo API
     if (config.BREVO && config.BREVO.API_KEY) {
       const brevoRes = await this.sendBrevoEmail({ toEmail, toName, subject, htmlContent, textContent });
       if (brevoRes && brevoRes.success) {
