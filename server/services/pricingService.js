@@ -15,7 +15,11 @@ class PricingService {
     const loiMap = config.ECONOMICS.QUESTION_LOI_SECONDS || {
       SINGLE_CHOICE: 17,
       MULTIPLE_CHOICE: 17,
+      DROPDOWN: 15,
       LIKERT_SCALE: 20,
+      RATING_STARS: 12,
+      NUMBER_INPUT: 15,
+      DATE_INPUT: 15,
       OPEN_TEXT: 45
     };
 

@@ -335,7 +335,48 @@ html.dark .toast-pro-card {
   to { transform: scaleX(0); }
 }
 
-/* Hide scrollbars */
+/* ==================== TÙY BIẾN THANH CUỘN TOÀN CỤC (CUSTOM SCROLLBAR UI/UX PRO MAX) ==================== */
+/* Chuẩn W3C Firefox & hiện đại */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148, 163, 184, 0.45) transparent;
+}
+
+html.dark * {
+  scrollbar-color: rgba(148, 163, 184, 0.25) transparent;
+}
+
+/* Chuẩn WebKit (Chrome, Safari, Edge, Opera, WebView Android) */
+*::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.4);
+  border-radius: 9999px;
+  border: 1px solid transparent;
+  background-clip: padding-box;
+  transition: background-color 0.2s ease;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: rgba(100, 116, 139, 0.65);
+}
+
+html.dark *::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.25);
+}
+
+html.dark *::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.45);
+}
+
+/* Hide scrollbars khi có class .no-scrollbar */
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }

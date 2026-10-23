@@ -286,13 +286,12 @@ const VibeApp = {
     if (nameEl) nameEl.textContent = shortName;
     if (avatarEl) avatarEl.textContent = (user.name || 'U').charAt(0).toUpperCase();
 
-    // Điểm & tiền quy đổi
+    // Điểm hiển thị ngắn gọn trên Header Pill
     if (pointsBadgeText) {
-      pointsBadgeText.textContent = `${(user.point_balance || 0).toLocaleString()} Điểm`;
+      pointsBadgeText.textContent = `${(user.point_balance || 0).toLocaleString('vi-VN')} Điểm`;
     }
     if (creditBadgeText) {
-      const vnd = (user.point_balance || 0) * 10;
-      creditBadgeText.textContent = `${vnd.toLocaleString('vi-VN')}đ`;
+      creditBadgeText.textContent = '';
     }
 
     this.renderUserProfileDropdown();

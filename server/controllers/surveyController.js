@@ -293,7 +293,7 @@ class SurveyController {
         return res.status(400).json({ success: false, message: 'Khảo sát phải có từ 1 đến 100 câu hỏi' });
       }
 
-      const allowedTypes = ['SINGLE_CHOICE', 'MULTIPLE_CHOICE', 'LIKERT_SCALE', 'OPEN_TEXT'];
+      const allowedTypes = ['SINGLE_CHOICE', 'MULTIPLE_CHOICE', 'LIKERT_SCALE', 'OPEN_TEXT', 'DROPDOWN', 'RATING_STARS', 'NUMBER_INPUT', 'DATE_INPUT'];
       for (let i = 0; i < questions.length; i++) {
         const q = questions[i];
         if (!q || typeof q !== 'object') {
