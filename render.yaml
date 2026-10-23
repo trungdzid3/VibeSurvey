@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: vibesurvey
+    runtime: node
+    plan: free
+    region: singapore
+    buildCommand: npm install
+    startCommand: node server/app.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3000
+      - key: JWT_SECRET
+        generateValue: true
+      - key: BREVO_API_KEY
+        sync: false
+      - key: BREVO_SENDER_EMAIL
+        value: trungdzid3@gmail.com
+      - key: BREVO_SENDER_NAME
+        value: VibeSurvey Platform
+      - key: APP_URL
+        sync: false
