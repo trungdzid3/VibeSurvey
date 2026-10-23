@@ -2945,10 +2945,27 @@ const VibeApp = {
     const isVerified = !!(this.state.currentUser?.is_google_linked || this.state.currentUser?.is_email_verified);
     const defaultTarget = hasFreeTrial ? 25 : 100;
 
+    // Khởi tạo tab và danh sách câu hỏi mẫu nếu chưa có
+    this.state.createSurveyTab = 'BUILDER'; // 'BUILDER' | 'SMART_PASTE' | 'EXTERNAL_URL'
+    if (!this.state.builderQuestions || !Array.isArray(this.state.builderQuestions) || this.state.builderQuestions.length === 0) {
+      this.state.builderQuestions = [
+        {
+          type: 'SINGLE_CHOICE',
+          content: 'Bạn đánh giá thế nào về chất lượng và độ tiện ích của dịch vụ này?',
+          options: ['Rất hài lòng', 'Hài lòng', 'Bình thường', 'Cần cải thiện thêm']
+        },
+        {
+          type: 'LIKERT_SCALE',
+          content: 'Mức độ sẵn sàng giới thiệu nền tảng này cho bạn bè hoặc người quen?',
+          options: ['1 - Rất không sẵn sàng', '2 - Không sẵn sàng', '3 - Bình thường', '4 - Sẵn sàng', '5 - Rất sẵn sàng']
+        }
+      ];
+    }
+
     this.showModal({
       title: 'Tạo Khảo Sát Mới',
       content: `
-        <div class="space-y-4 text-left">
+        <div class="space-y-4 text-left max-h-[80vh] overflow-y-auto pr-1">
           
           ${hasFreeTrial ? `
             <div class="p-3 bg-gradient-to-r from-emerald-500/10 via-teal-500/10 to-sky-500/10 border ${isVerified ? 'border-emerald-500/30 dark:border-emerald-500/40' : 'border-amber-500/40 dark:border-amber-500/50 bg-amber-500/5'} rounded-2xl flex items-start gap-2.5">
@@ -3005,33 +3022,100 @@ const VibeApp = {
             </div>
           `}
 
-          <div>
-            <label class="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">Tiêu đề khảo sát *</label>
-            <input type="text" id="fast-title" placeholder="VD: Khảo sát thói quen sử dụng ví điện tử..." 
-                   class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-xs font-medium focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
+          <!-- Thông tin cơ bản -->
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+            <div class="sm:col-span-2">
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">Tiêu đề khảo sát *</label>
+              <input type="text" id="fast-title" placeholder="VD: Khảo sát thói quen dùng ví điện tử Gen Z..." 
+                     class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-xs font-medium focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">Chủ đề</label>
+              <select id="fast-category" class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-xs font-medium focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
+                <option value="Thị trường">Thị trường</option>
+                <option value="Công nghệ">Công nghệ & AI</option>
+                <option value="Học thuật">Học thuật & Luận văn</option>
+                <option value="Thương mại điện tử">Thương mại điện tử</option>
+                <option value="Đời sống">Đời sống & Xã hội</option>
+              </select>
+            </div>
           </div>
 
-          <div>
-            <label class="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">Đường dẫn Google Forms / MS Forms (Tùy chọn):</label>
-            <input type="url" id="fast-form-url" placeholder="https://docs.google.com/forms/d/..." 
-                   class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-xs focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
-          </div>
-
-          <!-- Google Sheets Webhook Sync -->
-          <div class="space-y-1">
-            <div class="flex items-center justify-between">
-              <label class="block text-xs font-bold text-slate-700 dark:text-slate-200">Google Sheets Webhook URL (Tùy chọn):</label>
-              <button type="button" onclick="VibeApp.openGoogleAppsScriptGuide()" class="text-[11px] font-bold text-blue-600 dark:text-sky-400 hover:text-blue-700 dark:hover:text-sky-300 flex items-center gap-1 transition-colors">
-                <i data-lucide="code" class="w-3 h-3"></i>
-                <span>Xem mẫu Apps Script (1-Click)</span>
+          <!-- Tab Selection (3 Chế Độ Tạo Khảo Sát) -->
+          <div class="space-y-2">
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-200">Phương thức tạo nội dung:</label>
+            <div class="grid grid-cols-3 gap-1.5 p-1 bg-slate-100 dark:bg-slate-800 rounded-xl text-xs font-bold">
+              <button type="button" id="tab-btn-builder" onclick="VibeApp.switchCreateSurveyTab('BUILDER')" class="py-2 px-2 rounded-lg transition-all ${this.state.createSurveyTab === 'BUILDER' ? 'bg-white dark:bg-slate-900 text-blue-600 dark:text-sky-400 shadow-xs' : 'text-slate-500 dark:text-slate-400 hover:text-slate-900'} flex items-center justify-center gap-1.5">
+                <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
+                <span class="truncate">Soạn Trực Tiếp</span>
+              </button>
+              <button type="button" id="tab-btn-paste" onclick="VibeApp.switchCreateSurveyTab('SMART_PASTE')" class="py-2 px-2 rounded-lg transition-all ${this.state.createSurveyTab === 'SMART_PASTE' ? 'bg-white dark:bg-slate-900 text-blue-600 dark:text-sky-400 shadow-xs' : 'text-slate-500 dark:text-slate-400 hover:text-slate-900'} flex items-center justify-center gap-1.5">
+                <i data-lucide="file-text" class="w-3.5 h-3.5"></i>
+                <span class="truncate">Dán Text Nhanh</span>
+              </button>
+              <button type="button" id="tab-btn-url" onclick="VibeApp.switchCreateSurveyTab('EXTERNAL_URL')" class="py-2 px-2 rounded-lg transition-all ${this.state.createSurveyTab === 'EXTERNAL_URL' ? 'bg-white dark:bg-slate-900 text-blue-600 dark:text-sky-400 shadow-xs' : 'text-slate-500 dark:text-slate-400 hover:text-slate-900'} flex items-center justify-center gap-1.5">
+                <i data-lucide="link-2" class="w-3.5 h-3.5"></i>
+                <span class="truncate">Google/MS Forms</span>
               </button>
             </div>
-            <input type="url" id="fast-google-sheets-url" placeholder="https://script.google.com/macros/s/AKfycb.../exec" 
-                   class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-xs font-mono focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
-            <p class="text-[10px] text-slate-500 dark:text-slate-400">Tự động bắn dữ liệu câu trả lời của đáp viên về Google Sheets của bạn theo thời gian thực.</p>
           </div>
 
-          <div class="grid grid-cols-2 gap-3">
+          <!-- TAB 1: FORM BUILDER TRỰC TIẾP -->
+          <div id="create-tab-content-BUILDER" class="${this.state.createSurveyTab === 'BUILDER' ? '' : 'hidden'} space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-slate-700 dark:text-slate-200">
+                Danh sách câu hỏi (<span id="builder-q-count">${this.state.builderQuestions.length}</span> câu):
+              </span>
+              <button type="button" onclick="VibeApp.addBuilderQuestion()" class="px-2.5 py-1 bg-blue-50 dark:bg-blue-950/60 hover:bg-blue-100 text-blue-700 dark:text-sky-300 rounded-lg text-[11px] font-bold flex items-center gap-1 transition-colors">
+                <i data-lucide="plus" class="w-3 h-3"></i>
+                <span>Thêm Câu Hỏi</span>
+              </button>
+            </div>
+
+            <!-- List Questions Container -->
+            <div id="builder-questions-list" class="space-y-3">
+              ${this.renderBuilderQuestionsHtml()}
+            </div>
+          </div>
+
+          <!-- TAB 2: SMART TEXT PASTE -->
+          <div id="create-tab-content-SMART_PASTE" class="${this.state.createSurveyTab === 'SMART_PASTE' ? '' : 'hidden'} space-y-2.5">
+            <div class="p-2.5 bg-blue-50/60 dark:bg-blue-950/30 border border-blue-100 dark:border-blue-900/40 rounded-xl text-xs text-slate-600 dark:text-slate-300">
+              💡 <strong>Mẹo dán văn bản:</strong> Bạn có thể copy câu hỏi từ Word, Notion hoặc Google Docs dán vào đây. Hệ thống sẽ tự động tách thành câu hỏi và các lựa chọn đáp án.
+            </div>
+            <textarea id="smart-paste-input" rows="5" placeholder="Câu 1: Bạn thường dùng thiết bị nào để học tập?&#10;A. Laptop&#10;B. Điện thoại thông minh&#10;C. Máy tính bảng&#10;&#10;Câu 2: Bạn hài lòng với chất lượng mạng wifi trường không?&#10;1 - Rất tệ&#10;2 - Tệ&#10;3 - Bình thường&#10;4 - Tốt&#10;5 - Rất tốt" 
+                      class="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-xs font-mono leading-relaxed focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"></textarea>
+            <button type="button" onclick="VibeApp.handleSmartPasteSubmit()" class="w-full py-2 px-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all">
+              <i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-400"></i>
+              <span>Tự Động Nhận Diện & Nạp Câu Hỏi Vào Khảo Sát</span>
+            </button>
+          </div>
+
+          <!-- TAB 3: EXTERNAL URL (GOOGLE/MS FORMS) -->
+          <div id="create-tab-content-EXTERNAL_URL" class="${this.state.createSurveyTab === 'EXTERNAL_URL' ? '' : 'hidden'} space-y-3">
+            <div>
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">Đường dẫn Google Forms / MS Forms:</label>
+              <input type="url" id="fast-form-url" placeholder="https://docs.google.com/forms/d/..." 
+                     class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-xs focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
+            </div>
+
+            <!-- Google Sheets Webhook Sync -->
+            <div class="space-y-1">
+              <div class="flex items-center justify-between">
+                <label class="block text-xs font-bold text-slate-700 dark:text-slate-200">Google Sheets Webhook URL (Tùy chọn):</label>
+                <button type="button" onclick="VibeApp.openGoogleAppsScriptGuide()" class="text-[11px] font-bold text-blue-600 dark:text-sky-400 hover:text-blue-700 dark:hover:text-sky-300 flex items-center gap-1 transition-colors">
+                  <i data-lucide="code" class="w-3 h-3"></i>
+                  <span>Xem mẫu Apps Script (1-Click)</span>
+                </button>
+              </div>
+              <input type="url" id="fast-google-sheets-url" placeholder="https://script.google.com/macros/s/AKfycb.../exec" 
+                     class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-xs font-mono focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
+              <p class="text-[10px] text-slate-500 dark:text-slate-400">Tự động bắn dữ liệu câu trả lời của đáp viên về Google Sheets của bạn theo thời gian thực.</p>
+            </div>
+          </div>
+
+          <!-- Cài đặt số lượng mẫu & Điểm thưởng -->
+          <div class="grid grid-cols-2 gap-3 pt-1 border-t border-slate-100 dark:border-slate-800">
             <div>
               <label class="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">Số mẫu mục tiêu:</label>
               <input type="number" id="fast-target-count" value="${defaultTarget}" min="10" step="5" class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-xs font-mono font-bold focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
@@ -3042,17 +3126,270 @@ const VibeApp = {
             </div>
           </div>
 
-          <div class="flex gap-2.5 pt-1">
-            <button onclick="VibeApp.submitFastCreate()" class="flex-1 py-2.5 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-xs transition-all active:scale-[0.98]">
-              ${hasFreeTrial ? 'Xuất Bản Miễn Phí (0đ)' : 'Xuất Bản Khảo Sát'}
+          <!-- Nút hành động -->
+          <div class="flex gap-2.5 pt-2">
+            <button onclick="VibeApp.submitFastCreate()" class="flex-1 py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-md shadow-blue-500/20 transition-all active:scale-[0.98] flex items-center justify-center gap-1.5">
+              <i data-lucide="send" class="w-4 h-4"></i>
+              <span>${hasFreeTrial ? 'Xuất Bản Khảo Sát Miễn Phí (0đ)' : 'Xuất Bản & Ký Quỹ Khảo Sát'}</span>
             </button>
-            <button onclick="VibeApp.closeModal()" class="py-2.5 px-4 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-bold transition-all active:scale-[0.98]">
+            <button onclick="VibeApp.closeModal()" class="py-3 px-4 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-bold transition-all active:scale-[0.98]">
               Hủy
             </button>
           </div>
 
         </div>
       `
+    });
+
+    if (window.lucide) window.lucide.createIcons();
+  },
+
+  switchCreateSurveyTab(tab) {
+    this.haptic('light');
+    this.state.createSurveyTab = tab;
+
+    ['BUILDER', 'SMART_PASTE', 'EXTERNAL_URL'].forEach(t => {
+      const contentEl = document.getElementById(`create-tab-content-${t}`);
+      const btnEl = document.getElementById(t === 'BUILDER' ? 'tab-btn-builder' : (t === 'SMART_PASTE' ? 'tab-btn-paste' : 'tab-btn-url'));
+      if (contentEl) {
+        if (t === tab) contentEl.classList.remove('hidden');
+        else contentEl.classList.add('hidden');
+      }
+      if (btnEl) {
+        if (t === tab) {
+          btnEl.className = 'py-2 px-2 rounded-lg transition-all bg-white dark:bg-slate-900 text-blue-600 dark:text-sky-400 shadow-xs flex items-center justify-center gap-1.5';
+        } else {
+          btnEl.className = 'py-2 px-2 rounded-lg transition-all text-slate-500 dark:text-slate-400 hover:text-slate-900 flex items-center justify-center gap-1.5';
+        }
+      }
+    });
+
+    if (window.lucide) window.lucide.createIcons();
+  },
+
+  renderBuilderQuestionsHtml() {
+    const list = this.state.builderQuestions || [];
+    if (list.length === 0) {
+      return `
+        <div class="text-center py-6 border border-dashed border-slate-200 dark:border-slate-800 rounded-xl text-slate-400 text-xs">
+          Chưa có câu hỏi nào. Bấm <strong>"+ Thêm Câu Hỏi"</strong> để bắt đầu soạn!
+        </div>
+      `;
+    }
+
+    return list.map((q, qIdx) => `
+      <div class="p-3 bg-slate-50 dark:bg-slate-900/70 border border-slate-200/80 dark:border-slate-800 rounded-xl space-y-2 text-xs">
+        <div class="flex items-center justify-between gap-2">
+          <div class="flex items-center gap-1.5 font-bold text-slate-800 dark:text-slate-200">
+            <span class="w-5 h-5 rounded-full bg-blue-100 dark:bg-blue-950/80 text-blue-700 dark:text-sky-300 text-[11px] font-mono flex items-center justify-center">${qIdx + 1}</span>
+            <span>Câu hỏi ${qIdx + 1}</span>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <select onchange="VibeApp.updateBuilderQuestionType(${qIdx}, this.value)" class="py-1 px-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-[11px] font-medium text-slate-700 dark:text-slate-200 focus:outline-none">
+              <option value="SINGLE_CHOICE" ${q.type === 'SINGLE_CHOICE' ? 'selected' : ''}>Trắc nghiệm (1 đáp án)</option>
+              <option value="MULTIPLE_CHOICE" ${q.type === 'MULTIPLE_CHOICE' ? 'selected' : ''}>Hộp kiểm (Nhiều đáp án)</option>
+              <option value="LIKERT_SCALE" ${q.type === 'LIKERT_SCALE' ? 'selected' : ''}>Thang đo Likert (1-5 sao)</option>
+              <option value="OPEN_TEXT" ${q.type === 'OPEN_TEXT' ? 'selected' : ''}>Ý kiến tự luận</option>
+            </select>
+
+            ${list.length > 1 ? `
+              <button type="button" onclick="VibeApp.removeBuilderQuestion(${qIdx})" class="p-1 text-slate-400 hover:text-rose-600 transition-colors" title="Xóa câu hỏi này">
+                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+              </button>
+            ` : ''}
+          </div>
+        </div>
+
+        <div>
+          <input type="text" value="${(q.content || '').replace(/"/g, '&quot;')}" oninput="VibeApp.updateBuilderQuestionContent(${qIdx}, this.value)" placeholder="Nhập nội dung câu hỏi..." 
+                 class="w-full p-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-xs font-semibold focus:ring-1 focus:ring-blue-500 focus:outline-none">
+        </div>
+
+        ${q.type !== 'OPEN_TEXT' ? `
+          <div class="pl-4 border-l-2 border-slate-200 dark:border-slate-700 space-y-1.5 pt-1">
+            <div class="text-[11px] font-semibold text-slate-500 dark:text-slate-400 flex items-center justify-between">
+              <span>Các lựa chọn trả lời:</span>
+              <button type="button" onclick="VibeApp.addBuilderOption(${qIdx})" class="text-[10px] text-blue-600 dark:text-sky-400 font-bold hover:underline">
+                + Thêm lựa chọn
+              </button>
+            </div>
+            ${(q.options || []).map((opt, optIdx) => `
+              <div class="flex items-center gap-1.5">
+                <span class="text-[10px] text-slate-400 font-mono w-3">${String.fromCharCode(65 + optIdx)}.</span>
+                <input type="text" value="${(opt || '').replace(/"/g, '&quot;')}" oninput="VibeApp.updateBuilderOptionText(${qIdx}, ${optIdx}, this.value)" placeholder="Lựa chọn ${optIdx + 1}..." 
+                       class="flex-1 py-1 px-2 rounded-md border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-[11px] text-slate-800 dark:text-slate-200 focus:outline-none">
+                ${(q.options || []).length > 2 ? `
+                  <button type="button" onclick="VibeApp.removeBuilderOption(${qIdx}, ${optIdx})" class="text-slate-400 hover:text-rose-500 p-0.5">
+                    <i data-lucide="x" class="w-3 h-3"></i>
+                  </button>
+                ` : ''}
+              </div>
+            `).join('')}
+          </div>
+        ` : `
+          <div class="p-2 bg-slate-100 dark:bg-slate-800/60 rounded-lg text-[11px] text-slate-500 italic">
+            (Người làm khảo sát sẽ tự nhập câu trả lời dạng văn bản tự do)
+          </div>
+        `}
+      </div>
+    `).join('');
+  },
+
+  refreshBuilderQuestionsView() {
+    const container = document.getElementById('builder-questions-list');
+    const countEl = document.getElementById('builder-q-count');
+    if (container) {
+      container.innerHTML = this.renderBuilderQuestionsHtml();
+      if (window.lucide) window.lucide.createIcons();
+    }
+    if (countEl) {
+      countEl.innerText = (this.state.builderQuestions || []).length;
+    }
+  },
+
+  addBuilderQuestion() {
+    this.haptic('light');
+    if (!this.state.builderQuestions) this.state.builderQuestions = [];
+    this.state.builderQuestions.push({
+      type: 'SINGLE_CHOICE',
+      content: '',
+      options: ['Lựa chọn 1', 'Lựa chọn 2', 'Lựa chọn 3']
+    });
+    this.refreshBuilderQuestionsView();
+  },
+
+  removeBuilderQuestion(qIdx) {
+    this.haptic('light');
+    if (this.state.builderQuestions && this.state.builderQuestions.length > 1) {
+      this.state.builderQuestions.splice(qIdx, 1);
+      this.refreshBuilderQuestionsView();
+    } else {
+      this.showToast('Khảo sát cần có ít nhất 1 câu hỏi!', 'info');
+    }
+  },
+
+  updateBuilderQuestionContent(qIdx, val) {
+    if (this.state.builderQuestions && this.state.builderQuestions[qIdx]) {
+      this.state.builderQuestions[qIdx].content = val;
+    }
+  },
+
+  updateBuilderQuestionType(qIdx, newType) {
+    if (this.state.builderQuestions && this.state.builderQuestions[qIdx]) {
+      this.state.builderQuestions[qIdx].type = newType;
+      if (newType === 'LIKERT_SCALE' && (!this.state.builderQuestions[qIdx].options || this.state.builderQuestions[qIdx].options.length < 3)) {
+        this.state.builderQuestions[qIdx].options = ['1 - Rất không hài lòng', '2 - Không hài lòng', '3 - Bình thường', '4 - Hài lòng', '5 - Rất hài lòng'];
+      } else if (newType !== 'OPEN_TEXT' && (!this.state.builderQuestions[qIdx].options || this.state.builderQuestions[qIdx].options.length === 0)) {
+        this.state.builderQuestions[qIdx].options = ['Lựa chọn A', 'Lựa chọn B', 'Lựa chọn C'];
+      }
+      this.refreshBuilderQuestionsView();
+    }
+  },
+
+  addBuilderOption(qIdx) {
+    this.haptic('light');
+    if (this.state.builderQuestions && this.state.builderQuestions[qIdx]) {
+      if (!this.state.builderQuestions[qIdx].options) this.state.builderQuestions[qIdx].options = [];
+      const nextLetter = String.fromCharCode(65 + this.state.builderQuestions[qIdx].options.length);
+      this.state.builderQuestions[qIdx].options.push(`Lựa chọn ${nextLetter}`);
+      this.refreshBuilderQuestionsView();
+    }
+  },
+
+  removeBuilderOption(qIdx, optIdx) {
+    this.haptic('light');
+    if (this.state.builderQuestions && this.state.builderQuestions[qIdx]) {
+      const opts = this.state.builderQuestions[qIdx].options;
+      if (opts && opts.length > 2) {
+        opts.splice(optIdx, 1);
+        this.refreshBuilderQuestionsView();
+      } else {
+        this.showToast('Câu trắc nghiệm cần có ít nhất 2 đáp án!', 'info');
+      }
+    }
+  },
+
+  updateBuilderOptionText(qIdx, optIdx, val) {
+    if (this.state.builderQuestions && this.state.builderQuestions[qIdx] && this.state.builderQuestions[qIdx].options) {
+      this.state.builderQuestions[qIdx].options[optIdx] = val;
+    }
+  },
+
+  handleSmartPasteSubmit() {
+    this.haptic('medium');
+    const rawText = document.getElementById('smart-paste-input')?.value?.trim();
+    if (!rawText) {
+      this.showToast('Vui lòng dán nội dung văn bản câu hỏi vào khung!', 'warning');
+      return;
+    }
+
+    // Tự động phân tích các dòng văn bản thành danh sách câu hỏi
+    const parsedQuestions = this.parseRawQuestionsText(rawText);
+    if (parsedQuestions.length === 0) {
+      this.showToast('Không nhận diện được câu hỏi nào từ văn bản. Vui lòng kiểm tra lại định dạng!', 'error');
+      return;
+    }
+
+    this.state.builderQuestions = parsedQuestions;
+    this.showToast(`Đã nhận diện thành công ${parsedQuestions.length} câu hỏi!`, 'success');
+    this.switchCreateSurveyTab('BUILDER');
+  },
+
+  parseRawQuestionsText(text) {
+    const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
+    const questions = [];
+    let currentQ = null;
+
+    for (const line of lines) {
+      // Nhận diện dòng bắt đầu câu hỏi: "Câu 1:", "1.", "1/", "Bài 1:"
+      const isQuestionHeader = /^(câu\s*\d+|question\s*\d+|\d+[\.\/\:\)])\s*/i.test(line);
+
+      if (isQuestionHeader) {
+        if (currentQ) {
+          questions.push(currentQ);
+        }
+        const cleanContent = line.replace(/^(câu\s*\d+|question\s*\d+|\d+[\.\/\:\)])\s*/i, '').trim();
+        currentQ = {
+          type: 'SINGLE_CHOICE',
+          content: cleanContent || line,
+          options: []
+        };
+      } else if (currentQ) {
+        // Nhận diện lựa chọn đáp án: "A.", "a/", "A)", "1 -", "•", "-"
+        const optMatch = /^([a-zA-Z0-9][\.\)\:\/\-]|•|\*|\-)\s*(.+)/.exec(line);
+        if (optMatch) {
+          currentQ.options.push(optMatch[2].trim());
+        } else if (currentQ.options.length === 0) {
+          // Nếu chưa có đáp án, nối thêm vào nội dung câu hỏi
+          currentQ.content += ' ' + line;
+        } else {
+          currentQ.options.push(line);
+        }
+      } else {
+        // Nếu dòng đầu tiên không có số thứ tự thì mặc định là câu 1
+        currentQ = {
+          type: 'SINGLE_CHOICE',
+          content: line,
+          options: []
+        };
+      }
+    }
+
+    if (currentQ) {
+      questions.push(currentQ);
+    }
+
+    // Chuẩn hóa câu hỏi nếu không có options
+    return questions.map(q => {
+      if (!q.options || q.options.length < 2) {
+        return {
+          ...q,
+          type: 'OPEN_TEXT',
+          options: []
+        };
+      }
+      return q;
     });
   },
 
@@ -3196,20 +3533,79 @@ const VibeApp = {
 
   async submitFastCreate() {
     const title = document.getElementById('fast-title')?.value?.trim();
+    const category = document.getElementById('fast-category')?.value || 'Thị trường';
     const formUrl = document.getElementById('fast-form-url')?.value?.trim();
     const webhookUrl = document.getElementById('fast-google-sheets-url')?.value?.trim();
     const target = parseInt(document.getElementById('fast-target-count')?.value, 10) || 100;
     const pts = parseInt(document.getElementById('fast-reward-points')?.value, 10) || 200;
     const isFreeTrial = document.getElementById('fast-use-free-trial')?.checked === true;
+    const currentTab = this.state.createSurveyTab || 'BUILDER';
 
     if (!title) {
-      this.showToast('Vui lòng nhập tiêu đề khảo sát', 'warning');
+      this.showToast('Vui lòng nhập tiêu đề khảo sát!', 'warning');
       return;
     }
 
     let source = 'INTERNAL_BUILDER';
-    if (formUrl && formUrl.includes('google.com')) source = 'GOOGLE_FORMS';
-    else if (formUrl && formUrl.includes('office.com')) source = 'MS_FORMS';
+    let externalUrl = null;
+    let questionsPayload = [];
+
+    if (currentTab === 'EXTERNAL_URL') {
+      if (!formUrl) {
+        this.showToast('Vui lòng nhập đường link Google Forms hoặc MS Forms!', 'warning');
+        return;
+      }
+      externalUrl = formUrl;
+      if (formUrl.includes('google.com') || formUrl.includes('forms.gle')) source = 'GOOGLE_FORMS';
+      else if (formUrl.includes('office.com') || formUrl.includes('microsoft.com')) source = 'MS_FORMS';
+      
+      questionsPayload = [
+        {
+          id: 'q_ext_1',
+          type: 'SINGLE_CHOICE',
+          content: 'Bạn đã hoàn thành việc điền biểu mẫu liên kết ngoài chưa?',
+          options: ['Tôi đã điền và nộp biểu mẫu thành công', 'Tôi đang điền biểu mẫu'],
+          is_attention_check: false
+        }
+      ];
+    } else {
+      // Chế độ SOẠN CÂU HỎI TRỰC TIẾP (INTERNAL BUILDER) HOẶC SMART PASTE
+      source = 'INTERNAL_BUILDER';
+      externalUrl = null;
+
+      const rawQuestions = this.state.builderQuestions || [];
+      const cleanQuestions = [];
+
+      for (let i = 0; i < rawQuestions.length; i++) {
+        const q = rawQuestions[i];
+        const content = (q.content || '').trim();
+        if (!content) continue; // Bỏ qua câu hỏi rỗng
+
+        let validOptions = [];
+        if (q.type !== 'OPEN_TEXT') {
+          validOptions = (q.options || []).map(o => (o || '').trim()).filter(Boolean);
+          if (validOptions.length < 2) {
+            this.showToast(`Câu hỏi ${i + 1} cần có ít nhất 2 lựa chọn đáp án!`, 'warning');
+            return;
+          }
+        }
+
+        cleanQuestions.push({
+          id: `q_custom_${i + 1}`,
+          type: q.type || 'SINGLE_CHOICE',
+          content: content,
+          options: validOptions.length > 0 ? validOptions : null,
+          is_attention_check: false
+        });
+      }
+
+      if (cleanQuestions.length === 0) {
+        this.showToast('Khảo sát cần có ít nhất 1 câu hỏi có nội dung!', 'warning');
+        return;
+      }
+
+      questionsPayload = cleanQuestions;
+    }
 
     try {
       const createRes = await this.api('/surveys', {
@@ -3217,22 +3613,14 @@ const VibeApp = {
         body: JSON.stringify({
           title,
           description: 'Khảo sát nghiên cứu trải nghiệm và thị trường người dùng.',
-          category: 'Thị trường',
+          category: category,
           target_responses: target,
           survey_source: source,
-          external_form_url: formUrl || null,
+          external_form_url: externalUrl,
           google_sheets_webhook_url: webhookUrl || null,
           reward_mode: 'POINTS_ONLY',
           reward_points_per_response: pts,
-          questions: [
-            {
-              id: 'q_1',
-              type: 'SINGLE_CHOICE',
-              content: 'Bạn đánh giá thế nào về chất lượng và độ tiện ích của dịch vụ này?',
-              options: ['Rất hài lòng', 'Bình thường', 'Cần cải thiện thêm'],
-              is_attention_check: false
-            }
-          ]
+          questions: questionsPayload
         })
       });
 
