@@ -2071,8 +2071,8 @@ const VibeApp = {
               <span>Đã nhận</span>
             </span>
           ` : user ? `
-            <button onclick="VibeApp.startSurveySession('${s.id}')" class="h-8 px-3 rounded-xl bg-slate-900 hover:bg-blue-600 dark:bg-indigo-600 dark:hover:bg-indigo-500 text-white text-xs font-bold transition-all shadow-xs flex items-center gap-1 active:scale-95">
-              <span>Làm bài</span>
+            <button onclick="VibeApp.startSurveySession('${s.id}')" class="h-8 px-3.5 rounded-xl bg-slate-900 hover:bg-blue-600 dark:bg-indigo-600 dark:hover:bg-indigo-500 text-white text-xs font-bold transition-all shadow-xs inline-flex items-center justify-center gap-1.5 whitespace-nowrap shrink-0 active:scale-95">
+              <span class="whitespace-nowrap">Làm bài</span>
               <i data-lucide="arrow-right" class="w-3 h-3 stroke-[2.2]"></i>
             </button>
           ` : `
@@ -2081,8 +2081,8 @@ const VibeApp = {
                 <i data-lucide="eye" class="w-3 h-3"></i>
                 <span class="hidden sm:inline">Xem</span>
               </button>
-              <button onclick="VibeApp.openAuthModal('login')" class="h-8 px-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition-all shadow-xs flex items-center gap-1 active:scale-95">
-                <span>Làm bài</span>
+              <button onclick="VibeApp.openAuthModal('login')" class="h-8 px-3.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition-all shadow-xs inline-flex items-center justify-center gap-1.5 whitespace-nowrap shrink-0 active:scale-95">
+                <span class="whitespace-nowrap">Làm bài</span>
                 <i data-lucide="arrow-right" class="w-3 h-3 stroke-[2.2]"></i>
               </button>
             </div>
@@ -2156,13 +2156,13 @@ const VibeApp = {
               Đã nhận
             </span>
           ` : user ? `
-            <button onclick="VibeApp.startSurveySession('${s.id}')" class="h-8 px-3.5 rounded-xl bg-slate-900 hover:bg-blue-600 dark:bg-indigo-600 dark:hover:bg-indigo-500 text-white text-xs font-bold transition-all shadow-xs flex items-center gap-1 active:scale-95">
-              <span>Làm bài</span>
+            <button onclick="VibeApp.startSurveySession('${s.id}')" class="h-8 px-3.5 rounded-xl bg-slate-900 hover:bg-blue-600 dark:bg-indigo-600 dark:hover:bg-indigo-500 text-white text-xs font-bold transition-all shadow-xs inline-flex items-center justify-center gap-1.5 whitespace-nowrap shrink-0 active:scale-95">
+              <span class="whitespace-nowrap">Làm bài</span>
               <i data-lucide="arrow-right" class="w-3 h-3"></i>
             </button>
           ` : `
-            <button onclick="VibeApp.openAuthModal('login')" class="h-8 px-3.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition-all shadow-xs flex items-center gap-1 active:scale-95">
-              <span>Làm bài</span>
+            <button onclick="VibeApp.openAuthModal('login')" class="h-8 px-3.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition-all shadow-xs inline-flex items-center justify-center gap-1.5 whitespace-nowrap shrink-0 active:scale-95">
+              <span class="whitespace-nowrap">Làm bài</span>
               <i data-lucide="arrow-right" class="w-3 h-3"></i>
             </button>
           `}
