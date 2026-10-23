@@ -18,10 +18,19 @@ class AuthController {
 
       const cleanEmail = email.toLowerCase().trim();
 
-      // Kiểm tra email đã tồn tại chưa
-      const existing = db.prepare('SELECT id FROM users WHERE email = ?').get(cleanEmail);
+      // Kiểm tra email đã tồn tại trong hệ thống chưa
+      const existing = db.prepare('SELECT id, is_google_linked FROM users WHERE email = ?').get(cleanEmail);
       if (existing) {
-        return res.status(409).json({ success: false, message: 'Email này đã được sử dụng. Vui lòng đăng nhập hoặc dùng email khác.' });
+        if (existing.is_google_linked === 1) {
+          return res.status(409).json({ 
+            success: false, 
+            message: 'Email này đã được đăng ký và liên kết với Google. Vui lòng bấm "Đăng nhập bằng Google" để truy cập tài khoản.' 
+          });
+        }
+        return res.status(409).json({ 
+          success: false, 
+          message: 'Email này đã được sử dụng. Vui lòng đăng nhập hoặc dùng email khác.' 
+        });
       }
 
       // Tạo mã OTP ngẫu nhiên 6 chữ số
@@ -184,9 +193,15 @@ class AuthController {
         return res.status(403).json({ success: false, isBanned: true, message: abuseErr.message });
       }
 
-      const existing = db.prepare('SELECT id FROM users WHERE email = ?').get(cleanEmail);
+      const existing = db.prepare('SELECT id, is_google_linked FROM users WHERE email = ?').get(cleanEmail);
       if (existing) {
-        return res.status(409).json({ success: false, message: 'Email này đã được đăng ký trong hệ thống' });
+        if (existing.is_google_linked === 1) {
+          return res.status(409).json({ 
+            success: false, 
+            message: 'Email này đã được đăng ký bằng Google. Vui lòng sử dụng nút "Đăng nhập bằng Google" để đăng nhập!' 
+          });
+        }
+        return res.status(409).json({ success: false, message: 'Email này đã được đăng ký trong hệ thống. Vui lòng đăng nhập.' });
       }
 
       if (googleId) {
