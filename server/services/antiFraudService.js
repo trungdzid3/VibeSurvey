@@ -38,7 +38,7 @@ class AntiFraudService {
       if (q.type === 'OPEN_TEXT') {
         totalActionTime += config.ANTI_FRAUD.ACTION_TIME_SEC.TEXT; // 8.0s
       } else {
-        totalActionTime += config.ANTI_FRAUD.ACTION_TIME_SEC.CHOICE; // 1.5s
+        totalActionTime += config.ANTI_FRAUD.ACTION_TIME_SEC.CHOICE; // 0.5s
       }
     }
 

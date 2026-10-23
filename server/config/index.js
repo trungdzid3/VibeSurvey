@@ -62,7 +62,7 @@ module.exports = {
   ANTI_FRAUD: {
     WORDS_PER_SECOND: 5.0, // Tốc độ đọc lướt tối đa của con người
     ACTION_TIME_SEC: {
-      CHOICE: 1.5,
+      CHOICE: 0.5,
       TEXT: 8.0
     },
     MIN_QUALITY_SCORE: 0.8, // Ngưỡng chấp nhận tự động
