@@ -1781,10 +1781,12 @@ const VibeApp = {
     }
     if (type === 'sort') {
       this.state.sortBy = value;
+      this.state.surveysCurrentPage = 1;
       const labelEl = document.getElementById('sort-dropdown-label');
       if (labelEl) labelEl.textContent = label;
     } else if (type === 'length') {
       this.state.lengthFilter = value;
+      this.state.surveysCurrentPage = 1;
       const labelEl = document.getElementById('length-dropdown-label');
       if (labelEl) labelEl.textContent = label;
     }
@@ -2135,6 +2137,58 @@ const VibeApp = {
 
     const isListView = this.state.viewMode === 'list';
 
+    // Phân trang danh sách khảo sát thường (8 bài / trang)
+    const pageSize = this.state.surveysPageSize || 8;
+    const totalPages = Math.max(1, Math.ceil(normalList.length / pageSize));
+    let currentPage = Math.min(Math.max(1, this.state.surveysCurrentPage || 1), totalPages);
+    this.state.surveysCurrentPage = currentPage;
+
+    const startIndex = (currentPage - 1) * pageSize;
+    const endIndex = Math.min(startIndex + pageSize, normalList.length);
+    const pagedNormalList = normalList.slice(startIndex, endIndex);
+
+    let paginationHtml = '';
+    if (totalPages > 1) {
+      let pageButtons = [];
+      for (let p = 1; p <= totalPages; p++) {
+        if (p === 1 || p === totalPages || (p >= currentPage - 1 && p <= currentPage + 1)) {
+          pageButtons.push(`
+            <button onclick="VibeApp.changeSurveysPage(${p})" class="w-8 h-8 rounded-lg text-xs font-bold transition-all ${
+              p === currentPage 
+                ? 'bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900 shadow-xs' 
+                : 'bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-400 hover:bg-stone-200 dark:hover:bg-stone-700'
+            }">
+              ${p}
+            </button>
+          `);
+        } else if (p === currentPage - 2 || p === currentPage + 2) {
+          pageButtons.push(`<span class="px-1 text-stone-400 text-xs">...</span>`);
+        }
+      }
+
+      paginationHtml = `
+        <div class="pt-6 pb-2 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-stone-200 dark:border-stone-800">
+          <div class="text-xs text-stone-500 font-medium">
+            Hiển thị <span class="font-bold text-stone-800 dark:text-stone-200">${normalList.length > 0 ? startIndex + 1 : 0} - ${endIndex}</span> trên tổng số <span class="font-bold text-stone-800 dark:text-stone-200">${normalList.length}</span> bài
+          </div>
+
+          <div class="flex items-center space-x-1.5">
+            <button onclick="VibeApp.changeSurveysPage(${currentPage - 1})" 
+                    ${currentPage === 1 ? 'disabled class="opacity-40 cursor-not-allowed px-3 py-1.5 rounded-lg border border-stone-200 dark:border-stone-800 text-xs font-semibold text-stone-400"' : 'class="px-3 py-1.5 rounded-lg border border-stone-200 dark:border-stone-800 hover:bg-stone-100 dark:hover:bg-stone-800 text-xs font-semibold text-stone-700 dark:text-stone-300 transition-colors active:scale-95"'}>
+              ‹ Trước
+            </button>
+
+            ${pageButtons.join('')}
+
+            <button onclick="VibeApp.changeSurveysPage(${currentPage + 1})" 
+                    ${currentPage === totalPages ? 'disabled class="opacity-40 cursor-not-allowed px-3 py-1.5 rounded-lg border border-stone-200 dark:border-stone-800 text-xs font-semibold text-stone-400"' : 'class="px-3 py-1.5 rounded-lg border border-stone-200 dark:border-stone-800 hover:bg-stone-100 dark:hover:bg-stone-800 text-xs font-semibold text-stone-700 dark:text-stone-300 transition-colors active:scale-95"'}>
+              Sau ›
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
     return `
       <div class="space-y-4">
         
@@ -2160,7 +2214,7 @@ const VibeApp = {
           </div>
         ` : ''}
 
-        <!-- SECTION 2: TẤT CẢ KHẢO SÁT KHÁC -->
+        <!-- SECTION 2: TẤT CẢ KHẢO SÁT KHÁC (CÓ PHÂN TRANG) -->
         ${normalList.length > 0 ? `
           <div class="space-y-3 pt-1">
             ${pinnedList.length > 0 ? `
@@ -2168,19 +2222,21 @@ const VibeApp = {
                 <h3 class="text-xs sm:text-sm font-bold text-slate-900 dark:text-white">
                   Khảo Sát Khác (${normalList.length} bài)
                 </h3>
-                <span class="text-[11px] text-stone-500">Các bài gần hết suất được ưu tiên lên đầu</span>
+                <span class="text-[11px] text-stone-500">Trang ${currentPage} / ${totalPages}</span>
               </div>
             ` : ''}
 
             ${isListView ? `
               <div class="space-y-2">
-                ${normalList.map(s => this.renderListSurveyRow(s, false)).join('')}
+                ${pagedNormalList.map(s => this.renderListSurveyRow(s, false)).join('')}
               </div>
             ` : `
               <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-3.5">
-                ${normalList.map(s => this.renderCompactSurveyCard(s, false)).join('')}
+                ${pagedNormalList.map(s => this.renderCompactSurveyCard(s, false)).join('')}
               </div>
             `}
+
+            ${paginationHtml}
           </div>
         ` : ''}
 
@@ -2489,24 +2545,28 @@ const VibeApp = {
   setCategoryFilter(cat) {
     this.haptic('light');
     this.state.categoryFilter = cat;
+    this.state.surveysCurrentPage = 1;
     this.renderSurveysView(document.getElementById('app-root'), false);
   },
 
   setSortBy(sort) {
     this.haptic('light');
     this.state.sortBy = sort;
+    this.state.surveysCurrentPage = 1;
     this.renderSurveysView(document.getElementById('app-root'), false);
   },
 
   setLengthFilter(len) {
     this.haptic('light');
     this.state.lengthFilter = len;
+    this.state.surveysCurrentPage = 1;
     this.renderSurveysView(document.getElementById('app-root'), false);
   },
 
   toggleHideFinished() {
     this.haptic('light');
     this.state.hideFinished = !this.state.hideFinished;
+    this.state.surveysCurrentPage = 1;
     this.renderSurveysView(document.getElementById('app-root'));
   },
 
@@ -2522,8 +2582,19 @@ const VibeApp = {
     this._updateSurveyGrid();
   },
 
+  changeSurveysPage(page) {
+    this.haptic('light');
+    this.state.surveysCurrentPage = page;
+    this._updateSurveyGrid();
+    const section = document.querySelector('.surveys-grid-section');
+    if (section) {
+      section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  },
+
   handleSearch(query) {
     this.state.searchQuery = query;
+    this.state.surveysCurrentPage = 1;
     clearTimeout(this._searchTimeout);
     this._searchTimeout = setTimeout(() => {
       this._updateSurveyGrid();
@@ -2553,7 +2624,8 @@ const VibeApp = {
     this.state.rewardTierFilter = 'ALL';
     this.state.searchQuery = '';
     this.state.sortBy = 'recommended';
-    this.state.hideFinished = false; // Tạm mở để thấy các bài đã xong nếu muốn
+    this.state.hideFinished = false;
+    this.state.surveysCurrentPage = 1;
     this.renderSurveysView(document.getElementById('app-root'));
   },
 

@@ -1781,10 +1781,12 @@ const VibeApp = {
     }
     if (type === 'sort') {
       this.state.sortBy = value;
+      this.state.surveysCurrentPage = 1;
       const labelEl = document.getElementById('sort-dropdown-label');
       if (labelEl) labelEl.textContent = label;
     } else if (type === 'length') {
       this.state.lengthFilter = value;
+      this.state.surveysCurrentPage = 1;
       const labelEl = document.getElementById('length-dropdown-label');
       if (labelEl) labelEl.textContent = label;
     }
