@@ -1476,7 +1476,7 @@ const VibeApp = {
       }).join('');
     }
 
-    // Mobile Bottom Nav
+    // Mobile Bottom Floating Nav (Kiểu Bong Bóng Nổi Bo Tròn Đẳng Cấp)
     if (mobileNav) {
       let mobileItems = [...tabs];
       if (!user) {
@@ -1487,11 +1487,16 @@ const VibeApp = {
         const clickAction = tab.isAuthAction ? `VibeApp.openAuthModal('login')` : `VibeApp.navigate('${tab.id}')`;
         return `
           <button onclick="${clickAction}" 
-                  class="flex-1 py-1.5 flex flex-col items-center justify-center transition-all ${
-                    isActive ? 'text-blue-600 font-bold' : 'text-slate-400 hover:text-slate-700 font-medium'
+                  class="relative flex-1 py-1.5 px-1.5 rounded-full flex flex-col items-center justify-center transition-all duration-200 active:scale-95 group ${
+                    isActive 
+                      ? 'text-blue-600 dark:text-sky-400 font-extrabold' 
+                      : 'text-slate-400 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 font-semibold'
                   }">
-            <i data-lucide="${tab.icon}" class="w-5 h-5 mb-0.5 ${isActive ? 'stroke-[2.4]' : 'stroke-[1.8]'}"></i>
-            <span class="text-[10px] leading-tight truncate max-w-[70px]">${tab.label}</span>
+            ${isActive ? `
+              <span class="absolute inset-0 bg-blue-50 dark:bg-blue-500/15 rounded-full transition-all -z-10 shadow-xs border border-blue-500/20 dark:border-sky-400/30"></span>
+            ` : ''}
+            <i data-lucide="${tab.icon}" class="w-4 h-4 mb-0.5 transition-transform group-hover:scale-110 ${isActive ? 'stroke-[2.5] scale-105' : 'stroke-[1.8]'}"></i>
+            <span class="text-[9.5px] leading-tight truncate max-w-[65px] font-sans tracking-tight">${tab.label}</span>
           </button>
         `;
       }).join('');
