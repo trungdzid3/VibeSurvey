@@ -327,9 +327,6 @@ const VibeApp = {
         if (meRes.success && meRes.user) {
           this.state.currentUser = meRes.user;
           localStorage.setItem('vibesurvey_cached_user', JSON.stringify(meRes.user));
-          this.state.currentTab = savedTab;
-          this.applyUserInterface();
-
           // Kiểm tra xem có phiên làm bài khảo sát dở dang cần khôi phục không
           const cachedSessionJson = localStorage.getItem('vibesurvey_active_session');
           if (cachedSessionJson) {
@@ -337,11 +334,15 @@ const VibeApp = {
               const restoredSession = JSON.parse(cachedSessionJson);
               if (restoredSession && restoredSession.surveyId && restoredSession.questions?.length > 0) {
                 this.state.activeSession = restoredSession;
+                this.state.currentTab = 'take-survey';
+                this.applyUserInterface(true); // silent = true để không kích hoạt navigate(savedTab) ghi đè giao diện!
+
                 // Khởi động lại timer
                 if (this.state.activeSession.timerId) clearInterval(this.state.activeSession.timerId);
                 this.state.activeSession.timerId = setInterval(() => {
                   if (this.state.activeSession) {
                     this.state.activeSession.durationSec = (this.state.activeSession.durationSec || 0) + 1;
+                    this._saveActiveSessionToStorage();
                     const timerEl = document.getElementById('session-timer-text');
                     if (timerEl) {
                       const sec = this.state.activeSession.durationSec;
@@ -359,6 +360,9 @@ const VibeApp = {
               localStorage.removeItem('vibesurvey_active_session');
             }
           }
+
+          this.state.currentTab = savedTab;
+          this.applyUserInterface();
 
           this.checkDeepLinkSurvey();
           return;
@@ -429,8 +433,18 @@ const VibeApp = {
     const userProfileMenu = document.getElementById('user-profile-menu');
     const guestAuthActions = document.getElementById('guest-auth-actions');
 
-    if (balancePill) balancePill.classList.add('hidden');
-    if (ticketsChip) ticketsChip.classList.add('hidden');
+    if (balancePill) {
+      balancePill.style.display = 'none';
+      balancePill.classList.add('hidden');
+    }
+    if (ticketsChip) {
+      ticketsChip.style.display = 'none';
+      ticketsChip.classList.add('hidden');
+    }
+    const pointsBadgeText = document.getElementById('header-points-text');
+    if (pointsBadgeText) pointsBadgeText.textContent = '0 Điểm';
+    const creditBadgeText = document.getElementById('header-credit-text');
+    if (creditBadgeText) creditBadgeText.textContent = '';
     if (createBtn) createBtn.style.display = 'none';
     if (userProfileMenu) userProfileMenu.classList.add('hidden');
     if (guestAuthActions) guestAuthActions.classList.remove('hidden');
@@ -2503,6 +2517,36 @@ const VibeApp = {
       return;
     }
 
+    // Kiểm tra xem đã có bài làm dở của khảo sát này trong storage chưa để khôi phục
+    const cachedSessionJson = localStorage.getItem('vibesurvey_active_session');
+    if (cachedSessionJson) {
+      try {
+        const cached = JSON.parse(cachedSessionJson);
+        if (cached && cached.surveyId === surveyId && (Object.keys(cached.answers || {}).length > 0 || cached.currentIndex > 0)) {
+          this.state.activeSession = cached;
+          if (this.state.activeSession.timerId) clearInterval(this.state.activeSession.timerId);
+          this.state.activeSession.timerId = setInterval(() => {
+            if (this.state.activeSession) {
+              this.state.activeSession.durationSec = (this.state.activeSession.durationSec || 0) + 1;
+              this._saveActiveSessionToStorage();
+              const timerEl = document.getElementById('session-timer-text');
+              if (timerEl) {
+                const sec = this.state.activeSession.durationSec;
+                const mins = Math.floor(sec / 60);
+                const remSec = sec % 60;
+                timerEl.textContent = `${mins.toString().padStart(2, '0')}:${remSec.toString().padStart(2, '0')}`;
+              }
+            }
+          }, 1000);
+          this.showToast('Đang tiếp tục bài khảo sát của bạn...', 'info');
+          await this.navigate('take-survey', { surveyId });
+          return;
+        }
+      } catch (e) {
+        // bỏ qua nếu parse lỗi
+      }
+    }
+
     try {
       const res = await this.api(`/surveys/${surveyId}/start-session`, { method: 'POST' });
       if (res.success) {
@@ -2589,6 +2633,29 @@ const VibeApp = {
     const progressPct = totalQ > 0 ? Math.round(((curIdx + 1) / totalQ) * 100) : 100;
     const isLast = curIdx === totalQ - 1;
 
+    // Tính chuỗi thời gian hiện tại từ durationSec
+    const sec = session.durationSec || 0;
+    const mins = Math.floor(sec / 60);
+    const remSec = sec % 60;
+    const initialTimeStr = `${mins.toString().padStart(2, '0')}:${remSec.toString().padStart(2, '0')}`;
+
+    // Đảm bảo timer luôn hoạt động
+    if (!session.timerId) {
+      session.timerId = setInterval(() => {
+        if (this.state.activeSession) {
+          this.state.activeSession.durationSec = (this.state.activeSession.durationSec || 0) + 1;
+          this._saveActiveSessionToStorage();
+          const timerEl = document.getElementById('session-timer-text');
+          if (timerEl) {
+            const s = this.state.activeSession.durationSec;
+            const m = Math.floor(s / 60);
+            const r = s % 60;
+            timerEl.textContent = `${m.toString().padStart(2, '0')}:${r.toString().padStart(2, '0')}`;
+          }
+        }
+      }, 1000);
+    }
+
     root.innerHTML = `
       <div class="stepper-focus-box space-y-6 py-4">
         
@@ -2600,7 +2667,7 @@ const VibeApp = {
           </button>
           
           <div class="flex items-center space-x-3">
-            <span class="font-mono text-slate-700 font-bold" id="session-timer-text">00:00</span>
+            <span class="font-mono text-slate-700 dark:text-slate-200 font-bold" id="session-timer-text">${initialTimeStr}</span>
             <span class="text-slate-300">|</span>
             <span class="font-extrabold text-blue-600">Câu ${curIdx + 1} / ${totalQ} (${progressPct}%)</span>
           </div>
@@ -4355,7 +4422,7 @@ const VibeApp = {
             <div class="flex items-center gap-2">
               <i data-lucide="calculator" class="w-4 h-4 text-blue-600 dark:text-sky-400 shrink-0"></i>
               <span class="text-slate-600 dark:text-slate-300">Tạm tính ngân sách:</span>
-              <span class="font-mono font-bold text-blue-700 dark:text-sky-300 text-sm" id="fast-calc-breakdown">100 mẫu × 200 Điểm (2.000đ/mẫu) = 200.000 VNĐ</span>
+              <span class="font-mono font-bold text-blue-700 dark:text-sky-300 text-sm" id="fast-calc-breakdown">${defaultTarget} mẫu × 200 Điểm (2.000đ/mẫu) = ${(defaultTarget * 200 * 10).toLocaleString('vi-VN')} VNĐ</span>
             </div>
             <div id="fast-calc-trial-badge" class="text-[11px] font-bold text-emerald-600 dark:text-emerald-400">
               ${hasFreeTrial ? '🎁 Gói Trial: Miễn phí 25 mẫu đầu (tiết kiệm 50.000đ)' : 'Khóa quỹ từ Credit'}
@@ -4431,6 +4498,7 @@ const VibeApp = {
     `;
 
     if (window.lucide) window.lucide.createIcons();
+    this.updateFastEscrowCalculation();
   },
 
   switchCreateSurveyTab(tab) {

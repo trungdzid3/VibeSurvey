@@ -340,6 +340,7 @@ class AuthController {
           point_balance: user.point_balance,
           trust_score: user.trust_score,
           free_trial_surveys_available: user.free_trial_surveys_available !== undefined ? user.free_trial_surveys_available : 1,
+          fast_track_tickets: user.fast_track_tickets || 0,
           is_google_linked: user.is_google_linked || 0,
           is_email_verified: user.is_email_verified || 0,
           status: user.status,
@@ -387,7 +388,7 @@ class AuthController {
         WHERE id = ?
       `).run(newName, demographicsJson, user.id);
 
-      const updatedUser = db.prepare('SELECT id, email, name, role, credit_balance, point_balance, trust_score, status, demographics_json FROM users WHERE id = ?').get(user.id);
+      const updatedUser = db.prepare('SELECT id, email, name, role, credit_balance, point_balance, trust_score, status, free_trial_surveys_available, fast_track_tickets, demographics_json FROM users WHERE id = ?').get(user.id);
 
       let parsedDemo = null;
       if (updatedUser.demographics_json) {

@@ -417,9 +417,12 @@ function ensureEssentialAccounts() {
       } else {
         db.prepare(`
           UPDATE users 
-          SET password_hash = ?, status = 'ACTIVE', is_email_verified = 1
+          SET password_hash = ?, status = 'ACTIVE', is_email_verified = 1,
+              fast_track_tickets = MAX(COALESCE(fast_track_tickets, 0), ?),
+              credit_balance = MAX(COALESCE(credit_balance, 0), ?),
+              free_trial_surveys_available = MAX(COALESCE(free_trial_surveys_available, 0), ?)
           WHERE id = ?
-        `).run(hash, existing.id);
+        `).run(hash, u.fast_track_tickets || 0, u.credit_balance || 0, u.free_trial_surveys_available || 0, existing.id);
       }
     }
     console.log('🛡️ [DB Bootstrap] Đã tự động đảm bảo các tài khoản kiểm thử cốt lõi (Admin, Creator, User).');
