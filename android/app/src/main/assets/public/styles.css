@@ -7,6 +7,34 @@
 /* ==================== MONTSERRAT LOCAL FONT FACES ==================== */
 @font-face {
   font-family: 'Montserrat';
+  src: url('/fonts/Montserrat-Thin.ttf') format('truetype');
+  font-weight: 100;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Montserrat';
+  src: url('/fonts/Montserrat-ThinItalic.ttf') format('truetype');
+  font-weight: 100;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Montserrat';
+  src: url('/fonts/Montserrat-ExtraLight.ttf') format('truetype');
+  font-weight: 200;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Montserrat';
+  src: url('/fonts/Montserrat-ExtraLightItalic.ttf') format('truetype');
+  font-weight: 200;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Montserrat';
   src: url('/fonts/Montserrat-Light.ttf') format('truetype');
   font-weight: 300;
   font-style: normal;
@@ -84,9 +112,23 @@
 }
 @font-face {
   font-family: 'Montserrat';
+  src: url('/fonts/Montserrat-ExtraBoldItalic.ttf') format('truetype');
+  font-weight: 800;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Montserrat';
   src: url('/fonts/Montserrat-Black.ttf') format('truetype');
   font-weight: 900;
   font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Montserrat';
+  src: url('/fonts/Montserrat-BlackItalic.ttf') format('truetype');
+  font-weight: 900;
+  font-style: italic;
   font-display: swap;
 }
 
@@ -140,8 +182,11 @@ html.dark {
   --card-shadow-hover: 0 16px 36px -6px rgba(0, 0, 0, 0.65), 0 0 20px rgba(59, 130, 246, 0.12), inset 0 1px 0 0 rgba(255, 255, 255, 0.12);
 }
 
+html, body, *, *::before, *::after, input, button, textarea, select, code, pre {
+  font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+}
+
 html, body {
-  font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   background-color: var(--bg-page);
   color: var(--text-body);
   margin: 0;
@@ -151,58 +196,97 @@ html, body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* ==================== TYPOGRAPHIC HIERARCHY ==================== */
-/* 1. Tiêu đề thì bold (Đậm nét, mạnh mẽ, tương phản rõ rệt) */
-h1, h2, h3, h4, h5, h6,
-.font-bold,
-.font-extrabold,
+/* ==================== TYPOGRAPHIC HIERARCHY (MONTSERRAT PHÂN CẤP) ==================== */
+/* 1. Tiêu đề lớn nhất: Black (900) */
+h1,
+.hero-title,
+.page-title-main,
+.display-title,
 .font-black,
-.heading-bold,
-.title-bold {
-  font-weight: 700 !important;
-  letter-spacing: -0.02em;
-}
-
-/* 2. Tiêu đề Hero và Display lớn */
-.font-black, .hero-title {
-  font-weight: 800 !important;
+#greeting-text,
+h1.font-black,
+.text-2xl.font-black,
+.text-3xl.font-black,
+.text-4xl.font-black,
+.text-3xl.font-extrabold,
+.text-4xl.font-extrabold {
+  font-weight: 900 !important;
+  font-style: normal !important;
   letter-spacing: -0.025em;
 }
 
-/* 3. Phân cấp đề mục phụ / Card title */
-.section-title, .card-title {
-  font-weight: 700;
+/* 2. Tiêu đề phụ: ExtraBold (800) */
+h2, h3, h4, h5, h6,
+.section-title,
+.card-title,
+.heading-bold,
+.title-bold,
+.font-extrabold,
+.font-bold {
+  font-weight: 800 !important;
+  font-style: normal !important;
   letter-spacing: -0.015em;
 }
 
-/* 4. Nội dung thông thường (Body / Labels / Form Inputs) */
-p, span, div, input, textarea, select, button {
-  font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+/* 3. Body text thông thường: Regular (400) */
+body,
+p,
+label,
+.body-text,
+.font-normal {
+  font-weight: 400 !important;
+  font-style: normal !important;
+  letter-spacing: normal;
 }
 
-/* 5. Chữ nhỏ thì light nhé (Mảnh mai, thanh lịch, tinh tế) */
-.text-xs,
-.text-\[11px\],
-.text-\[10px\],
-.text-\[12px\],
+/* 4. Chú thích: ExtraLightItalic (200 Italic) */
+.caption,
+.subtext,
+.helper-text,
+.footnote,
+.light-subtext,
+small,
+figcaption,
+.field-hint,
+.note-text,
 p.text-slate-400,
 p.text-slate-500,
-span.text-slate-400,
-span.text-slate-500,
-.subtext,
-.caption,
-.helper-text,
-.light-subtext {
-  font-weight: 300 !important;
+p.text-stone-400,
+p.text-stone-500,
+span.text-slate-400:not(.font-mono):not(.font-bold):not(.font-semibold),
+span.text-slate-500:not(.font-mono):not(.font-bold):not(.font-semibold),
+span.text-stone-400:not(.font-mono):not(.font-bold):not(.font-semibold),
+span.text-stone-500:not(.font-mono):not(.font-bold):not(.font-semibold),
+.text-\[10px\]:not(button):not(.font-mono):not(.badge):not(.font-bold):not(.font-semibold),
+.text-\[11px\]:not(button):not(.font-mono):not(.badge):not(.font-bold):not(.font-semibold),
+.helper-notice,
+.input-hint {
+  font-weight: 200 !important;
+  font-style: italic !important;
   letter-spacing: 0.01em;
 }
 
-/* Ngoại lệ: Giữ số liệu Mono và Badge số dư luôn sắc nét dễ đọc */
+/* 5. Ngoại lệ: Nút bấm (Button) & Số liệu (Numbers / Mono / Badges) giữ độ đậm và không italic */
+button,
+.btn,
+button.text-xs,
+button.font-bold,
+button.font-semibold,
+.stepper-choice-btn,
+.likert-clean-btn {
+  font-weight: 700 !important;
+  font-style: normal !important;
+}
+
 .font-mono,
 .font-bold.font-mono,
 .font-extrabold.font-mono,
-[id*="text"].font-mono {
-  font-weight: 700 !important;
+#header-points-text,
+#header-tickets-text,
+[id*="text"].font-mono,
+[id*="balance"].font-mono {
+  font-weight: 800 !important;
+  font-style: normal !important;
   letter-spacing: normal;
 }
 
