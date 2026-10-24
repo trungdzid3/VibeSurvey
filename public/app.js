@@ -116,42 +116,119 @@ const VibeApp = {
     }
   },
 
-  // ==================== KHỞI TẠO LOGO THƯƠNG HIỆU CHUẨN CHÍNH HÃNG TỪ MẠNG ====================
-  getBrandLogoHtml(brandName) {
-    const b = (brandName || '').toLowerCase().trim();
-    let src = '';
-    let alt = brandName || 'Brand';
-    let bg = 'bg-white dark:bg-stone-800';
+  // ==================== KHỞI TẠO LOGO THƯƠNG HIỆU CHUẨN CHÍNH HÃNG (3-TIER MULTI-SOURCE & ZERO-BROKEN FALLBACK) ====================
+  getBrandLogoHtml(brandName, websiteDomain = '', customLogoUrl = '') {
+    const raw = (brandName || '').trim();
+    const b = raw.toLowerCase();
 
-    if (b.includes('shopee')) {
-      src = '/images/brands/shopee.svg';
-      bg = 'bg-[#EE4D2D]';
-    } else if (b.includes('grab')) {
-      src = '/images/brands/grab.svg';
-      bg = 'bg-[#00B14F]';
-    } else if (b.includes('highlands')) {
-      src = '/images/brands/highlands.svg';
-      bg = 'bg-[#B31010]';
-    } else if (b.includes('phúc long') || b.includes('phuc long')) {
-      src = '/images/brands/phuclong.svg';
-      bg = 'bg-[#01522C]';
-    } else if (b.includes('cgv')) {
-      src = '/images/brands/cgv.svg';
-      bg = 'bg-white dark:bg-stone-900';
-    } else if (b.includes('starbucks')) {
-      src = '/images/brands/starbucks.svg';
-      bg = 'bg-[#006241]';
+    // Danh bạ thương hiệu được chuẩn hóa slug, domain và asset
+    const brandDirectory = {
+      'phuc-long': {
+        name: 'Phúc Long Coffee & Tea',
+        domain: 'phuclong.com.vn',
+        localLogo: '/assets/logos/phuc-long.png',
+        svgLogo: '/assets/logos/phuc-long.svg',
+        bgColor: '#01522C',
+        keywords: ['phuc long', 'phúc long', 'phuclong']
+      },
+      'grab': {
+        name: 'Grab',
+        domain: 'grab.com',
+        localLogo: '/assets/logos/grab.png',
+        svgLogo: '/assets/logos/grab.svg',
+        bgColor: '#00B14F',
+        keywords: ['grab', 'grabfood', 'grabmart']
+      },
+      'shopee': {
+        name: 'Shopee',
+        domain: 'shopee.vn',
+        localLogo: '/assets/logos/shopee.png',
+        svgLogo: '/assets/logos/shopee.svg',
+        bgColor: '#EE4D2D',
+        keywords: ['shopee', 'shopeefood']
+      },
+      'highlands-coffee': {
+        name: 'Highlands Coffee',
+        domain: 'highlandscoffee.com.vn',
+        localLogo: '/assets/logos/highlands-coffee.svg',
+        svgLogo: '/assets/logos/highlands-coffee.svg',
+        bgColor: '#B31010',
+        keywords: ['highlands', 'highland']
+      },
+      'cgv-cinemas': {
+        name: 'CGV Cinemas',
+        domain: 'cgv.vn',
+        localLogo: '/assets/logos/cgv-cinemas.svg',
+        svgLogo: '/assets/logos/cgv-cinemas.svg',
+        bgColor: '#E71A0F',
+        keywords: ['cgv', 'cinema', 'rap chieu phim']
+      },
+      'starbucks': {
+        name: 'Starbucks Vietnam',
+        domain: 'starbucks.vn',
+        localLogo: '/assets/logos/starbucks.png',
+        svgLogo: '/assets/logos/starbucks.svg',
+        bgColor: '#006241',
+        keywords: ['starbucks', 'starbuck']
+      },
+      'lazada': {
+        name: 'Lazada Vietnam',
+        domain: 'lazada.vn',
+        localLogo: '/assets/logos/lazada.png',
+        bgColor: '#0f146d',
+        keywords: ['lazada']
+      },
+      'tiki': {
+        name: 'Tiki Vietnam',
+        domain: 'tiki.vn',
+        localLogo: '/assets/logos/tiki.png',
+        bgColor: '#1A94FF',
+        keywords: ['tiki']
+      },
+      'the-coffee-house': {
+        name: 'The Coffee House',
+        domain: 'thecoffeehouse.com',
+        localLogo: '/assets/logos/the-coffee-house.png',
+        bgColor: '#EA8025',
+        keywords: ['the coffee house', 'coffee house', 'tch']
+      }
+    };
+
+    let matched = null;
+    for (const slug of Object.keys(brandDirectory)) {
+      const item = brandDirectory[slug];
+      if (item.keywords.some(k => b.includes(k)) || (websiteDomain && websiteDomain.toLowerCase().includes(item.domain))) {
+        matched = { slug, ...item };
+        break;
+      }
     }
 
-    if (src) {
-      return `<div class="w-full h-full flex items-center justify-center p-1.5 ${bg} rounded-xl overflow-hidden shadow-xs border border-stone-200/50 dark:border-stone-700/50">
-        <img src="${src}" alt="${alt}" class="w-full h-full object-contain pointer-events-none" loading="lazy" />
-      </div>`;
+    const domain = websiteDomain || (matched ? matched.domain : '');
+    let primarySrc = customLogoUrl || (matched ? (matched.svgLogo || matched.localLogo) : '');
+    if (!primarySrc && domain) {
+      primarySrc = `https://www.google.com/s2/favicons?domain=${encodeURIComponent(domain)}&sz=128`;
+    }
+    if (!primarySrc) {
+      primarySrc = '/assets/logos/default-voucher.svg';
     }
 
-    return `<div class="w-full h-full rounded-xl bg-stone-900 text-white flex items-center justify-center font-bold text-xs uppercase shadow-xs">
-      ${(brandName || 'V').substring(0, 2)}
-    </div>`;
+    const fallbackFavicon = domain ? `https://www.google.com/s2/favicons?domain=${encodeURIComponent(domain)}&sz=128` : '/assets/logos/default-voucher.svg';
+    const initials = (raw || 'V').trim().substring(0, 2).toUpperCase();
+    const bg = matched ? matched.bgColor : '#334155';
+
+    return `
+      <div class="w-full h-full relative flex items-center justify-center p-1 rounded-xl overflow-hidden bg-white dark:bg-stone-900 shadow-2xs border border-stone-200/50 dark:border-stone-700/50">
+        <img src="${primarySrc}" 
+             alt="${raw || 'Brand'}" 
+             class="w-full h-full object-contain pointer-events-none transition-transform duration-200 select-none"
+             loading="lazy"
+             onerror="if(!this.dataset.step){this.dataset.step='1';this.src='${fallbackFavicon}';}else if(this.dataset.step==='1'){this.dataset.step='2';this.src='/assets/logos/default-voucher.svg';}else{this.style.display='none';if(this.nextElementSibling)this.nextElementSibling.style.display='flex';}" />
+        <div class="w-full h-full rounded-lg text-white font-black text-[11px] uppercase tracking-wider flex items-center justify-center shadow-xs" 
+             style="display: none; background-color: ${bg};">
+          ${initials}
+        </div>
+      </div>
+    `.trim();
   },
 
   getProgressBarColor(pct) {
@@ -1764,22 +1841,21 @@ const VibeApp = {
         <!-- ==================== USER WELCOME BANNER CARD ==================== -->
         <div class="mb-2">
           ${user ? `
-            <div class="bg-white dark:bg-[#18181B] rounded-2xl border border-stone-200 dark:border-stone-800 p-5 sm:p-6 shadow-xs hover:shadow-md transition-all">
-              <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-5">
+            <div class="bg-white dark:bg-[#18181B] rounded-2xl border border-stone-200 dark:border-stone-800 p-5 sm:p-6 shadow-xs transition-all">
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 
                 <!-- Left: User Balance & Progress Information -->
-                <div class="space-y-3 flex-1 min-w-0">
+                <div class="space-y-2 flex-1 min-w-0">
                   <div class="flex flex-wrap items-center gap-2.5">
-                    <h1 class="text-lg sm:text-xl font-black text-slate-900 dark:text-white tracking-tight">
+                    <h1 class="text-base sm:text-lg font-black text-slate-900 dark:text-white tracking-tight">
                       Chào ${user.name.split(' ').pop()}, bạn đang có <span class="text-orange-600 dark:text-orange-500 font-mono font-black">${curVnd.toLocaleString('vi-VN')}đ</span>
                     </h1>
-                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-orange-50 dark:bg-orange-950/60 text-orange-600 dark:text-orange-400 border border-orange-200/80 dark:border-orange-800/80">
-                      <i data-lucide="coins" class="w-3 h-3 stroke-[2.5]"></i>
-                      <span>${curPoints.toLocaleString('vi-VN')} Điểm</span>
+                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-xs font-mono font-bold bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300">
+                      ${curPoints.toLocaleString('vi-VN')} Điểm
                     </span>
                   </div>
 
-                  <p class="text-xs sm:text-sm text-stone-600 dark:text-stone-300 font-normal leading-relaxed">
+                  <p class="text-xs text-stone-500 dark:text-stone-400 font-normal leading-relaxed">
                     Làm khảo sát để tích lũy điểm thưởng quy đổi thẻ cào hoặc rút tiền mặt về tài khoản ngân hàng.
                   </p>
 
@@ -1787,7 +1863,7 @@ const VibeApp = {
                   <div class="pt-1 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-xs">
                     <div class="flex items-center gap-2 shrink-0">
                       <span class="text-stone-500 dark:text-stone-400 font-medium text-xs">Tiến độ đổi thưởng (${targetPayoutLabel}):</span>
-                      <span class="font-mono font-black text-orange-600 dark:text-orange-500 text-xs">${goalPercent}%</span>
+                      <span class="font-mono font-bold text-orange-600 dark:text-orange-500 text-xs">${goalPercent}%</span>
                     </div>
                     
                     <div class="flex-1 max-w-xs bg-stone-100 dark:bg-stone-800 h-2 rounded-full overflow-hidden">
@@ -1807,37 +1883,33 @@ const VibeApp = {
                   </div>
                 </div>
 
-                <!-- Right: Action Buttons -->
-                <div class="flex items-center gap-2.5 shrink-0 self-start lg:self-center pt-2 lg:pt-0">
-                  <button onclick="VibeApp.navigate('wallet')" class="h-9.5 px-4 rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 hover:bg-stone-100 dark:hover:bg-stone-700 text-stone-800 dark:text-stone-200 text-xs font-bold transition-all shadow-2xs flex items-center gap-2 active:scale-95">
-                    <i data-lucide="wallet" class="w-4 h-4 text-stone-600 dark:text-stone-300"></i>
-                    <span>Ví & Rút tiền</span>
-                  </button>
-                  <button onclick="VibeApp.navigate('voucher-market')" class="h-9.5 px-4 rounded-xl bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold transition-all shadow-sm flex items-center gap-2 active:scale-95">
-                    <i data-lucide="gift" class="w-4 h-4"></i>
-                    <span>Chợ Voucher</span>
-                  </button>
+                <!-- Right: Clean Minimalist Text Link (Không dùng nút viên thuốc thô) -->
+                <div class="shrink-0 self-start sm:self-center pt-1 sm:pt-0">
+                  <a href="javascript:void(0)" onclick="VibeApp.navigate('wallet')" class="group inline-flex items-center gap-1 text-xs font-bold text-stone-700 dark:text-stone-300 hover:text-orange-600 dark:hover:text-orange-500 transition-colors">
+                    <span>Quản lý ví & rút tiền</span>
+                    <i data-lucide="arrow-right" class="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform"></i>
+                  </a>
                 </div>
 
               </div>
             </div>
           ` : `
-            <div class="bg-white dark:bg-[#18181B] rounded-2xl border border-stone-200 dark:border-stone-800 p-5 sm:p-6 shadow-xs hover:shadow-md transition-all">
-              <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-5">
-                <div class="space-y-1.5 flex-1">
-                  <h1 class="text-lg sm:text-xl font-black text-slate-900 dark:text-white tracking-tight">
+            <div class="bg-white dark:bg-[#18181B] rounded-2xl border border-stone-200 dark:border-stone-800 p-5 sm:p-6 shadow-xs transition-all">
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div class="space-y-1 flex-1">
+                  <h1 class="text-base sm:text-lg font-black text-slate-900 dark:text-white tracking-tight">
                     Khám Phá Các Bài Khảo Sát & Đổi Thưởng
                   </h1>
-                  <p class="text-xs sm:text-sm text-stone-600 dark:text-stone-300 font-normal leading-relaxed">
+                  <p class="text-xs text-stone-500 dark:text-stone-400 font-normal leading-relaxed">
                     Xem trước nội dung câu hỏi bên dưới. Đăng ký tài khoản miễn phí để làm bài nhận điểm thưởng hoặc nạp tạo khảo sát mới.
                   </p>
                 </div>
-                <div class="flex items-center gap-2.5 shrink-0">
-                  <button onclick="VibeApp.openAuthModal('login')" class="h-9.5 px-4 rounded-xl border border-stone-300 dark:border-stone-700 hover:bg-stone-100 dark:hover:bg-stone-800 text-xs font-bold text-stone-800 dark:text-stone-200 transition-all">
+                <div class="flex items-center gap-2 shrink-0">
+                  <button onclick="VibeApp.openAuthModal('login')" class="h-8.5 px-3.5 rounded-lg border border-stone-300 dark:border-stone-700 hover:bg-stone-100 dark:hover:bg-stone-800 text-xs font-bold text-stone-700 dark:text-stone-300 transition-colors">
                     Đăng Nhập
                   </button>
-                  <button onclick="VibeApp.openAuthModal('register')" class="h-9.5 px-4.5 rounded-xl bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold transition-all shadow-sm active:scale-95">
-                    Đăng Ký Nhận 25 Lượt Free
+                  <button onclick="VibeApp.openAuthModal('register')" class="h-8.5 px-3.5 rounded-lg bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold transition-all shadow-xs active:scale-95">
+                    Đăng Ký
                   </button>
                 </div>
               </div>
@@ -2063,6 +2135,58 @@ const VibeApp = {
 
     const isListView = this.state.viewMode === 'list';
 
+    // Phân trang danh sách khảo sát thường (8 bài / trang)
+    const pageSize = this.state.surveysPageSize || 8;
+    const totalPages = Math.max(1, Math.ceil(normalList.length / pageSize));
+    let currentPage = Math.min(Math.max(1, this.state.surveysCurrentPage || 1), totalPages);
+    this.state.surveysCurrentPage = currentPage;
+
+    const startIndex = (currentPage - 1) * pageSize;
+    const endIndex = Math.min(startIndex + pageSize, normalList.length);
+    const pagedNormalList = normalList.slice(startIndex, endIndex);
+
+    let paginationHtml = '';
+    if (totalPages > 1) {
+      let pageButtons = [];
+      for (let p = 1; p <= totalPages; p++) {
+        if (p === 1 || p === totalPages || (p >= currentPage - 1 && p <= currentPage + 1)) {
+          pageButtons.push(`
+            <button onclick="VibeApp.changeSurveysPage(${p})" class="w-8 h-8 rounded-lg text-xs font-bold transition-all ${
+              p === currentPage 
+                ? 'bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900 shadow-xs' 
+                : 'bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-400 hover:bg-stone-200 dark:hover:bg-stone-700'
+            }">
+              ${p}
+            </button>
+          `);
+        } else if (p === currentPage - 2 || p === currentPage + 2) {
+          pageButtons.push(`<span class="px-1 text-stone-400 text-xs">...</span>`);
+        }
+      }
+
+      paginationHtml = `
+        <div class="pt-6 pb-2 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-stone-200 dark:border-stone-800">
+          <div class="text-xs text-stone-500 font-medium">
+            Hiển thị <span class="font-bold text-stone-800 dark:text-stone-200">${normalList.length > 0 ? startIndex + 1 : 0} - ${endIndex}</span> trên tổng số <span class="font-bold text-stone-800 dark:text-stone-200">${normalList.length}</span> bài
+          </div>
+
+          <div class="flex items-center space-x-1.5">
+            <button onclick="VibeApp.changeSurveysPage(${currentPage - 1})" 
+                    ${currentPage === 1 ? 'disabled class="opacity-40 cursor-not-allowed px-3 py-1.5 rounded-lg border border-stone-200 dark:border-stone-800 text-xs font-semibold text-stone-400"' : 'class="px-3 py-1.5 rounded-lg border border-stone-200 dark:border-stone-800 hover:bg-stone-100 dark:hover:bg-stone-800 text-xs font-semibold text-stone-700 dark:text-stone-300 transition-colors active:scale-95"'}>
+              ‹ Trước
+            </button>
+
+            ${pageButtons.join('')}
+
+            <button onclick="VibeApp.changeSurveysPage(${currentPage + 1})" 
+                    ${currentPage === totalPages ? 'disabled class="opacity-40 cursor-not-allowed px-3 py-1.5 rounded-lg border border-stone-200 dark:border-stone-800 text-xs font-semibold text-stone-400"' : 'class="px-3 py-1.5 rounded-lg border border-stone-200 dark:border-stone-800 hover:bg-stone-100 dark:hover:bg-stone-800 text-xs font-semibold text-stone-700 dark:text-stone-300 transition-colors active:scale-95"'}>
+              Sau ›
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
     return `
       <div class="space-y-4">
         
@@ -2088,7 +2212,7 @@ const VibeApp = {
           </div>
         ` : ''}
 
-        <!-- SECTION 2: TẤT CẢ KHẢO SÁT KHÁC -->
+        <!-- SECTION 2: TẤT CẢ KHẢO SÁT KHÁC (CÓ PHÂN TRANG) -->
         ${normalList.length > 0 ? `
           <div class="space-y-3 pt-1">
             ${pinnedList.length > 0 ? `
@@ -2096,19 +2220,21 @@ const VibeApp = {
                 <h3 class="text-xs sm:text-sm font-bold text-slate-900 dark:text-white">
                   Khảo Sát Khác (${normalList.length} bài)
                 </h3>
-                <span class="text-[11px] text-stone-500">Các bài gần hết suất được ưu tiên lên đầu</span>
+                <span class="text-[11px] text-stone-500">Trang ${currentPage} / ${totalPages}</span>
               </div>
             ` : ''}
 
             ${isListView ? `
               <div class="space-y-2">
-                ${normalList.map(s => this.renderListSurveyRow(s, false)).join('')}
+                ${pagedNormalList.map(s => this.renderListSurveyRow(s, false)).join('')}
               </div>
             ` : `
               <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-3.5">
-                ${normalList.map(s => this.renderCompactSurveyCard(s, false)).join('')}
+                ${pagedNormalList.map(s => this.renderCompactSurveyCard(s, false)).join('')}
               </div>
             `}
+
+            ${paginationHtml}
           </div>
         ` : ''}
 
@@ -2417,24 +2543,28 @@ const VibeApp = {
   setCategoryFilter(cat) {
     this.haptic('light');
     this.state.categoryFilter = cat;
+    this.state.surveysCurrentPage = 1;
     this.renderSurveysView(document.getElementById('app-root'), false);
   },
 
   setSortBy(sort) {
     this.haptic('light');
     this.state.sortBy = sort;
+    this.state.surveysCurrentPage = 1;
     this.renderSurveysView(document.getElementById('app-root'), false);
   },
 
   setLengthFilter(len) {
     this.haptic('light');
     this.state.lengthFilter = len;
+    this.state.surveysCurrentPage = 1;
     this.renderSurveysView(document.getElementById('app-root'), false);
   },
 
   toggleHideFinished() {
     this.haptic('light');
     this.state.hideFinished = !this.state.hideFinished;
+    this.state.surveysCurrentPage = 1;
     this.renderSurveysView(document.getElementById('app-root'));
   },
 
@@ -2450,8 +2580,19 @@ const VibeApp = {
     this._updateSurveyGrid();
   },
 
+  changeSurveysPage(page) {
+    this.haptic('light');
+    this.state.surveysCurrentPage = page;
+    this._updateSurveyGrid();
+    const section = document.querySelector('.surveys-grid-section');
+    if (section) {
+      section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  },
+
   handleSearch(query) {
     this.state.searchQuery = query;
+    this.state.surveysCurrentPage = 1;
     clearTimeout(this._searchTimeout);
     this._searchTimeout = setTimeout(() => {
       this._updateSurveyGrid();
@@ -2481,7 +2622,8 @@ const VibeApp = {
     this.state.rewardTierFilter = 'ALL';
     this.state.searchQuery = '';
     this.state.sortBy = 'recommended';
-    this.state.hideFinished = false; // Tạm mở để thấy các bài đã xong nếu muốn
+    this.state.hideFinished = false;
+    this.state.surveysCurrentPage = 1;
     this.renderSurveysView(document.getElementById('app-root'));
   },
 
@@ -3121,14 +3263,21 @@ const VibeApp = {
               ` : ''}
 
               ${voucher ? `
-                <div class="bento-card p-4 text-left space-y-2 border-stone-200 bg-stone-50/40 dark:bg-stone-900">
-                  <div class="flex justify-between text-xs font-bold">
-                    <span class="text-slate-900 dark:text-white">Voucher ${voucher.brand_name}</span>
-                    <span class="text-slate-400">Quà tặng</span>
+                <div class="bento-card p-4 text-left space-y-3 border-stone-200 bg-stone-50/40 dark:bg-stone-900">
+                  <div class="flex items-center gap-3">
+                    <div class="w-11 h-11 rounded-xl overflow-hidden shrink-0">
+                      ${this.getBrandLogoHtml(voucher.brand_name, voucher.website_domain, voucher.brand_logo)}
+                    </div>
+                    <div class="flex-1 min-w-0">
+                      <div class="flex justify-between items-center text-xs font-bold">
+                        <span class="text-slate-900 dark:text-white truncate">${voucher.brand_name || 'Voucher Quà'}</span>
+                        <span class="text-emerald-600 bg-emerald-50 dark:bg-emerald-950/40 text-[10px] px-1.5 py-0.5 rounded border border-emerald-200/50">Quà tặng</span>
+                      </div>
+                      <div class="text-xs text-slate-700 dark:text-slate-300 font-semibold truncate mt-0.5">${voucher.title}</div>
+                    </div>
                   </div>
-                  <div class="text-xs text-slate-700 dark:text-slate-300 font-semibold">${voucher.title}</div>
                   <div class="p-2.5 bg-white dark:bg-stone-800 rounded-xl border border-stone-200 dark:border-stone-700 font-mono text-xs font-bold text-slate-900 dark:text-white flex justify-between items-center">
-                    <span class="tracking-wider">${voucher.code}</span>
+                    <span class="tracking-wider select-all">${voucher.code}</span>
                     <button onclick="VibeApp.copyText('${voucher.code}')" class="px-2.5 py-1 bg-orange-600 hover:bg-orange-700 text-white rounded-lg text-[11px] font-bold">Sao chép</button>
                   </div>
                 </div>
@@ -3176,8 +3325,8 @@ const VibeApp = {
                 <div class="space-y-3">
                   <div class="flex items-start justify-between gap-3">
                     <div class="flex items-center gap-3">
-                      <div class="w-12 h-12 rounded-xl flex items-center justify-center p-1.5 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 shadow-xs overflow-hidden shrink-0">
-                        ${this.getBrandLogoHtml(v.brand_name)}
+                      <div class="w-12 h-12 rounded-xl overflow-hidden shrink-0">
+                        ${this.getBrandLogoHtml(v.brand_name, v.website_domain, v.brand_logo)}
                       </div>
                       <div>
                         <div class="font-bold text-sm text-stone-900 dark:text-stone-100 leading-snug truncate max-w-[150px]">
@@ -3250,8 +3399,8 @@ const VibeApp = {
           title: 'Đổi Mã Thành Công',
           content: `
             <div class="space-y-4 py-2 text-center">
-              <div class="w-14 h-14 bg-orange-100 text-orange-600 rounded-2xl flex items-center justify-center mx-auto">
-                <i data-lucide="ticket" class="w-7 h-7 stroke-[2]"></i>
+              <div class="w-16 h-16 rounded-2xl overflow-hidden mx-auto shadow-xs">
+                ${this.getBrandLogoHtml(res.voucher.brand_name, res.voucher.website_domain, res.voucher.brand_logo)}
               </div>
               <div>
                 <h4 class="text-base font-bold text-slate-900">${res.voucher.title}</h4>
@@ -3318,7 +3467,15 @@ const VibeApp = {
             ${vouchers.map(v => `
               <div class="voucher-clean-card space-y-3">
                 <div class="flex justify-between items-center text-xs">
-                  <span class="font-extrabold text-slate-900">${v.brand_name || 'Voucher Quà'}</span>
+                  <div class="flex items-center gap-2.5">
+                    <div class="w-9 h-9 rounded-lg overflow-hidden shrink-0">
+                      ${this.getBrandLogoHtml(v.brand_name, v.website_domain, v.brand_logo)}
+                    </div>
+                    <div>
+                      <span class="font-extrabold text-slate-900">${v.brand_name || 'Voucher Quà'}</span>
+                      <span class="block text-[10px] text-slate-400 font-mono">E-Voucher Chính Hãng</span>
+                    </div>
+                  </div>
                   <span class="text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md font-bold text-[11px] border border-emerald-200/60">Khả dụng</span>
                 </div>
                 <h3 class="text-sm font-extrabold text-slate-900">${v.title}</h3>

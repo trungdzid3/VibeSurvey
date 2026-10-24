@@ -281,6 +281,7 @@ function initSchema() {
     'ALTER TABLE surveys ADD COLUMN is_featured INTEGER DEFAULT 0;',
     'ALTER TABLE questions ADD COLUMN is_screener INTEGER DEFAULT 0;',
     'ALTER TABLE questions ADD COLUMN qualifying_answer TEXT;',
+    'ALTER TABLE voucher_campaigns ADD COLUMN website_domain TEXT;',
     'CREATE UNIQUE INDEX IF NOT EXISTS idx_users_google_id ON users(google_id) WHERE google_id IS NOT NULL;',
     'CREATE INDEX IF NOT EXISTS idx_surveys_normalized_url ON surveys(normalized_form_url);',
     'CREATE UNIQUE INDEX IF NOT EXISTS idx_voucher_codes_unique_response ON voucher_codes(claimed_response_id) WHERE claimed_response_id IS NOT NULL;',

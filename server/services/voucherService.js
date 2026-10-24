@@ -1,5 +1,6 @@
 const crypto = require('crypto');
 const db = require('../db/database');
+const logoCrawlerService = require('./logoCrawlerService');
 
 class VoucherService {
   constructor() {
@@ -31,7 +32,8 @@ class VoucherService {
       {
         id: 'cat_shopee_50k',
         brand_name: 'Shopee',
-        brand_logo: '🛍️',
+        brand_logo: '/assets/logos/shopee.svg',
+        website_domain: 'shopee.vn',
         title: 'Voucher Shopee 50K đơn từ 0đ',
         face_value_vnd: 50000,
         points_cost: 5000,
@@ -43,7 +45,8 @@ class VoucherService {
       {
         id: 'cat_grab_30k',
         brand_name: 'Grab',
-        brand_logo: '🚗',
+        brand_logo: '/assets/logos/grab.png',
+        website_domain: 'grab.com',
         title: 'Mã Giảm 30K GrabFood / GrabBike',
         face_value_vnd: 30000,
         points_cost: 3000,
@@ -55,7 +58,8 @@ class VoucherService {
       {
         id: 'cat_highlands_50k',
         brand_name: 'Highlands Coffee',
-        brand_logo: '☕',
+        brand_logo: '/assets/logos/highlands-coffee.svg',
+        website_domain: 'highlandscoffee.com.vn',
         title: 'Voucher Highlands Coffee 50K',
         face_value_vnd: 50000,
         points_cost: 5000,
@@ -67,7 +71,8 @@ class VoucherService {
       {
         id: 'cat_phuclong_30k',
         brand_name: 'Phúc Long',
-        brand_logo: '🧋',
+        brand_logo: '/assets/logos/phuc-long.svg',
+        website_domain: 'phuclong.com.vn',
         title: 'Giảm 30K Trà Sữa Phúc Long Tea & Coffee',
         face_value_vnd: 30000,
         points_cost: 3000,
@@ -79,7 +84,8 @@ class VoucherService {
       {
         id: 'cat_cgv_100k',
         brand_name: 'CGV Cinemas',
-        brand_logo: '🍿',
+        brand_logo: '/assets/logos/cgv-cinemas.svg',
+        website_domain: 'cgv.vn',
         title: 'Vé Xem Phim CGV 100K 2D',
         face_value_vnd: 100000,
         points_cost: 10000,
@@ -91,7 +97,8 @@ class VoucherService {
       {
         id: 'cat_starbucks_100k',
         brand_name: 'Starbucks',
-        brand_logo: '⭐',
+        brand_logo: '/assets/logos/starbucks.svg',
+        website_domain: 'starbucks.vn',
         title: 'E-Voucher Starbucks 100K',
         face_value_vnd: 100000,
         points_cost: 10000,
@@ -106,10 +113,16 @@ class VoucherService {
     const checkCampaign = db.prepare("SELECT id FROM voucher_campaigns WHERE voucher_type = 'PLATFORM_CATALOG' AND brand_name = ?");
     const insertCampaign = db.prepare(`
       INSERT INTO voucher_campaigns (
-        id, issuer_id, voucher_type, brand_name, brand_logo, title, 
+        id, issuer_id, voucher_type, brand_name, brand_logo, website_domain, title, 
         face_value_vnd, points_cost, total_quantity, remaining_quantity, 
         expiry_date, instructions
-      ) VALUES (?, NULL, 'PLATFORM_CATALOG', ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ) VALUES (?, NULL, 'PLATFORM_CATALOG', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `);
+
+    const updateCampaignLogo = db.prepare(`
+      UPDATE voucher_campaigns 
+      SET brand_logo = ?, website_domain = ? 
+      WHERE voucher_type = 'PLATFORM_CATALOG' AND brand_name = ?
     `);
 
     const insertCode = db.prepare(`
@@ -127,6 +140,7 @@ class VoucherService {
             cat.id,
             cat.brand_name,
             cat.brand_logo,
+            cat.website_domain,
             cat.title,
             cat.face_value_vnd,
             cat.points_cost,
@@ -142,6 +156,9 @@ class VoucherService {
             insertCode.run('vc_' + crypto.randomUUID(), cat.id, codeStr);
           }
           addedCount++;
+        } else {
+          // Luôn cập nhật logo và website_domain mới nhất
+          updateCampaignLogo.run(cat.brand_logo, cat.website_domain, cat.brand_name);
         }
       }
       db.exec('COMMIT');
@@ -159,18 +176,25 @@ class VoucherService {
   listCatalogVouchers() {
     const campaigns = db.prepare(`
       SELECT 
-        id, brand_name, brand_logo, title, face_value_vnd, 
+        id, brand_name, brand_logo, website_domain, title, face_value_vnd, 
         points_cost, total_quantity, remaining_quantity, expiry_date, instructions, created_at
       FROM voucher_campaigns
       WHERE voucher_type = 'PLATFORM_CATALOG'
       ORDER BY points_cost ASC, created_at DESC
     `).all();
 
-    return campaigns.map(c => ({
-      ...c,
-      is_available: c.remaining_quantity > 0,
-      stock_label: c.remaining_quantity > 0 ? `Còn ${c.remaining_quantity} mã` : 'Tạm hết hàng'
-    }));
+    return campaigns.map(c => {
+      const logoInfo = logoCrawlerService.getBrandLogoUrl(c.brand_name, c.website_domain);
+      return {
+        ...c,
+        website_domain: c.website_domain || logoInfo.domain,
+        brand_logo: logoInfo.url,
+        brand_logo_fallback: logoInfo.fallbackGoogleUrl,
+        brand_slug: logoInfo.slug,
+        is_available: c.remaining_quantity > 0,
+        stock_label: c.remaining_quantity > 0 ? `Còn ${c.remaining_quantity} mã` : 'Tạm hết hàng'
+      };
+    });
   }
 
   /**
@@ -184,6 +208,7 @@ class VoucherService {
     const {
       brand_name,
       brand_logo = '🎁',
+      website_domain = null,
       title,
       face_value_vnd = 0,
       instructions = '',
@@ -202,6 +227,17 @@ class VoucherService {
     if (!Array.isArray(voucherCodesArray) || voucherCodesArray.length === 0) {
       throw new Error('Danh sách mã voucher phải là mảng và chứa ít nhất 1 mã');
     }
+
+    // Tự động nhận diện domain và logo thương hiệu thông minh
+    const brandInfo = logoCrawlerService.resolveBrandInfo(brand_name, website_domain);
+    const finalWebsiteDomain = website_domain || brandInfo.domain;
+    let finalBrandLogo = brand_logo;
+    if (!finalBrandLogo || finalBrandLogo === '🎁') {
+      finalBrandLogo = logoCrawlerService.getBrandLogoUrl(brand_name, finalWebsiteDomain).url;
+    }
+
+    // Kích hoạt cào và lưu logo local bất đồng bộ ở background
+    logoCrawlerService.crawlAndSaveLogo(finalWebsiteDomain, brandInfo.slug).catch(() => {});
 
     // Làm sạch và khử trùng mã
     const cleanCodes = Array.from(new Set(
@@ -233,15 +269,16 @@ class VoucherService {
       // 2. Tạo chiến dịch voucher tài trợ
       db.prepare(`
         INSERT INTO voucher_campaigns (
-          id, issuer_id, voucher_type, brand_name, brand_logo, title,
+          id, issuer_id, voucher_type, brand_name, brand_logo, website_domain, title,
           face_value_vnd, points_cost, total_quantity, remaining_quantity,
           expiry_date, instructions
-        ) VALUES (?, ?, 'CREATOR_SPONSORED', ?, ?, ?, ?, 0, ?, ?, ?, ?)
+        ) VALUES (?, ?, 'CREATOR_SPONSORED', ?, ?, ?, ?, ?, 0, ?, ?, ?, ?)
       `).run(
         campaignId,
         creatorId,
         brand_name.trim(),
-        brand_logo.trim(),
+        finalBrandLogo,
+        finalWebsiteDomain,
         title.trim(),
         faceVal,
         cleanCodes.length,
@@ -308,7 +345,7 @@ class VoucherService {
       // 1a. Chống cấp kép theo responseId: Kiểm tra bài làm này đã nhận mã voucher nào chưa
       if (responseId) {
         const alreadyClaimed = db.prepare(`
-          SELECT vc.*, c.brand_name, c.brand_logo, c.title, c.instructions, c.expiry_date
+          SELECT vc.*, c.brand_name, c.brand_logo, c.website_domain, c.title, c.instructions, c.expiry_date
           FROM voucher_codes vc
           JOIN voucher_campaigns c ON vc.campaign_id = c.id
           WHERE vc.claimed_response_id = ?
@@ -316,6 +353,7 @@ class VoucherService {
 
         if (alreadyClaimed) {
           db.exec('COMMIT');
+          const logoInfo = logoCrawlerService.getBrandLogoUrl(alreadyClaimed.brand_name, alreadyClaimed.website_domain);
           return {
             claimed: true,
             isNew: false,
@@ -323,7 +361,9 @@ class VoucherService {
               id: alreadyClaimed.id,
               code: alreadyClaimed.code,
               brand_name: alreadyClaimed.brand_name,
-              brand_logo: alreadyClaimed.brand_logo,
+              brand_logo: alreadyClaimed.brand_logo && alreadyClaimed.brand_logo !== '🎁' ? alreadyClaimed.brand_logo : logoInfo.logoUrl,
+              fallback_logo: logoInfo.googleFaviconUrl,
+              website_domain: alreadyClaimed.website_domain || logoInfo.domain,
               title: alreadyClaimed.title,
               instructions: alreadyClaimed.instructions,
               expiry_date: alreadyClaimed.expiry_date,
@@ -336,7 +376,7 @@ class VoucherService {
       // 1b. Chống cấp kép theo UserId & SurveyId: Mỗi người dùng chỉ được nhận tối đa 1 mã cho 1 khảo sát
       if (surveyId && userId) {
         const alreadyClaimedSurvey = db.prepare(`
-          SELECT vc.*, c.brand_name, c.brand_logo, c.title, c.instructions, c.expiry_date
+          SELECT vc.*, c.brand_name, c.brand_logo, c.website_domain, c.title, c.instructions, c.expiry_date
           FROM voucher_codes vc
           JOIN voucher_campaigns c ON vc.campaign_id = c.id
           WHERE vc.survey_id = ? AND vc.claimed_by_user_id = ?
@@ -344,6 +384,7 @@ class VoucherService {
 
         if (alreadyClaimedSurvey) {
           db.exec('COMMIT');
+          const logoInfo = logoCrawlerService.getBrandLogoUrl(alreadyClaimedSurvey.brand_name, alreadyClaimedSurvey.website_domain);
           return {
             claimed: true,
             isNew: false,
@@ -351,7 +392,9 @@ class VoucherService {
               id: alreadyClaimedSurvey.id,
               code: alreadyClaimedSurvey.code,
               brand_name: alreadyClaimedSurvey.brand_name,
-              brand_logo: alreadyClaimedSurvey.brand_logo,
+              brand_logo: alreadyClaimedSurvey.brand_logo && alreadyClaimedSurvey.brand_logo !== '🎁' ? alreadyClaimedSurvey.brand_logo : logoInfo.logoUrl,
+              fallback_logo: logoInfo.googleFaviconUrl,
+              website_domain: alreadyClaimedSurvey.website_domain || logoInfo.domain,
               title: alreadyClaimedSurvey.title,
               instructions: alreadyClaimedSurvey.instructions,
               expiry_date: alreadyClaimedSurvey.expiry_date,
@@ -419,12 +462,14 @@ class VoucherService {
 
       // 5. Lấy thông tin voucher hoàn chỉnh
       const campaign = db.prepare(`
-        SELECT brand_name, brand_logo, title, instructions, expiry_date 
+        SELECT brand_name, brand_logo, website_domain, title, instructions, expiry_date 
         FROM voucher_campaigns 
         WHERE id = ?
       `).get(availableCode.campaign_id);
 
       db.exec('COMMIT');
+
+      const logoInfo = campaign ? logoCrawlerService.getBrandLogoUrl(campaign.brand_name, campaign.website_domain) : { logoUrl: '/assets/logos/default-voucher.svg', domain: '', googleFaviconUrl: '' };
 
       return {
         claimed: true,
@@ -433,7 +478,9 @@ class VoucherService {
           id: availableCode.id,
           code: availableCode.code,
           brand_name: campaign ? campaign.brand_name : '',
-          brand_logo: campaign ? campaign.brand_logo : '🎁',
+          brand_logo: campaign && campaign.brand_logo && campaign.brand_logo !== '🎁' ? campaign.brand_logo : logoInfo.logoUrl,
+          fallback_logo: logoInfo.googleFaviconUrl,
+          website_domain: (campaign && campaign.website_domain) || logoInfo.domain,
           title: campaign ? campaign.title : '',
           instructions: campaign ? campaign.instructions : '',
           expiry_date: campaign ? campaign.expiry_date : null,
@@ -599,6 +646,8 @@ class VoucherService {
 
       db.exec('COMMIT');
 
+      const logoInfo = logoCrawlerService.getBrandLogoUrl(campaign.brand_name, campaign.website_domain);
+
       return {
         success: true,
         message: `Đổi thành công voucher ${campaign.title}!`,
@@ -606,7 +655,9 @@ class VoucherService {
           id: availableCode.id,
           code: availableCode.code,
           brand_name: campaign.brand_name,
-          brand_logo: campaign.brand_logo,
+          brand_logo: campaign.brand_logo && campaign.brand_logo !== '🎁' ? campaign.brand_logo : logoInfo.logoUrl,
+          fallback_logo: logoInfo.googleFaviconUrl,
+          website_domain: campaign.website_domain || logoInfo.domain,
           title: campaign.title,
           face_value_vnd: campaign.face_value_vnd,
           instructions: campaign.instructions,
@@ -637,6 +688,7 @@ class VoucherService {
         vc.survey_id,
         c.brand_name,
         c.brand_logo,
+        c.website_domain,
         c.title,
         c.face_value_vnd,
         c.instructions,
@@ -650,7 +702,15 @@ class VoucherService {
       ORDER BY vc.claimed_at DESC
     `).all(userId);
 
-    return vouchers;
+    return vouchers.map(v => {
+      const logoInfo = logoCrawlerService.getBrandLogoUrl(v.brand_name, v.website_domain);
+      return {
+        ...v,
+        brand_logo: v.brand_logo && v.brand_logo !== '🎁' ? v.brand_logo : logoInfo.logoUrl,
+        fallback_logo: logoInfo.googleFaviconUrl,
+        website_domain: v.website_domain || logoInfo.domain
+      };
+    });
   }
 }
 
