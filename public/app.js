@@ -4296,7 +4296,10 @@ const VibeApp = {
       `;
     }
 
-    return list.map((q, qIdx) => `
+    return list.map((q, qIdx) => {
+      const typeInfo = this.getBuilderQuestionTypeInfo(q.type);
+
+      return `
       <div class="p-3 bg-slate-50 dark:bg-slate-900/70 border border-slate-200/80 dark:border-slate-800 rounded-xl space-y-2 text-xs">
         <div class="flex items-center justify-between gap-2">
           <div class="flex items-center gap-1.5 font-bold text-slate-800 dark:text-slate-200">
@@ -4305,22 +4308,91 @@ const VibeApp = {
           </div>
 
           <div class="flex items-center gap-2">
-            <select onchange="VibeApp.updateBuilderQuestionType(${qIdx}, this.value)" class="py-1 px-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-[11px] font-bold text-blue-600 dark:text-sky-400 focus:outline-none">
-              <optgroup label="Lựa chọn có sẵn">
-                <option value="SINGLE_CHOICE" ${q.type === 'SINGLE_CHOICE' ? 'selected' : ''}>Trắc nghiệm (1 đáp án)</option>
-                <option value="MULTIPLE_CHOICE" ${q.type === 'MULTIPLE_CHOICE' ? 'selected' : ''}>Hộp kiểm (Nhiều đáp án)</option>
-                <option value="DROPDOWN" ${q.type === 'DROPDOWN' ? 'selected' : ''}>Menu thả xuống (Dropdown)</option>
-              </optgroup>
-              <optgroup label="Thang đo & Đánh giá">
-                <option value="LIKERT_SCALE" ${q.type === 'LIKERT_SCALE' ? 'selected' : ''}>Thang đo Likert (1-5 mức độ)</option>
-                <option value="RATING_STARS" ${q.type === 'RATING_STARS' ? 'selected' : ''}>Đánh giá xếp hạng (1-5 Sao)</option>
-              </optgroup>
-              <optgroup label="Nhập liệu văn bản & dữ liệu">
-                <option value="OPEN_TEXT" ${q.type === 'OPEN_TEXT' ? 'selected' : ''}>Văn bản tự luận (Ý kiến mở)</option>
-                <option value="NUMBER_INPUT" ${q.type === 'NUMBER_INPUT' ? 'selected' : ''}>Nhập số liệu (Number)</option>
-                <option value="DATE_INPUT" ${q.type === 'DATE_INPUT' ? 'selected' : ''}>Chọn ngày tháng (Date)</option>
-              </optgroup>
-            </select>
+            
+            <!-- Custom UI Dropdown Chọn Loại Câu Hỏi -->
+            <div class="relative">
+              <button type="button" onclick="VibeApp.toggleCustomDropdown('q-type-dropdown-${qIdx}')" 
+                      class="h-7.5 px-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-[11px] font-bold text-blue-600 dark:text-sky-400 flex items-center gap-1.5 shadow-2xs hover:border-blue-400 transition-colors">
+                <i data-lucide="${typeInfo.icon}" class="w-3.5 h-3.5 text-blue-600 dark:text-sky-400 shrink-0"></i>
+                <span>${typeInfo.label}</span>
+                <i data-lucide="chevron-down" class="dropdown-trigger-icon w-3 h-3 text-slate-400 transition-transform duration-200"></i>
+              </button>
+
+              <div id="q-type-dropdown-${qIdx}" class="custom-dropdown-menu hidden absolute right-0 z-50 mt-1 min-w-[250px] p-1.5 rounded-2xl bg-white/95 dark:bg-[#131B2E]/95 backdrop-blur-xl border border-slate-200/90 dark:border-slate-700/80 shadow-2xl space-y-0.5">
+                
+                <!-- Nhóm 1: Lựa chọn có sẵn -->
+                <div class="px-2.5 pt-1.5 pb-0.5 text-[10px] font-extrabold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+                  Lựa chọn có sẵn
+                </div>
+                <div onclick="VibeApp.selectBuilderQuestionType(${qIdx}, 'SINGLE_CHOICE')" class="flex items-center justify-between px-2.5 py-1.5 rounded-xl text-xs font-semibold cursor-pointer transition-colors hover:bg-slate-100 dark:hover:bg-slate-800 ${q.type === 'SINGLE_CHOICE' ? 'text-blue-600 dark:text-sky-400 font-bold bg-blue-50/60 dark:bg-blue-950/40' : 'text-slate-700 dark:text-slate-200'}">
+                  <div class="flex items-center gap-2">
+                    <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-blue-500 shrink-0"></i>
+                    <span>Trắc nghiệm (1 đáp án)</span>
+                  </div>
+                  ${q.type === 'SINGLE_CHOICE' ? '<i data-lucide="check" class="w-3.5 h-3.5 text-blue-600 dark:text-sky-400"></i>' : ''}
+                </div>
+                <div onclick="VibeApp.selectBuilderQuestionType(${qIdx}, 'MULTIPLE_CHOICE')" class="flex items-center justify-between px-2.5 py-1.5 rounded-xl text-xs font-semibold cursor-pointer transition-colors hover:bg-slate-100 dark:hover:bg-slate-800 ${q.type === 'MULTIPLE_CHOICE' ? 'text-blue-600 dark:text-sky-400 font-bold bg-blue-50/60 dark:bg-blue-950/40' : 'text-slate-700 dark:text-slate-200'}">
+                  <div class="flex items-center gap-2">
+                    <i data-lucide="check-square" class="w-3.5 h-3.5 text-indigo-500 shrink-0"></i>
+                    <span>Hộp kiểm (Nhiều đáp án)</span>
+                  </div>
+                  ${q.type === 'MULTIPLE_CHOICE' ? '<i data-lucide="check" class="w-3.5 h-3.5 text-blue-600 dark:text-sky-400"></i>' : ''}
+                </div>
+                <div onclick="VibeApp.selectBuilderQuestionType(${qIdx}, 'DROPDOWN')" class="flex items-center justify-between px-2.5 py-1.5 rounded-xl text-xs font-semibold cursor-pointer transition-colors hover:bg-slate-100 dark:hover:bg-slate-800 ${q.type === 'DROPDOWN' ? 'text-blue-600 dark:text-sky-400 font-bold bg-blue-50/60 dark:bg-blue-950/40' : 'text-slate-700 dark:text-slate-200'}">
+                  <div class="flex items-center gap-2">
+                    <i data-lucide="chevron-down-square" class="w-3.5 h-3.5 text-teal-500 shrink-0"></i>
+                    <span>Menu thả xuống (Dropdown)</span>
+                  </div>
+                  ${q.type === 'DROPDOWN' ? '<i data-lucide="check" class="w-3.5 h-3.5 text-blue-600 dark:text-sky-400"></i>' : ''}
+                </div>
+
+                <!-- Nhóm 2: Thang đo & Đánh giá -->
+                <div class="px-2.5 pt-2 pb-0.5 text-[10px] font-extrabold uppercase tracking-wider text-slate-400 dark:text-slate-500 border-t border-slate-100 dark:border-slate-800">
+                  Thang đo & Đánh giá
+                </div>
+                <div onclick="VibeApp.selectBuilderQuestionType(${qIdx}, 'LIKERT_SCALE')" class="flex items-center justify-between px-2.5 py-1.5 rounded-xl text-xs font-semibold cursor-pointer transition-colors hover:bg-slate-100 dark:hover:bg-slate-800 ${q.type === 'LIKERT_SCALE' ? 'text-blue-600 dark:text-sky-400 font-bold bg-blue-50/60 dark:bg-blue-950/40' : 'text-slate-700 dark:text-slate-200'}">
+                  <div class="flex items-center gap-2">
+                    <i data-lucide="sliders" class="w-3.5 h-3.5 text-amber-500 shrink-0"></i>
+                    <span>Thang đo Likert (1–5 mức độ)</span>
+                  </div>
+                  ${q.type === 'LIKERT_SCALE' ? '<i data-lucide="check" class="w-3.5 h-3.5 text-blue-600 dark:text-sky-400"></i>' : ''}
+                </div>
+                <div onclick="VibeApp.selectBuilderQuestionType(${qIdx}, 'RATING_STARS')" class="flex items-center justify-between px-2.5 py-1.5 rounded-xl text-xs font-semibold cursor-pointer transition-colors hover:bg-slate-100 dark:hover:bg-slate-800 ${q.type === 'RATING_STARS' ? 'text-blue-600 dark:text-sky-400 font-bold bg-blue-50/60 dark:bg-blue-950/40' : 'text-slate-700 dark:text-slate-200'}">
+                  <div class="flex items-center gap-2">
+                    <i data-lucide="star" class="w-3.5 h-3.5 text-yellow-500 shrink-0"></i>
+                    <span>Đánh giá xếp hạng (1–5 Sao)</span>
+                  </div>
+                  ${q.type === 'RATING_STARS' ? '<i data-lucide="check" class="w-3.5 h-3.5 text-blue-600 dark:text-sky-400"></i>' : ''}
+                </div>
+
+                <!-- Nhóm 3: Nhập liệu văn bản & dữ liệu -->
+                <div class="px-2.5 pt-2 pb-0.5 text-[10px] font-extrabold uppercase tracking-wider text-slate-400 dark:text-slate-500 border-t border-slate-100 dark:border-slate-800">
+                  Nhập liệu văn bản & dữ liệu
+                </div>
+                <div onclick="VibeApp.selectBuilderQuestionType(${qIdx}, 'OPEN_TEXT')" class="flex items-center justify-between px-2.5 py-1.5 rounded-xl text-xs font-semibold cursor-pointer transition-colors hover:bg-slate-100 dark:hover:bg-slate-800 ${q.type === 'OPEN_TEXT' ? 'text-blue-600 dark:text-sky-400 font-bold bg-blue-50/60 dark:bg-blue-950/40' : 'text-slate-700 dark:text-slate-200'}">
+                  <div class="flex items-center gap-2">
+                    <i data-lucide="align-left" class="w-3.5 h-3.5 text-purple-500 shrink-0"></i>
+                    <span>Văn bản tự luận (Ý kiến mở)</span>
+                  </div>
+                  ${q.type === 'OPEN_TEXT' ? '<i data-lucide="check" class="w-3.5 h-3.5 text-blue-600 dark:text-sky-400"></i>' : ''}
+                </div>
+                <div onclick="VibeApp.selectBuilderQuestionType(${qIdx}, 'NUMBER_INPUT')" class="flex items-center justify-between px-2.5 py-1.5 rounded-xl text-xs font-semibold cursor-pointer transition-colors hover:bg-slate-100 dark:hover:bg-slate-800 ${q.type === 'NUMBER_INPUT' ? 'text-blue-600 dark:text-sky-400 font-bold bg-blue-50/60 dark:bg-blue-950/40' : 'text-slate-700 dark:text-slate-200'}">
+                  <div class="flex items-center gap-2">
+                    <i data-lucide="hash" class="w-3.5 h-3.5 text-rose-500 shrink-0"></i>
+                    <span>Nhập số liệu (Number)</span>
+                  </div>
+                  ${q.type === 'NUMBER_INPUT' ? '<i data-lucide="check" class="w-3.5 h-3.5 text-blue-600 dark:text-sky-400"></i>' : ''}
+                </div>
+                <div onclick="VibeApp.selectBuilderQuestionType(${qIdx}, 'DATE_INPUT')" class="flex items-center justify-between px-2.5 py-1.5 rounded-xl text-xs font-semibold cursor-pointer transition-colors hover:bg-slate-100 dark:hover:bg-slate-800 ${q.type === 'DATE_INPUT' ? 'text-blue-600 dark:text-sky-400 font-bold bg-blue-50/60 dark:bg-blue-950/40' : 'text-slate-700 dark:text-slate-200'}">
+                  <div class="flex items-center gap-2">
+                    <i data-lucide="calendar" class="w-3.5 h-3.5 text-emerald-500 shrink-0"></i>
+                    <span>Chọn ngày tháng (Date)</span>
+                  </div>
+                  ${q.type === 'DATE_INPUT' ? '<i data-lucide="check" class="w-3.5 h-3.5 text-blue-600 dark:text-sky-400"></i>' : ''}
+                </div>
+
+              </div>
+            </div>
 
             ${list.length > 1 ? `
               <button type="button" onclick="VibeApp.removeBuilderQuestion(${qIdx})" class="p-1 text-slate-400 hover:text-rose-600 transition-colors" title="Xóa câu hỏi này">
@@ -4371,11 +4443,22 @@ const VibeApp = {
               ${q.is_screener ? `
                 <div class="flex items-center gap-1.5 text-[11px]">
                   <span class="text-slate-500">Chỉ đi tiếp nếu chọn:</span>
-                  <select onchange="VibeApp.updateBuilderQualifyingAnswer(${qIdx}, this.value)" class="py-0.5 px-2 rounded border border-blue-300 bg-blue-50/50 dark:bg-blue-950/40 text-blue-800 dark:text-sky-300 font-bold focus:outline-none text-[11px]">
-                    ${(q.options || []).map(opt => `
-                      <option value="${(opt || '').replace(/"/g, '&quot;')}" ${q.qualifying_answer === opt ? 'selected' : ''}>${opt}</option>
-                    `).join('')}
-                  </select>
+                  <div class="relative">
+                    <button type="button" onclick="VibeApp.toggleCustomDropdown('q-screener-dropdown-${qIdx}')"
+                            class="h-6 px-2.5 rounded-lg border border-blue-300 dark:border-blue-700 bg-blue-50/50 dark:bg-blue-950/40 text-blue-800 dark:text-sky-300 font-bold text-[11px] flex items-center gap-1 shadow-2xs hover:border-blue-400">
+                      <span>${q.qualifying_answer || (q.options && q.options[0]) || 'Chọn đáp án...'}</span>
+                      <i data-lucide="chevron-down" class="dropdown-trigger-icon w-3 h-3 text-blue-500 transition-transform duration-200"></i>
+                    </button>
+                    <div id="q-screener-dropdown-${qIdx}" class="custom-dropdown-menu hidden absolute right-0 z-50 mt-1 min-w-[180px] p-1 rounded-xl bg-white/95 dark:bg-[#131B2E]/95 backdrop-blur-xl border border-slate-200/90 dark:border-slate-700/80 shadow-xl space-y-0.5">
+                      ${(q.options || []).map(opt => `
+                        <div onclick="VibeApp.selectBuilderQualifyingAnswer(${qIdx}, '${(opt || '').replace(/'/g, "\\'")}')" 
+                             class="flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-colors hover:bg-slate-100 dark:hover:bg-slate-800 ${q.qualifying_answer === opt ? 'text-blue-600 dark:text-sky-400 font-bold bg-blue-50/60 dark:bg-blue-950/40' : 'text-slate-700 dark:text-slate-200'}">
+                          <span class="truncate">${opt}</span>
+                          ${q.qualifying_answer === opt ? '<i data-lucide="check" class="w-3.5 h-3.5 text-blue-600 dark:text-sky-400"></i>' : ''}
+                        </div>
+                      `).join('')}
+                    </div>
+                  </div>
                 </div>
               ` : ''}
             </div>
@@ -4401,7 +4484,8 @@ const VibeApp = {
           </div>
         `)))}
       </div>
-    `).join('');
+    `;
+    }).join('');
   },
 
   toggleBuilderScreener(qIdx, isChecked) {
@@ -4452,6 +4536,33 @@ const VibeApp = {
     } else {
       this.showToast('Khảo sát cần có ít nhất 1 câu hỏi!', 'info');
     }
+  },
+
+  getBuilderQuestionTypeInfo(type) {
+    const map = {
+      SINGLE_CHOICE: { label: 'Trắc nghiệm (1 đáp án)', icon: 'check-circle-2' },
+      MULTIPLE_CHOICE: { label: 'Hộp kiểm (Nhiều đáp án)', icon: 'check-square' },
+      DROPDOWN: { label: 'Menu thả xuống (Dropdown)', icon: 'chevron-down-square' },
+      LIKERT_SCALE: { label: 'Thang đo Likert (1–5 mức độ)', icon: 'sliders' },
+      RATING_STARS: { label: 'Đánh giá xếp hạng (1–5 Sao)', icon: 'star' },
+      OPEN_TEXT: { label: 'Văn bản tự luận (Ý kiến mở)', icon: 'align-left' },
+      NUMBER_INPUT: { label: 'Nhập số liệu (Number)', icon: 'hash' },
+      DATE_INPUT: { label: 'Chọn ngày tháng (Date)', icon: 'calendar' }
+    };
+    return map[type] || map.SINGLE_CHOICE;
+  },
+
+  selectBuilderQuestionType(qIdx, newType) {
+    this.haptic('light');
+    this.closeAllCustomDropdowns();
+    this.updateBuilderQuestionType(qIdx, newType);
+  },
+
+  selectBuilderQualifyingAnswer(qIdx, val) {
+    this.haptic('light');
+    this.closeAllCustomDropdowns();
+    this.updateBuilderQualifyingAnswer(qIdx, val);
+    this.refreshBuilderQuestionsView();
   },
 
   updateBuilderQuestionContent(qIdx, val) {
