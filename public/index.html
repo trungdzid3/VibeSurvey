@@ -24,31 +24,23 @@
         extend: {
           colors: {
             brand: {
-              50: '#F0F5FF',
-              100: '#E0EAFF',
-              200: '#C7D7FE',
-              300: '#94B3FD',
-              400: '#6085FA',
-              500: '#3B66F5',
-              600: '#1D4ED8',
-              700: '#1E40AF',
-              800: '#1E3A8A',
-              900: '#172554',
-            },
-            accent: {
-              emerald: '#059669',
-              teal: '#0D9488',
-              amber: '#D97706',
-              rose: '#E11D48',
-              violet: '#6D28D9',
-              cyan: '#0284C7',
+              50: '#FFF7ED',
+              100: '#FFEDD5',
+              200: '#FED7AA',
+              300: '#FDBA74',
+              400: '#FB923C',
+              500: '#F97316',
+              600: '#EA580C',
+              700: '#C2410C',
+              800: '#9A3412',
+              900: '#7C2D12',
             },
             dark: {
-              page: '#080B12',
-              card: '#0E1420',
-              subtle: '#141C2B',
-              border: '#1F293D',
-              borderLight: 'rgba(255, 255, 255, 0.07)'
+              page: '#09090B',
+              card: '#18181B',
+              subtle: '#27272A',
+              border: '#27272A',
+              borderLight: 'rgba(255, 255, 255, 0.08)'
             }
           },
           fontFamily: {
@@ -56,10 +48,10 @@
             mono: ['"Montserrat"', 'monospace'],
           },
           boxShadow: {
-            'card': '0 1px 3px rgba(15, 23, 42, 0.05), 0 1px 2px rgba(15, 23, 42, 0.03)',
-            'card-hover': '0 12px 28px -6px rgba(15, 23, 42, 0.09), 0 4px 12px -2px rgba(15, 23, 42, 0.04)',
-            'card-dark': '0 4px 20px -2px rgba(0, 0, 0, 0.5), inset 0 1px 0 0 rgba(255, 255, 255, 0.06)',
-            'card-dark-hover': '0 16px 36px -6px rgba(0, 0, 0, 0.65), 0 0 20px rgba(59, 130, 246, 0.12), inset 0 1px 0 0 rgba(255, 255, 255, 0.12)',
+            'card': '0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02)',
+            'card-hover': '0 12px 28px -4px rgba(0, 0, 0, 0.08), 0 4px 10px -2px rgba(0, 0, 0, 0.04)',
+            'card-dark': '0 1px 3px rgba(0, 0, 0, 0.5)',
+            'card-dark-hover': '0 14px 30px -4px rgba(0, 0, 0, 0.8), 0 4px 10px -2px rgba(0, 0, 0, 0.5)',
           }
         }
       }
@@ -70,12 +62,12 @@
   <script src="https://unpkg.com/lucide@latest"></script>
 
   <!-- Custom Stylesheet -->
-  <link rel="stylesheet" href="/styles.css?v=3.5.14">
+  <link rel="stylesheet" href="/styles.css?v=3.5.15">
 </head>
-<body class="bg-[#F8FAFC] dark:bg-[#0B0F19] text-slate-800 dark:text-slate-100 min-h-screen flex flex-col font-sans selection:bg-indigo-500 selection:text-white antialiased safe-bottom">
+<body class="bg-[#F8F9FA] dark:bg-[#09090B] text-slate-800 dark:text-stone-100 min-h-screen flex flex-col font-sans selection:bg-orange-500 selection:text-white antialiased safe-bottom">
 
   <!-- ==================== HIGH-END SAAS NAVBAR ==================== -->
-  <header class="sticky top-0 z-40 bg-white/90 dark:bg-[#0F172A]/90 backdrop-blur-xl border-b border-slate-200/80 dark:border-slate-800/80">
+  <header class="sticky top-0 z-40 bg-white/95 dark:bg-[#09090B]/95 backdrop-blur-md border-b border-stone-200 dark:border-stone-800">
     <div class="max-w-7xl mx-auto px-4 sm:px-6">
       <div class="flex items-center justify-between h-16 gap-4">
         
@@ -92,25 +84,14 @@
           <nav id="desktop-nav" class="hidden md:flex items-center space-x-5 lg:space-x-7 flex-shrink-0"></nav>
         </div>
 
-        <!-- Right: Balance Widget, Theme Switcher & User Actions -->
+        <!-- Right: Theme Switcher, Single Create Button & User Actions -->
         <div class="flex items-center space-x-2 sm:space-x-3 flex-shrink-0">
           
-          <!-- Quick Balance Widget (Tối giản thanh lịch, không nền xanh) -->
-          <div id="user-balance-pill" onclick="VibeApp.navigate('wallet')" class="hidden h-9 items-center space-x-1.5 px-2.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-xs cursor-pointer transition-colors active:scale-95 whitespace-nowrap flex-shrink-0" title="Xem ví & đổi thưởng">
-            <i data-lucide="wallet" class="w-3.5 h-3.5 text-slate-700 dark:text-slate-300"></i>
-            <div class="flex items-baseline whitespace-nowrap">
-              <span id="header-points-text" class="font-bold text-slate-900 dark:text-white font-mono text-xs whitespace-nowrap">0 Điểm</span>
-              <span id="header-credit-text" class="hidden">0đ</span>
-            </div>
-          </div>
+          <!-- Element ẩn để tương thích code logic nếu có gán text -->
+          <div id="user-balance-pill" class="hidden"><span id="header-points-text">0 Điểm</span><span id="header-credit-text">0đ</span></div>
+          <div id="header-tickets-chip" class="hidden"><span id="header-tickets-text">0 Vé</span></div>
 
-          <!-- Express Tickets Widget (Vé Hỏa Tốc cho Creator - Tối giản) -->
-          <div id="header-tickets-chip" onclick="VibeApp.navigate('creator-surveys')" class="hidden h-9 items-center space-x-1 px-2.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-xs cursor-pointer transition-colors active:scale-95 whitespace-nowrap flex-shrink-0" title="Vé Thu Mẫu Hỏa Tốc">
-            <i data-lucide="zap" class="w-3.5 h-3.5 text-orange-600"></i>
-            <span id="header-tickets-text" class="font-bold text-slate-900 dark:text-white font-mono text-xs whitespace-nowrap">0 Vé</span>
-          </div>
-
-          <!-- Nút Tạo Khảo Sát Cam Chuẩn Scribbr -->
+          <!-- Nút Tạo Khảo Sát Cam Duy Nhất Trên Header -->
           <button id="header-create-btn" onclick="VibeApp.navigate('create-survey')" class="hidden h-9 px-4 rounded-lg bg-orange-600 hover:bg-orange-700 active:scale-95 text-white text-xs font-bold transition-all shadow-sm items-center gap-1.5 whitespace-nowrap flex-shrink-0">
             <i data-lucide="plus" class="w-3.5 h-3.5 stroke-[2.5]"></i>
             <span>Tạo Khảo Sát</span>
@@ -142,7 +123,7 @@
             </button>
 
             <!-- Dropdown Menu -->
-            <div id="user-profile-dropdown" class="hidden absolute right-0 mt-2 w-80 bg-white dark:bg-[#131B2E] rounded-xl shadow-xl border border-slate-200 dark:border-slate-800 py-2 z-50">
+            <div id="user-profile-dropdown" class="hidden absolute right-0 mt-2 w-80 bg-white dark:bg-[#18181B] rounded-xl shadow-xl border border-slate-200 dark:border-stone-800 py-2 z-50">
               <div id="user-profile-dropdown-content">
                 <!-- Sẽ được render động theo thông tin user thật -->
               </div>
@@ -159,7 +140,7 @@
   <main class="flex-1 w-full max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8 pb-20 md:pb-8">
     <div id="app-root">
       <div class="flex flex-col items-center justify-center py-20 space-y-3">
-        <div class="animate-spin rounded-full h-8 w-8 border-2 border-slate-300 border-t-blue-600"></div>
+        <div class="animate-spin rounded-full h-8 w-8 border-2 border-stone-300 dark:border-stone-700 border-t-orange-600"></div>
         <p class="text-xs text-slate-500 font-medium">Đang tải VibeSurvey...</p>
       </div>
     </div>
@@ -167,7 +148,7 @@
 
   <!-- ==================== MOBILE FLOATING DOCK NAV (BONG BÓNG NỔI BO TRÒN) ==================== -->
   <div class="md:hidden fixed bottom-3 left-0 right-0 z-40 px-3 sm:px-4 pointer-events-none flex justify-center">
-    <nav id="mobile-bottom-nav" class="pointer-events-auto w-full max-w-md bg-white/90 dark:bg-[#0F172A]/90 backdrop-blur-2xl border border-slate-200/90 dark:border-slate-700/80 rounded-full px-2.5 py-1.5 shadow-[0_12px_36px_-6px_rgba(0,0,0,0.18),0_4px_16px_rgba(0,0,0,0.08)] dark:shadow-[0_16px_40px_-6px_rgba(0,0,0,0.7),0_0_20px_rgba(59,130,246,0.15)] flex justify-around items-center transition-all duration-300">
+    <nav id="mobile-bottom-nav" class="pointer-events-auto w-full max-w-md bg-white/95 dark:bg-[#18181B]/95 backdrop-blur-2xl border border-slate-200/90 dark:border-stone-800 rounded-full px-2.5 py-1.5 shadow-[0_12px_36px_-6px_rgba(0,0,0,0.18),0_4px_16px_rgba(0,0,0,0.08)] dark:shadow-[0_16px_40px_-6px_rgba(0,0,0,0.7)] flex justify-around items-center transition-all duration-300">
       <!-- Render theo vai trò -->
     </nav>
   </div>
@@ -177,7 +158,7 @@
 
   <!-- ==================== MODAL CONTAINER ==================== -->
   <div id="modal-container" class="hidden fixed inset-0 z-50 overflow-y-auto modal-backdrop flex items-center justify-center p-4">
-    <div id="modal-card" class="bg-white dark:bg-[#131B2E] text-slate-800 dark:text-slate-100 rounded-3xl max-w-lg w-full p-6 sm:p-7 shadow-2xl border border-slate-100 dark:border-slate-800 transform transition-all relative">
+    <div id="modal-card" class="bg-white dark:bg-[#18181B] text-slate-800 dark:text-stone-100 rounded-2xl max-w-lg w-full p-6 sm:p-7 shadow-2xl border border-stone-100 dark:border-stone-800 transform transition-all relative">
       <!-- Modal Content Rendered Dynamically -->
     </div>
   </div>
@@ -336,6 +317,6 @@
   </div>
 
   <!-- Application Script -->
-  <script src="/app.js?v=3.5.14"></script>
+  <script src="/app.js?v=3.5.15"></script>
 </body>
 </html>

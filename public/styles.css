@@ -133,53 +133,47 @@
 }
 
 :root {
-  /* Tối giản màu sắc lạ - Light Mode: Muted Porcelain & Deep Indigo Cobalt */
+  /* Tối giản màu sắc: Trắng - Đen - Điểm nhấn Cam (Scribbr Style) */
   --bg-page: #F8F9FA;
   --bg-card: #FFFFFF;
   --bg-card-subtle: #F1F3F5;
   
   --border-subtle: rgba(15, 23, 42, 0.08);
-  --border-hover: rgba(30, 58, 138, 0.25);
-  --border-focus: #1E3A8A;
+  --border-hover: rgba(15, 23, 42, 0.15);
+  --border-focus: #EA580C;
   
-  --text-main: #0B0F19;
-  --text-body: #334155;
-  --text-muted: #64748B;
-  --text-subtle: #94A3B8;
+  --text-main: #111827;
+  --text-body: #374151;
+  --text-muted: #6B7280;
+  --text-subtle: #9CA3AF;
   
-  --brand-primary: #1D4ED8;
-  --brand-secondary: #0D9488;
-  --brand-gradient: linear-gradient(135deg, #1E3A8A 0%, #2563EB 50%, #0D9488 100%);
-  --brand-surface-glow: radial-gradient(50% 50% at 50% 0%, rgba(37, 99, 235, 0.05) 0%, rgba(248, 249, 250, 0) 100%);
+  --brand-primary: #EA580C;
+  --brand-secondary: #111827;
 
-  --card-shadow: 0 1px 3px rgba(15, 23, 42, 0.05), 0 1px 2px rgba(15, 23, 42, 0.03);
-  --card-shadow-hover: 0 12px 28px -6px rgba(15, 23, 42, 0.09), 0 4px 12px -2px rgba(15, 23, 42, 0.04);
-
-  --accent-emerald: #059669;
-  --accent-amber: #D97706;
-  --accent-rose: #E11D48;
-  --accent-violet: #6D28D9;
+  --card-shadow: 0 1px 3px rgba(15, 23, 42, 0.04), 0 1px 2px rgba(15, 23, 42, 0.02);
+  --card-shadow-hover: 0 12px 28px -4px rgba(15, 23, 42, 0.08), 0 4px 10px -2px rgba(15, 23, 42, 0.04);
 }
 
-/* ==================== DARK MODE TOKENS: Obsidian Void & Crisp Azure ==================== */
+/* ==================== DARK MODE TOKENS: TỐI GIẢN PHẲNG (MONOCHROME & ORANGE ACCENT) ==================== */
 html.dark {
-  --bg-page: #080B12;
-  --bg-card: rgba(14, 20, 32, 0.85);
-  --bg-card-subtle: #121824;
+  --bg-page: #09090B;
+  --bg-card: #18181B;
+  --bg-card-subtle: #27272A;
   
-  --border-subtle: rgba(255, 255, 255, 0.07);
-  --border-hover: rgba(59, 130, 246, 0.35);
-  --border-focus: #3B82F6;
+  --border-subtle: #27272A;
+  --border-hover: #3F3F46;
+  --border-focus: #EA580C;
   
-  --text-main: #F8FAFC;
-  --text-body: #CBD5E1;
-  --text-muted: #94A3B8;
-  --text-subtle: #64748B;
+  --text-main: #FAFAFA;
+  --text-body: #D4D4D8;
+  --text-muted: #A1A1AA;
+  --text-subtle: #71717A;
 
-  --brand-surface-glow: radial-gradient(ellipse 70% 45% at 50% -10%, rgba(37, 99, 235, 0.12) 0%, rgba(13, 148, 136, 0.04) 50%, transparent 100%);
+  --brand-primary: #EA580C;
+  --brand-secondary: #FAFAFA;
 
-  --card-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.5), inset 0 1px 0 0 rgba(255, 255, 255, 0.06);
-  --card-shadow-hover: 0 16px 36px -6px rgba(0, 0, 0, 0.65), 0 0 20px rgba(59, 130, 246, 0.12), inset 0 1px 0 0 rgba(255, 255, 255, 0.12);
+  --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+  --card-shadow-hover: 0 14px 30px -4px rgba(0, 0, 0, 0.8), 0 4px 10px -2px rgba(0, 0, 0, 0.5);
 }
 
 html, body, *, *::before, *::after, input, button, textarea, select, code, pre {
@@ -306,18 +300,27 @@ body::before {
   }
 }
 
-/* ==================== BENTO CARD TỐI GIẢN (ÍT KHUNG, KHÔNG GLOW) ==================== */
+/* ==================== BENTO CARD TỐI GIẢN (ÍT KHUNG, SHADOW NHẤC LÊN, KHÔNG SÁNG VIỀN) ==================== */
 .bento-card {
   background: var(--bg-card);
   border: 1px solid var(--border-subtle);
   border-radius: 12px;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
   position: relative;
 }
 .bento-card:hover {
-  border-color: #D1D5DB;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 28px -4px rgba(0, 0, 0, 0.08), 0 4px 10px -2px rgba(0, 0, 0, 0.04);
+}
+html.dark .bento-card {
+  background: #18181B;
+  border-color: #27272A;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+html.dark .bento-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 14px 30px -4px rgba(0, 0, 0, 0.8), 0 4px 10px -2px rgba(0, 0, 0, 0.5);
 }
 
 /* Nav Link Item - Phong cách Scribbr phẳng, không khung hộp */
