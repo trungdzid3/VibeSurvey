@@ -519,11 +519,11 @@ html.dark .likert-clean-btn.selected {
   transform: translateY(-2px);
 }
 
-/* Fintech Platinum Card */
+/* Fintech Obsidian Rewards Card (Chuẩn thương hiệu VibeSurvey) */
 .fintech-card-bg {
-  background: linear-gradient(135deg, #0F172A 0%, #1E1B4B 45%, #312E81 80%, #4338CA 100%);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  box-shadow: 0 24px 48px -12px rgba(15, 23, 42, 0.45), 0 0 24px -4px rgba(99, 102, 241, 0.3);
+  background: linear-gradient(145deg, #1C1917 0%, #0C0A09 100%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
 /* Modal Backdrop */

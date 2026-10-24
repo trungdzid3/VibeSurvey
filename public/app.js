@@ -3529,65 +3529,65 @@ const VibeApp = {
         <!-- 2 Modern Cards -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
           
-          <!-- Card 1: Platinum Points Card (Respondent) -->
+          <!-- Card 1: Obsidian Rewards Points Card (Respondent) -->
           <div class="fintech-card-bg rounded-3xl p-6 sm:p-7 text-white flex flex-col justify-between space-y-5 relative overflow-hidden">
             <div>
               <div class="flex justify-between items-center text-xs">
-                <span class="font-extrabold tracking-widest text-blue-200 uppercase">VIBESURVEY REWARDS</span>
-                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black ${canPayout ? 'bg-emerald-400/20 text-emerald-300 border border-emerald-400/30' : 'bg-white/10 text-slate-300'}">
+                <span class="font-extrabold tracking-widest text-stone-400 uppercase text-[11px]">VIBESURVEY REWARDS</span>
+                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold ${canPayout ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30' : 'bg-white/10 text-stone-400 border border-white/10'}">
                   ${canPayout ? 'Đủ điều kiện đổi tiền/thẻ' : 'Cần tối thiểu 1.000 điểm'}
                 </span>
               </div>
 
               <div class="mt-4">
-                <span class="text-xs text-slate-300 font-medium">Số dư điểm thưởng khả dụng</span>
+                <span class="text-xs text-stone-400 font-medium">Số dư điểm thưởng khả dụng</span>
                 <div class="text-3xl sm:text-4xl font-black font-mono mt-1 text-white">
-                  ${curPoints.toLocaleString()} <span class="text-sm font-bold text-slate-400">Điểm</span>
+                  ${curPoints.toLocaleString()} <span class="text-sm font-bold text-stone-400">Điểm</span>
                 </div>
-                <div class="text-xs text-blue-200 mt-1 font-mono font-semibold">
+                <div class="text-xs text-orange-400 mt-1 font-mono font-bold">
                   ≈ ${(curPoints * 10).toLocaleString('vi-VN')} VNĐ quy đổi (1 Điểm = 10 VNĐ)
                 </div>
               </div>
             </div>
 
-            <div class="pt-4 border-t border-white/15 flex items-center justify-between gap-3">
+            <div class="pt-4 border-t border-white/10 flex items-center justify-between gap-3">
               <button onclick="VibeApp.openPayoutModal()" 
                       class="flex-1 py-2.5 rounded-xl text-xs font-bold transition-all ${
-                        canPayout ? 'bg-emerald-500 hover:bg-emerald-400 text-slate-950 shadow-md active:scale-95' : 'bg-white/10 text-slate-400 cursor-not-allowed'
+                        canPayout ? 'bg-orange-600 hover:bg-orange-500 text-white shadow-xs active:scale-95' : 'bg-white/10 text-stone-500 cursor-not-allowed border border-white/10'
                       }">
                 Đổi Thưởng & Rút Tiền (Từ 10K)
               </button>
-              <button onclick="VibeApp.openSwapPointsModal()" class="py-2.5 px-3.5 bg-white/10 hover:bg-white/20 text-white rounded-xl text-xs font-bold transition-colors">
+              <button onclick="VibeApp.openSwapPointsModal()" class="py-2.5 px-3.5 bg-white/10 hover:bg-white/15 text-stone-200 border border-white/10 rounded-xl text-xs font-bold transition-colors active:scale-95">
                 Đổi Sang Credit
               </button>
             </div>
           </div>
 
           <!-- Card 2: Creator Credit Card -->
-          <div class="bento-card p-6 sm:p-7 flex flex-col justify-between space-y-5 bg-gradient-to-br from-white via-slate-50/50 to-blue-50/30 border-blue-100/80">
+          <div class="bento-card p-6 sm:p-7 flex flex-col justify-between space-y-5 bg-white dark:bg-[#18181B] border border-stone-200 dark:border-stone-800 rounded-3xl shadow-xs">
             <div>
-              <div class="flex justify-between items-center text-xs font-bold text-slate-500">
-                <span class="uppercase tracking-wider text-slate-700">Credit Tạo Khảo Sát</span>
-                <span class="text-[10px] px-2 py-0.5 rounded-md bg-amber-50 text-amber-800 border border-amber-200/60 font-bold">Không rút tiền mặt</span>
+              <div class="flex justify-between items-center text-xs font-bold">
+                <span class="uppercase tracking-wider text-stone-900 dark:text-stone-100 font-bold text-xs">Credit Tạo Khảo Sát</span>
+                <span class="text-[10px] px-2 py-0.5 rounded-md bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-400 border border-stone-200 dark:border-stone-700 font-semibold">Không rút tiền mặt</span>
               </div>
 
               <div class="mt-4">
-                <span class="text-xs text-slate-500 font-medium">Số dư credit tạo form khả dụng</span>
-                <div class="text-3xl sm:text-4xl font-black font-mono mt-1 text-slate-900">
-                  ${Number(wallet.credit_balance || 0).toLocaleString('vi-VN')} <span class="text-sm font-bold text-slate-400">Credit</span>
+                <span class="text-xs text-stone-500 dark:text-stone-400 font-medium">Số dư credit tạo form khả dụng</span>
+                <div class="text-3xl sm:text-4xl font-black font-mono mt-1 text-stone-900 dark:text-stone-100">
+                  ${Number(wallet.credit_balance || 0).toLocaleString('vi-VN')} <span class="text-sm font-bold text-stone-400">Credit</span>
                 </div>
-                <p class="text-xs text-slate-500 mt-1">Dùng xuất bản khảo sát và tài trợ voucher. Nhận thưởng bonus nạp từ +3% đến +15%.</p>
-                <div class="mt-2.5 pt-2 border-t border-slate-100 dark:border-stone-800 flex items-center justify-between text-xs">
-                  <span class="text-slate-500 dark:text-stone-400 font-medium">Vé Thu Mẫu Hỏa Tốc (VIP):</span>
-                  <span class="font-bold font-mono text-stone-900 dark:text-stone-100 bg-stone-100 dark:bg-stone-800 px-2.5 py-0.5 rounded-lg border border-stone-200 dark:border-stone-700">${Number(this.state.currentUser?.fast_track_tickets || 0)} vé khả dụng</span>
+                <p class="text-xs text-stone-500 dark:text-stone-400 mt-1">Dùng xuất bản khảo sát và tài trợ voucher. Thưởng nạp lũy tiến từ +2% đến +12% Credit.</p>
+                <div class="mt-2.5 pt-2 border-t border-stone-100 dark:border-stone-800 flex items-center justify-between text-xs">
+                  <span class="text-stone-500 dark:text-stone-400 font-medium">Vé Thu Mẫu Hỏa Tốc (VIP):</span>
+                  <span class="font-bold font-mono text-orange-600 dark:text-orange-400 bg-orange-50 dark:bg-orange-950/40 px-2.5 py-0.5 rounded-lg border border-orange-200/60 dark:border-orange-800/60">${Number(this.state.currentUser?.fast_track_tickets || 0)} vé khả dụng</span>
                 </div>
               </div>
             </div>
 
-            <div class="pt-4 border-t border-slate-100 dark:border-stone-800">
-              <button onclick="VibeApp.openDepositModal()" class="w-full py-2.5 bg-slate-900 hover:bg-orange-600 text-white rounded-xl text-xs font-bold shadow-xs transition-colors active:scale-95 flex items-center justify-center gap-1.5">
-                <i data-lucide="plus" class="w-3.5 h-3.5"></i>
-                <span>+ Nạp Credit & Nhận Thưởng Bonus (+3% đến +15%)</span>
+            <div class="pt-4 border-t border-stone-100 dark:border-stone-800">
+              <button onclick="VibeApp.openDepositModal()" class="w-full py-2.5 bg-stone-900 hover:bg-orange-600 text-white rounded-xl text-xs font-bold shadow-xs transition-colors active:scale-95 flex items-center justify-center gap-1.5">
+                <i data-lucide="plus-circle" class="w-4 h-4"></i>
+                <span>Nạp Credit & Nhận Thưởng Bonus (+2% đến +12%)</span>
               </button>
             </div>
           </div>
@@ -3595,15 +3595,15 @@ const VibeApp = {
         </div>
 
         <!-- Transaction Table -->
-        <div class="bento-card p-6 space-y-4">
+        <div class="bento-card p-6 space-y-4 bg-white dark:bg-[#18181B] border border-stone-200 dark:border-stone-800 rounded-2xl shadow-xs">
           <div class="flex justify-between items-center">
-            <h3 class="text-sm font-extrabold text-slate-900">Nhật Ký Biến Động Sổ Cái Kép</h3>
-            <span class="text-xs text-slate-400 font-mono font-semibold">${transactions.length} giao dịch gần nhất</span>
+            <h3 class="text-sm font-extrabold text-stone-900 dark:text-stone-100">Nhật Ký Biến Động Sổ Cái Kép</h3>
+            <span class="text-xs text-stone-400 font-mono font-semibold">${transactions.length} giao dịch gần nhất</span>
           </div>
 
           <div class="overflow-x-auto">
             <table class="w-full text-left text-xs">
-              <thead class="bg-slate-50 text-slate-500 font-bold uppercase tracking-wider border-b border-slate-100">
+              <thead class="bg-stone-50 dark:bg-stone-900 text-stone-500 dark:text-stone-400 font-bold uppercase tracking-wider border-b border-stone-100 dark:border-stone-800">
                 <tr>
                   <th class="py-3 px-3.5 rounded-l-xl">Thời gian</th>
                   <th class="py-3 px-3.5">Loại giao dịch</th>
@@ -3612,20 +3612,20 @@ const VibeApp = {
                   <th class="py-3 px-3.5 rounded-r-xl">Nội dung</th>
                 </tr>
               </thead>
-              <tbody class="divide-y divide-slate-100">
+              <tbody class="divide-y divide-stone-100 dark:divide-stone-800/60">
                 ${transactions.length === 0 ? `
-                  <tr><td colspan="5" class="py-8 text-center text-slate-400">Chưa có giao dịch phát sinh.</td></tr>
+                  <tr><td colspan="5" class="py-8 text-center text-stone-400">Chưa có giao dịch phát sinh.</td></tr>
                 ` : transactions.map(t => {
                   const isPlus = t.amount > 0;
                   return `
-                    <tr class="hover:bg-slate-50/60 transition-colors">
-                      <td class="py-3 px-3.5 text-slate-500 font-mono">${new Date(t.created_at).toLocaleDateString('vi-VN')}</td>
-                      <td class="py-3 px-3.5 font-bold text-slate-800">${t.tx_type}</td>
-                      <td class="py-3 px-3.5 font-mono font-black ${isPlus ? 'text-emerald-600' : 'text-slate-800'}">
+                    <tr class="hover:bg-stone-50/60 dark:hover:bg-stone-800/40 transition-colors">
+                      <td class="py-3 px-3.5 text-stone-500 dark:text-stone-400 font-mono">${new Date(t.created_at).toLocaleDateString('vi-VN')}</td>
+                      <td class="py-3 px-3.5 font-bold text-stone-900 dark:text-stone-100">${t.tx_type}</td>
+                      <td class="py-3 px-3.5 font-mono font-bold ${isPlus ? 'text-emerald-600 dark:text-emerald-400' : 'text-stone-900 dark:text-stone-100'}">
                         ${isPlus ? '+' : ''}${t.amount.toLocaleString()} ${t.currency}
                       </td>
-                      <td class="py-3 px-3.5 font-mono font-bold text-slate-500">${t.balance_after.toLocaleString()}</td>
-                      <td class="py-3 px-3.5 text-slate-600 max-w-xs truncate">${t.description}</td>
+                      <td class="py-3 px-3.5 font-mono font-bold text-stone-500 dark:text-stone-400">${t.balance_after.toLocaleString()}</td>
+                      <td class="py-3 px-3.5 text-stone-600 dark:text-stone-300 max-w-xs truncate">${t.description}</td>
                     </tr>
                   `;
                 }).join('')}
@@ -3753,7 +3753,7 @@ const VibeApp = {
           </div>
 
           <div class="flex gap-2.5 pt-1">
-            <button onclick="VibeApp.submitPayoutAction()" class="flex-1 py-2.5 px-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold shadow-xs transition-all active:scale-[0.98]">
+            <button onclick="VibeApp.submitPayoutAction()" class="flex-1 py-2.5 px-4 bg-orange-600 hover:bg-orange-500 text-white rounded-xl text-xs font-bold shadow-xs transition-all active:scale-[0.98]">
               Xác Nhận Đổi Thưởng
             </button>
             <button onclick="VibeApp.closeModal()" class="py-2.5 px-4 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-bold transition-all active:scale-[0.98]">
@@ -3940,21 +3940,24 @@ const VibeApp = {
   calculateDepositBonus(amount) {
     let rate = 0;
     let tierName = 'Tiêu chuẩn';
-    if (amount >= 5000000) {
-      rate = 0.15;
-      tierName = 'Kim Cương (VIP)';
-    } else if (amount >= 2000000) {
+    if (amount >= 10000000) {
       rate = 0.12;
-      tierName = 'Bạch Kim (Platinum)';
-    } else if (amount >= 1000000) {
+      tierName = 'Đối Tác (+12%)';
+    } else if (amount >= 5000000) {
+      rate = 0.10;
+      tierName = 'Kim Cương (+10%)';
+    } else if (amount >= 2000000) {
       rate = 0.08;
-      tierName = 'Vàng (Gold)';
+      tierName = 'Bạch Kim (+8%)';
+    } else if (amount >= 1000000) {
+      rate = 0.06;
+      tierName = 'Vàng (+6%)';
     } else if (amount >= 500000) {
-      rate = 0.05;
-      tierName = 'Bạc (Silver)';
+      rate = 0.04;
+      tierName = 'Bạc (+4%)';
     } else if (amount >= 100000) {
-      rate = 0.03;
-      tierName = 'Đồng (Bronze)';
+      rate = 0.02;
+      tierName = 'Đồng (+2%)';
     }
     const bonusVnd = Math.round(amount * rate);
     const totalCredit = amount + bonusVnd;
@@ -4018,11 +4021,12 @@ const VibeApp = {
           <div>
             <label class="block text-[11px] font-bold text-slate-600 dark:text-slate-300 mb-1.5">Chọn nhanh mức nạp có thưởng:</label>
             <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
-              <button type="button" onclick="VibeApp.setDepositPreset(100000)" class="py-2 px-2.5 border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 rounded-xl text-xs text-slate-800 dark:text-slate-200 hover:border-orange-500 hover:text-orange-600 font-mono font-bold transition-all active:scale-[0.98]">100K (+3%)</button>
-              <button type="button" onclick="VibeApp.setDepositPreset(500000)" class="py-2 px-2.5 border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 rounded-xl text-xs text-slate-800 dark:text-slate-200 hover:border-orange-500 hover:text-orange-600 font-mono font-bold transition-all active:scale-[0.98]">500K (+5%)</button>
-              <button type="button" onclick="VibeApp.setDepositPreset(1000000)" class="py-2 px-2.5 border border-orange-500 bg-orange-50/50 dark:bg-stone-800 rounded-xl text-xs text-orange-600 dark:text-orange-400 font-mono font-bold transition-all active:scale-[0.98]">1 Tr (+8%)</button>
-              <button type="button" onclick="VibeApp.setDepositPreset(2000000)" class="py-2 px-2.5 border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 rounded-xl text-xs text-slate-800 dark:text-slate-200 hover:border-orange-500 hover:text-orange-600 font-mono font-bold transition-all active:scale-[0.98]">2 Tr (+12%)</button>
-              <button type="button" onclick="VibeApp.setDepositPreset(5000000)" class="col-span-2 sm:col-span-2 py-2 px-2.5 border border-orange-500/80 bg-orange-50/70 dark:bg-stone-800 rounded-xl text-xs text-orange-600 dark:text-orange-400 font-mono font-bold transition-all active:scale-[0.98]">5 Tr (+15% VIP)</button>
+              <button type="button" onclick="VibeApp.setDepositPreset(100000)" class="py-2 px-2.5 border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 rounded-xl text-xs text-slate-800 dark:text-slate-200 hover:border-orange-500 hover:text-orange-600 font-mono font-bold transition-all active:scale-[0.98]">100K (+2%)</button>
+              <button type="button" onclick="VibeApp.setDepositPreset(500000)" class="py-2 px-2.5 border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 rounded-xl text-xs text-slate-800 dark:text-slate-200 hover:border-orange-500 hover:text-orange-600 font-mono font-bold transition-all active:scale-[0.98]">500K (+4%)</button>
+              <button type="button" onclick="VibeApp.setDepositPreset(1000000)" class="py-2 px-2.5 border border-orange-500 bg-orange-50/50 dark:bg-stone-800 rounded-xl text-xs text-orange-600 dark:text-orange-400 font-mono font-bold transition-all active:scale-[0.98]">1 Tr (+6%)</button>
+              <button type="button" onclick="VibeApp.setDepositPreset(2000000)" class="py-2 px-2.5 border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 rounded-xl text-xs text-slate-800 dark:text-slate-200 hover:border-orange-500 hover:text-orange-600 font-mono font-bold transition-all active:scale-[0.98]">2 Tr (+8%)</button>
+              <button type="button" onclick="VibeApp.setDepositPreset(5000000)" class="py-2 px-2.5 border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 rounded-xl text-xs text-slate-800 dark:text-slate-200 hover:border-orange-500 hover:text-orange-600 font-mono font-bold transition-all active:scale-[0.98]">5 Tr (+10%)</button>
+              <button type="button" onclick="VibeApp.setDepositPreset(10000000)" class="py-2 px-2.5 border border-orange-500/80 bg-orange-50/70 dark:bg-stone-800 rounded-xl text-xs text-orange-600 dark:text-orange-400 font-mono font-bold transition-all active:scale-[0.98]">10 Tr (+12% VIP)</button>
             </div>
           </div>
 
@@ -4034,15 +4038,15 @@ const VibeApp = {
             </div>
             <div class="flex justify-between text-slate-600 dark:text-slate-400">
               <span>Tỷ lệ thưởng bonus:</span>
-              <span id="deposit-calc-bonus-pct" class="font-mono font-bold text-orange-600 dark:text-orange-400">+8% (Vàng)</span>
+              <span id="deposit-calc-bonus-pct" class="font-mono font-bold text-orange-600 dark:text-orange-400">+6% (Vàng)</span>
             </div>
             <div class="flex justify-between text-slate-600 dark:text-slate-400">
               <span>Thưởng thêm:</span>
-              <span id="deposit-calc-bonus-vnd" class="font-mono font-bold text-emerald-600 dark:text-emerald-400">+80.000 Credit</span>
+              <span id="deposit-calc-bonus-vnd" class="font-mono font-bold text-emerald-600 dark:text-emerald-400">+60.000 Credit</span>
             </div>
             <div class="pt-1.5 border-t border-slate-200/60 dark:border-slate-800 flex justify-between font-bold text-slate-900 dark:text-white">
               <span>Tổng Credit nhận được:</span>
-              <span id="deposit-calc-total-credit" class="text-orange-600 dark:text-orange-400 font-mono text-sm font-extrabold">1.080.000 Credit</span>
+              <span id="deposit-calc-total-credit" class="text-orange-600 dark:text-orange-400 font-mono text-sm font-extrabold">1.060.000 Credit</span>
             </div>
           </div>
 
