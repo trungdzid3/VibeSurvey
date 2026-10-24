@@ -23,6 +23,7 @@ const VibeApp = {
     wallet: null,
     transactions: [],
     activeSession: null,
+    adminViewMode: localStorage.getItem('vibesurvey_admin_view_mode') || 'ADMIN', // 'ADMIN' | 'RESPONDENT' | 'CREATOR'
   },
 
   // ==================== HTTP CLIENT ====================
@@ -549,9 +550,22 @@ const VibeApp = {
     const contentEl = document.getElementById('user-profile-dropdown-content');
     if (!user || !contentEl) return;
 
+    const adminMode = this.state.adminViewMode || 'ADMIN';
+    const adminModeLabels = {
+      RESPONDENT: 'Người Điền',
+      CREATOR: 'Doanh Nghiệp',
+      ADMIN: 'Quản Trị'
+    };
+
     let roleBadge = '';
     if (user.role === 'ADMIN') {
-      roleBadge = '<span class="text-[10px] font-bold px-2 py-0.5 bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900 rounded">Quản Trị</span>';
+      if (adminMode === 'RESPONDENT') {
+        roleBadge = '<span class="text-[10px] font-bold px-2 py-0.5 bg-stone-100 dark:bg-stone-800 text-stone-800 dark:text-stone-200 rounded border border-stone-300 dark:border-stone-700">Người Điền (Admin)</span>';
+      } else if (adminMode === 'CREATOR') {
+        roleBadge = '<span class="text-[10px] font-bold px-2 py-0.5 bg-orange-600 text-white rounded">Doanh Nghiệp (Admin)</span>';
+      } else {
+        roleBadge = '<span class="text-[10px] font-bold px-2 py-0.5 bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900 rounded">Quản Trị</span>';
+      }
     } else if (user.role === 'CREATOR') {
       roleBadge = '<span class="text-[10px] font-bold px-2 py-0.5 bg-orange-600 text-white rounded">Doanh Nghiệp</span>';
     } else {
@@ -569,6 +583,27 @@ const VibeApp = {
         </div>
         <div class="text-xs text-stone-500 dark:text-stone-400 truncate">${user.email}</div>
       </div>
+
+      ${user.role === 'ADMIN' ? `
+        <!-- Khối Chuyển Góc Nhìn Trải Nghiệm Dành Riêng Cho ADMIN -->
+        <div class="px-4 py-2.5 bg-stone-50 dark:bg-stone-900 border-b border-stone-200 dark:border-stone-800 space-y-1.5">
+          <div class="flex items-center justify-between text-xs">
+            <span class="text-stone-500 dark:text-stone-400 font-medium text-[11px]">Chế độ trải nghiệm:</span>
+            <span class="font-bold text-orange-600 dark:text-orange-500 font-mono text-[11px]">${adminModeLabels[adminMode] || 'Quản Trị'}</span>
+          </div>
+          <div class="grid grid-cols-3 gap-1 bg-stone-200/70 dark:bg-stone-800 p-1 rounded-xl text-xs">
+            <button onclick="VibeApp.switchAdminMode('RESPONDENT')" class="py-1 px-1.5 rounded-lg font-bold text-center transition-all ${adminMode === 'RESPONDENT' ? 'bg-white dark:bg-stone-900 text-orange-600 dark:text-orange-400 shadow-2xs' : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200'}">
+              Người Điền
+            </button>
+            <button onclick="VibeApp.switchAdminMode('CREATOR')" class="py-1 px-1.5 rounded-lg font-bold text-center transition-all ${adminMode === 'CREATOR' ? 'bg-white dark:bg-stone-900 text-orange-600 dark:text-orange-400 shadow-2xs' : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200'}">
+              Doanh Nghiệp
+            </button>
+            <button onclick="VibeApp.switchAdminMode('ADMIN')" class="py-1 px-1.5 rounded-lg font-bold text-center transition-all ${adminMode === 'ADMIN' ? 'bg-white dark:bg-stone-900 text-slate-900 dark:text-white shadow-2xs' : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200'}">
+              Quản Trị
+            </button>
+          </div>
+        </div>
+      ` : ''}
 
       <!-- Balance & Fast Track Tickets inside Profile -->
       <div class="px-4 py-3 bg-stone-50 dark:bg-stone-900 border-b border-stone-100 dark:border-stone-800 space-y-2">
@@ -644,6 +679,28 @@ const VibeApp = {
       </div>
     `;
     if (window.lucide) window.lucide.createIcons();
+  },
+
+  switchAdminMode(mode) {
+    this.haptic('medium');
+    this.state.adminViewMode = mode;
+    localStorage.setItem('vibesurvey_admin_view_mode', mode);
+    this.renderNavigation();
+    this.renderUserProfileDropdown();
+
+    if (mode === 'RESPONDENT') {
+      this.showToast('Đã chuyển sang góc nhìn Người Điền (Đáp Viên)', 'info');
+      if (['admin-overview', 'admin-payouts', 'admin-fraud', 'create-survey', 'creator-surveys'].includes(this.state.currentTab)) {
+        this.navigate('surveys');
+      }
+    } else if (mode === 'CREATOR') {
+      this.showToast('Đã chuyển sang góc nhìn Doanh Nghiệp (Creator)', 'info');
+      if (['admin-overview', 'admin-payouts', 'admin-fraud', 'voucher-market'].includes(this.state.currentTab)) {
+        this.navigate('creator-surveys');
+      }
+    } else {
+      this.showToast('Đã quay lại góc nhìn Quản Trị Viên (Toàn quyền)', 'info');
+    }
   },
 
   logout() {
@@ -1605,14 +1662,33 @@ const VibeApp = {
         { id: 'voucher-market', label: 'Chợ Voucher', icon: 'gift' }
       ];
     } else if (user.role === 'ADMIN') {
-      tabs = [
-        { id: 'admin-overview', label: 'Tổng Quan', icon: 'pie-chart' },
-        { id: 'admin-payouts', label: 'Duyệt Tiền', icon: 'check-circle' },
-        { id: 'admin-fraud', label: 'Gian Lận', icon: 'shield-alert' },
-        { id: 'surveys', label: 'Khảo Sát', icon: 'compass' },
-        { id: 'create-survey', label: 'Tạo Khảo Sát', icon: 'plus-circle' },
-        { id: 'creator-surveys', label: 'Khảo Sát Của Tôi', icon: 'folder-kanban' }
-      ];
+      const mode = this.state.adminViewMode || 'ADMIN';
+      if (mode === 'RESPONDENT') {
+        // Góc nhìn Người Điền (Đáp Viên)
+        tabs = [
+          { id: 'surveys', label: 'Khảo Sát', icon: 'compass' },
+          { id: 'voucher-market', label: 'Chợ Voucher', icon: 'gift' },
+          { id: 'wallet', label: 'Ví & Rút Tiền', icon: 'wallet' }
+        ];
+      } else if (mode === 'CREATOR') {
+        // Góc nhìn Doanh Nghiệp (Creator)
+        tabs = [
+          { id: 'surveys', label: 'Khám Phá', icon: 'compass' },
+          { id: 'create-survey', label: 'Tạo Khảo Sát', icon: 'plus-circle' },
+          { id: 'creator-surveys', label: 'Khảo Sát Của Tôi', icon: 'folder-kanban' },
+          { id: 'wallet', label: 'Ví & Nạp Quỹ', icon: 'wallet' }
+        ];
+      } else {
+        // Góc nhìn Quản Trị Viên Toàn Quyền
+        tabs = [
+          { id: 'admin-overview', label: 'Tổng Quan', icon: 'pie-chart' },
+          { id: 'admin-payouts', label: 'Duyệt Tiền', icon: 'check-circle' },
+          { id: 'admin-fraud', label: 'Gian Lận', icon: 'shield-alert' },
+          { id: 'surveys', label: 'Khảo Sát', icon: 'compass' },
+          { id: 'create-survey', label: 'Tạo Khảo Sát', icon: 'plus-circle' },
+          { id: 'creator-surveys', label: 'Khảo Sát Của Tôi', icon: 'folder-kanban' }
+        ];
+      }
     } else {
       tabs = [
         { id: 'surveys', label: 'Khảo Sát', icon: 'compass' },
