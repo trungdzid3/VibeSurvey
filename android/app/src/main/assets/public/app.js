@@ -191,13 +191,28 @@ const VibeApp = {
     </div>`;
   },
 
+  getProgressBarColor(pct) {
+    const p = Math.round(Number(pct) || 0);
+    if (p < 20) return '#94a3b8'; // Xám (< 20%)
+    if (p < 40) return '#10b981'; // Xanh lá (20% - 39%)
+    if (p < 70) return '#2563eb'; // Xanh nước biển (40% - 69%)
+    if (p < 90) return '#f59e0b'; // Vàng (70% - 89%)
+    return '#f43f5e';            // Đỏ (>= 90%)
+  },
+
+  getProgressBarStyle(pct) {
+    const p = Math.min(100, Math.max(0, Math.round(Number(pct) || 0)));
+    const color = this.getProgressBarColor(p);
+    return `width: ${p}%; background-color: ${color} !important;`;
+  },
+
   getProgressColorClass(pct) {
     const p = Math.round(Number(pct) || 0);
     if (p < 20) return 'bg-slate-400 dark:bg-slate-500';
     if (p < 40) return 'bg-emerald-500';
     if (p < 70) return 'bg-blue-600';
     if (p < 90) return 'bg-amber-500';
-    return 'bg-rose-500 animate-pulse';
+    return 'bg-rose-500';
   },
 
   closeAllCustomDropdowns() {
@@ -2053,11 +2068,12 @@ const VibeApp = {
     const voucherText = s.sponsor_voucher_title || (s.sponsor_brand_name ? `Voucher ${s.sponsor_brand_name}` : '');
 
     return `
-      <div class="bento-card p-3 sm:p-3.5 flex flex-col justify-between space-y-2.5 transition-all hover:border-blue-400/80 dark:hover:border-indigo-500/70 ${
+      <div class="bento-card p-3 sm:p-3.5 flex flex-col justify-between h-full transition-all hover:border-blue-400/80 dark:hover:border-indigo-500/70 ${
         isPinned ? 'ring-1 ring-amber-400/50 dark:ring-amber-500/40 bg-amber-500/[0.03]' : ''
       }">
         
-        <div class="space-y-2">
+        <!-- Phần nội dung linh hoạt chiếm toàn bộ không gian còn lại -->
+        <div class="flex-1 flex flex-col justify-between space-y-2">
           
           <div class="flex items-center justify-between gap-1 text-[11px]">
             <div class="flex items-center gap-1 overflow-hidden">
@@ -2076,9 +2092,8 @@ const VibeApp = {
 
             <div>
               ${isPinned ? `
-                <span class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-amber-500 text-white font-extrabold text-[10px] shadow-2xs">
-                  <i data-lucide="pin" class="w-2.5 h-2.5 stroke-[3]"></i>
-                  <span>Ghim</span>
+                <span class="inline-flex items-center px-1.5 py-0.5 rounded bg-amber-500 text-white font-extrabold text-[10px] shadow-2xs">
+                  VIP
                 </span>
               ` : isNearFull ? `
                 <span class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-rose-100 dark:bg-rose-950/80 text-rose-700 dark:text-rose-300 font-extrabold text-[10px] animate-pulse">
@@ -2089,7 +2104,7 @@ const VibeApp = {
           </div>
 
           <div>
-            <h4 class="text-xs sm:text-sm font-extrabold text-slate-900 dark:text-white leading-snug line-clamp-2 hover:text-blue-600 dark:hover:text-sky-400 transition-colors cursor-pointer" onclick="${user ? `VibeApp.startSurveySession('${s.id}')` : `VibeApp.openSurveyPreviewModal('${s.id}')`}">
+            <h4 class="text-xs sm:text-sm font-extrabold text-slate-900 dark:text-white leading-snug line-clamp-2 min-h-[2.5rem] hover:text-blue-600 dark:hover:text-sky-400 transition-colors cursor-pointer" onclick="${user ? `VibeApp.startSurveySession('${s.id}')` : `VibeApp.openSurveyPreviewModal('${s.id}')`}">
               ${s.title}
             </h4>
             <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1 line-clamp-1 leading-relaxed">
@@ -2097,65 +2112,69 @@ const VibeApp = {
             </p>
           </div>
 
-          ${hasVoucher ? `
-            <div class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-amber-50 dark:bg-amber-950/40 border border-amber-200/80 dark:border-amber-800/60 text-amber-800 dark:text-amber-300 text-[10px] font-bold truncate max-w-full">
-              <i data-lucide="gift" class="w-3 h-3 text-amber-600 dark:text-amber-400 shrink-0"></i>
-              <span class="truncate">${voucherText}</span>
-            </div>
-          ` : ''}
-
-          <div class="space-y-1 pt-0.5">
-            <div class="flex justify-between text-[10px] font-semibold text-slate-500 dark:text-slate-400">
-              <span>Thu thập: ${collected}/${target}</span>
-              <span class="font-mono ${isNearFull ? 'text-rose-600 dark:text-rose-400 font-bold' : ''}">${progress}%</span>
-            </div>
-            <div class="w-full bg-slate-100 dark:bg-slate-900/90 h-1.5 rounded-full overflow-hidden">
-              <div class="h-full rounded-full transition-all duration-300 ${
-                isNearFull 
-                  ? 'bg-gradient-to-r from-amber-500 to-rose-500' 
-                  : 'bg-gradient-to-r from-blue-600 to-indigo-600'
-              }" style="width: ${progress}%"></div>
-            </div>
+          <!-- Khung Voucher cố định h-6 để đảm bảo thanh tiến độ không bị lệch hàng khi có/không có voucher -->
+          <div class="h-6 flex items-center">
+            ${hasVoucher ? `
+              <div class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-amber-50 dark:bg-amber-950/40 border border-amber-200/80 dark:border-amber-800/60 text-amber-800 dark:text-amber-300 text-[10px] font-bold truncate max-w-full">
+                <i data-lucide="gift" class="w-3 h-3 text-amber-600 dark:text-amber-400 shrink-0"></i>
+                <span class="truncate">${voucherText}</span>
+              </div>
+            ` : ''}
           </div>
 
         </div>
 
-        <div class="pt-2 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between gap-2">
-          <div>
-            ${s.reward_mode === 'VOUCHER_ONLY' ? `
-              <div class="text-xs font-black text-amber-600 dark:text-amber-400">Voucher 0đ</div>
-            ` : `
-              <div class="text-xs sm:text-sm font-extrabold text-emerald-700 dark:text-emerald-400 font-mono leading-none">
-                +${(s.reward_points_per_response || 0).toLocaleString()} Điểm
-              </div>
-              <div class="text-[10px] text-slate-400 font-mono mt-0.5">
-                ≈ ${((s.reward_points_per_response || 0) * 10).toLocaleString()}đ
-              </div>
-            `}
+        <!-- Phần đáy cố định: thanh tiến độ và footer thẳng tắp ngang hàng 100% -->
+        <div class="pt-2 space-y-2 shrink-0">
+          <div class="space-y-1">
+            <div class="flex justify-between text-[10px] font-semibold text-slate-500 dark:text-slate-400">
+              <span>Thu thập: ${collected}/${target}</span>
+              <span class="font-mono font-bold" style="color: ${this.getProgressBarColor(progress)}">${progress}%</span>
+            </div>
+            <div class="w-full bg-slate-100 dark:bg-slate-900/90 h-1.5 rounded-full overflow-hidden">
+              <div class="h-full rounded-full transition-all duration-300" style="${this.getProgressBarStyle(progress)}"></div>
+            </div>
           </div>
 
-          ${isCompleted ? `
-            <span class="px-2.5 py-1 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 text-[11px] font-bold flex items-center gap-1">
-              <i data-lucide="check" class="w-3 h-3 stroke-[3]"></i>
-              <span>Đã nhận</span>
-            </span>
-          ` : user ? `
-            <button onclick="VibeApp.startSurveySession('${s.id}')" class="h-8 px-3.5 rounded-xl bg-slate-900 hover:bg-blue-600 dark:bg-indigo-600 dark:hover:bg-indigo-500 text-white text-xs font-bold transition-all shadow-xs inline-flex items-center justify-center gap-1.5 whitespace-nowrap shrink-0 active:scale-95">
-              <span class="whitespace-nowrap">Làm bài</span>
-              <i data-lucide="arrow-right" class="w-3 h-3 stroke-[2.2]"></i>
-            </button>
-          ` : `
-            <div class="flex items-center gap-1">
-              <button onclick="VibeApp.openSurveyPreviewModal('${s.id}')" class="h-8 px-2.5 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-bold transition-all flex items-center gap-1 active:scale-95" title="Xem trước">
-                <i data-lucide="eye" class="w-3 h-3"></i>
-                <span class="hidden sm:inline">Xem</span>
-              </button>
-              <button onclick="VibeApp.openAuthModal('login')" class="h-8 px-3.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition-all shadow-xs inline-flex items-center justify-center gap-1.5 whitespace-nowrap shrink-0 active:scale-95">
-                <span class="whitespace-nowrap">Làm bài</span>
-                <i data-lucide="arrow-right" class="w-3 h-3 stroke-[2.2]"></i>
-              </button>
+          <div class="pt-2 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between gap-2">
+            <div>
+              ${s.reward_mode === 'VOUCHER_ONLY' ? `
+                <div class="text-xs font-black text-amber-600 dark:text-amber-400">Voucher 0đ</div>
+              ` : `
+                <div class="text-xs sm:text-sm font-extrabold text-emerald-700 dark:text-emerald-400 font-mono leading-none">
+                  +${(s.reward_points_per_response || 0).toLocaleString()} Điểm
+                </div>
+                <div class="text-[10px] text-slate-400 font-mono mt-0.5">
+                  ≈ ${((s.reward_points_per_response || 0) * 10).toLocaleString()}đ
+                </div>
+              `}
             </div>
-          `}
+
+            <div>
+              ${isCompleted ? `
+                <span class="px-2.5 py-1 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 text-[11px] font-bold flex items-center gap-1">
+                  <i data-lucide="check" class="w-3 h-3 stroke-[3]"></i>
+                  <span>Đã nhận</span>
+                </span>
+              ` : user ? `
+                <button onclick="VibeApp.startSurveySession('${s.id}')" class="h-8 px-3.5 rounded-xl bg-slate-900 hover:bg-blue-600 dark:bg-indigo-600 dark:hover:bg-indigo-500 text-white text-xs font-bold transition-all shadow-xs inline-flex items-center justify-center gap-1.5 whitespace-nowrap shrink-0 active:scale-95">
+                  <span class="whitespace-nowrap">Làm bài</span>
+                  <i data-lucide="arrow-right" class="w-3 h-3 stroke-[2.2]"></i>
+                </button>
+              ` : `
+                <div class="flex items-center gap-1">
+                  <button onclick="VibeApp.openSurveyPreviewModal('${s.id}')" class="h-8 px-2.5 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-bold transition-all flex items-center gap-1 active:scale-95" title="Xem trước">
+                    <i data-lucide="eye" class="w-3 h-3"></i>
+                    <span class="hidden sm:inline">Xem</span>
+                  </button>
+                  <button onclick="VibeApp.openAuthModal('login')" class="h-8 px-3.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition-all shadow-xs inline-flex items-center justify-center gap-1.5 whitespace-nowrap shrink-0 active:scale-95">
+                    <span class="whitespace-nowrap">Làm bài</span>
+                    <i data-lucide="arrow-right" class="w-3 h-3 stroke-[2.2]"></i>
+                  </button>
+                </div>
+              `}
+            </div>
+          </div>
         </div>
 
       </div>
@@ -2182,9 +2201,8 @@ const VibeApp = {
         <div class="space-y-1 min-w-0 flex-1">
           <div class="flex items-center gap-1.5 flex-wrap">
             ${isPinned ? `
-              <span class="px-1.5 py-0.5 rounded bg-amber-500 text-white font-extrabold text-[10px] flex items-center gap-0.5">
-                <i data-lucide="pin" class="w-2.5 h-2.5 stroke-[3]"></i>
-                <span>Ghim</span>
+              <span class="px-1.5 py-0.5 rounded bg-amber-500 text-white font-extrabold text-[10px] flex items-center">
+                <span>VIP</span>
               </span>
             ` : ''}
             ${isNearFull ? `
@@ -2203,10 +2221,10 @@ const VibeApp = {
         <div class="w-full sm:w-36 shrink-0 space-y-1">
           <div class="flex justify-between text-[10px] font-semibold text-slate-500 dark:text-slate-400">
             <span>${collected}/${target}</span>
-            <span class="font-mono ${isNearFull ? 'text-rose-600 font-bold' : ''}">${progress}%</span>
+            <span class="font-mono font-bold" style="color: ${this.getProgressBarColor(progress)}">${progress}%</span>
           </div>
           <div class="w-full bg-slate-100 dark:bg-slate-900/90 h-1.5 rounded-full overflow-hidden">
-            <div class="h-full rounded-full transition-all duration-300 ${this.getProgressColorClass(progress)}" style="width: ${progress}%"></div>
+            <div class="h-full rounded-full transition-all duration-300" style="${this.getProgressBarStyle(progress)}"></div>
           </div>
         </div>
 
@@ -3780,12 +3798,12 @@ const VibeApp = {
                         ${s.is_pinned ? `<span class="px-2 py-0.5 rounded-md text-[10px] font-black bg-amber-100 dark:bg-amber-950/80 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-700">⭐ Ghim VIP</span>` : ''}
                         ${s.is_free_trial ? `<span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-teal-100 dark:bg-teal-950/80 text-teal-700 dark:text-teal-300 border border-teal-300 dark:border-teal-800">🎁 25 Lượt Free</span>` : ''}
                       </div>
-                      <span class="font-mono text-slate-600 text-xs font-bold">${collected}/${target} phản hồi</span>
+                      <span class="font-mono text-xs font-bold" style="color: ${this.getProgressBarColor(percent)}">${collected}/${target} (${percent}%)</span>
                     </div>
-                    <h3 class="text-base font-extrabold text-slate-900 leading-snug">${s.title}</h3>
+                    <h3 class="text-base font-extrabold text-slate-900 dark:text-white leading-snug">${s.title}</h3>
                     
-                    <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden mt-2">
-                      <div class="bg-gradient-to-r from-blue-600 to-indigo-600 h-full rounded-full" style="width: ${percent}%"></div>
+                    <div class="w-full bg-slate-100 dark:bg-slate-900/90 h-2 rounded-full overflow-hidden mt-2">
+                      <div class="h-full rounded-full transition-all duration-300" style="${this.getProgressBarStyle(percent)}"></div>
                     </div>
                   </div>
 
