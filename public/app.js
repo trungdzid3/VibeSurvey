@@ -586,6 +586,9 @@ const VibeApp = {
     if (formBody) {
       formBody.innerHTML = this.getAuthFormHtml(tab);
       if (window.lucide) window.lucide.createIcons();
+      if (tab === 'register') {
+        this._updateRegOtpBtnState();
+      }
     }
   },
 
@@ -817,6 +820,38 @@ const VibeApp = {
     }
   },
 
+  _startRegOtpCooldown(seconds = 60) {
+    if (this._regOtpTimer) clearInterval(this._regOtpTimer);
+    this._regOtpCooldownEndTime = Date.now() + seconds * 1000;
+    this._updateRegOtpBtnState();
+    this._regOtpTimer = setInterval(() => {
+      const remaining = Math.ceil((this._regOtpCooldownEndTime - Date.now()) / 1000);
+      if (remaining <= 0) {
+        clearInterval(this._regOtpTimer);
+        this._regOtpTimer = null;
+        this._regOtpCooldownEndTime = 0;
+      }
+      this._updateRegOtpBtnState();
+    }, 1000);
+  },
+
+  _updateRegOtpBtnState() {
+    const btn = document.getElementById('btn-send-reg-otp');
+    const btnText = document.getElementById('reg-otp-btn-text');
+    if (!btn || !btnText) return;
+
+    if (this._regOtpCooldownEndTime && Date.now() < this._regOtpCooldownEndTime) {
+      const secondsLeft = Math.ceil((this._regOtpCooldownEndTime - Date.now()) / 1000);
+      btn.disabled = true;
+      btn.classList.add('opacity-50', 'cursor-not-allowed', 'pointer-events-none');
+      btnText.textContent = `Gửi lại (${secondsLeft}s)`;
+    } else {
+      btn.disabled = false;
+      btn.classList.remove('opacity-50', 'cursor-not-allowed', 'pointer-events-none');
+      btnText.textContent = this._regOtpCooldownEndTime === 0 ? 'Gửi lại mã OTP' : 'Gửi mã';
+    }
+  },
+
   async sendRegistrationOtp() {
     this.haptic('light');
     const email = document.getElementById('auth-reg-email')?.value?.trim();
@@ -825,6 +860,13 @@ const VibeApp = {
     const btnText = document.getElementById('reg-otp-btn-text');
     const errorAlert = document.getElementById('auth-error-alert');
     const errorText = document.getElementById('auth-error-text');
+
+    // Kiểm tra cooldown ở client
+    if (this._regOtpCooldownEndTime && Date.now() < this._regOtpCooldownEndTime) {
+      const wait = Math.ceil((this._regOtpCooldownEndTime - Date.now()) / 1000);
+      this.showToast(`Vui lòng đợi thêm ${wait}s trước khi gửi lại`, 'warning');
+      return;
+    }
 
     if (!email || !email.includes('@')) {
       if (errorAlert && errorText) {
@@ -849,19 +891,8 @@ const VibeApp = {
         this.showToast(res.message || 'Mã xác thực 6 số đã được gửi vào email!', 'success');
         if (errorAlert) errorAlert.classList.add('hidden');
         
-        // Đếm ngược 60s
-        let countdown = 60;
-        if (btnText) btnText.textContent = `Gửi lại (${countdown}s)`;
-        const timer = setInterval(() => {
-          countdown--;
-          if (countdown <= 0) {
-            clearInterval(timer);
-            if (btn) btn.disabled = false;
-            if (btnText) btnText.textContent = 'Gửi lại mã OTP';
-          } else {
-            if (btnText) btnText.textContent = `Gửi lại (${countdown}s)`;
-          }
-        }, 1000);
+        // Kích hoạt bộ đếm ngược 60s có thể duy trì cả khi chuyển tab
+        this._startRegOtpCooldown(60);
 
         // Focus vào ô OTP
         const otpInput = document.getElementById('auth-reg-otp');
@@ -873,8 +904,16 @@ const VibeApp = {
         errorAlert.classList.remove('hidden');
       }
       this.showToast(err.message, 'error');
-      if (btn) btn.disabled = false;
-      if (btnText) btnText.textContent = 'Gửi mã qua Email';
+
+      // Nếu server trả về 429 Too Many Requests kèm retryAfter
+      if (err.status === 429 || (err.message && err.message.includes('đợi thêm'))) {
+        const match = err.message && err.message.match(/(\d+)\s*giây/);
+        const retrySec = match ? parseInt(match[1], 10) : 60;
+        this._startRegOtpCooldown(retrySec);
+      } else {
+        if (btn) btn.disabled = false;
+        if (btnText) btnText.textContent = 'Gửi mã qua Email';
+      }
     }
   },
 

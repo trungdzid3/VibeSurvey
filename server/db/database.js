@@ -274,6 +274,7 @@ function initSchema() {
     'ALTER TABLE users ADD COLUMN is_email_verified INTEGER DEFAULT 0;',
     'ALTER TABLE users ADD COLUMN email_otp TEXT;',
     'ALTER TABLE users ADD COLUMN email_otp_expires_at INTEGER;',
+    'ALTER TABLE users ADD COLUMN email_otp_sent_at INTEGER;',
     'ALTER TABLE surveys ADD COLUMN is_free_trial INTEGER DEFAULT 0;',
     'ALTER TABLE surveys ADD COLUMN normalized_form_url TEXT;',
     'ALTER TABLE surveys ADD COLUMN is_pinned INTEGER DEFAULT 0;',

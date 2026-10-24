@@ -33,11 +33,27 @@ class AuthController {
         });
       }
 
-      // Tạo mã OTP ngẫu nhiên 6 chữ số
+      // Kiểm tra tần suất gửi mã (Cooldown 60 giây) chống spam bấm liên tục
+      const lastOtpRecord = db.prepare('SELECT otp, created_at FROM registration_otps WHERE email = ?').get(cleanEmail);
+      if (lastOtpRecord && lastOtpRecord.created_at) {
+        const lastSentTime = new Date(lastOtpRecord.created_at + 'Z').getTime();
+        const now = Date.now();
+        const secondsElapsed = Math.floor((now - lastSentTime) / 1000);
+        if (secondsElapsed >= 0 && secondsElapsed < 60) {
+          const waitSeconds = 60 - secondsElapsed;
+          return res.status(429).json({
+            success: false,
+            message: `Vui lòng đợi thêm ${waitSeconds} giây trước khi yêu cầu gửi lại mã OTP mới`,
+            retryAfter: waitSeconds
+          });
+        }
+      }
+
+      // Tạo mã OTP ngẫu nhiên 6 chữ số (mỗi lần sinh mã mới sẽ hủy bỏ hoàn toàn mã cũ)
       const otp = Math.floor(100000 + Math.random() * 900000).toString();
       const expiresAt = Date.now() + 10 * 60 * 1000; // 10 phút
 
-      // Lưu hoặc cập nhật OTP vào bảng registration_otps
+      // Lưu hoặc cập nhật ghi đè OTP vào bảng registration_otps (Hủy mã cũ ngay lập tức)
       db.prepare(`
         INSERT INTO registration_otps (email, otp, expires_at)
         VALUES (?, ?, ?)
@@ -454,7 +470,7 @@ class AuthController {
   }
 
   /**
-   * Gửi mã OTP xác thực email thực tế qua Brevo
+   * Gửi mã OTP xác thực email thực tế
    */
   sendVerificationOtp(req, res) {
     try {
@@ -463,11 +479,28 @@ class AuthController {
         return res.status(401).json({ success: false, message: 'Yêu cầu đăng nhập' });
       }
 
-      // Tạo mã OTP ngẫu nhiên 6 chữ số
+      // Kiểm tra tần suất gửi mã (Cooldown 60 giây)
+      const currentUserRow = db.prepare('SELECT email_otp_sent_at FROM users WHERE id = ?').get(user.id);
+      if (currentUserRow && currentUserRow.email_otp_sent_at) {
+        const lastSentTime = Number(currentUserRow.email_otp_sent_at);
+        const now = Date.now();
+        const secondsElapsed = Math.floor((now - lastSentTime) / 1000);
+        if (secondsElapsed >= 0 && secondsElapsed < 60) {
+          const waitSeconds = 60 - secondsElapsed;
+          return res.status(429).json({
+            success: false,
+            message: `Vui lòng đợi thêm ${waitSeconds} giây trước khi yêu cầu gửi lại mã OTP mới`,
+            retryAfter: waitSeconds
+          });
+        }
+      }
+
+      // Tạo mã OTP ngẫu nhiên 6 chữ số (ghi đè và hủy mã cũ)
       const otp = Math.floor(100000 + Math.random() * 900000).toString();
       const expiresAt = Date.now() + 10 * 60 * 1000; // Có hiệu lực trong 10 phút
+      const sentAt = Date.now();
 
-      db.prepare('UPDATE users SET email_otp = ?, email_otp_expires_at = ? WHERE id = ?').run(otp, expiresAt, user.id);
+      db.prepare('UPDATE users SET email_otp = ?, email_otp_expires_at = ?, email_otp_sent_at = ? WHERE id = ?').run(otp, expiresAt, sentAt, user.id);
 
       console.log(`\n=======================================================\n📧 [EMAIL OTP SERVICE] Gửi mã xác thực đến: ${user.email}\n🔑 MÃ XÁC THỰC 6 CHỮ SỐ LÀ: [ ${otp} ] (Hết hạn sau 10 phút)\n=======================================================\n`);
 

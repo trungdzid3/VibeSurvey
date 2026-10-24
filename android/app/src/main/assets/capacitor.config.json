@@ -1,20 +1,20 @@
 {
-	"appId": "com.vibesurvey.app",
-	"appName": "VibeSurvey",
-	"webDir": "public",
-	"bundledWebRuntime": false,
-	"server": {
-		"androidScheme": "https",
-		"cleartext": true
-	},
-	"plugins": {
-		"SplashScreen": {
-			"launchShowDuration": 1500,
-			"backgroundColor": "#0D9488",
-			"showSpinner": false
-		},
-		"Haptics": {
-			"enabled": true
-		}
-	}
+  "appId": "com.vibesurvey.app",
+  "appName": "VibeSurvey",
+  "webDir": "public",
+  "bundledWebRuntime": false,
+  "server": {
+    "androidScheme": "https",
+    "cleartext": true
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 1500,
+      "backgroundColor": "#0D9488",
+      "showSpinner": false
+    },
+    "Haptics": {
+      "enabled": true
+    }
+  }
 }
