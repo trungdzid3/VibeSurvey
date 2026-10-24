@@ -1,0 +1,12 @@
+http://www.fontviet.com/ - Download mien phi font tieng Viet, Trung, Nhat, Han.
+Font design, handwriting, dingbat, dingfonts....
+
+Cai dat font:
+
+Cach 1: Cai cac file font (.ttf) vao Windows :
+Vao Control Panel/Fonts/File/Install New Font
+Chi dinh duong dan chua Font, chon Select All/OK
+(Neu muon Cai dat het Font trong mot Thu muc)
+
+Cach 2: Copy tat ca file font vao thu muc: C://Window/Fonts
+

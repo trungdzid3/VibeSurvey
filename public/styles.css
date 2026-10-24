@@ -1,59 +1,147 @@
 /* ==========================================================================
-   VibeSurvey - High-End Modern SaaS & Fintech Design System (v3.3 Pro Max)
-   Phong cách: Vibrant Linear / Stripe / Raycast (Đậm đà màu sắc, Chiều sâu thị giác, Full Dark/Light Mode)
+   VibeSurvey - Minimalist Unique Design System & Typography
+   Phong cách: Tối giản màu sắc lạ (Nordic Slate & Cobalt Noir, Deep Minimalist),
+   Font chữ: Montserrat (Tiêu đề Bold, Chữ nhỏ Light, Phân cấp thị giác mạch lạc)
    ========================================================================== */
 
+/* ==================== MONTSERRAT LOCAL FONT FACES ==================== */
+@font-face {
+  font-family: 'Montserrat';
+  src: url('/fonts/Montserrat-Light.ttf') format('truetype');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Montserrat';
+  src: url('/fonts/Montserrat-LightItalic.ttf') format('truetype');
+  font-weight: 300;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Montserrat';
+  src: url('/fonts/Montserrat-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Montserrat';
+  src: url('/fonts/Montserrat-Italic.ttf') format('truetype');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Montserrat';
+  src: url('/fonts/Montserrat-Medium.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Montserrat';
+  src: url('/fonts/Montserrat-MediumItalic.ttf') format('truetype');
+  font-weight: 500;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Montserrat';
+  src: url('/fonts/Montserrat-SemiBold.ttf') format('truetype');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Montserrat';
+  src: url('/fonts/Montserrat-SemiBoldItalic.ttf') format('truetype');
+  font-weight: 600;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Montserrat';
+  src: url('/fonts/Montserrat-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Montserrat';
+  src: url('/fonts/Montserrat-BoldItalic.ttf') format('truetype');
+  font-weight: 700;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Montserrat';
+  src: url('/fonts/Montserrat-ExtraBold.ttf') format('truetype');
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Montserrat';
+  src: url('/fonts/Montserrat-Black.ttf') format('truetype');
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
-  --bg-page: #F8FAFC;
+  /* Tối giản màu sắc lạ - Light Mode: Muted Porcelain & Deep Indigo Cobalt */
+  --bg-page: #F8F9FA;
   --bg-card: #FFFFFF;
-  --bg-card-subtle: #F1F5F9;
+  --bg-card-subtle: #F1F3F5;
   
-  --border-subtle: #E2E8F0;
-  --border-hover: #C7D2FE;
-  --border-focus: #4F46E5;
+  --border-subtle: rgba(15, 23, 42, 0.08);
+  --border-hover: rgba(30, 58, 138, 0.25);
+  --border-focus: #1E3A8A;
   
-  --text-main: #0F172A;
+  --text-main: #0B0F19;
   --text-body: #334155;
   --text-muted: #64748B;
   --text-subtle: #94A3B8;
   
-  --brand-primary: #4F46E5;
-  --brand-secondary: #06B6D4;
-  --brand-gradient: linear-gradient(135deg, #4F46E5 0%, #2563EB 50%, #06B6D4 100%);
-  --brand-surface-glow: radial-gradient(50% 50% at 50% 0%, rgba(79, 70, 229, 0.08) 0%, rgba(248, 250, 252, 0) 100%);
+  --brand-primary: #1D4ED8;
+  --brand-secondary: #0D9488;
+  --brand-gradient: linear-gradient(135deg, #1E3A8A 0%, #2563EB 50%, #0D9488 100%);
+  --brand-surface-glow: radial-gradient(50% 50% at 50% 0%, rgba(37, 99, 235, 0.05) 0%, rgba(248, 249, 250, 0) 100%);
 
-  --card-shadow: 0 2px 8px -2px rgba(15, 23, 42, 0.06), 0 1px 4px -1px rgba(15, 23, 42, 0.04);
-  --card-shadow-hover: 0 16px 36px -6px rgba(79, 70, 229, 0.16), 0 6px 16px -3px rgba(15, 23, 42, 0.06);
+  --card-shadow: 0 1px 3px rgba(15, 23, 42, 0.05), 0 1px 2px rgba(15, 23, 42, 0.03);
+  --card-shadow-hover: 0 12px 28px -6px rgba(15, 23, 42, 0.09), 0 4px 12px -2px rgba(15, 23, 42, 0.04);
 
-  --accent-emerald: #10B981;
-  --accent-amber: #F59E0B;
-  --accent-rose: #F43F5E;
-  --accent-violet: #8B5CF6;
+  --accent-emerald: #059669;
+  --accent-amber: #D97706;
+  --accent-rose: #E11D48;
+  --accent-violet: #6D28D9;
 }
 
-/* ==================== DARK MODE TOKENS ==================== */
+/* ==================== DARK MODE TOKENS: Obsidian Void & Crisp Azure ==================== */
 html.dark {
-  --bg-page: #080C15;
-  --bg-card: rgba(18, 25, 42, 0.75);
-  --bg-card-subtle: #141C2E;
+  --bg-page: #080B12;
+  --bg-card: rgba(14, 20, 32, 0.85);
+  --bg-card-subtle: #121824;
   
-  --border-subtle: rgba(255, 255, 255, 0.08);
-  --border-hover: rgba(99, 102, 241, 0.4);
-  --border-focus: #6366F1;
+  --border-subtle: rgba(255, 255, 255, 0.07);
+  --border-hover: rgba(59, 130, 246, 0.35);
+  --border-focus: #3B82F6;
   
   --text-main: #F8FAFC;
   --text-body: #CBD5E1;
   --text-muted: #94A3B8;
   --text-subtle: #64748B;
 
-  --brand-surface-glow: radial-gradient(ellipse 70% 45% at 50% -10%, rgba(99, 102, 241, 0.16) 0%, rgba(6, 182, 212, 0.06) 50%, transparent 100%);
+  --brand-surface-glow: radial-gradient(ellipse 70% 45% at 50% -10%, rgba(37, 99, 235, 0.12) 0%, rgba(13, 148, 136, 0.04) 50%, transparent 100%);
 
-  --card-shadow: 0 4px 24px -2px rgba(0, 0, 0, 0.6), inset 0 1px 0 0 rgba(255, 255, 255, 0.08);
-  --card-shadow-hover: 0 16px 40px -6px rgba(0, 0, 0, 0.7), 0 0 24px rgba(99, 102, 241, 0.18), inset 0 1px 0 0 rgba(255, 255, 255, 0.15);
+  --card-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.5), inset 0 1px 0 0 rgba(255, 255, 255, 0.06);
+  --card-shadow-hover: 0 16px 36px -6px rgba(0, 0, 0, 0.65), 0 0 20px rgba(59, 130, 246, 0.12), inset 0 1px 0 0 rgba(255, 255, 255, 0.12);
 }
 
 html, body {
-  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   background-color: var(--bg-page);
   color: var(--text-body);
   margin: 0;
@@ -61,6 +149,61 @@ html, body {
   line-height: 1.55;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* ==================== TYPOGRAPHIC HIERARCHY ==================== */
+/* 1. Tiêu đề thì bold (Đậm nét, mạnh mẽ, tương phản rõ rệt) */
+h1, h2, h3, h4, h5, h6,
+.font-bold,
+.font-extrabold,
+.font-black,
+.heading-bold,
+.title-bold {
+  font-weight: 700 !important;
+  letter-spacing: -0.02em;
+}
+
+/* 2. Tiêu đề Hero và Display lớn */
+.font-black, .hero-title {
+  font-weight: 800 !important;
+  letter-spacing: -0.025em;
+}
+
+/* 3. Phân cấp đề mục phụ / Card title */
+.section-title, .card-title {
+  font-weight: 700;
+  letter-spacing: -0.015em;
+}
+
+/* 4. Nội dung thông thường (Body / Labels / Form Inputs) */
+p, span, div, input, textarea, select, button {
+  font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+/* 5. Chữ nhỏ thì light nhé (Mảnh mai, thanh lịch, tinh tế) */
+.text-xs,
+.text-\[11px\],
+.text-\[10px\],
+.text-\[12px\],
+p.text-slate-400,
+p.text-slate-500,
+span.text-slate-400,
+span.text-slate-500,
+.subtext,
+.caption,
+.helper-text,
+.light-subtext {
+  font-weight: 300 !important;
+  letter-spacing: 0.01em;
+}
+
+/* Ngoại lệ: Giữ số liệu Mono và Badge số dư luôn sắc nét dễ đọc */
+.font-mono,
+.font-bold.font-mono,
+.font-extrabold.font-mono,
+[id*="text"].font-mono {
+  font-weight: 700 !important;
+  letter-spacing: normal;
 }
 
 /* Ambient Radial Glow Lighting */
