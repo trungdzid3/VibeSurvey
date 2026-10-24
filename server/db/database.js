@@ -332,7 +332,104 @@ function initSchema() {
   }
 }
 
-// Chạy khởi tạo bảng
+// Tự động đảm bảo các tài khoản kiểm thử cốt lõi luôn tồn tại và đúng mật khẩu trên mọi môi trường (Local & Render)
+function ensureEssentialAccounts() {
+  try {
+    const bcrypt = require('bcryptjs');
+    const crypto = require('crypto');
+    const salt = bcrypt.genSaltSync(10);
+
+    const essentialUsers = [
+      {
+        email: 'creator@vibesurvey.com',
+        password: 'creator123',
+        name: 'Doanh Nghiệp Test (Creator)',
+        role: 'CREATOR',
+        credit_balance: 10000000,
+        point_balance: 0,
+        fast_track_tickets: 5,
+        free_trial_surveys_available: 1,
+        is_email_verified: 1,
+        status: 'ACTIVE'
+      },
+      {
+        email: 'user@vibesurvey.com',
+        password: 'user123',
+        name: 'Đáp Viên Test (Respondent)',
+        role: 'RESPONDENT',
+        credit_balance: 0,
+        point_balance: 50000,
+        fast_track_tickets: 0,
+        free_trial_surveys_available: 1,
+        is_email_verified: 1,
+        status: 'ACTIVE'
+      },
+      {
+        email: 'admin@vibesurvey.com',
+        password: 'admin123',
+        name: 'Quản Trị Viên Hệ Thống',
+        role: 'ADMIN',
+        credit_balance: 100000000,
+        point_balance: 500000,
+        fast_track_tickets: 10,
+        free_trial_surveys_available: 5,
+        is_email_verified: 1,
+        status: 'ACTIVE'
+      },
+      {
+        email: 'trungdzid3@gmail.com',
+        password: 'Trung@2302',
+        name: 'Admin Trung',
+        role: 'ADMIN',
+        credit_balance: 100000000,
+        point_balance: 500000,
+        fast_track_tickets: 10,
+        free_trial_surveys_available: 5,
+        is_email_verified: 1,
+        status: 'ACTIVE'
+      },
+      {
+        email: 'linharmykxbnvn@gmail.com',
+        password: 'Linh@2006',
+        name: 'Admin Linh',
+        role: 'ADMIN',
+        credit_balance: 100000000,
+        point_balance: 500000,
+        fast_track_tickets: 10,
+        free_trial_surveys_available: 5,
+        is_email_verified: 1,
+        status: 'ACTIVE'
+      }
+    ];
+
+    for (const u of essentialUsers) {
+      const existing = db.prepare('SELECT id FROM users WHERE email = ?').get(u.email);
+      const hash = bcrypt.hashSync(u.password, salt);
+      if (!existing) {
+        const id = crypto.randomUUID();
+        db.prepare(`
+          INSERT INTO users (
+            id, email, password_hash, name, role, 
+            credit_balance, point_balance, fast_track_tickets, 
+            free_trial_surveys_available, is_email_verified, status
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `).run(id, u.email, hash, u.name, u.role, u.credit_balance, u.point_balance, u.fast_track_tickets, u.free_trial_surveys_available, u.is_email_verified, u.status);
+      } else {
+        db.prepare(`
+          UPDATE users 
+          SET password_hash = ?, status = 'ACTIVE', is_email_verified = 1
+          WHERE id = ?
+        `).run(hash, existing.id);
+      }
+    }
+    console.log('🛡️ [DB Bootstrap] Đã tự động đảm bảo các tài khoản kiểm thử cốt lõi (Admin, Creator, User).');
+  } catch (err) {
+    console.warn('⚠️ [DB Bootstrap] Không thể tự động tạo tài khoản kiểm thử:', err.message);
+  }
+}
+
+// Chạy khởi tạo bảng và seed tài khoản kiểm thử
 initSchema();
+ensureEssentialAccounts();
 
 module.exports = db;
