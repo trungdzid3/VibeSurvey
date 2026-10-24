@@ -70,7 +70,7 @@
   <script src="https://unpkg.com/lucide@latest"></script>
 
   <!-- Custom Stylesheet -->
-  <link rel="stylesheet" href="/styles.css?v=3.5.12">
+  <link rel="stylesheet" href="/styles.css?v=3.5.13">
 </head>
 <body class="bg-[#F8FAFC] dark:bg-[#0B0F19] text-slate-800 dark:text-slate-100 min-h-screen flex flex-col font-sans selection:bg-indigo-500 selection:text-white antialiased safe-bottom">
 
@@ -80,57 +80,61 @@
       <div class="flex items-center justify-between h-16 gap-4">
         
         <!-- Left: Brand Logo & Navigation -->
-        <div class="flex items-center space-x-5 lg:space-x-8 min-w-0 flex-shrink-0">
+        <div class="flex items-center space-x-6 lg:space-x-8 min-w-0 flex-shrink-0">
           <div class="flex items-center space-x-2.5 cursor-pointer select-none group flex-shrink-0" onclick="VibeApp.navigate('surveys')">
-            <img src="/logo.svg" alt="VibeSurvey Logo" class="w-8 h-8 sm:w-9 sm:h-9 rounded-xl shadow-md shadow-indigo-500/25 group-hover:scale-105 group-hover:shadow-indigo-500/40 transition-all flex-shrink-0 object-contain" style="width: 34px; height: 34px;">
+            <img src="/logo.svg" alt="VibeSurvey Logo" class="w-8 h-8 rounded-lg flex-shrink-0 object-contain transition-transform group-hover:scale-105" style="width: 32px; height: 32px;">
             <div class="flex items-center whitespace-nowrap">
-              <span class="text-base font-extrabold tracking-tight text-slate-900 dark:text-white">Vibe<span class="bg-gradient-to-r from-indigo-500 to-cyan-400 bg-clip-text text-transparent">Survey</span></span>
+              <span class="text-base font-extrabold tracking-tight text-slate-900 dark:text-white">Vibe<span class="text-orange-600">Survey</span></span>
             </div>
           </div>
 
-          <!-- Desktop Nav Links (Pill Style) -->
-          <nav id="desktop-nav" class="hidden md:flex items-center space-x-1 bg-slate-100/90 dark:bg-slate-800/70 p-1 rounded-xl border border-slate-200/70 dark:border-slate-700/60 flex-shrink-0"></nav>
+          <!-- Desktop Nav Links (Scribbr Style - Phẳng, không khung hộp) -->
+          <nav id="desktop-nav" class="hidden md:flex items-center space-x-5 lg:space-x-7 flex-shrink-0"></nav>
         </div>
 
         <!-- Right: Balance Widget, Theme Switcher & User Actions -->
-        <div class="flex items-center space-x-2 sm:space-x-2.5 flex-shrink-0">
+        <div class="flex items-center space-x-2 sm:space-x-3 flex-shrink-0">
           
-          <!-- Quick Balance Widget (Fintech Style - Hidden for guests) -->
-          <div id="user-balance-pill" onclick="VibeApp.navigate('wallet')" class="hidden h-9 items-center space-x-1.5 px-3 rounded-xl bg-emerald-50/80 dark:bg-emerald-950/30 hover:bg-emerald-100/80 border border-emerald-500/25 dark:border-emerald-500/30 text-xs cursor-pointer shadow-xs transition-all active:scale-95 whitespace-nowrap flex-shrink-0" title="Xem ví & đổi thưởng">
-            <div class="w-5 h-5 rounded-lg bg-emerald-500 text-white flex items-center justify-center font-bold shadow-xs flex-shrink-0">
-              <i data-lucide="wallet" class="w-3 h-3 stroke-[2.4]"></i>
-            </div>
+          <!-- Quick Balance Widget (Tối giản thanh lịch, không nền xanh) -->
+          <div id="user-balance-pill" onclick="VibeApp.navigate('wallet')" class="hidden h-9 items-center space-x-1.5 px-2.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-xs cursor-pointer transition-colors active:scale-95 whitespace-nowrap flex-shrink-0" title="Xem ví & đổi thưởng">
+            <i data-lucide="wallet" class="w-3.5 h-3.5 text-slate-700 dark:text-slate-300"></i>
             <div class="flex items-baseline whitespace-nowrap">
-              <span id="header-points-text" class="font-extrabold text-emerald-950 dark:text-emerald-200 font-mono text-xs whitespace-nowrap">0 Điểm</span>
+              <span id="header-points-text" class="font-bold text-slate-900 dark:text-white font-mono text-xs whitespace-nowrap">0 Điểm</span>
               <span id="header-credit-text" class="hidden">0đ</span>
             </div>
           </div>
 
-          <!-- Express Tickets Widget (Vé Hỏa Tốc cho Creator) -->
-          <div id="header-tickets-chip" onclick="VibeApp.navigate('creator-surveys')" class="hidden h-9 items-center space-x-1 px-2.5 rounded-xl bg-amber-50/90 dark:bg-amber-950/40 hover:bg-amber-100 border border-amber-500/30 text-xs cursor-pointer shadow-xs transition-all active:scale-95 whitespace-nowrap flex-shrink-0" title="Vé Thu Mẫu Hỏa Tốc (Ưu tiên VIP)">
-            <span class="text-amber-500 font-bold text-xs">⚡</span>
-            <span id="header-tickets-text" class="font-extrabold text-amber-900 dark:text-amber-200 font-mono text-xs whitespace-nowrap">0 Vé</span>
+          <!-- Express Tickets Widget (Vé Hỏa Tốc cho Creator - Tối giản) -->
+          <div id="header-tickets-chip" onclick="VibeApp.navigate('creator-surveys')" class="hidden h-9 items-center space-x-1 px-2.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-xs cursor-pointer transition-colors active:scale-95 whitespace-nowrap flex-shrink-0" title="Vé Thu Mẫu Hỏa Tốc">
+            <i data-lucide="zap" class="w-3.5 h-3.5 text-orange-600"></i>
+            <span id="header-tickets-text" class="font-bold text-slate-900 dark:text-white font-mono text-xs whitespace-nowrap">0 Vé</span>
           </div>
 
+          <!-- Nút Tạo Khảo Sát Cam Chuẩn Scribbr -->
+          <button id="header-create-btn" onclick="VibeApp.navigate('create-survey')" class="hidden h-9 px-4 rounded-lg bg-orange-600 hover:bg-orange-700 active:scale-95 text-white text-xs font-bold transition-all shadow-sm items-center gap-1.5 whitespace-nowrap flex-shrink-0">
+            <i data-lucide="plus" class="w-3.5 h-3.5 stroke-[2.5]"></i>
+            <span>Tạo Khảo Sát</span>
+          </button>
+
           <!-- Theme Toggle Button (Light/Dark Mode) -->
-          <button id="theme-toggle-btn" onclick="VibeApp.toggleTheme()" class="w-9 h-9 rounded-xl border border-slate-200/80 dark:border-slate-700/80 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700/80 text-slate-600 dark:text-amber-300 flex items-center justify-center shadow-xs transition-all active:scale-95 flex-shrink-0" title="Chuyển chế độ Sáng / Tối (Dark / Light)">
-            <i id="theme-icon" data-lucide="moon" class="w-4 h-4 stroke-[2.2]"></i>
+          <button id="theme-toggle-btn" onclick="VibeApp.toggleTheme()" class="w-9 h-9 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 flex items-center justify-center transition-colors active:scale-95 flex-shrink-0" title="Chuyển chế độ Sáng / Tối">
+            <i id="theme-icon" data-lucide="moon" class="w-4 h-4 stroke-[2]"></i>
           </button>
 
           <!-- Guest Authentication Actions (When not logged in) -->
-          <div id="guest-auth-actions" class="flex items-center space-x-2 flex-shrink-0">
-            <button onclick="VibeApp.openAuthModal('login')" class="h-9 px-3.5 rounded-xl border border-slate-200/90 dark:border-slate-700/90 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-bold transition-all whitespace-nowrap flex-shrink-0">
+          <div id="guest-auth-actions" class="flex items-center space-x-1.5 flex-shrink-0">
+            <button onclick="VibeApp.openAuthModal('login')" class="h-9 px-3.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-bold transition-colors whitespace-nowrap flex-shrink-0">
               Đăng Nhập
             </button>
-            <button onclick="VibeApp.openAuthModal('register')" class="h-9 px-3.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-xs transition-all active:scale-95 whitespace-nowrap flex-shrink-0">
+            <button onclick="VibeApp.openAuthModal('register')" class="h-9 px-4 rounded-lg bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold shadow-sm transition-all active:scale-95 whitespace-nowrap flex-shrink-0">
               Đăng Ký
             </button>
           </div>
 
           <!-- User Profile Menu (When logged in) -->
           <div id="user-profile-menu" class="hidden relative flex-shrink-0">
-            <button id="user-profile-btn" onclick="VibeApp.toggleProfileDropdown()" class="h-9 flex items-center space-x-2 px-2.5 rounded-xl border border-slate-200/80 dark:border-slate-700/80 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700/80 text-slate-700 dark:text-slate-200 text-xs font-semibold shadow-xs transition-colors whitespace-nowrap flex-shrink-0">
-              <div id="user-avatar-circle" class="w-6 h-6 rounded-lg bg-blue-600 text-white flex items-center justify-center font-bold text-xs shadow-xs flex-shrink-0">
+            <button id="user-profile-btn" onclick="VibeApp.toggleProfileDropdown()" class="h-9 flex items-center space-x-2 px-2.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-semibold transition-colors whitespace-nowrap flex-shrink-0">
+              <div id="user-avatar-circle" class="w-6 h-6 rounded-md bg-slate-900 dark:bg-slate-700 text-white flex items-center justify-center font-bold text-xs flex-shrink-0">
                 U
               </div>
               <span id="user-display-name" class="hidden sm:inline font-bold text-slate-800 dark:text-slate-200 max-w-[90px] truncate whitespace-nowrap">Tài khoản</span>
@@ -138,7 +142,7 @@
             </button>
 
             <!-- Dropdown Menu -->
-            <div id="user-profile-dropdown" class="hidden absolute right-0 mt-2 w-80 bg-white dark:bg-[#131B2E] rounded-2xl shadow-2xl border border-slate-200/90 dark:border-slate-700/90 py-2 z-50">
+            <div id="user-profile-dropdown" class="hidden absolute right-0 mt-2 w-80 bg-white dark:bg-[#131B2E] rounded-xl shadow-xl border border-slate-200 dark:border-slate-800 py-2 z-50">
               <div id="user-profile-dropdown-content">
                 <!-- Sẽ được render động theo thông tin user thật -->
               </div>
@@ -332,6 +336,6 @@
   </div>
 
   <!-- Application Script -->
-  <script src="/app.js?v=3.5.12"></script>
+  <script src="/app.js?v=3.5.13"></script>
 </body>
 </html>
