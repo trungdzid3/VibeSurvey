@@ -116,90 +116,41 @@ const VibeApp = {
     }
   },
 
-  // ==================== KHỞI TẠO LOGO THƯƠNG HIỆU CHUẨN CHÍNH HÃNG ====================
+  // ==================== KHỞI TẠO LOGO THƯƠNG HIỆU CHUẨN CHÍNH HÃNG TỪ MẠNG ====================
   getBrandLogoHtml(brandName) {
     const b = (brandName || '').toLowerCase().trim();
-    
-    // 1. SHOPEE: Logo túi cam chính thức chuẩn nhận diện Shopee
+    let src = '';
+    let alt = brandName || 'Brand';
+    let bg = 'bg-white dark:bg-stone-800';
+
     if (b.includes('shopee')) {
-      return `<div class="w-full h-full flex items-center justify-center p-1 bg-[#EE4D2D] rounded-xl relative overflow-hidden">
-        <svg viewBox="0 0 100 100" class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
-          <path d="M35 34 C35 24 41 17 50 17 C59 17 65 24 65 34" fill="none" stroke="#FFFFFF" stroke-width="4.5" stroke-linecap="round"/>
-          <path d="M22 34 L78 34 L73 85 C72.5 87 70.5 88.5 68 88.5 L32 88.5 C29.5 88.5 27.5 87 27 85 L22 34 Z" fill="#FFFFFF"/>
-          <path d="M58 48 C58 43.5 54 41 48.5 41 C43 41 39.5 44 39.5 48.5 C39.5 54.5 59.5 53.5 59.5 65 C59.5 70.5 54.5 74 48.5 74 C41.5 74 38 68.5 38 64" fill="none" stroke="#EE4D2D" stroke-width="4.8" stroke-linecap="round"/>
-        </svg>
+      src = '/images/brands/shopee.svg';
+      bg = 'bg-[#EE4D2D]';
+    } else if (b.includes('grab')) {
+      src = '/images/brands/grab.svg';
+      bg = 'bg-[#00B14F]';
+    } else if (b.includes('highlands')) {
+      src = '/images/brands/highlands.svg';
+      bg = 'bg-[#B31010]';
+    } else if (b.includes('phúc long') || b.includes('phuc long')) {
+      src = '/images/brands/phuclong.svg';
+      bg = 'bg-[#01522C]';
+    } else if (b.includes('cgv')) {
+      src = '/images/brands/cgv.svg';
+      bg = 'bg-white dark:bg-stone-900';
+    } else if (b.includes('starbucks')) {
+      src = '/images/brands/starbucks.svg';
+      bg = 'bg-[#006241]';
+    }
+
+    if (src) {
+      return `<div class="w-full h-full flex items-center justify-center p-1.5 ${bg} rounded-xl overflow-hidden shadow-xs border border-stone-200/50 dark:border-stone-700/50">
+        <img src="${src}" alt="${alt}" class="w-full h-full object-contain pointer-events-none" loading="lazy" />
       </div>`;
     }
 
-    // 2. GRAB: Logo dải ruy băng bo tròn kép xanh lá cây #00B14F chuẩn hãng Grab
-    if (b.includes('grab')) {
-      return `<div class="w-full h-full flex items-center justify-center p-1.5 bg-[#00B14F] rounded-xl relative overflow-hidden">
-        <svg viewBox="0 0 120 50" class="w-full h-auto" xmlns="http://www.w3.org/2000/svg">
-          <path d="M22 25 C22 13 14 5 0 5 L0 13 C8 13 14 17 14 25 C14 33 8 37 0 37 L0 45 C14 45 22 37 22 25 Z" fill="#FFFFFF" transform="translate(6, 0)"/>
-          <circle cx="17" cy="25" r="4.5" fill="#00B14F"/>
-          <text x="36" y="34" fill="#FFFFFF" font-family="'Plus Jakarta Sans', -apple-system, sans-serif" font-weight="900" font-size="28" letter-spacing="-1">Grab</text>
-        </svg>
-      </div>`;
-    }
-
-    // 3. HIGHLANDS COFFEE: Logo hình bầu dục đỏ chuẩn với ngọn núi và dải sóng cà phê
-    if (b.includes('highlands')) {
-      return `<div class="w-full h-full flex items-center justify-center p-0.5 bg-[#B31010] rounded-xl relative overflow-hidden">
-        <svg viewBox="0 0 100 100" class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
-          <rect width="100" height="100" fill="#B31010"/>
-          <ellipse cx="50" cy="50" rx="46" ry="46" fill="none" stroke="#D4AF37" stroke-width="2"/>
-          <ellipse cx="50" cy="50" rx="42" ry="42" fill="#8B0000"/>
-          <path d="M22 60 C30 44 42 40 50 40 C58 40 70 44 78 60 Z" fill="#E5C158"/>
-          <path d="M30 60 C36 49 43 46 50 46 C57 46 64 49 70 60 Z" fill="#8B0000"/>
-          <path d="M24 68 C36 62 64 62 76 68" stroke="#E5C158" stroke-width="3" fill="none" stroke-linecap="round"/>
-          <text x="50" y="30" text-anchor="middle" fill="#FFFFFF" font-family="'Plus Jakarta Sans', sans-serif" font-weight="900" font-size="7.5" letter-spacing="1">HIGHLANDS</text>
-          <text x="50" y="80" text-anchor="middle" fill="#E5C158" font-family="'Plus Jakarta Sans', sans-serif" font-weight="800" font-size="7" letter-spacing="1.5">COFFEE</text>
-        </svg>
-      </div>`;
-    }
-
-    // 4. PHÚC LONG: Biểu tượng búp trà xanh trong hình oval viền vàng chuẩn Phúc Long Tea & Coffee
-    if (b.includes('phúc long') || b.includes('phuc long')) {
-      return `<div class="w-full h-full flex items-center justify-center p-0.5 bg-[#01522C] rounded-xl relative overflow-hidden">
-        <svg viewBox="0 0 100 100" class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
-          <rect width="100" height="100" fill="#01522C"/>
-          <circle cx="50" cy="50" r="43" fill="none" stroke="#E5B94E" stroke-width="2"/>
-          <path d="M50 20 C64 20 74 32 74 46 C74 60 62 72 50 74 C38 72 26 60 26 46 C26 32 36 20 50 20 Z" fill="#E5B94E"/>
-          <path d="M50 26 C60 32 66 41 66 48 C66 57 58 65 50 67 C42 65 34 57 34 48 C34 41 40 32 50 26 Z" fill="#01522C"/>
-          <path d="M50 28 L50 64" stroke="#E5B94E" stroke-width="2.5" stroke-linecap="round"/>
-          <text x="50" y="86" text-anchor="middle" fill="#FFFFFF" font-family="'Plus Jakarta Sans', sans-serif" font-weight="900" font-size="8" letter-spacing="0.5">PHÚC LONG</text>
-        </svg>
-      </div>`;
-    }
-
-    // 5. CGV CINEMAS: Chữ CGV màu đỏ đậm nét với biểu tượng chuẩn rạp chiếu phim CJ CGV
-    if (b.includes('cgv')) {
-      return `<div class="w-full h-full flex items-center justify-center p-1 bg-[#E71A0F] rounded-xl relative overflow-hidden">
-        <svg viewBox="0 0 100 100" class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="50" cy="50" r="44" fill="none" stroke="#FFA49D" stroke-width="1.5"/>
-          <text x="50" y="58" text-anchor="middle" fill="#FFFFFF" font-family="'Impact', 'Arial Black', sans-serif" font-weight="900" font-size="30" letter-spacing="-0.5">CGV</text>
-          <text x="50" y="75" text-anchor="middle" fill="#FFE5E3" font-family="'Plus Jakarta Sans', sans-serif" font-weight="800" font-size="7.5" letter-spacing="2">CINEMAS</text>
-        </svg>
-      </div>`;
-    }
-
-    // 6. STARBUCKS: Logo nàng tiên cá Siren hai đuôi chuẩn Starbucks Coffee (#006241)
-    if (b.includes('starbucks')) {
-      return `<div class="w-full h-full flex items-center justify-center p-0.5 bg-[#006241] rounded-xl relative overflow-hidden">
-        <svg viewBox="0 0 100 100" class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="50" cy="50" r="46" fill="#006241" stroke="#FFFFFF" stroke-width="2"/>
-          <polygon points="50,18 52.5,25 60,25 54,29.5 56.5,37 50,32 43.5,37 46,29.5 40,25 47.5,25" fill="#FFFFFF"/>
-          <circle cx="50" cy="45" r="9" fill="#FFFFFF"/>
-          <path d="M35 45 C35 57 42 68 50 74 C58 68 65 57 65 45" fill="none" stroke="#FFFFFF" stroke-width="3.5" stroke-linecap="round"/>
-          <path d="M28 38 C28 54 35 70 46 78" fill="none" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round"/>
-          <path d="M72 38 C72 54 65 70 54 78" fill="none" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round"/>
-          <path d="M41 35 L59 35 L56 41 L44 41 Z" fill="#FFFFFF"/>
-        </svg>
-      </div>`;
-    }
-
-    return `<div class="w-full h-full rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-black text-sm">
-      ${(brandName || 'V').substring(0, 2).toUpperCase()}
+    return `<div class="w-full h-full rounded-xl bg-stone-900 text-white flex items-center justify-center font-bold text-xs uppercase shadow-xs">
+      ${(brandName || 'V').substring(0, 2)}
     </div>`;
   },
 
@@ -247,11 +198,10 @@ const VibeApp = {
     
     // Đóng custom dropdown popover khi click ra ngoài
     document.addEventListener('click', (e) => {
-      const isDropdownTrigger = e.target.closest('button[onclick*="toggleCustomDropdown"]');
-      const isInsideDropdown = e.target.closest('.custom-dropdown-menu');
-      if (!isDropdownTrigger && !isInsideDropdown) {
-        this.closeAllCustomDropdowns();
+      if (e.target.closest('.custom-dropdown-trigger') || e.target.closest('.custom-dropdown-menu')) {
+        return;
       }
+      this.closeAllCustomDropdowns();
     });
 
     // Keyboard Shortcuts
@@ -1706,21 +1656,33 @@ const VibeApp = {
 
   // ==================== VIEW 1: BENTO DASHBOARD & KHẢO SÁT ====================
   // ==================== CUSTOM UI DROPDOWN COMPONENT ====================
-  toggleCustomDropdown(dropdownId) {
+  toggleCustomDropdown(dropdownId, event) {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
     const el = document.getElementById(dropdownId);
     if (!el) return;
     const isHidden = el.classList.contains('hidden');
     // Đóng tất cả dropdown đang mở khác
-    document.querySelectorAll('.custom-dropdown-menu').forEach(d => d.classList.add('hidden'));
-    document.querySelectorAll('.dropdown-trigger-icon').forEach(i => i.classList.remove('rotate-180'));
+    this.closeAllCustomDropdowns();
     if (isHidden) {
       el.classList.remove('hidden');
-      const triggerIcon = el.parentElement.querySelector('.dropdown-trigger-icon');
-      if (triggerIcon) triggerIcon.classList.add('rotate-180');
+      const trigger = el.parentElement ? el.parentElement.querySelector('.dropdown-trigger-icon') : null;
+      if (trigger) trigger.classList.add('rotate-180');
     }
   },
 
-  selectDropdownOption(type, value, label) {
+  closeAllCustomDropdowns() {
+    document.querySelectorAll('.custom-dropdown-menu').forEach(d => d.classList.add('hidden'));
+    document.querySelectorAll('.dropdown-trigger-icon').forEach(i => i.classList.remove('rotate-180'));
+  },
+
+  selectDropdownOption(type, value, label, event) {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
     this.haptic('light');
     if (type === 'fast-category') {
       const input = document.getElementById('fast-category');
@@ -1739,19 +1701,21 @@ const VibeApp = {
       const labelEl = document.getElementById('length-dropdown-label');
       if (labelEl) labelEl.textContent = label;
     }
-    document.querySelectorAll('.custom-dropdown-menu').forEach(d => d.classList.add('hidden'));
-    document.querySelectorAll('.dropdown-trigger-icon').forEach(i => i.classList.remove('rotate-180'));
-    this._updateSurveyGrid();
+    this.closeAllCustomDropdowns();
+    // Render lại từ cache tức thời để cập nhật toàn bộ dropdown label và nội dung
+    this.renderSurveysView(document.getElementById('app-root'), false);
   },
 
-  async renderSurveysView(root) {
-    // Luôn fetch danh sách mới nhất từ server
-    try {
-      const res = await this.api('/surveys');
-      this.state.surveys = res.surveys || [];
-    } catch (err) {
-      console.warn('Không thể nạp danh sách khảo sát:', err.message);
-      if (!this.state.surveys) this.state.surveys = [];
+  async renderSurveysView(root, forceFetch = false) {
+    // Chỉ fetch lại từ server khi cần ép buộc hoặc chưa có dữ liệu trong cache
+    if (forceFetch || !this.state.surveys || this.state.surveys.length === 0) {
+      try {
+        const res = await this.api('/surveys');
+        this.state.surveys = res.surveys || [];
+      } catch (err) {
+        console.warn('Không thể nạp danh sách khảo sát:', err.message);
+        if (!this.state.surveys) this.state.surveys = [];
+      }
     }
 
     const surveys = this.state.surveys;
@@ -1910,35 +1874,35 @@ const VibeApp = {
               
               <!-- Custom Dropdown: Sắp xếp -->
               <div class="relative">
-                <button type="button" onclick="VibeApp.toggleCustomDropdown('sort-dropdown-menu')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-stone-50 dark:bg-stone-800 hover:bg-stone-100 dark:hover:bg-stone-700 border border-stone-200 dark:border-stone-700 text-xs font-semibold text-slate-700 dark:text-slate-200 transition-all">
+                <button type="button" onclick="event.stopPropagation(); VibeApp.toggleCustomDropdown('sort-dropdown-menu', event)" class="custom-dropdown-trigger flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-stone-50 dark:bg-stone-800 hover:bg-stone-100 dark:hover:bg-stone-700 border border-stone-200 dark:border-stone-700 text-xs font-semibold text-slate-700 dark:text-slate-200 transition-all">
                   <span class="text-stone-400 text-[11px] font-normal">Sắp xếp:</span>
                   <span id="sort-dropdown-label">${currentSortLabel}</span>
-                  <i data-lucide="chevron-down" class="dropdown-trigger-icon w-3.5 h-3.5 stroke-[2] transition-transform duration-200"></i>
+                  <i data-lucide="chevron-down" class="dropdown-trigger-icon w-3.5 h-3.5 stroke-[2] transition-transform duration-200 pointer-events-none"></i>
                 </button>
 
                 <!-- Popover Menu Sắp Xếp -->
-                <div id="sort-dropdown-menu" class="custom-dropdown-menu hidden absolute left-0 z-50 mt-1.5 min-w-[210px] p-1.5 rounded-xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-700 shadow-lg space-y-0.5">
-                  <div onclick="VibeApp.selectDropdownOption('sort', 'recommended', 'Mặc định (Sắp đầy & Mới)')" class="flex items-center justify-between px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-colors hover:bg-stone-100 dark:hover:bg-stone-800 ${this.state.sortBy === 'recommended' ? 'text-orange-600 dark:text-orange-400 font-bold bg-orange-50 dark:bg-stone-800' : 'text-slate-700 dark:text-slate-200'}">
+                <div id="sort-dropdown-menu" class="custom-dropdown-menu hidden absolute left-0 z-50 mt-1.5 min-w-[210px] p-1.5 rounded-xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-700 shadow-xl space-y-0.5">
+                  <div onclick="event.stopPropagation(); VibeApp.selectDropdownOption('sort', 'recommended', 'Mặc định (Sắp đầy & Mới)', event)" class="flex items-center justify-between px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-colors hover:bg-stone-100 dark:hover:bg-stone-800 ${this.state.sortBy === 'recommended' ? 'text-orange-600 dark:text-orange-400 font-bold bg-orange-50 dark:bg-stone-800' : 'text-slate-700 dark:text-slate-200'}">
                     <span>Mặc định (Sắp đầy & Mới)</span>
                     ${this.state.sortBy === 'recommended' ? '<i data-lucide="check" class="w-3.5 h-3.5 text-orange-600"></i>' : ''}
                   </div>
-                  <div onclick="VibeApp.selectDropdownOption('sort', 'reward_desc', 'Điểm thưởng cao nhất')" class="flex items-center justify-between px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-colors hover:bg-stone-100 dark:hover:bg-stone-800 ${this.state.sortBy === 'reward_desc' ? 'text-orange-600 dark:text-orange-400 font-bold bg-orange-50 dark:bg-stone-800' : 'text-slate-700 dark:text-slate-200'}">
+                  <div onclick="event.stopPropagation(); VibeApp.selectDropdownOption('sort', 'reward_desc', 'Điểm thưởng cao nhất', event)" class="flex items-center justify-between px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-colors hover:bg-stone-100 dark:hover:bg-stone-800 ${this.state.sortBy === 'reward_desc' ? 'text-orange-600 dark:text-orange-400 font-bold bg-orange-50 dark:bg-stone-800' : 'text-slate-700 dark:text-slate-200'}">
                     <span>Điểm thưởng cao nhất</span>
                     ${this.state.sortBy === 'reward_desc' ? '<i data-lucide="check" class="w-3.5 h-3.5 text-orange-600"></i>' : ''}
                   </div>
-                  <div onclick="VibeApp.selectDropdownOption('sort', 'speed', 'Tốc độ nhanh nhất')" class="flex items-center justify-between px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-colors hover:bg-stone-100 dark:hover:bg-stone-800 ${this.state.sortBy === 'speed' ? 'text-orange-600 dark:text-orange-400 font-bold bg-orange-50 dark:bg-stone-800' : 'text-slate-700 dark:text-slate-200'}">
+                  <div onclick="event.stopPropagation(); VibeApp.selectDropdownOption('sort', 'speed', 'Tốc độ nhanh nhất', event)" class="flex items-center justify-between px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-colors hover:bg-stone-100 dark:hover:bg-stone-800 ${this.state.sortBy === 'speed' ? 'text-orange-600 dark:text-orange-400 font-bold bg-orange-50 dark:bg-stone-800' : 'text-slate-700 dark:text-slate-200'}">
                     <span>Tốc độ nhanh nhất</span>
                     ${this.state.sortBy === 'speed' ? '<i data-lucide="check" class="w-3.5 h-3.5 text-orange-600"></i>' : ''}
                   </div>
-                  <div onclick="VibeApp.selectDropdownOption('sort', 'few_questions', 'Ít câu hỏi nhất')" class="flex items-center justify-between px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-colors hover:bg-stone-100 dark:hover:bg-stone-800 ${this.state.sortBy === 'few_questions' ? 'text-orange-600 dark:text-orange-400 font-bold bg-orange-50 dark:bg-stone-800' : 'text-slate-700 dark:text-slate-200'}">
+                  <div onclick="event.stopPropagation(); VibeApp.selectDropdownOption('sort', 'few_questions', 'Ít câu hỏi nhất', event)" class="flex items-center justify-between px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-colors hover:bg-stone-100 dark:hover:bg-stone-800 ${this.state.sortBy === 'few_questions' ? 'text-orange-600 dark:text-orange-400 font-bold bg-orange-50 dark:bg-stone-800' : 'text-slate-700 dark:text-slate-200'}">
                     <span>Ít câu hỏi nhất</span>
                     ${this.state.sortBy === 'few_questions' ? '<i data-lucide="check" class="w-3.5 h-3.5 text-orange-600"></i>' : ''}
                   </div>
-                  <div onclick="VibeApp.selectDropdownOption('sort', 'progress_desc', 'Gần đủ suất nhất')" class="flex items-center justify-between px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-colors hover:bg-stone-100 dark:hover:bg-stone-800 ${this.state.sortBy === 'progress_desc' ? 'text-orange-600 dark:text-orange-400 font-bold bg-orange-50 dark:bg-stone-800' : 'text-slate-700 dark:text-slate-200'}">
+                  <div onclick="event.stopPropagation(); VibeApp.selectDropdownOption('sort', 'progress_desc', 'Gần đủ suất nhất', event)" class="flex items-center justify-between px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-colors hover:bg-stone-100 dark:hover:bg-stone-800 ${this.state.sortBy === 'progress_desc' ? 'text-orange-600 dark:text-orange-400 font-bold bg-orange-50 dark:bg-stone-800' : 'text-slate-700 dark:text-slate-200'}">
                     <span>Gần đủ suất nhất</span>
                     ${this.state.sortBy === 'progress_desc' ? '<i data-lucide="check" class="w-3.5 h-3.5 text-orange-600"></i>' : ''}
                   </div>
-                  <div onclick="VibeApp.selectDropdownOption('sort', 'newest', 'Mới nhất')" class="flex items-center justify-between px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-colors hover:bg-stone-100 dark:hover:bg-stone-800 ${this.state.sortBy === 'newest' ? 'text-orange-600 dark:text-orange-400 font-bold bg-orange-50 dark:bg-stone-800' : 'text-slate-700 dark:text-slate-200'}">
+                  <div onclick="event.stopPropagation(); VibeApp.selectDropdownOption('sort', 'newest', 'Mới nhất', event)" class="flex items-center justify-between px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-colors hover:bg-stone-100 dark:hover:bg-stone-800 ${this.state.sortBy === 'newest' ? 'text-orange-600 dark:text-orange-400 font-bold bg-orange-50 dark:bg-stone-800' : 'text-slate-700 dark:text-slate-200'}">
                     <span>Mới nhất</span>
                     ${this.state.sortBy === 'newest' ? '<i data-lucide="check" class="w-3.5 h-3.5 text-orange-600"></i>' : ''}
                   </div>
@@ -1947,27 +1911,27 @@ const VibeApp = {
 
               <!-- Custom Dropdown: Số câu hỏi -->
               <div class="relative">
-                <button type="button" onclick="VibeApp.toggleCustomDropdown('length-dropdown-menu')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-stone-50 dark:bg-stone-800 hover:bg-stone-100 dark:hover:bg-stone-700 border border-stone-200 dark:border-stone-700 text-xs font-semibold text-slate-700 dark:text-slate-200 transition-all">
+                <button type="button" onclick="event.stopPropagation(); VibeApp.toggleCustomDropdown('length-dropdown-menu', event)" class="custom-dropdown-trigger flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-stone-50 dark:bg-stone-800 hover:bg-stone-100 dark:hover:bg-stone-700 border border-stone-200 dark:border-stone-700 text-xs font-semibold text-slate-700 dark:text-slate-200 transition-all">
                   <span class="text-stone-400 text-[11px] font-normal">Số câu:</span>
                   <span id="length-dropdown-label">${currentLengthLabel}</span>
-                  <i data-lucide="chevron-down" class="dropdown-trigger-icon w-3.5 h-3.5 stroke-[2] transition-transform duration-200"></i>
+                  <i data-lucide="chevron-down" class="dropdown-trigger-icon w-3.5 h-3.5 stroke-[2] transition-transform duration-200 pointer-events-none"></i>
                 </button>
 
                 <!-- Popover Menu Số Câu -->
-                <div id="length-dropdown-menu" class="custom-dropdown-menu hidden absolute left-0 z-50 mt-1.5 min-w-[150px] p-1.5 rounded-xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-700 shadow-lg space-y-0.5">
-                  <div onclick="VibeApp.selectDropdownOption('length', 'ALL', 'Tất cả số câu')" class="flex items-center justify-between px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-colors hover:bg-stone-100 dark:hover:bg-stone-800 ${this.state.lengthFilter === 'ALL' ? 'text-orange-600 dark:text-orange-400 font-bold bg-orange-50 dark:bg-stone-800' : 'text-slate-700 dark:text-slate-200'}">
+                <div id="length-dropdown-menu" class="custom-dropdown-menu hidden absolute left-0 z-50 mt-1.5 min-w-[150px] p-1.5 rounded-xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-700 shadow-xl space-y-0.5">
+                  <div onclick="event.stopPropagation(); VibeApp.selectDropdownOption('length', 'ALL', 'Tất cả số câu', event)" class="flex items-center justify-between px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-colors hover:bg-stone-100 dark:hover:bg-stone-800 ${this.state.lengthFilter === 'ALL' ? 'text-orange-600 dark:text-orange-400 font-bold bg-orange-50 dark:bg-stone-800' : 'text-slate-700 dark:text-slate-200'}">
                     <span>Tất cả số câu</span>
                     ${this.state.lengthFilter === 'ALL' ? '<i data-lucide="check" class="w-3.5 h-3.5 text-orange-600"></i>' : ''}
                   </div>
-                  <div onclick="VibeApp.selectDropdownOption('length', 'UNDER_10', '< 10 câu')" class="flex items-center justify-between px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-colors hover:bg-stone-100 dark:hover:bg-stone-800 ${this.state.lengthFilter === 'UNDER_10' ? 'text-orange-600 dark:text-orange-400 font-bold bg-orange-50 dark:bg-stone-800' : 'text-slate-700 dark:text-slate-200'}">
+                  <div onclick="event.stopPropagation(); VibeApp.selectDropdownOption('length', 'UNDER_10', '< 10 câu', event)" class="flex items-center justify-between px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-colors hover:bg-stone-100 dark:hover:bg-stone-800 ${this.state.lengthFilter === 'UNDER_10' ? 'text-orange-600 dark:text-orange-400 font-bold bg-orange-50 dark:bg-stone-800' : 'text-slate-700 dark:text-slate-200'}">
                     <span>< 10 câu</span>
                     ${this.state.lengthFilter === 'UNDER_10' ? '<i data-lucide="check" class="w-3.5 h-3.5 text-orange-600"></i>' : ''}
                   </div>
-                  <div onclick="VibeApp.selectDropdownOption('length', 'UNDER_20', '< 20 câu')" class="flex items-center justify-between px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-colors hover:bg-stone-100 dark:hover:bg-stone-800 ${this.state.lengthFilter === 'UNDER_20' ? 'text-orange-600 dark:text-orange-400 font-bold bg-orange-50 dark:bg-stone-800' : 'text-slate-700 dark:text-slate-200'}">
+                  <div onclick="event.stopPropagation(); VibeApp.selectDropdownOption('length', 'UNDER_20', '< 20 câu', event)" class="flex items-center justify-between px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-colors hover:bg-stone-100 dark:hover:bg-stone-800 ${this.state.lengthFilter === 'UNDER_20' ? 'text-orange-600 dark:text-orange-400 font-bold bg-orange-50 dark:bg-stone-800' : 'text-slate-700 dark:text-slate-200'}">
                     <span>< 20 câu</span>
                     ${this.state.lengthFilter === 'UNDER_20' ? '<i data-lucide="check" class="w-3.5 h-3.5 text-orange-600"></i>' : ''}
                   </div>
-                  <div onclick="VibeApp.selectDropdownOption('length', 'OVER_20', '> 20 câu')" class="flex items-center justify-between px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-colors hover:bg-stone-100 dark:hover:bg-stone-800 ${this.state.lengthFilter === 'OVER_20' ? 'text-orange-600 dark:text-orange-400 font-bold bg-orange-50 dark:bg-stone-800' : 'text-slate-700 dark:text-slate-200'}">
+                  <div onclick="event.stopPropagation(); VibeApp.selectDropdownOption('length', 'OVER_20', '> 20 câu', event)" class="flex items-center justify-between px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-colors hover:bg-stone-100 dark:hover:bg-stone-800 ${this.state.lengthFilter === 'OVER_20' ? 'text-orange-600 dark:text-orange-400 font-bold bg-orange-50 dark:bg-stone-800' : 'text-slate-700 dark:text-slate-200'}">
                     <span>> 20 câu</span>
                     ${this.state.lengthFilter === 'OVER_20' ? '<i data-lucide="check" class="w-3.5 h-3.5 text-orange-600"></i>' : ''}
                   </div>
@@ -2412,19 +2376,19 @@ const VibeApp = {
   setCategoryFilter(cat) {
     this.haptic('light');
     this.state.categoryFilter = cat;
-    this._updateSurveyGrid();
+    this.renderSurveysView(document.getElementById('app-root'), false);
   },
 
   setSortBy(sort) {
     this.haptic('light');
     this.state.sortBy = sort;
-    this._updateSurveyGrid();
+    this.renderSurveysView(document.getElementById('app-root'), false);
   },
 
   setLengthFilter(len) {
     this.haptic('light');
     this.state.lengthFilter = len;
-    this._updateSurveyGrid();
+    this.renderSurveysView(document.getElementById('app-root'), false);
   },
 
   toggleHideFinished() {
@@ -3163,50 +3127,49 @@ const VibeApp = {
           </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
           ${vouchers.map(v => {
             const canAfford = userPoints >= v.points_cost;
             return `
-              <div class="voucher-clean-card flex flex-col justify-between space-y-4">
+              <div class="bento-card p-4 sm:p-5 flex flex-col justify-between space-y-4">
                 <div class="space-y-3">
-                  <div class="flex items-center justify-between">
+                  <div class="flex items-start justify-between gap-3">
                     <div class="flex items-center gap-3">
-                      <div class="w-12 h-12 rounded-2xl flex items-center justify-center p-1 bg-white dark:bg-slate-800 border border-slate-200/90 dark:border-slate-700 shadow-xs overflow-hidden flex-shrink-0">
+                      <div class="w-12 h-12 rounded-xl flex items-center justify-center p-1.5 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 shadow-xs overflow-hidden shrink-0">
                         ${this.getBrandLogoHtml(v.brand_name)}
                       </div>
                       <div>
-                        <div class="flex items-center gap-1.5">
-                          <span class="text-xs font-black text-slate-900 dark:text-white leading-tight">${v.brand_name}</span>
-                          <span class="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded bg-emerald-50 dark:bg-emerald-950/60 text-[10px] text-emerald-700 dark:text-emerald-400 font-bold border border-emerald-200/60 dark:border-emerald-800/60">
-                            <i data-lucide="check" class="w-2.5 h-2.5 stroke-[3]"></i> Chính hãng
-                          </span>
+                        <div class="font-bold text-sm text-stone-900 dark:text-stone-100 leading-snug truncate max-w-[150px]">
+                          ${v.brand_name}
                         </div>
-                        <span class="text-[11px] text-slate-400 font-mono">E-Voucher</span>
+                        <span class="text-[11px] text-stone-400 font-mono">E-Voucher Chính Hãng</span>
                       </div>
                     </div>
-                    <span class="text-slate-400 dark:text-slate-400 font-mono text-[11px] font-semibold bg-slate-50 dark:bg-slate-800/70 px-2 py-0.5 rounded-lg border border-slate-200/60 dark:border-slate-700/60">
+                    <span class="text-stone-500 dark:text-stone-400 font-mono text-[11px] font-semibold bg-stone-100 dark:bg-stone-800 px-2 py-0.5 rounded border border-stone-200/60 dark:border-stone-700/60 whitespace-nowrap">
                       Còn ${v.remaining_quantity || 0} mã
                     </span>
                   </div>
-                  <h3 class="text-base font-extrabold text-slate-900 dark:text-white leading-snug pt-0.5">${v.title}</h3>
-                  <p class="text-xs text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed">${v.instructions || 'Áp dụng trên toàn quốc'}</p>
+                  <h3 class="text-sm sm:text-base font-bold text-stone-900 dark:text-stone-100 leading-snug line-clamp-2">${v.title}</h3>
+                  <p class="text-xs text-stone-500 dark:text-stone-400 line-clamp-2 leading-relaxed">${v.instructions || 'Áp dụng trên toàn quốc'}</p>
                   
-                  <div class="pt-1 text-xs text-slate-600 dark:text-slate-400 font-semibold">
-                    Trị giá: <strong class="text-slate-900 dark:text-slate-100 font-mono font-bold">${Number(v.face_value_vnd || 0).toLocaleString('vi-VN')} VNĐ</strong>
+                  <div class="pt-1 text-xs text-stone-600 dark:text-stone-400 font-medium">
+                    Trị giá: <strong class="text-stone-900 dark:text-stone-100 font-mono font-bold">${Number(v.face_value_vnd || 0).toLocaleString('vi-VN')} VNĐ</strong>
                   </div>
                 </div>
 
-                <div class="pt-3 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between">
+                <div class="pt-3 border-t border-stone-100 dark:border-stone-800 flex items-center justify-between">
                   <div class="text-xs">
-                    <span class="text-slate-400 dark:text-slate-400 block font-medium">Chi phí đổi:</span>
-                    <strong class="text-sm font-extrabold text-orange-600 dark:text-orange-400 font-mono">${(v.points_cost || 0).toLocaleString()} Điểm</strong>
+                    <span class="text-stone-400 block font-normal text-[11px]">Chi phí đổi:</span>
+                    <strong class="text-sm sm:text-base font-bold text-orange-600 dark:text-orange-500 font-mono">${(v.points_cost || 0).toLocaleString()} Điểm</strong>
                   </div>
                   <button onclick="VibeApp.redeemVoucher('${v.id}')" 
                           ${!canAfford ? 'disabled' : ''}
-                          class="px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-                            canAfford ? 'bg-orange-600 hover:bg-orange-700 text-white shadow-xs active:scale-95' : 'bg-slate-100 dark:bg-slate-800/80 text-slate-400 dark:text-slate-500 cursor-not-allowed border border-transparent dark:border-slate-700/50'
+                          class="h-9 px-4 rounded-lg text-xs font-bold transition-all ${
+                            canAfford 
+                              ? 'bg-orange-600 hover:bg-orange-700 text-white shadow-xs active:scale-95' 
+                              : 'bg-stone-100 dark:bg-stone-800 text-stone-400 dark:text-stone-500 cursor-not-allowed border border-stone-200/60 dark:border-stone-700/60'
                           }">
-                    ${canAfford ? 'Đổi voucher' : 'Chưa đủ điểm'}
+                    ${canAfford ? 'Đổi Voucher' : 'Chưa đủ điểm'}
                   </button>
                 </div>
               </div>
