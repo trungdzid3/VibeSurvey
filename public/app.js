@@ -623,7 +623,7 @@ const VibeApp = {
 
         <button onclick="VibeApp.navigate('wallet'); document.getElementById('user-profile-dropdown').classList.add('hidden')" class="w-full text-left px-3 py-2 rounded-lg hover:bg-stone-50 dark:hover:bg-stone-800 flex items-center space-x-2.5 text-stone-800 dark:text-stone-200 font-medium transition-colors">
           <i data-lucide="wallet" class="w-4 h-4 text-stone-700 dark:text-stone-300"></i>
-          <span>Ví & Quản Lý Số Dư</span>
+          <span>Ví & Rút Tiền</span>
         </button>
 
         ${user.role === 'ADMIN' ? `
@@ -1817,6 +1817,9 @@ const VibeApp = {
 
     // Lọc & Phân nhóm: Ghim luôn cố định trên đầu, bài thường ở dưới
     const { pinnedSurveys, normalSurveys } = this.processSurveysList(surveys);
+    const totalAllCount = this.state.categoryFilter === 'ALL' 
+      ? (pinnedSurveys.length + normalSurveys.length) 
+      : (this.state.hideFinished ? surveys.filter(s => (s.collected_responses || 0) < (s.target_responses || 100) && s.status !== 'COMPLETED' && s.status !== 'CLOSED').length : surveys.length);
 
     // Nhãn hiển thị cho dropdown
     const sortLabels = {
@@ -1888,7 +1891,7 @@ const VibeApp = {
                 <!-- Right: Clean Minimalist Text Link (Không dùng nút viên thuốc thô) -->
                 <div class="shrink-0 self-start sm:self-center pt-1 sm:pt-0">
                   <a href="javascript:void(0)" onclick="VibeApp.navigate('wallet')" class="group inline-flex items-center gap-1 text-xs font-bold text-stone-700 dark:text-stone-300 hover:text-orange-600 dark:hover:text-orange-500 transition-colors">
-                    <span>Quản lý ví & rút tiền</span>
+                    <span>Ví & Rút Tiền</span>
                     <i data-lucide="arrow-right" class="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform"></i>
                   </a>
                 </div>
@@ -1932,7 +1935,7 @@ const VibeApp = {
                   ? 'bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900 shadow-xs' 
                   : 'bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300 hover:bg-stone-200 dark:hover:bg-stone-700'
               }">
-                Tất cả (${surveys.length})
+                Tất cả (${totalAllCount})
               </button>
 
               <button onclick="VibeApp.setCategoryFilter('HIGH_REWARD')" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap ${
@@ -3165,18 +3168,18 @@ const VibeApp = {
       title: 'Xác Nhận Thoát Khảo Sát',
       content: `
         <div class="space-y-4 text-center py-2">
-          <div class="w-12 h-12 rounded-full bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 mx-auto flex items-center justify-center">
+          <div class="w-12 h-12 rounded-full bg-stone-100 dark:bg-stone-800 text-orange-600 dark:text-orange-400 border border-stone-200 dark:border-stone-700 mx-auto flex items-center justify-center">
             <i data-lucide="alert-triangle" class="w-6 h-6 stroke-[2.2]"></i>
           </div>
           <div class="space-y-1">
             <h4 class="text-sm font-extrabold text-slate-900 dark:text-white">Bạn có chắc chắn muốn thoát?</h4>
-            <p class="text-xs text-slate-500 dark:text-slate-400">Tiến độ bài làm hiện tại sẽ bị xóa bỏ và không được nhận điểm thưởng.</p>
+            <p class="text-xs text-stone-600 dark:text-stone-300 font-normal">Tiến độ bài làm hiện tại sẽ bị xóa bỏ và không được nhận điểm thưởng.</p>
           </div>
           <div class="flex gap-2.5 pt-2">
-            <button type="button" onclick="VibeApp.closeModal()" class="flex-1 py-2.5 px-4 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-bold text-slate-700 dark:text-slate-300 transition-colors">
+            <button type="button" onclick="VibeApp.closeModal()" class="flex-1 py-2.5 px-4 rounded-xl bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold transition-all shadow-xs active:scale-95">
               Tiếp Tục Làm Bài
             </button>
-            <button type="button" onclick="VibeApp.executeExitSurvey()" class="flex-1 py-2.5 px-4 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold transition-all shadow-md active:scale-95">
+            <button type="button" onclick="VibeApp.executeExitSurvey()" class="flex-1 py-2.5 px-4 rounded-xl bg-stone-900 hover:bg-black text-white dark:bg-stone-800 dark:hover:bg-stone-700 text-xs font-bold transition-all active:scale-95 border border-stone-800 dark:border-stone-700">
               Thoát & Hủy Bài
             </button>
           </div>
@@ -3321,7 +3324,19 @@ const VibeApp = {
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
           ${vouchers.map(v => {
-            const canAfford = userPoints >= v.points_cost;
+            const isOutOfStock = (v.remaining_quantity || 0) <= 0;
+            const canAfford = !isOutOfStock && (userPoints >= v.points_cost);
+            let btnText = 'Đổi Voucher';
+            let btnClass = 'bg-orange-600 hover:bg-orange-700 text-white shadow-xs active:scale-95';
+
+            if (isOutOfStock) {
+              btnText = 'Hết Mã';
+              btnClass = 'bg-stone-100 dark:bg-stone-800 text-stone-400 dark:text-stone-500 cursor-not-allowed border border-stone-200/60 dark:border-stone-700/60';
+            } else if (!canAfford) {
+              btnText = 'Chưa đủ điểm';
+              btnClass = 'bg-stone-100 dark:bg-stone-800 text-stone-400 dark:text-stone-500 cursor-not-allowed border border-stone-200/60 dark:border-stone-700/60';
+            }
+
             return `
               <div class="bento-card p-4 sm:p-5 flex flex-col justify-between space-y-4">
                 <div class="space-y-3">
@@ -3337,8 +3352,12 @@ const VibeApp = {
                         <span class="text-[11px] text-stone-400 font-mono">E-Voucher Chính Hãng</span>
                       </div>
                     </div>
-                    <span class="text-stone-500 dark:text-stone-400 font-mono text-[11px] font-semibold bg-stone-100 dark:bg-stone-800 px-2 py-0.5 rounded border border-stone-200/60 dark:border-stone-700/60 whitespace-nowrap">
-                      Còn ${v.remaining_quantity || 0} mã
+                    <span class="font-mono text-[11px] font-semibold px-2 py-0.5 rounded border whitespace-nowrap ${
+                      isOutOfStock 
+                        ? 'bg-stone-200 dark:bg-stone-800 text-stone-400 dark:text-stone-500 border-stone-300 dark:border-stone-700' 
+                        : 'bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300 border-stone-200/60 dark:border-stone-700/60'
+                    }">
+                      ${isOutOfStock ? 'Hết mã' : `Còn ${v.remaining_quantity} mã`}
                     </span>
                   </div>
                   <h3 class="text-sm sm:text-base font-bold text-stone-900 dark:text-stone-100 leading-snug line-clamp-2">${v.title}</h3>
@@ -3355,13 +3374,9 @@ const VibeApp = {
                     <strong class="text-sm sm:text-base font-bold text-orange-600 dark:text-orange-500 font-mono">${(v.points_cost || 0).toLocaleString()} Điểm</strong>
                   </div>
                   <button onclick="VibeApp.redeemVoucher('${v.id}')" 
-                          ${!canAfford ? 'disabled' : ''}
-                          class="h-9 px-4 rounded-lg text-xs font-bold transition-all ${
-                            canAfford 
-                              ? 'bg-orange-600 hover:bg-orange-700 text-white shadow-xs active:scale-95' 
-                              : 'bg-stone-100 dark:bg-stone-800 text-stone-400 dark:text-stone-500 cursor-not-allowed border border-stone-200/60 dark:border-stone-700/60'
-                          }">
-                    ${canAfford ? 'Đổi Voucher' : 'Chưa đủ điểm'}
+                          ${(isOutOfStock || !canAfford) ? 'disabled' : ''}
+                          class="h-9 px-4 rounded-lg text-xs font-bold transition-all ${btnClass}">
+                    ${btnText}
                   </button>
                 </div>
               </div>
@@ -3504,7 +3519,7 @@ const VibeApp = {
   // ==================== VIEW 5: VÍ & RÚT TIỀN (MODERN FINTECH) ====================
   async renderWalletView(root) {
     if (!this.state.currentUser) {
-      this.renderGuestLockedView(root, 'Ví Điểm & Đổi Thưởng', 'Vui lòng đăng nhập để quản lý số dư điểm thưởng, lịch sử giao dịch và gửi yêu cầu đổi thưởng về tài khoản.');
+      this.renderGuestLockedView(root, 'Ví & Rút Tiền', 'Vui lòng đăng nhập để quản lý số dư điểm thưởng, lịch sử giao dịch và gửi yêu cầu đổi thưởng về tài khoản.');
       return;
     }
 
@@ -3521,9 +3536,9 @@ const VibeApp = {
     root.innerHTML = `
       <div class="space-y-7">
         
-        <div class="pb-4 border-b border-slate-200">
-          <h1 class="text-xl sm:text-2xl font-extrabold tracking-tight text-slate-900">Ví Tài Chính & Sổ Cái Kép</h1>
-          <p class="text-xs text-slate-500 mt-0.5">Bảo toàn số dư với Double-Entry Ledger, kiểm toán ACID và nguyên tắc tài chính chống rửa tiền.</p>
+        <div class="pb-4 border-b border-stone-200 dark:border-stone-800">
+          <h1 class="text-xl sm:text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white">Ví & Rút Tiền</h1>
+          <p class="text-xs text-stone-500 dark:text-stone-400 mt-0.5 font-normal">Bảo toàn số dư với Double-Entry Ledger, kiểm toán ACID và nguyên tắc tài chính minh bạch.</p>
         </div>
 
         <!-- 2 Modern Cards -->
@@ -3884,7 +3899,7 @@ const VibeApp = {
     const currentPoints = user ? user.point_balance : 0;
 
     this.showModal({
-      title: '⇄ Đổi Điểm Sang Credit Tạo Form',
+      title: 'Đổi Điểm Sang Credit Tạo Form',
       content: `
         <div class="space-y-4 text-left">
           <p class="text-xs text-slate-500 leading-relaxed">Tỷ lệ quy đổi: <strong>1 Điểm = 7 VNĐ Credit</strong> (Chiết khấu sàn 30%). Số điểm tối thiểu: 1,000 điểm.</p>
@@ -4351,31 +4366,31 @@ const VibeApp = {
 
         <!-- Banner Ưu Đãi hoặc Số dư Credit -->
         ${hasFreeTrial ? `
-          <div class="p-4 sm:p-5 bg-gradient-to-r from-emerald-500/10 via-teal-500/10 to-sky-500/10 border ${isVerified ? 'border-emerald-500/30 dark:border-emerald-500/40' : 'border-amber-500/40 dark:border-amber-500/50 bg-amber-500/5'} rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div class="p-4 sm:p-5 bg-orange-50/70 dark:bg-stone-900 border ${isVerified ? 'border-orange-200/80 dark:border-stone-800' : 'border-amber-300 dark:border-amber-800 bg-amber-50/40 dark:bg-stone-900'} rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div class="flex items-start gap-3">
-              <div class="w-10 h-10 rounded-2xl ${isVerified ? 'bg-emerald-500' : 'bg-amber-500'} text-white flex items-center justify-center flex-shrink-0 shadow-sm">
-                <i data-lucide="${isVerified ? 'gift' : 'shield-alert'}" class="w-5 h-5 stroke-[2.5]"></i>
+              <div class="w-10 h-10 rounded-2xl ${isVerified ? 'bg-orange-600' : 'bg-stone-800'} text-white flex items-center justify-center flex-shrink-0 shadow-xs">
+                <i data-lucide="${isVerified ? 'gift' : 'shield-alert'}" class="w-5 h-5 stroke-[2.2]"></i>
               </div>
               <div class="text-xs space-y-1">
                 <div class="flex items-center gap-2">
-                  <strong class="${isVerified ? 'text-emerald-700 dark:text-emerald-400' : 'text-amber-700 dark:text-amber-400'} font-bold text-sm">Ưu Đãi Khảo Sát Đầu Tay Miễn Phí</strong>
-                  <span class="px-2 py-0.5 text-[10px] font-bold ${isVerified ? 'bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 border-emerald-300 dark:border-emerald-800' : 'bg-amber-100 dark:bg-amber-950/80 text-amber-700 dark:text-amber-300 border-amber-300 dark:border-amber-800'} rounded-full border">Còn 1 Suất</span>
+                  <strong class="text-stone-900 dark:text-white font-bold text-sm">Ưu Đãi Khảo Sát Đầu Tay Miễn Phí</strong>
+                  <span class="px-2 py-0.5 text-[10px] font-bold bg-orange-100 dark:bg-stone-800 text-orange-700 dark:text-orange-400 border border-orange-200 dark:border-stone-700 rounded-full">Còn 1 Suất</span>
                 </div>
-                <p class="text-slate-600 dark:text-slate-300 text-xs leading-relaxed max-w-xl">
+                <p class="text-stone-600 dark:text-stone-300 text-xs leading-relaxed max-w-xl font-normal">
                   Bạn được tặng <strong>25 lượt phản hồi MIỄN PHÍ 100%</strong> (Trị giá 50.000đ). Sàn tự động tài trợ thù lao cho đáp viên, bạn không phải bỏ ra bất kỳ chi phí nào!
                 </p>
                 ${isVerified ? `
-                  <div class="pt-1 flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400 font-bold">
-                    <i data-lucide="check-circle" class="w-4 h-4"></i>
+                  <div class="pt-1 flex items-center gap-1.5 text-stone-700 dark:text-stone-300 font-medium">
+                    <i data-lucide="check-circle" class="w-4 h-4 text-orange-600 dark:text-orange-400"></i>
                     <span>Tài khoản đã xác thực hợp lệ (Đủ điều kiện nhận ưu đãi)</span>
                   </div>
                 ` : `
                   <div class="pt-2 flex flex-wrap items-center gap-2">
-                    <span class="text-[11px] text-amber-700 dark:text-amber-300 font-semibold">Để chống acc ảo, vui lòng liên kết trước:</span>
-                    <button type="button" onclick="VibeApp.linkGoogleAccount()" class="px-3 py-1 bg-white dark:bg-slate-800 hover:bg-slate-50 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1.5">
+                    <span class="text-[11px] text-stone-600 dark:text-stone-400 font-medium">Để chống tài khoản ảo, vui lòng liên kết trước:</span>
+                    <button type="button" onclick="VibeApp.linkGoogleAccount()" class="px-3 py-1 bg-white dark:bg-stone-800 hover:bg-stone-50 border border-stone-200 dark:border-stone-700 rounded-lg text-xs font-bold text-stone-700 dark:text-stone-200 flex items-center gap-1.5">
                       <span>Liên Kết Google</span>
                     </button>
-                    <button type="button" onclick="VibeApp.verifyEmailAccount()" class="px-3 py-1 bg-stone-100 dark:bg-stone-800 hover:bg-blue-100 text-orange-600 dark:text-orange-400 rounded-lg text-xs font-bold">
+                    <button type="button" onclick="VibeApp.verifyEmailAccount()" class="px-3 py-1 bg-orange-50 dark:bg-stone-800 hover:bg-orange-100 text-orange-600 dark:text-orange-400 rounded-lg text-xs font-bold border border-orange-200 dark:border-stone-700">
                       <span>Xác Thực Email</span>
                     </button>
                   </div>
@@ -4431,26 +4446,26 @@ const VibeApp = {
               <label class="block text-xs font-bold text-slate-700 dark:text-slate-200">Lĩnh vực nghiên cứu</label>
               <input type="hidden" id="fast-category" value="Thị trường">
               <button type="button" onclick="VibeApp.toggleCustomDropdown('fast-cat-dropdown-menu')" class="w-full flex items-center justify-between p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-xs sm:text-sm font-medium focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all">
-                <span id="fast-cat-dropdown-label">🛒 Thị trường & Người tiêu dùng</span>
+                <span id="fast-cat-dropdown-label">Thị trường & Người tiêu dùng</span>
                 <i data-lucide="chevron-down" class="dropdown-trigger-icon w-4 h-4 text-slate-400 transition-transform duration-200"></i>
               </button>
 
-              <div id="fast-cat-dropdown-menu" class="custom-dropdown-menu hidden absolute left-0 right-0 mt-1.5 p-1.5 rounded-2xl bg-white/95 dark:bg-[#131B2E]/95 backdrop-blur-xl border border-slate-200/90 dark:border-slate-700/80 shadow-2xl space-y-0.5" style="z-index: 9999;">
-                <div onclick="VibeApp.selectDropdownOption('fast-category', 'Thị trường', '🛒 Thị trường & Người tiêu dùng')" class="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 text-orange-600 dark:text-orange-400 font-bold bg-orange-50 dark:bg-stone-800/60 dark:bg-stone-900/40">
-                  <span>🛒 Thị trường & Người tiêu dùng</span>
+              <div id="fast-cat-dropdown-menu" class="custom-dropdown-menu hidden absolute left-0 right-0 mt-1.5 p-1.5 rounded-2xl bg-white/95 dark:bg-[#18181B]/95 backdrop-blur-xl border border-stone-200 dark:border-stone-800 shadow-2xl space-y-0.5" style="z-index: 9999;">
+                <div onclick="VibeApp.selectDropdownOption('fast-category', 'Thị trường', 'Thị trường & Người tiêu dùng')" class="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold cursor-pointer hover:bg-stone-100 dark:hover:bg-stone-800 text-orange-600 dark:text-orange-400 font-bold bg-orange-50 dark:bg-stone-800">
+                  <span>Thị trường & Người tiêu dùng</span>
                   <i data-lucide="check" class="w-3.5 h-3.5 text-orange-600 dark:text-orange-400"></i>
                 </div>
-                <div onclick="VibeApp.selectDropdownOption('fast-category', 'Công nghệ', '💻 Công nghệ, Phần mềm & AI')" class="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200">
-                  <span>💻 Công nghệ, Phần mềm & AI</span>
+                <div onclick="VibeApp.selectDropdownOption('fast-category', 'Công nghệ', 'Công nghệ, Phần mềm & AI')" class="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold cursor-pointer hover:bg-stone-100 dark:hover:bg-stone-800 text-slate-700 dark:text-slate-200">
+                  <span>Công nghệ, Phần mềm & AI</span>
                 </div>
-                <div onclick="VibeApp.selectDropdownOption('fast-category', 'Học thuật', '🎓 Học thuật, Luận văn & Sinh viên')" class="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200">
-                  <span>🎓 Học thuật, Luận văn & Sinh viên</span>
+                <div onclick="VibeApp.selectDropdownOption('fast-category', 'Học thuật', 'Học thuật, Luận văn & Sinh viên')" class="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold cursor-pointer hover:bg-stone-100 dark:hover:bg-stone-800 text-slate-700 dark:text-slate-200">
+                  <span>Học thuật, Luận văn & Sinh viên</span>
                 </div>
-                <div onclick="VibeApp.selectDropdownOption('fast-category', 'Thương mại điện tử', '🛍️ Thương mại điện tử & Bán lẻ')" class="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200">
-                  <span>🛍️ Thương mại điện tử & Bán lẻ</span>
+                <div onclick="VibeApp.selectDropdownOption('fast-category', 'Thương mại điện tử', 'Thương mại điện tử & Bán lẻ')" class="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold cursor-pointer hover:bg-stone-100 dark:hover:bg-stone-800 text-slate-700 dark:text-slate-200">
+                  <span>Thương mại điện tử & Bán lẻ</span>
                 </div>
-                <div onclick="VibeApp.selectDropdownOption('fast-category', 'Đời sống', '🌿 Đời sống, Sức khỏe & Xã hội')" class="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200">
-                  <span>🌿 Đời sống, Sức khỏe & Xã hội</span>
+                <div onclick="VibeApp.selectDropdownOption('fast-category', 'Đời sống', 'Đời sống, Sức khỏe & Xã hội')" class="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold cursor-pointer hover:bg-stone-100 dark:hover:bg-stone-800 text-slate-700 dark:text-slate-200">
+                  <span>Đời sống, Sức khỏe & Xã hội</span>
                 </div>
               </div>
             </div>

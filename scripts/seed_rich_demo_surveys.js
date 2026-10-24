@@ -69,7 +69,7 @@ const demoSurveys = [
 
   // --- NHÓM 2: KHẢO SÁT GẦN ĐẦY MẪU (FOMO >= 60% SẮP HẾT SUẤT) ---
   {
-    title: '🔥 [Gấp] Thói quen Dùng Ví Điện Tử & Thanh Toán QR Sinh Viên',
+    title: '[Gấp] Thói quen Dùng Ví Điện Tử & Thanh Toán QR Sinh Viên',
     description: 'Khảo sát trải nghiệm thanh toán quét mã QR qua MoMo, ZaloPay, VietQR tại căng tin và cửa hàng tiện lợi.',
     category: 'Fintech',
     target: 50,
@@ -85,7 +85,7 @@ const demoSurveys = [
     ]
   },
   {
-    title: '🔥 [Sắp Hết] Đánh Giá Dịch Vụ Gọi Xe Công Nghệ & Giao Đồ Ăn',
+    title: '[Sắp Hết] Đánh Giá Dịch Vụ Gọi Xe Công Nghệ & Giao Đồ Ăn',
     description: 'So sánh mức độ hài lòng giữa Grab, ShopeeFood, Be và Gojek về giá cước và tốc độ phục vụ.',
     category: 'Giao thông & F&B',
     target: 40,
@@ -101,7 +101,7 @@ const demoSurveys = [
     ]
   },
   {
-    title: '🔥 [Hot] Khảo sát Nhu Cầu Uống Trà Sữa & Cà Phê Chuỗi',
+    title: '[Hot] Khảo sát Nhu Cầu Uống Trà Sữa & Cà Phê Chuỗi',
     description: 'Thương hiệu đồ uống yêu thích của bạn: Highlands, Phúc Long, Phê La hay The Coffee House?',
     category: 'F&B',
     target: 30,
@@ -120,7 +120,7 @@ const demoSurveys = [
 
   // --- NHÓM 3: KHẢO SÁT SIÊU NHANH / ÍT CÂU HỎI (1 - 2 CÂU, DƯỚI 1 PHÚT) ---
   {
-    title: '⚡ [30 Giây] Khảo Sát Thói Quen Nghe Nhạc Spotify & YouTube Music',
+    title: '[30 Giây] Khảo Sát Thói Quen Nghe Nhạc Spotify & YouTube Music',
     description: 'Chỉ 1 câu hỏi nhanh về nền tảng nghe nhạc trực tuyến yêu thích của bạn.',
     category: 'Giải trí',
     target: 100,
@@ -135,7 +135,7 @@ const demoSurveys = [
     ]
   },
   {
-    title: '⚡ [1 Phút] Đánh Giá Thiết Kế Giao Diện Tối (Dark Mode)',
+    title: '[1 Phút] Đánh Giá Thiết Kế Giao Diện Tối (Dark Mode)',
     description: 'Khảo sát 2 câu hỏi về thói quen sử dụng chế độ Dark Mode trên điện thoại và máy tính.',
     category: 'Giao diện & UI',
     target: 80,
@@ -153,7 +153,7 @@ const demoSurveys = [
 
   // --- NHÓM 4: KHẢO SÁT CHUYÊN SÂU / NHIỀU CÂU HỎI & THƯỞNG CAO (>= 8 CÂU) ---
   {
-    title: '💰 [Thưởng Lớn] Nghiên Cứu Lộ Trình Phát Triển Sự Nghiệp Ngành IT 2026',
+    title: '[Thưởng Lớn] Nghiên Cứu Lộ Trình Phát Triển Sự Nghiệp Ngành IT 2026',
     description: 'Khảo sát toàn diện về mức lương, công nghệ Frontend/Backend, Cloud và định hướng làm việc Remote/Hybrid.',
     category: 'Nghề nghiệp & Việc làm',
     target: 50,
@@ -177,7 +177,7 @@ const demoSurveys = [
 
   // --- NHÓM 5: KHẢO SÁT ĐÃ ĐỦ 100% MẪU (TEST TÍNH NĂNG TỰ ĐỘNG ẨN) ---
   {
-    title: '✔️ [Đã Đầy] Khảo Sát Thói Quen Tập Gym & Thể Thao Hè 2026',
+    title: '[Đã Đầy] Khảo Sát Thói Quen Tập Gym & Thể Thao Hè 2026',
     description: 'Khảo sát đã thu thập đủ 100% mục tiêu phản hồi và đã đóng nhận câu trả lời.',
     category: 'Sức khỏe & Thể thao',
     target: 50,
@@ -193,7 +193,7 @@ const demoSurveys = [
     ]
   },
   {
-    title: '✔️ [Đã Xong] Đánh Giá Thị Trường Bất Động Sản Cho Thuê',
+    title: '[Đã Xong] Đánh Giá Thị Trường Bất Động Sản Cho Thuê',
     description: 'Khảo sát đã kết thúc và phân tích số liệu hoàn tất.',
     category: 'Bất động sản',
     target: 30,

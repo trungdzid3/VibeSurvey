@@ -233,7 +233,7 @@ label,
   letter-spacing: normal;
 }
 
-/* 4. Chú thích: ExtraLightItalic (200 Italic) */
+/* 4. Chú thích & Phụ đề: Giữ Regular (400) hoặc Medium (500), KHÔNG ép nghiêng tràn lan để đảm bảo độ tương phản cao ở Dark Mode */
 .caption,
 .subtext,
 .helper-text,
@@ -255,9 +255,9 @@ span.text-stone-500:not(.font-mono):not(.font-bold):not(.font-semibold),
 .text-\[11px\]:not(button):not(.font-mono):not(.badge):not(.font-bold):not(.font-semibold),
 .helper-notice,
 .input-hint {
-  font-weight: 200 !important;
-  font-style: italic !important;
-  letter-spacing: 0.01em;
+  font-weight: 400 !important;
+  font-style: normal !important;
+  letter-spacing: normal;
 }
 
 /* 5. Ngoại lệ: Nút bấm (Button) & Số liệu (Numbers / Mono / Badges) giữ độ đậm và không italic */
@@ -460,9 +460,9 @@ html.dark .stepper-choice-btn:hover .shortcut-badge {
   border-color: #EA580C;
 }
 html.dark .stepper-choice-btn.selected .shortcut-badge {
-  background: #6366F1;
+  background: #F97316;
   color: #FFFFFF;
-  border-color: #6366F1;
+  border-color: #F97316;
 }
 
 /* Likert Clean Buttons - Tối giản 2 màu Cam & Đen */
@@ -573,9 +573,9 @@ html.dark .likert-clean-btn.selected {
   transition: transform 0.22s ease, opacity 0.22s ease, margin-top 0.22s ease;
 }
 html.dark .toast-pro-card {
-  background: rgba(19, 27, 46, 0.94);
-  border-color: rgba(255, 255, 255, 0.09);
-  box-shadow: 0 20px 40px -8px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  background: rgba(24, 24, 27, 0.96);
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 20px 40px -8px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
 @keyframes toastSlideIn {
@@ -656,27 +656,30 @@ html.dark *::-webkit-scrollbar-thumb:hover {
 
 /* ==================== DARK MODE HIGH CONTRAST & SAAS POLISH ==================== */
 html.dark {
-  background-color: #080C15;
-  color: #F8FAFC;
+  background-color: #09090B !important;
+  color: #F4F4F5 !important;
 }
 
 html.dark body {
-  background-color: #080C15;
-  color: #F8FAFC;
+  background-color: #09090B !important;
+  color: #F4F4F5 !important;
 }
 
-/* Header Navbar in Dark Mode */
+/* Header Navbar in Dark Mode: Đồng nhất 100% màu nền đen than #09090B phẳng */
 html.dark header {
-  background-color: rgba(8, 12, 21, 0.85) !important;
+  background-color: rgba(9, 9, 11, 0.95) !important;
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border-bottom-color: rgba(255, 255, 255, 0.08) !important;
+  border-bottom-color: #27272A !important;
 }
 
-/* Nav Links Pill Container & Links */
+/* Nav Links Pill Container & Links: Hoàn toàn trong suốt, phẳng lì, trùng màu nền Header */
+#desktop-nav,
 html.dark #desktop-nav {
-  background-color: rgba(255, 255, 255, 0.04) !important;
-  border-color: rgba(255, 255, 255, 0.08) !important;
+  background-color: transparent !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
 }
 
 html.dark .nav-link {
@@ -814,18 +817,23 @@ html.dark button.bg-slate-900:not(.nav-link):hover {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5) !important;
 }
 
-/* Category Filter Tabs (Tất cả, Thưởng cao, Tặng Voucher) */
-html.dark .overflow-x-auto button.bg-white,
-html.dark .overflow-x-auto button:not(.bg-slate-900):not(.bg-indigo-600) {
+/* Category Filter Tabs (Tất cả, Thưởng cao, Tặng Voucher) - Phân biệt rõ ràng chip đã chọn ở Dark Mode */
+html.dark .overflow-x-auto button:not(.dark\:bg-stone-100):not(.bg-stone-900):not(.bg-slate-900):not(.active-chip) {
   background: #18181B !important;
   border: 1px solid #27272A !important;
-  color: #D4D4D8 !important;
+  color: #A1A1AA !important;
 }
-html.dark .overflow-x-auto button.bg-white:hover,
-html.dark .overflow-x-auto button:not(.bg-slate-900):not(.bg-indigo-600):hover {
+html.dark .overflow-x-auto button:not(.dark\:bg-stone-100):not(.bg-stone-900):not(.bg-slate-900):not(.active-chip):hover {
   background: #27272A !important;
   border-color: #3F3F46 !important;
   color: #FFFFFF !important;
+}
+html.dark .overflow-x-auto button.dark\:bg-stone-100,
+html.dark .overflow-x-auto button.active-chip {
+  background: #F4F4F5 !important;
+  color: #09090B !important;
+  font-weight: 700 !important;
+  border: 1px solid #F4F4F5 !important;
 }
 
 /* Đường ray thanh tiến độ (Progress Track) trong Dark Mode */
