@@ -2167,7 +2167,7 @@ const VibeApp = {
       }
 
       paginationHtml = `
-        <div class="pt-6 pb-2 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-stone-200 dark:border-stone-800">
+        <div class="pt-3 pb-1 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-stone-200 dark:border-stone-800">
           <div class="text-xs text-stone-500 font-medium">
             Hiển thị <span class="font-bold text-stone-800 dark:text-stone-200">${normalList.length > 0 ? startIndex + 1 : 0} - ${endIndex}</span> trên tổng số <span class="font-bold text-stone-800 dark:text-stone-200">${normalList.length}</span> bài
           </div>
@@ -3529,35 +3529,35 @@ const VibeApp = {
         <!-- 2 Modern Cards -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
           
-          <!-- Card 1: Obsidian Rewards Points Card (Respondent) -->
+          <!-- Card 1: Sunset Orange Rewards Points Card (Respondent) -->
           <div class="fintech-card-bg rounded-3xl p-6 sm:p-7 text-white flex flex-col justify-between space-y-5 relative overflow-hidden">
             <div>
               <div class="flex justify-between items-center text-xs">
-                <span class="font-extrabold tracking-widest text-stone-400 uppercase text-[11px]">VIBESURVEY REWARDS</span>
-                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold ${canPayout ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30' : 'bg-white/10 text-stone-400 border border-white/10'}">
+                <span class="font-extrabold tracking-widest text-orange-100 uppercase text-[11px]">VIBESURVEY REWARDS</span>
+                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold ${canPayout ? 'bg-white/25 text-white border border-white/40 backdrop-blur-xs' : 'bg-black/20 text-orange-100 border border-white/15'}">
                   ${canPayout ? 'Đủ điều kiện đổi tiền/thẻ' : 'Cần tối thiểu 1.000 điểm'}
                 </span>
               </div>
 
               <div class="mt-4">
-                <span class="text-xs text-stone-400 font-medium">Số dư điểm thưởng khả dụng</span>
-                <div class="text-3xl sm:text-4xl font-black font-mono mt-1 text-white">
-                  ${curPoints.toLocaleString()} <span class="text-sm font-bold text-stone-400">Điểm</span>
+                <span class="text-xs text-orange-100/90 font-medium">Số dư điểm thưởng khả dụng</span>
+                <div class="text-3xl sm:text-4xl font-black font-mono mt-1 text-white drop-shadow-xs">
+                  ${curPoints.toLocaleString()} <span class="text-sm font-bold text-orange-200">Điểm</span>
                 </div>
-                <div class="text-xs text-orange-400 mt-1 font-mono font-bold">
+                <div class="text-xs text-white mt-1.5 font-mono font-bold inline-block bg-black/15 px-2.5 py-1 rounded-lg border border-white/15">
                   ≈ ${(curPoints * 10).toLocaleString('vi-VN')} VNĐ quy đổi (1 Điểm = 10 VNĐ)
                 </div>
               </div>
             </div>
 
-            <div class="pt-4 border-t border-white/10 flex items-center justify-between gap-3">
+            <div class="pt-4 border-t border-white/20 flex items-center justify-between gap-3">
               <button onclick="VibeApp.openPayoutModal()" 
-                      class="flex-1 py-2.5 rounded-xl text-xs font-bold transition-all ${
-                        canPayout ? 'bg-orange-600 hover:bg-orange-500 text-white shadow-xs active:scale-95' : 'bg-white/10 text-stone-500 cursor-not-allowed border border-white/10'
+                      class="flex-1 py-2.5 rounded-xl text-xs font-black transition-all ${
+                        canPayout ? 'bg-white hover:bg-orange-50 text-orange-950 shadow-md active:scale-95' : 'bg-white/20 text-white/60 cursor-not-allowed border border-white/20'
                       }">
                 Đổi Thưởng & Rút Tiền (Từ 10K)
               </button>
-              <button onclick="VibeApp.openSwapPointsModal()" class="py-2.5 px-3.5 bg-white/10 hover:bg-white/15 text-stone-200 border border-white/10 rounded-xl text-xs font-bold transition-colors active:scale-95">
+              <button onclick="VibeApp.openSwapPointsModal()" class="py-2.5 px-3.5 bg-black/20 hover:bg-black/30 text-white border border-white/20 rounded-xl text-xs font-bold transition-colors active:scale-95">
                 Đổi Sang Credit
               </button>
             </div>

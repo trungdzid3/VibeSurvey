@@ -292,11 +292,11 @@ body::before {
 
 /* Safe area padding cho thiết bị di động */
 .safe-bottom {
-  padding-bottom: calc(env(safe-area-inset-bottom, 16px) + 68px);
+  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 16px);
 }
 @media (min-width: 768px) {
   .safe-bottom {
-    padding-bottom: 40px;
+    padding-bottom: 0px;
   }
 }
 
@@ -519,11 +519,11 @@ html.dark .likert-clean-btn.selected {
   transform: translateY(-2px);
 }
 
-/* Fintech Obsidian Rewards Card (Chuẩn thương hiệu VibeSurvey) */
+/* Fintech Vibrant Orange Sunset Rewards Card (Chuẩn thương hiệu Vibe) */
 .fintech-card-bg {
-  background: linear-gradient(145deg, #1C1917 0%, #0C0A09 100%);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  background: linear-gradient(135deg, #F97316 0%, #EA580C 50%, #C2410C 100%);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow: 0 16px 36px -10px rgba(234, 88, 12, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.35);
 }
 
 /* Modal Backdrop */
@@ -680,24 +680,28 @@ html.dark #desktop-nav {
 }
 
 html.dark .nav-link {
-  color: #94A3B8 !important;
+  color: #A1A1AA !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
 }
 html.dark .nav-link:hover {
-  background-color: rgba(255, 255, 255, 0.08) !important;
-  color: #FFFFFF !important;
+  background: transparent !important;
+  color: #FAFAFA !important;
 }
 html.dark .nav-link.active {
-  color: #A5B4FC !important;
-  background-color: rgba(99, 102, 241, 0.2) !important;
-  border: 1px solid rgba(99, 102, 241, 0.35) !important;
-  box-shadow: 0 0 12px rgba(99, 102, 241, 0.25) !important;
+  color: #F97316 !important;
+  font-weight: 700 !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
 }
 
 /* Balance Widget in Dark Mode */
 html.dark #user-balance-pill {
-  background-color: rgba(16, 185, 129, 0.1) !important;
-  border-color: rgba(16, 185, 129, 0.3) !important;
-  box-shadow: 0 0 14px rgba(16, 185, 129, 0.12) !important;
+  background-color: rgba(255, 255, 255, 0.06) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  box-shadow: none !important;
 }
 html.dark #header-points-text {
   color: #6EE7B7 !important;
