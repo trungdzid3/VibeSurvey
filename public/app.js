@@ -425,22 +425,19 @@ const VibeApp = {
     const creditBadgeText = document.getElementById('header-credit-text');
 
     if (guestAuthActions) guestAuthActions.classList.add('hidden');
+    // Tuyệt đối ẩn điểm và vé khỏi thanh ngang Header ngoài theo chỉ đạo của người dùng
     if (balancePill) {
-      balancePill.classList.remove('hidden');
-      balancePill.style.display = 'flex';
+      balancePill.classList.add('hidden');
+      balancePill.style.display = 'none';
     }
     if (ticketsChip) {
-      const tickets = Number(user.fast_track_tickets || 0);
-      if (tickets > 0) {
-        ticketsChip.classList.remove('hidden');
-        ticketsChip.style.display = 'inline-flex';
-        if (ticketsText) ticketsText.textContent = `${tickets} Vé`;
-      } else {
-        ticketsChip.classList.add('hidden');
-      }
+      ticketsChip.classList.add('hidden');
+      ticketsChip.style.display = 'none';
     }
+    // Tuyệt đối không hiển thị nút cam tạo khảo sát trên thanh Header nữa
     if (createBtn) {
-      createBtn.style.display = 'inline-flex';
+      createBtn.classList.add('hidden');
+      createBtn.style.display = 'none';
     }
     if (userProfileMenu) {
       userProfileMenu.classList.remove('hidden');
@@ -450,7 +447,6 @@ const VibeApp = {
     if (nameEl) nameEl.textContent = shortName;
     if (avatarEl) avatarEl.textContent = (user.name || 'U').charAt(0).toUpperCase();
 
-    // Điểm hiển thị ngắn gọn trên Header Pill
     if (pointsBadgeText) {
       pointsBadgeText.textContent = `${(user.point_balance || 0).toLocaleString('vi-VN')} Điểm`;
     }
@@ -502,13 +498,19 @@ const VibeApp = {
         <div class="flex items-center justify-between text-xs">
           <span class="text-stone-500 dark:text-stone-400">Số dư điểm:</span>
           <span class="font-mono font-bold text-orange-600 dark:text-orange-500">
-            ${Number(user.point_balance || 0).toLocaleString()} Điểm
+            ${Number(user.point_balance || 0).toLocaleString('vi-VN')} Điểm
           </span>
         </div>
         <div class="flex items-center justify-between text-xs">
           <span class="text-stone-500 dark:text-stone-400">Quy đổi:</span>
           <span class="font-mono font-semibold text-stone-900 dark:text-stone-100">
             ≈ ${(Number(user.point_balance || 0) * 10).toLocaleString('vi-VN')}đ
+          </span>
+        </div>
+        <div class="flex items-center justify-between text-xs pt-1 border-t border-stone-200/60 dark:border-stone-800">
+          <span class="text-stone-500 dark:text-stone-400">Số dư Credit tạo form:</span>
+          <span class="font-mono font-bold text-stone-900 dark:text-stone-100">
+            ${Number(user.credit_balance || 0).toLocaleString('vi-VN')} Credit
           </span>
         </div>
         <div class="flex items-center justify-between text-xs pt-1 border-t border-stone-200/60 dark:border-stone-800">
@@ -532,6 +534,11 @@ const VibeApp = {
 
       <!-- Menu Shortcuts -->
       <div class="p-1.5 space-y-0.5 text-xs">
+        <button onclick="VibeApp.navigate('create-survey'); document.getElementById('user-profile-dropdown').classList.add('hidden')" class="w-full text-left px-3 py-2 rounded-lg hover:bg-stone-50 dark:hover:bg-stone-800 flex items-center space-x-2.5 text-stone-800 dark:text-stone-200 font-medium transition-colors">
+          <i data-lucide="plus-circle" class="w-4 h-4 text-orange-600 dark:text-orange-500"></i>
+          <span>Tạo Khảo Sát Mới</span>
+        </button>
+
         <button onclick="VibeApp.navigate('creator-surveys'); document.getElementById('user-profile-dropdown').classList.add('hidden')" class="w-full text-left px-3 py-2 rounded-lg hover:bg-stone-50 dark:hover:bg-stone-800 flex items-center space-x-2.5 text-stone-800 dark:text-stone-200 font-medium transition-colors">
           <i data-lucide="folder-kanban" class="w-4 h-4 text-stone-700 dark:text-stone-300"></i>
           <span>Khảo Sát Của Tôi</span>
@@ -539,7 +546,7 @@ const VibeApp = {
 
         <button onclick="VibeApp.navigate('wallet'); document.getElementById('user-profile-dropdown').classList.add('hidden')" class="w-full text-left px-3 py-2 rounded-lg hover:bg-stone-50 dark:hover:bg-stone-800 flex items-center space-x-2.5 text-stone-800 dark:text-stone-200 font-medium transition-colors">
           <i data-lucide="wallet" class="w-4 h-4 text-stone-700 dark:text-stone-300"></i>
-          <span>Ví Điểm & Rút Tiền</span>
+          <span>Ví & Quản Lý Số Dư</span>
         </button>
 
         ${user.role === 'ADMIN' ? `
@@ -1530,6 +1537,7 @@ const VibeApp = {
     } else {
       tabs = [
         { id: 'surveys', label: 'Khảo Sát', icon: 'compass' },
+        { id: 'create-survey', label: 'Tạo Khảo Sát', icon: 'plus-circle' },
         { id: 'creator-surveys', label: 'Khảo Sát Của Tôi', icon: 'folder-kanban' },
         { id: 'voucher-market', label: 'Chợ Voucher', icon: 'gift' },
         { id: 'wallet', label: 'Ví & Rút Tiền', icon: 'wallet' }
