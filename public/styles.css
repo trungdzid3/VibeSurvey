@@ -797,4 +797,15 @@ html.dark .custom-checkbox-box {
 
 .custom-dropdown-menu {
   z-index: 1000 !important;
+  box-shadow: 0 20px 45px -10px rgba(0, 0, 0, 0.25), 0 10px 20px -5px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Tối ưu hóa Touch Target & Dropdown Item cho Form Builder */
+.custom-dropdown-menu button {
+  min-height: 40px;
+}
+@media (max-width: 640px) {
+  .custom-dropdown-menu button {
+    min-height: 44px;
+  }
 }

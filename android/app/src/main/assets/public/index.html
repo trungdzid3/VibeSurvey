@@ -78,7 +78,7 @@
   <script src="https://unpkg.com/lucide@latest"></script>
 
   <!-- Custom Stylesheet -->
-  <link rel="stylesheet" href="/styles.css?v=3.5.5">
+  <link rel="stylesheet" href="/styles.css?v=3.5.10">
 </head>
 <body class="bg-[#F8FAFC] dark:bg-[#0B0F19] text-slate-800 dark:text-slate-100 min-h-screen flex flex-col font-sans selection:bg-indigo-500 selection:text-white antialiased safe-bottom">
 
@@ -112,6 +112,12 @@
               <span id="header-points-text" class="font-extrabold text-emerald-950 dark:text-emerald-200 font-mono text-xs whitespace-nowrap">0 Điểm</span>
               <span id="header-credit-text" class="hidden">0đ</span>
             </div>
+          </div>
+
+          <!-- Express Tickets Widget (Vé Hỏa Tốc cho Creator) -->
+          <div id="header-tickets-chip" onclick="VibeApp.navigate('creator-surveys')" class="hidden h-9 items-center space-x-1 px-2.5 rounded-xl bg-amber-50/90 dark:bg-amber-950/40 hover:bg-amber-100 border border-amber-500/30 text-xs cursor-pointer shadow-xs transition-all active:scale-95 whitespace-nowrap flex-shrink-0" title="Vé Thu Mẫu Hỏa Tốc (Ưu tiên VIP)">
+            <span class="text-amber-500 font-bold text-xs">⚡</span>
+            <span id="header-tickets-text" class="font-extrabold text-amber-900 dark:text-amber-200 font-mono text-xs whitespace-nowrap">0 Vé</span>
           </div>
 
           <!-- Theme Toggle Button (Light/Dark Mode) -->
@@ -334,6 +340,6 @@
   </div>
 
   <!-- Application Script -->
-  <script src="/app.js?v=3.5.9"></script>
+  <script src="/app.js?v=3.5.10"></script>
 </body>
 </html>
