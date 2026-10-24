@@ -1646,8 +1646,9 @@ const VibeApp = {
     const user = this.state.currentUser;
     const curPoints = user ? user.point_balance : 0;
     const curVnd = curPoints * 10;
-    const minPayoutVnd = 100000;
-    const goalPercent = Math.min(100, Math.round((curVnd / minPayoutVnd) * 100));
+    const targetPayoutVnd = curVnd < 10000 ? 10000 : 50000;
+    const targetPayoutLabel = curVnd < 10000 ? '10K Thẻ Cào Đầu Tay' : '50K Rút Tiền Chuẩn';
+    const goalPercent = Math.min(100, Math.round((curVnd / targetPayoutVnd) * 100));
 
     // Lọc & Phân nhóm: Ghim luôn cố định trên đầu, bài thường ở dưới
     const { pinnedSurveys, normalSurveys } = this.processSurveysList(surveys);
@@ -1686,7 +1687,7 @@ const VibeApp = {
                     <span class="w-1.5 h-1.5 rounded-full bg-blue-600 dark:bg-sky-400 animate-pulse"></span>
                     Cổng Khảo Sát Khả Dụng
                   </span>
-                  <span class="text-[11px] text-slate-400 font-medium">Hạn mức rút tối thiểu: 100,000đ</span>
+                  <span class="text-[11px] text-slate-400 font-medium">Hạn mức rút: 10K (Thẻ cào) • 50K (Chuẩn)</span>
                 </div>
                 <h1 class="text-base sm:text-lg font-extrabold text-slate-900 dark:text-white tracking-tight pt-0.5">
                   Chào ${user.name.split(' ').pop()}, bạn đang có <span class="text-blue-600 dark:text-sky-400 font-mono">${curVnd.toLocaleString('vi-VN')}đ</span>
@@ -1697,8 +1698,8 @@ const VibeApp = {
               <!-- Goal Progress Bar -->
               <div class="space-y-1">
                 <div class="flex justify-between text-[11px] font-semibold">
-                  <span class="text-slate-600 dark:text-slate-300">Tiến độ rút tiền mặt (100K):</span>
-                  <span class="text-blue-600 dark:text-sky-400 font-mono font-bold">${goalPercent}% (${curVnd.toLocaleString()}đ / 100,000đ)</span>
+                  <span class="text-slate-600 dark:text-slate-300">Tiến độ đổi thưởng (${targetPayoutLabel}):</span>
+                  <span class="text-blue-600 dark:text-sky-400 font-mono font-bold">${goalPercent}% (${curVnd.toLocaleString('vi-VN')}đ / ${targetPayoutVnd.toLocaleString('vi-VN')}đ)</span>
                 </div>
                 <div class="w-full bg-slate-100 dark:bg-slate-900/90 h-2 rounded-full overflow-hidden p-0.5 border border-slate-200/50 dark:border-slate-800">
                   <div class="bg-gradient-to-r from-blue-600 via-indigo-500 to-emerald-500 h-full rounded-full transition-all duration-500" style="width: ${goalPercent}%"></div>
@@ -2875,6 +2876,14 @@ const VibeApp = {
     const ans = session.answers[curQ.id];
     if (ans === undefined || ans === null || (Array.isArray(ans) && ans.length === 0) || (typeof ans === 'string' && ans.trim() === '')) {
       this.showToast('Vui lòng hoàn thành câu hỏi', 'warning');
+      return;
+    }
+
+    // Chốt chặn bảo vệ người dùng: Nhắc nhở nếu hoàn thành quá nhanh trước khi nộp bài
+    const minSafeDuration = Math.max(5, Math.floor((session.minTimeSec || 15) * 0.7));
+    if (session.durationSec < minSafeDuration) {
+      const waitSec = minSafeDuration - session.durationSec;
+      this.showToast(`Bạn hoàn thành khá nhanh! Vui lòng dành thêm ${waitSec} giây rà soát lại để đảm bảo chất lượng phản hồi nhé.`, 'warning');
       return;
     }
 
@@ -5168,9 +5177,13 @@ const VibeApp = {
     try {
       await this.api(`/admin/payouts/${payoutId}/action`, {
         method: 'POST',
-        body: JSON.stringify({ action, admin_note: isApproved ? 'Đã duyệt qua ngân hàng' : 'Từ chối' })
+        body: JSON.stringify({ 
+          is_approved: Boolean(isApproved),
+          action, 
+          admin_note: isApproved ? 'Đã duyệt qua ngân hàng' : 'Từ chối' 
+        })
       });
-      this.showToast('Xử lý thành công', 'success');
+      this.showToast(isApproved ? 'Đã phê duyệt lệnh rút thưởng!' : 'Đã từ chối lệnh rút thưởng và hoàn điểm', 'success');
       this.navigate('admin-payouts');
     } catch (e) {
       this.showToast(e.message, 'error');

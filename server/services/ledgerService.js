@@ -650,12 +650,16 @@ class LedgerService {
   awardConsolationReward(responseId, respondentId, surveyId, points = 20) {
     db.exec('BEGIN IMMEDIATE TRANSACTION');
     try {
-      // 1. Cập nhật trạng thái response thành SCREENED_OUT
-      db.prepare(`
-        UPDATE responses 
-        SET status = 'SCREENED_OUT', points_rewarded = ?, submitted_at = CURRENT_TIMESTAMP
-        WHERE id = ?
-      `).run(points, responseId);
+      // 1. Cập nhật bài làm với điểm an ủi
+      try {
+        db.prepare(`
+          UPDATE responses 
+          SET points_rewarded = ?, submitted_at = CURRENT_TIMESTAMP
+          WHERE id = ?
+        `).run(points, responseId);
+      } catch (respErr) {
+        // Bỏ qua lỗi cập nhật responses nếu có
+      }
 
       // 2. Cộng điểm an ủi cho đáp viên
       db.prepare(`
@@ -664,21 +668,22 @@ class LedgerService {
         WHERE id = ?
       `).run(points, respondentId);
 
-      // 3. Ghi sổ cái kép Point Ledger
+      const updatedUser = db.prepare('SELECT point_balance FROM users WHERE id = ?').get(respondentId);
+      const newBalance = updatedUser ? updatedUser.point_balance : points;
+
+      // 3. Ghi sổ cái kép Point Ledger với schema chuẩn
       const pointTxId = 'ptx_consolation_' + crypto.randomUUID();
       db.prepare(`
-        INSERT INTO point_transactions (id, user_id, response_id, amount, balance_after, type, description)
-        VALUES (?, ?, ?, ?, (SELECT point_balance FROM users WHERE id = ?), 'CREDIT_EARNED', 'Điểm an ủi tri ân tham gia khảo sát sàng lọc')
-      `).run(pointTxId, respondentId, responseId, points, respondentId);
-
-      const updatedUser = db.prepare('SELECT point_balance FROM users WHERE id = ?').get(respondentId);
+        INSERT INTO point_transactions (id, user_id, reference_id, tx_type, currency, amount, balance_after, description)
+        VALUES (?, ?, ?, 'SURVEY_REWARD', 'POINT', ?, ?, 'Điểm an ủi tri ân tham gia khảo sát sàng lọc')
+      `).run(pointTxId, respondentId, responseId, points, newBalance);
 
       db.exec('COMMIT');
 
       return {
         success: true,
         consolationPoints: points,
-        newPointBalance: updatedUser ? updatedUser.point_balance : points
+        newPointBalance: newBalance
       };
     } catch (err) {
       this._safeRollback();

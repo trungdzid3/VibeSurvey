@@ -84,11 +84,23 @@ class AntiFraudService {
     // Chốt chặn 1: Bẫy Tốc độ (Speed Trap)
     let speedRatio = 1.0;
     if (duration < tMin) {
-      internalReasons.push(`Làm bài quá nhanh (${duration}s so với tối thiểu ${tMin}s - Nghi ngờ bot/spam)`);
-      clientReasons.push(`Thời gian hoàn thành (${duration}s) nhanh bất thường so với thời lượng đọc tối thiểu (${tMin}s)`);
-      speedRatio = Math.max(0.1, duration / (1.2 * tMin));
+      if (duration <= 3 || duration < tMin * 0.3) {
+        // Bot tự động hoặc spam nộp bài thần tốc (< 30% thời gian tối thiểu)
+        internalReasons.push(`Làm bài quá nhanh (${duration}s so với tối thiểu ${tMin}s - Nghi ngờ bot/spam)`);
+        clientReasons.push(`Thời gian hoàn thành (${duration}s) quá ngắn so với thời lượng đọc tối thiểu (${tMin}s)`);
+        speedRatio = Math.max(0.05, duration / (1.2 * tMin));
+      } else if (duration < tMin * 0.7) {
+        // Nộp khá nhanh (30% - 70% tMin): Đưa vào diện kiểm duyệt thủ công, không quy chụp gian lận
+        internalReasons.push(`Làm bài nhanh (${duration}s so với tiêu chuẩn ${tMin}s)`);
+        clientReasons.push(`Bạn hoàn thành bài tương đối nhanh (${duration}s / tối thiểu ${tMin}s)`);
+        speedRatio = Math.max(0.5, (duration / tMin) * 0.85);
+      } else {
+        // Đọc lướt nhanh nhưng hợp lý (70% - 100% tMin): Cho điểm đạt chuẩn
+        speedRatio = Math.min(1.0, 0.8 + (0.2 * (duration / tMin)));
+      }
     } else {
-      speedRatio = Math.min(1.0, duration / (1.2 * tMin));
+      // Đã đạt từ tMin trở lên: Điểm tốc độ tối đa 1.0
+      speedRatio = 1.0;
     }
 
     // Chốt chặn 2: Bẫy Tập trung (Attention Check) - BẢO MẬT: Tuyệt đối không để lộ câu hỏi bẫy cho client!

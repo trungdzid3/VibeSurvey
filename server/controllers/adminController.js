@@ -121,22 +121,33 @@ class AdminController {
   handlePayout(req, res) {
     try {
       const { id } = req.params;
-      const { is_approved, admin_note } = req.body;
+      const { is_approved, action, admin_note } = req.body;
 
       if (!id || typeof id !== 'string') {
         return res.status(400).json({ success: false, message: 'Mã yêu cầu thanh toán không hợp lệ' });
       }
 
-      if (typeof is_approved !== 'boolean') {
-        return res.status(400).json({ success: false, message: 'Tham số is_approved phải là true hoặc false' });
+      let approved = null;
+      if (typeof is_approved === 'boolean') {
+        approved = is_approved;
+      } else if (typeof is_approved === 'string') {
+        approved = is_approved === 'true' || is_approved === '1';
+      } else if (action === 'APPROVE') {
+        approved = true;
+      } else if (action === 'REJECT') {
+        approved = false;
       }
 
-      const safeAdminNote = String(admin_note || (is_approved ? 'Đã duyệt chi trả' : 'Từ chối')).trim().substring(0, 500);
-      const result = ledgerService.processPayout(id, is_approved, safeAdminNote);
+      if (approved === null) {
+        return res.status(400).json({ success: false, message: 'Tham số is_approved phải là true/false hoặc action là APPROVE/REJECT' });
+      }
+
+      const safeAdminNote = String(admin_note || (approved ? 'Đã duyệt chi trả' : 'Từ chối')).trim().substring(0, 500);
+      const result = ledgerService.processPayout(id, approved, safeAdminNote);
 
       return res.json({
         success: true,
-        message: is_approved ? 'Đã phê duyệt lệnh rút thưởng thành công' : 'Đã từ chối lệnh rút thưởng và hoàn lại điểm cho người dùng',
+        message: approved ? 'Đã phê duyệt lệnh rút thưởng thành công' : 'Đã từ chối lệnh rút thưởng và hoàn lại điểm cho người dùng',
         status: result.status
       });
     } catch (err) {

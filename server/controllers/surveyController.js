@@ -1252,17 +1252,15 @@ class SurveyController {
         const responseId = crypto.randomUUID();
         db.prepare(`
           INSERT INTO responses (id, survey_id, respondent_id, status, started_at, submitted_at)
-          VALUES (?, ?, ?, 'SCREENED_OUT', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+          VALUES (?, ?, ?, 'FLAGGED_MANUAL', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
         `).run(responseId, id, user.id);
         response = { id: responseId };
       } else if (response.status === 'VALIDATED') {
         return res.status(400).json({ success: false, message: 'Bạn đã hoàn thành khảo sát này rồi' });
-      } else if (response.status === 'SCREENED_OUT') {
-        return res.status(400).json({ success: false, message: 'Bạn đã được ghi nhận kết thúc sớm khảo sát này' });
       } else {
-        // Cập nhật status thành SCREENED_OUT
+        // Cập nhật status thành FLAGGED_MANUAL (hợp lệ trong CHECK constraint)
         db.prepare(`
-          UPDATE responses SET status = 'SCREENED_OUT', submitted_at = CURRENT_TIMESTAMP WHERE id = ?
+          UPDATE responses SET status = 'FLAGGED_MANUAL', submitted_at = CURRENT_TIMESTAMP WHERE id = ?
         `).run(response.id);
       }
 
