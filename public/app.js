@@ -1532,7 +1532,9 @@ const VibeApp = {
         { id: 'admin-overview', label: 'Tổng Quan', icon: 'pie-chart' },
         { id: 'admin-payouts', label: 'Duyệt Tiền', icon: 'check-circle' },
         { id: 'admin-fraud', label: 'Gian Lận', icon: 'shield-alert' },
-        { id: 'surveys', label: 'Khảo Sát', icon: 'layers' }
+        { id: 'surveys', label: 'Khảo Sát', icon: 'compass' },
+        { id: 'create-survey', label: 'Tạo Khảo Sát', icon: 'plus-circle' },
+        { id: 'creator-surveys', label: 'Khảo Sát Của Tôi', icon: 'folder-kanban' }
       ];
     } else {
       tabs = [
@@ -1759,54 +1761,85 @@ const VibeApp = {
     root.innerHTML = `
       <div class="space-y-4 sm:space-y-4.5">
         
-        <!-- ==================== MINIMALIST EDITORIAL HEADER ==================== -->
-        <div class="py-1 space-y-3">
+        <!-- ==================== USER WELCOME BANNER CARD ==================== -->
+        <div class="mb-2">
           ${user ? `
-            <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-3 pb-3 border-b border-stone-200 dark:border-stone-800">
-              <div class="space-y-1">
-                <h1 class="text-base sm:text-lg font-black text-slate-900 dark:text-white tracking-tight">
-                  Chào ${user.name.split(' ').pop()}, bạn đang có <span class="text-orange-600 font-mono">${curVnd.toLocaleString('vi-VN')}đ</span>
-                </h1>
-                <p class="text-xs text-stone-500 dark:text-stone-400">
-                  Làm khảo sát để tích lũy điểm thưởng quy đổi thẻ cào hoặc rút tiền mặt về tài khoản ngân hàng.
-                </p>
-                <div class="pt-1.5 flex items-center gap-3 text-xs">
-                  <div class="flex items-center gap-2">
-                    <span class="text-stone-500 dark:text-stone-400 text-[11px]">Tiến độ đổi thưởng (${targetPayoutLabel}):</span>
-                    <span class="font-mono font-bold text-orange-600 text-[11px]">${goalPercent}%</span>
+            <div class="bg-white dark:bg-[#18181B] rounded-2xl border border-stone-200 dark:border-stone-800 p-5 sm:p-6 shadow-xs hover:shadow-md transition-all">
+              <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-5">
+                
+                <!-- Left: User Balance & Progress Information -->
+                <div class="space-y-3 flex-1 min-w-0">
+                  <div class="flex flex-wrap items-center gap-2.5">
+                    <h1 class="text-lg sm:text-xl font-black text-slate-900 dark:text-white tracking-tight">
+                      Chào ${user.name.split(' ').pop()}, bạn đang có <span class="text-orange-600 dark:text-orange-500 font-mono font-black">${curVnd.toLocaleString('vi-VN')}đ</span>
+                    </h1>
+                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-orange-50 dark:bg-orange-950/60 text-orange-600 dark:text-orange-400 border border-orange-200/80 dark:border-orange-800/80">
+                      <i data-lucide="coins" class="w-3 h-3 stroke-[2.5]"></i>
+                      <span>${curPoints.toLocaleString('vi-VN')} Điểm</span>
+                    </span>
                   </div>
-                  <div class="w-32 bg-stone-100 dark:bg-stone-800 h-1.5 rounded-full overflow-hidden">
-                    <div class="bg-orange-600 h-full rounded-full transition-all duration-300" style="width: ${goalPercent}%"></div>
+
+                  <p class="text-xs sm:text-sm text-stone-600 dark:text-stone-300 font-normal leading-relaxed">
+                    Làm khảo sát để tích lũy điểm thưởng quy đổi thẻ cào hoặc rút tiền mặt về tài khoản ngân hàng.
+                  </p>
+
+                  <!-- Progress Track -->
+                  <div class="pt-1 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-xs">
+                    <div class="flex items-center gap-2 shrink-0">
+                      <span class="text-stone-500 dark:text-stone-400 font-medium text-xs">Tiến độ đổi thưởng (${targetPayoutLabel}):</span>
+                      <span class="font-mono font-black text-orange-600 dark:text-orange-500 text-xs">${goalPercent}%</span>
+                    </div>
+                    
+                    <div class="flex-1 max-w-xs bg-stone-100 dark:bg-stone-800 h-2 rounded-full overflow-hidden">
+                      <div class="bg-orange-600 h-full rounded-full transition-all duration-500" style="width: ${goalPercent}%"></div>
+                    </div>
+
+                    ${curVnd >= targetPayoutVnd ? `
+                      <span class="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-bold text-[11px]">
+                        <i data-lucide="check-circle" class="w-3.5 h-3.5"></i>
+                        <span>Đủ điều kiện rút ngay</span>
+                      </span>
+                    ` : `
+                      <span class="text-stone-400 dark:text-stone-500 text-[11px] font-medium">
+                        Cần thêm ${(targetPayoutVnd - curVnd).toLocaleString('vi-VN')}đ
+                      </span>
+                    `}
                   </div>
                 </div>
-              </div>
 
-              <div class="flex items-center gap-2 shrink-0">
-                <button onclick="VibeApp.navigate('wallet')" class="h-8 px-3 rounded-lg border border-stone-200 dark:border-stone-700 hover:bg-stone-100 dark:hover:bg-stone-800 text-xs font-semibold text-stone-800 dark:text-stone-200 transition-colors">
-                  Ví & Rút tiền
-                </button>
-                <button onclick="VibeApp.navigate('voucher-market')" class="h-8 px-3 rounded-lg bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold transition-colors">
-                  Chợ Voucher
-                </button>
+                <!-- Right: Action Buttons -->
+                <div class="flex items-center gap-2.5 shrink-0 self-start lg:self-center pt-2 lg:pt-0">
+                  <button onclick="VibeApp.navigate('wallet')" class="h-9.5 px-4 rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 hover:bg-stone-100 dark:hover:bg-stone-700 text-stone-800 dark:text-stone-200 text-xs font-bold transition-all shadow-2xs flex items-center gap-2 active:scale-95">
+                    <i data-lucide="wallet" class="w-4 h-4 text-stone-600 dark:text-stone-300"></i>
+                    <span>Ví & Rút tiền</span>
+                  </button>
+                  <button onclick="VibeApp.navigate('voucher-market')" class="h-9.5 px-4 rounded-xl bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold transition-all shadow-sm flex items-center gap-2 active:scale-95">
+                    <i data-lucide="gift" class="w-4 h-4"></i>
+                    <span>Chợ Voucher</span>
+                  </button>
+                </div>
+
               </div>
             </div>
           ` : `
-            <div class="pb-3 border-b border-stone-200 dark:border-stone-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <div class="space-y-0.5">
-                <h1 class="text-base sm:text-lg font-black text-slate-900 dark:text-white tracking-tight">
-                  Khám Phá Các Bài Khảo Sát & Đổi Thưởng
-                </h1>
-                <p class="text-xs text-stone-500 dark:text-stone-400">
-                  Xem trước nội dung câu hỏi bên dưới. Đăng ký tài khoản miễn phí để làm bài nhận thưởng.
-                </p>
-              </div>
-              <div class="flex items-center gap-2 shrink-0">
-                <button onclick="VibeApp.openAuthModal('login')" class="h-8 px-3 rounded-lg border border-stone-200 dark:border-stone-700 hover:bg-stone-100 dark:hover:bg-stone-800 text-xs font-semibold text-stone-800 dark:text-stone-200">
-                  Đăng Nhập
-                </button>
-                <button onclick="VibeApp.openAuthModal('register')" class="h-8 px-3.5 rounded-lg bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold">
-                  Đăng Ký Nhận 25 Lượt Free
-                </button>
+            <div class="bg-white dark:bg-[#18181B] rounded-2xl border border-stone-200 dark:border-stone-800 p-5 sm:p-6 shadow-xs hover:shadow-md transition-all">
+              <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-5">
+                <div class="space-y-1.5 flex-1">
+                  <h1 class="text-lg sm:text-xl font-black text-slate-900 dark:text-white tracking-tight">
+                    Khám Phá Các Bài Khảo Sát & Đổi Thưởng
+                  </h1>
+                  <p class="text-xs sm:text-sm text-stone-600 dark:text-stone-300 font-normal leading-relaxed">
+                    Xem trước nội dung câu hỏi bên dưới. Đăng ký tài khoản miễn phí để làm bài nhận điểm thưởng hoặc nạp tạo khảo sát mới.
+                  </p>
+                </div>
+                <div class="flex items-center gap-2.5 shrink-0">
+                  <button onclick="VibeApp.openAuthModal('login')" class="h-9.5 px-4 rounded-xl border border-stone-300 dark:border-stone-700 hover:bg-stone-100 dark:hover:bg-stone-800 text-xs font-bold text-stone-800 dark:text-stone-200 transition-all">
+                    Đăng Nhập
+                  </button>
+                  <button onclick="VibeApp.openAuthModal('register')" class="h-9.5 px-4.5 rounded-xl bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold transition-all shadow-sm active:scale-95">
+                    Đăng Ký Nhận 25 Lượt Free
+                  </button>
+                </div>
               </div>
             </div>
           `}
