@@ -5,6 +5,7 @@ Dự án: Nền tảng Khảo sát Trực tuyến Kiếm Điểm & Kiếm Lợi 
 ## 1. Ngôn ngữ & Giao tiếp
 - Luôn phản hồi, giải thích và viết tài liệu bằng **tiếng Việt**.
 - Giữ câu trả lời ngắn gọn, trực diện, không dài dòng lý thuyết.
+- **TUYỆT ĐỐI KHÔNG SỬ DỤNG EMOJI, ICON STICKER MÀU SẮC**: Không chèn bất kỳ icon/emoji màu sắc nào trong câu trả lời, tài liệu, giao diện và mã nguồn. Sử dụng văn bản thuần túy, định dạng markdown chuẩn mực, gạch đầu dòng tối giản.
 
 ## 2. Ràng buộc bất biến
 - Không tự ý xóa file, thư mục, dữ liệu.
