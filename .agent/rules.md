@@ -21,3 +21,11 @@ Dự án: Nền tảng Khảo sát Trực tuyến Kiếm Điểm & Kiếm Lợi 
 ## 4. Bảo toàn tiến trình
 - Cập nhật liên tục `PROJECT_CONTEXT.md` sau mỗi tác vụ.
 - Bảo toàn tệp cấu hình workspace `*.code-workspace`.
+
+## 5. Quy chuẩn Thiết kế Giao diện (DESIGN.md SSOT)
+- Bắt buộc tuân thủ 100% tệp `DESIGN.md` tại gốc dự án làm nguồn chân lý duy nhất (SSOT) cho UI/UX.
+- Bảng màu cố định 3 màu cốt lõi: Cam (`#EA580C` / `#F97316`), Trắng (`#FFFFFF` / `#FAFAFA`), Đen Obsidian (`#09090B` / `#18181B`). Cấm tuyệt đối pha màu lạ (xanh ngọc, hổ phách, tím indigo, xanh neon).
+- Font chữ Montserrat 4 phân cấp bắt buộc: h1 Black (900), h2-h4 ExtraBold (800), body Regular (400), caption ExtraLightItalic (200), số liệu Monospace.
+- Icon vector Lucide mảnh, cấm triệt để chèn emoji/sticker rác vào giao diện.
+- Ràng buộc phân quyền: Doanh nghiệp (Creator) tuyệt đối không được điền khảo sát (chỉ Xem trước).
+- Phân trang 8 bài/trang, ẩn điểm và vé vào dropdown tài khoản.
