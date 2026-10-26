@@ -158,6 +158,11 @@ ode -c public/app.js đạt 100% PASS không lỗi. |
 - **Bảo Vệ Hoàn Tiền Khi Hủy Form Sớm (`EscrowRefund`)**: Luôn sử dụng `Math.min(escrow_locked_balance, Math.max(0, TotalEscrow - (collected * effective_cost)))` để bảo vệ trần số dư ký quỹ thực tế, tuyệt đối không tính theo giá niêm yết khi bài có sử dụng lượt điền form miễn phí nhằm ngăn chặn triệt để lỗ hổng "in tiền".
 - **Ánh Xạ Câu Hỏi Lưới (Grid Questions) Từ Google Forms**: Khi bóc tách `item[3] === 7` từ Google Forms, danh sách hàng (`rows`) nằm trong `item[4].map(r => r[3][0])` và danh sách cột (`columns`) nằm trong `item[4][0][1].map(c => c[0])`. Bắt buộc phân giải đúng hai mảng này sang `CHOICE_GRID` (hoặc `CHECKBOX_GRID` nếu checkbox) và trích xuất cờ `is_required` từ `item[4][0][2] === 1`.
 
+- **Phân Cấp Quyền Tab Hồ Sơ & Bảo Toàn Dữ Liệu Sạch**:
+  + Giao diện Header: Đã gỡ bỏ nút tạo khảo sát màu cam #header-create-btn ở góc phải do đã có tab điều hướng Tạo Khảo Sát ở thanh menu trung tâm.
+  + Trang Hồ Sơ (renderProfileView): Tài khoản thường chỉ hiển thị 2 tab: 1. Thông Tin Cá Nhân và 2. Đăng Ký Gói Sinh Viên (ẩn hoàn toàn Tab 3 Hồ Sơ Doanh Nghiệp). Tài khoản Doanh nghiệp hiển thị: 1. Thông Tin Người Đại Diện và 2. Hồ Sơ Doanh Nghiệp (ẩn Tab Sinh Viên).
+  + Cơ sở dữ liệu: Đã làm sạch toàn bộ các khảo sát test ảo phát sinh từ npm test, bảo tồn duy nhất 01 form thật Hay dùng sàn TMDT nào nhất (0265c6cc-6407-4ea8-ab56-1d5e6e7a3ede). Bộ kiểm thử tests/run_all_tests.js đã được tích hợp hook tự động dọn dẹp sạch sẽ test artifacts sau mỗi chu kỳ kiểm thử.
+
 ## 5. Hướng Dẫn Chuyển Giao Cho Phiên Tiếp Theo
 - Đọc `PROJECT_CONTEXT.md` để nắm trạng thái hiện tại.
 - Chạy `npm test` để kiểm tra độ tin cậy của mã nguồn trước khi thêm tính năng mới.

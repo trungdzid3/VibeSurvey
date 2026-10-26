@@ -120,6 +120,35 @@ function runScript(scriptPath) {
   });
 }
 
+function cleanupTestArtifacts() {
+  try {
+    const db = require('../server/db/database');
+    const preservedIds = ['0265c6cc-6407-4ea8-ab56-1d5e6e7a3ede'];
+    const testSurveys = db.prepare(`
+      SELECT id FROM surveys WHERE id NOT IN (${preservedIds.map(() => '?').join(',')})
+    `).all(...preservedIds);
+
+    if (testSurveys.length > 0) {
+      console.log(`\n[AUTONOMOUS CLEANUP] Phat hien ${testSurveys.length} form test. Dang tu dong don dep...`);
+      const testIds = testSurveys.map(s => s.id);
+      const placeholders = testIds.map(() => '?').join(',');
+
+      db.exec('PRAGMA foreign_keys = OFF;');
+      db.prepare(`DELETE FROM voucher_codes WHERE survey_id IN (${placeholders}) OR response_id IN (SELECT id FROM responses WHERE survey_id IN (${placeholders}))`).run(...testIds, ...testIds);
+      db.prepare(`DELETE FROM warranty_claims WHERE survey_id IN (${placeholders})`).run(...testIds);
+      db.prepare(`DELETE FROM responses WHERE survey_id IN (${placeholders})`).run(...testIds);
+      db.prepare(`DELETE FROM questions WHERE survey_id IN (${placeholders})`).run(...testIds);
+      db.prepare(`DELETE FROM surveys WHERE id IN (${placeholders})`).run(...testIds);
+      db.exec('PRAGMA foreign_keys = ON;');
+      console.log(`[AUTONOMOUS CLEANUP] Da don dep sach se ${testSurveys.length} form test khoi co so du lieu.`);
+    } else {
+      console.log('\n[AUTONOMOUS CLEANUP] Co so du lieu sach se, khong co form test ton dong.');
+    }
+  } catch (err) {
+    console.error('[AUTONOMOUS CLEANUP] Loi khi don dep test artifacts:', err.message);
+  }
+}
+
 async function runAll() {
   const overallStart = Date.now();
   const summary = [];
@@ -173,6 +202,8 @@ async function runAll() {
   console.log('╚══════╩═════════════════════════════════════════════╩═════════╩════════╝');
   console.log(`\n⏱️ Tổng thời gian thực thi: ${overallDuration} giây`);
   console.log(`🎯 Tỷ lệ thành công: ${totalPassed}/${totalSuites} Suites (${((totalPassed / totalSuites) * 100).toFixed(1)}%)`);
+
+  cleanupTestArtifacts();
 
   if (isAllPassed) {
     console.log('\n🏆 [KẾT QUẢ]: TẤT CẢ CÁC TẦNG KIỂM THỬ ĐÃ VƯỢT QUA 100% (100% PASS)');

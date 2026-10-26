@@ -57,3 +57,9 @@ Tài liệu tham chiếu duy nhất: [KE_HOACH_TONG_THE.md](file:///c:/Users/Len
   - [ ] Khởi tạo VM Ampere A1 (2 OCPU / 6GB, Ubuntu LTS, SSH key-only), cài Node.js 24 ARM64, `npm ci` rebuild module native (bcrypt), chạy server bằng pm2 + `cloudflared`.
   - [ ] Cập nhật Google OAuth redirect URIs, `APP_URL`, Capacitor Android; reset dữ liệu test (không cần bảo toàn số dư — dự án chưa công khai); ngừng commit `vibesurvey.db` lên git.
   - [ ] Thiết lập crontab theo Phần V: auto-close hết hạn + hoàn tiền escrow, hạ ghim sau 7 ngày, làm mới 30 lượt free ngày 01; backup SQLite hằng ngày lên Object Storage; gia cố `unattended-upgrades` + `fail2ban`; giữ Render song song 1–2 tuần làm fallback.
+
+## Tinh Chinh Giao Dien & Bao Toan Du Lieu Thuc Te (Hoan Thanh)
+- [x] Go bo nut tao khao sat mau cam (#header-create-btn) o goc phai Header de tranh trung lap voi menu chinh.
+- [x] Phan quyen hien thi Tab Ho So: Tai khoan thuong co 2 tab (1. Thong Tin Ca Nhan, 2. Dang Ky Goi Sinh Vien); an hoan toan Tab Ho So Doanh Nghiep. Tai khoan Doanh nghiep co 2 tab (1. Thong Tin Nguoi Dai Dien, 2. Ho So Doanh Nghiep); an Tab Sinh Vien.
+- [x] Dieu tra va don dep sach se toan bo 26 form test ao do kiem thu sinh ra, bao ton nguyen ven duy nhat form that cua nguoi dung.
+- [x] Tich hop hook tu dong don dep test artifacts vao tests/run_all_tests.js de database luon sach se.

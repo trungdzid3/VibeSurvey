@@ -7463,7 +7463,10 @@ const VibeApp = {
     } catch (e) {}
 
     const user = this.state.currentUser;
+    const isEnterprise = user.account_tier === 'ENTERPRISE';
     if (!this.state.profileTab) this.state.profileTab = 'DEMOGRAPHICS';
+    if (isEnterprise && this.state.profileTab === 'STUDENT') this.state.profileTab = 'DEMOGRAPHICS';
+    if (!isEnterprise && this.state.profileTab === 'ENTERPRISE') this.state.profileTab = 'DEMOGRAPHICS';
 
     let demographics = {};
     if (user.demographics_json) {
@@ -7510,25 +7513,28 @@ const VibeApp = {
           </div>
         </div>
 
-        <!-- 3 Tabs Điều Hướng Hồ Sơ -->
+        <!-- Tabs Điều Hướng Hồ Sơ Phân Cấp Theo Hạng Tài Khoản -->
         <div class="flex border-b border-stone-200 dark:border-stone-800 text-xs font-bold gap-6 select-none">
           <button type="button" onclick="VibeApp.switchProfileTab('DEMOGRAPHICS')" 
                   class="pb-3 border-b-2 transition-all flex items-center gap-1.5 ${this.state.profileTab === 'DEMOGRAPHICS' ? 'border-orange-600 text-orange-600 dark:text-orange-400' : 'border-transparent text-stone-500 hover:text-stone-900 dark:hover:text-stone-200'}">
             <i data-lucide="user" class="w-4 h-4"></i>
-            <span>1. Thông Tin Cá Nhân</span>
+            <span>${isEnterprise ? '1. Thông Tin Người Đại Diện' : '1. Thông Tin Cá Nhân'}</span>
           </button>
+          ${!isEnterprise ? `
           <button type="button" onclick="VibeApp.switchProfileTab('STUDENT')" 
                   class="pb-3 border-b-2 transition-all flex items-center gap-1.5 ${this.state.profileTab === 'STUDENT' ? 'border-orange-600 text-orange-600 dark:text-orange-400' : 'border-transparent text-stone-500 hover:text-stone-900 dark:hover:text-stone-200'}">
             <i data-lucide="graduation-cap" class="w-4 h-4"></i>
-            <span>2. Xác Thực Sinh Viên (.edu.vn)</span>
+            <span>2. Đăng Ký Gói Sinh Viên</span>
             ${isStudentVerified ? '<span class="w-2 h-2 rounded-full bg-emerald-500"></span>' : ''}
           </button>
+          ` : `
           <button type="button" onclick="VibeApp.switchProfileTab('ENTERPRISE')" 
                   class="pb-3 border-b-2 transition-all flex items-center gap-1.5 ${this.state.profileTab === 'ENTERPRISE' ? 'border-orange-600 text-orange-600 dark:text-orange-400' : 'border-transparent text-stone-500 hover:text-stone-900 dark:hover:text-stone-200'}">
             <i data-lucide="briefcase" class="w-4 h-4"></i>
-            <span>3. Hồ Sơ Doanh Nghiệp</span>
+            <span>2. Hồ Sơ Doanh Nghiệp</span>
             ${isEnterpriseLevel1 || isEnterpriseLevel2 ? '<span class="w-2 h-2 rounded-full bg-emerald-500"></span>' : ''}
           </button>
+          `}
         </div>
 
         <!-- TAB CONTENT 1: DEMOGRAPHICS -->
@@ -7627,8 +7633,8 @@ const VibeApp = {
 
         </div>
 
-        <!-- TAB CONTENT 2: STUDENT VERIFICATION (.EDU.VN) -->
-        <div id="profile-tab-STUDENT" class="${this.state.profileTab === 'STUDENT' ? '' : 'hidden'} space-y-5">
+        <!-- TAB CONTENT 2: STUDENT REGISTRATION (.EDU.VN) -->
+        <div id="profile-tab-STUDENT" class="${this.state.profileTab === 'STUDENT' && !isEnterprise ? '' : 'hidden'} space-y-5">
           
           <div class="bg-white dark:bg-[#18181B] border border-stone-200 dark:border-stone-800 rounded-2xl p-6 shadow-sm space-y-5">
             
@@ -7638,7 +7644,7 @@ const VibeApp = {
                   <i data-lucide="graduation-cap" class="w-5 h-5"></i>
                 </div>
                 <div>
-                  <h3 class="text-sm font-extrabold text-slate-900 dark:text-white">Xác Thực Sinh Viên (.edu.vn / .ac.vn)</h3>
+                  <h3 class="text-sm font-extrabold text-slate-900 dark:text-white">Đăng Ký Gói Sinh Viên (.edu.vn / .ac.vn)</h3>
                   <p class="text-xs text-stone-500">Mở khóa giá sàn sinh viên 400đ-600đ/mẫu và nhận 30 lượt mẫu miễn phí / tháng.</p>
                 </div>
               </div>
@@ -7718,7 +7724,7 @@ const VibeApp = {
         </div>
 
         <!-- TAB CONTENT 3: ENTERPRISE PROFILE (2 LEVELS) -->
-        <div id="profile-tab-ENTERPRISE" class="${this.state.profileTab === 'ENTERPRISE' ? '' : 'hidden'} space-y-5">
+        <div id="profile-tab-ENTERPRISE" class="${this.state.profileTab === 'ENTERPRISE' && isEnterprise ? '' : 'hidden'} space-y-5">
           
           <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
             
@@ -7812,6 +7818,9 @@ const VibeApp = {
 
   switchProfileTab(tabName) {
     this.haptic('light');
+    const isEnterprise = this.state.currentUser?.account_tier === 'ENTERPRISE';
+    if (!isEnterprise && tabName === 'ENTERPRISE') tabName = 'DEMOGRAPHICS';
+    if (isEnterprise && tabName === 'STUDENT') tabName = 'DEMOGRAPHICS';
     this.state.profileTab = tabName;
     ['DEMOGRAPHICS', 'STUDENT', 'ENTERPRISE'].forEach(t => {
       const el = document.getElementById(`profile-tab-${t}`);
