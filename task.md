@@ -63,3 +63,16 @@ Tài liệu tham chiếu duy nhất: [KE_HOACH_TONG_THE.md](file:///c:/Users/Len
 - [x] Phan quyen hien thi Tab Ho So: Tai khoan thuong co 2 tab (1. Thong Tin Ca Nhan, 2. Dang Ky Goi Sinh Vien); an hoan toan Tab Ho So Doanh Nghiep. Tai khoan Doanh nghiep co 2 tab (1. Thong Tin Nguoi Dai Dien, 2. Ho So Doanh Nghiep); an Tab Sinh Vien.
 - [x] Dieu tra va don dep sach se toan bo 26 form test ao do kiem thu sinh ra, bao ton nguyen ven duy nhat form that cua nguoi dung.
 - [x] Tich hop hook tu dong don dep test artifacts vao tests/run_all_tests.js de database luon sach se.
+
+## Đợt Nâng Cấp Giao Diện, Sửa Lỗi Nghiệp Vụ & Bộ Dữ Liệu Giáo Dục Mới
+- [x] Sửa lỗi không điền được form: Bổ sung định nghĩa hàm `selectSingleOption` và `toggleMultipleOption` trong public/app.js.
+- [x] Sửa nút toggle "Bắt buộc" trong Studio câu hỏi: Bổ sung event.stopPropagation(), id/for liên kết và ép kiểu boolean `!!isRequired`.
+- [x] Tinh chỉnh thanh công cụ chế độ tạo khảo sát: Chuyển sang bố cục flex-wrap thoáng đãng, chống chèn ép trên màn hình hẹp.
+- [x] Cập nhật chuẩn xác danh sách 34 tỉnh thành mới vào toàn bộ hệ thống (Profile nhân khẩu học, Bộ lọc khảo sát).
+- [x] Chuẩn hóa toàn bộ Dropdown trong mục Thông Tin Cá Nhân (Profile Tab 1) thành Custom Dropdown chuẩn của VibeSurvey.
+- [x] Bổ sung đủ danh sách các trường Đại học / Học viện / Cao đẳng từ tài liệu người dùng cung cấp vào dropdown trường học.
+- [x] Khắc phục triệt để lỗi dropdown trường học không đóng được khi click ra ngoài (Click outside to close).
+- [x] Chỉnh sửa gợi ý email sinh viên chính xác theo tài liệu (HUST là @sis.hust.edu.vn, NEU là @st.neu.edu.vn,...).
+- [x] Bổ sung cơ chế Cooldown đếm ngược 60s và khóa/ẩn nút "Gửi Mã OTP" sinh viên khi người dùng ấn quá nhiều lần liên tiếp.
+- [x] Chuẩn hóa các Dropdown trong Modal Rút Tiền / Đổi Thưởng thành Custom Dropdown tiêu chuẩn.
+- [x] Đảm bảo Cổng Khảo Sát luôn fetch mới dữ liệu từ server, loại bỏ triệt để tình trạng cache 25 form cũ trên client.

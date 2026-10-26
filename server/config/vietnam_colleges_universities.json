@@ -1,0 +1,2709 @@
+[
+  {
+    "name": "Đại học Quốc gia Hà Nội",
+    "shortName": "VNU",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@vnu.edu.vn"
+    ],
+    "example": "[MSSV]@vnu.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Công nghệ – ĐHQGHN",
+    "shortName": "VNU-UET",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@vnu.edu.vn",
+      "@uet.vnu.edu.vn"
+    ],
+    "example": "[MSSV]@vnu.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Khoa học Tự nhiên – ĐHQGHN",
+    "shortName": "VNU-HUS",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@hus.edu.vn",
+      "@vnu.edu.vn"
+    ],
+    "example": "_[khóa]@hus.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Khoa học Xã hội và Nhân văn – ĐHQGHN",
+    "shortName": "VNU-USSH",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@sv.ussh.edu.vn",
+      "@vnu.edu.vn"
+    ],
+    "example": "[MSSV]@sv.ussh.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Ngoại ngữ – ĐHQGHN",
+    "shortName": "VNU-ULIS",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@vnu.edu.vn"
+    ],
+    "example": "[MSSV]@vnu.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Kinh tế – ĐHQGHN",
+    "shortName": "VNU-UEB",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@vnu.edu.vn",
+      "@ueb.edu.vn"
+    ],
+    "example": "[MSSV]@vnu.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Giáo dục – ĐHQGHN",
+    "shortName": "VNU-UEd",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@vnu.edu.vn",
+      "@education.vnu.edu.vn"
+    ],
+    "example": "[MSSV]@vnu.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Y Dược – ĐHQGHN",
+    "shortName": "VNU-UMP",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@vnu.edu.vn",
+      "@ump.vnu.edu.vn"
+    ],
+    "example": "[MSSV]@vnu.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Việt Nhật – ĐHQGHN",
+    "shortName": "VNU-VJU",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@st.vju.ac.vn",
+      "@vnu.edu.vn"
+    ],
+    "example": "[MSSV]@st.vju.ac.vn"
+  },
+  {
+    "name": "Trường Đại học Luật – ĐHQGHN",
+    "shortName": "VNU-UL",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@vnu.edu.vn",
+      "@law.vnu.edu.vn"
+    ],
+    "example": "[MSSV]@vnu.edu.vn"
+  },
+  {
+    "name": "Trường Quản trị và Kinh doanh – ĐHQGHN",
+    "shortName": "VNU-HSB",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@hsb.edu.vn",
+      "@vnu.edu.vn"
+    ],
+    "example": "[tên_định_danh]@hsb.edu.vn"
+  },
+  {
+    "name": "Trường Quốc tế – ĐHQGHN",
+    "shortName": "VNU-IS",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@isvnu.vn",
+      "@vnu.edu.vn"
+    ],
+    "example": "[MSSV]@isvnu.vn"
+  },
+  {
+    "name": "Trường Khoa học liên ngành và Nghệ thuật – ĐHQGHN",
+    "shortName": "VNU-SIS",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@vnu.edu.vn"
+    ],
+    "example": "[MSSV]@vnu.edu.vn"
+  },
+  {
+    "name": "Đại học Quốc gia TP. Hồ Chí Minh",
+    "shortName": "VNUHCM",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@vnuhcm.edu.vn"
+    ],
+    "example": "[MSSV]@vnuhcm.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Bách khoa – ĐHQG-HCM",
+    "shortName": "HCMUT",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@hcmut.edu.vn"
+    ],
+    "example": ".[họ_đệm_hoặc_MSSV]@hcmut.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Khoa học Tự nhiên – ĐHQG-HCM",
+    "shortName": "HCMUS",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@student.hcmus.edu.vn"
+    ],
+    "example": "[MSSV + 2 số cuối CCCD]@student.hcmus.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Công nghệ Thông tin – ĐHQG-HCM",
+    "shortName": "VNUHCM-UIT",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@gm.uit.edu.vn",
+      "@ms.uit.edu.vn"
+    ],
+    "example": "[MSSV]@gm.uit.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Khoa học Xã hội và Nhân văn – ĐHQG-HCM",
+    "shortName": "VNUHCM-USSH",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@hcmussh.edu.vn"
+    ],
+    "example": "[MSSV]@hcmussh.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Kinh tế – Luật – ĐHQG-HCM",
+    "shortName": "VNUHCM-UEL",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@st.uel.edu.vn"
+    ],
+    "example": "[MSSV]@st.uel.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Quốc tế – ĐHQG-HCM",
+    "shortName": "VNUHCM-IU",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@student.hcmiu.edu.vn"
+    ],
+    "example": "[MSSV]@student.hcmiu.edu.vn"
+  },
+  {
+    "name": "Trường Đại học An Giang – ĐHQG-HCM",
+    "shortName": "VNUHCM-AGU",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@student.agu.edu.vn"
+    ],
+    "example": "[tên_định_danh_hoặc_MSSV]@student.agu.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Khoa học Sức khỏe – ĐHQG-HCM",
+    "shortName": "VNUHCM-UHS",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@uhsvnu.edu.vn",
+      "@medvnu.edu.vn"
+    ],
+    "example": "[MSSV]@uhsvnu.edu.vn"
+  },
+  {
+    "name": "Đại học Bách khoa Hà Nội",
+    "shortName": "HUST",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@sis.hust.edu.vn"
+    ],
+    "example": "khoa.tb171234@sis.hust.edu.vn"
+  },
+  {
+    "name": "Đại học Kinh tế Quốc dân",
+    "shortName": "NEU",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@st.neu.edu.vn",
+      "@neu.edu.vn"
+    ],
+    "example": "11192754@st.neu.edu.vn"
+  },
+  {
+    "name": "Đại học Kinh tế TP. Hồ Chí Minh",
+    "shortName": "UEH",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@st.ueh.edu.vn",
+      "@student.isb.edu.vn"
+    ],
+    "example": "31151020078@student.isb.edu.vn"
+  },
+  {
+    "name": "Đại học Công nghiệp Hà Nội",
+    "shortName": "HaUI (DCH)",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@st.haui.edu.vn",
+      "@haui.edu.vn"
+    ],
+    "example": "[MSSV]@st.haui.edu.vn"
+  },
+  {
+    "name": "Đại học Đà Nẵng",
+    "shortName": "UDN",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@udn.vn"
+    ],
+    "example": "[MSSV]@udn.vn"
+  },
+  {
+    "name": "Trường Đại học Bách khoa – ĐH Đà Nẵng",
+    "shortName": "DUT",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@sv.dut.udn.vn",
+      "@dut.udn.vn"
+    ],
+    "example": "[MSSV]@sv.dut.udn.vn"
+  },
+  {
+    "name": "Trường Đại học Kinh tế – ĐH Đà Nẵng",
+    "shortName": "DUE",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@due.udn.vn",
+      "@due.edu.vn"
+    ],
+    "example": "[MSSV]@due.udn.vn"
+  },
+  {
+    "name": "Trường Đại học Sư phạm – ĐH Đà Nẵng",
+    "shortName": "UED",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@ued.udn.vn"
+    ],
+    "example": "[MSSV]@ued.udn.vn"
+  },
+  {
+    "name": "Trường Đại học Ngoại ngữ – ĐH Đà Nẵng",
+    "shortName": "UFLS",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@ufl.udn.vn"
+    ],
+    "example": "[MSSV]@ufl.udn.vn"
+  },
+  {
+    "name": "Trường Đại học Sư phạm Kỹ thuật – ĐH Đà Nẵng",
+    "shortName": "UTE",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@ute.udn.vn"
+    ],
+    "example": "[MSSV]@ute.udn.vn"
+  },
+  {
+    "name": "Trường Đại học Công nghệ Thông tin và Truyền thông Việt – Hàn – ĐH Đà Nẵng",
+    "shortName": "VKU",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@vku.udn.vn"
+    ],
+    "example": ".[khóa_ngành]@vku.udn.vn"
+  },
+  {
+    "name": "Đại học Huế",
+    "shortName": "DHH",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@hueuni.edu.vn"
+    ],
+    "example": "[MSSV]@hueuni.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Khoa học – ĐH Huế",
+    "shortName": "HUSC",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@husc.edu.vn"
+    ],
+    "example": "[MSSV]@husc.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Sư phạm – ĐH Huế",
+    "shortName": "DHS",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@dhs.edu.vn"
+    ],
+    "example": "[MSSV]@dhs.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Y Dược – ĐH Huế",
+    "shortName": "DHY",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@huemed-univ.edu.vn"
+    ],
+    "example": "[MSSV]@huemed-univ.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Nông Lâm – ĐH Huế",
+    "shortName": "DHL",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@huaf.edu.vn"
+    ],
+    "example": "[MSSV]@huaf.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Kinh tế – ĐH Huế",
+    "shortName": "DHK",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@hce.edu.vn"
+    ],
+    "example": "[MSSV]@hce.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Ngoại ngữ – ĐH Huế",
+    "shortName": "DHF",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@huflis.edu.vn"
+    ],
+    "example": "[MSSV]@huflis.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Nghệ thuật – ĐH Huế",
+    "shortName": "DHN",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@hueuni.edu.vn"
+    ],
+    "example": "[MSSV]@hueuni.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Luật – ĐH Huế",
+    "shortName": "HUL",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@hul.edu.vn"
+    ],
+    "example": "[MSSV]@hul.edu.vn"
+  },
+  {
+    "name": "Đại học Thái Nguyên",
+    "shortName": "TNU",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@tnu.edu.vn"
+    ],
+    "example": "[MSSV]@tnu.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Kỹ thuật Công nghiệp – ĐH Thái Nguyên",
+    "shortName": "TNUT",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@tnut.edu.vn"
+    ],
+    "example": "[MSSV]@tnut.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Ngoại ngữ – ĐH Thái Nguyên",
+    "shortName": "TNUFL",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@tnufl.edu.vn"
+    ],
+    "example": "[MSSV]@tnufl.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Sư phạm – ĐH Thái Nguyên",
+    "shortName": "TNUE",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@tnue.edu.vn"
+    ],
+    "example": "[MSSV]@tnue.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Y Dược – ĐH Thái Nguyên",
+    "shortName": "TUMP",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@tump.edu.vn"
+    ],
+    "example": "[MSSV]@tump.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Nông Lâm – ĐH Thái Nguyên",
+    "shortName": "TUAF",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@tuaf.edu.vn"
+    ],
+    "example": "[MSSV]@tuaf.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Kinh tế & Quản trị Kinh doanh – ĐH Thái Nguyên",
+    "shortName": "TUEBA",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@tueba.edu.vn"
+    ],
+    "example": "[MSSV]@tueba.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Công nghệ Thông tin & Truyền thông – ĐH Thái Nguyên",
+    "shortName": "ICTU",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@ictu.edu.vn"
+    ],
+    "example": "[MSSV]@ictu.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Khoa học – ĐH Thái Nguyên",
+    "shortName": "TNUS",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@tnus.edu.vn"
+    ],
+    "example": "[MSSV]@tnus.edu.vn"
+  },
+  {
+    "name": "Đại học Cần Thơ",
+    "shortName": "CTU",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@student.ctu.edu.vn"
+    ],
+    "example": "[MSSV]@student.ctu.edu.vn"
+  },
+  {
+    "name": "Đại học Trà Vinh",
+    "shortName": "TVU",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@st.tvu.edu.vn",
+      "@tvu.edu.vn"
+    ],
+    "example": "[MSSV]@st.tvu.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Giao thông Vận tải",
+    "shortName": "UTC",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@st.utc.edu.vn",
+      "@lms.utc.edu.vn"
+    ],
+    "example": "an123456@st.utc.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Hàng hải Việt Nam",
+    "shortName": "VIMARU",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@st.vimaru.edu.vn"
+    ],
+    "example": "[tên_đăng_nhập]@st.vimaru.edu.vn"
+  },
+  {
+    "name": "Học viện Công nghệ Bưu chính Viễn thông",
+    "shortName": "PTIT",
+    "type": "ACADEMY",
+    "domains": [
+      "@stu.ptit.edu.vn",
+      "@ptit.edu.vn"
+    ],
+    "example": ".[MSSV]@stu.ptit.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Thủy lợi",
+    "shortName": "TLU",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@e.tlu.edu.vn",
+      "@tlu.edu.vn"
+    ],
+    "example": "[MSSV]@e.tlu.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Xây dựng Hà Nội",
+    "shortName": "HUCE",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@nuce.edu.vn",
+      "@huce.edu.vn"
+    ],
+    "example": "[MSSV]@huce.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Kiến trúc Hà Nội",
+    "shortName": "HAU",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@hau.edu.vn",
+      "@st.hau.edu.vn"
+    ],
+    "example": "[MSSV]@hau.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Mỏ – Địa chất",
+    "shortName": "HUMG",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@sv.humg.edu.vn",
+      "@humg.edu.vn"
+    ],
+    "example": "[MSSV]@sv.humg.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Điện lực",
+    "shortName": "EPU",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@epu.edu.vn",
+      "@st.epu.edu.vn"
+    ],
+    "example": "[MSSV]@epu.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Công nghệ Giao thông Vận tải",
+    "shortName": "UTT",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@utt.edu.vn",
+      "@st.utt.edu.vn"
+    ],
+    "example": "[MSSV]@st.utt.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Lâm nghiệp",
+    "shortName": "VNUF",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@vnuf.edu.vn",
+      "@st.vnuf.edu.vn"
+    ],
+    "example": "[MSSV]@vnuf.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Kinh tế – Kỹ thuật Công nghiệp",
+    "shortName": "UNETI",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@sv.uneti.edu.vn",
+      "@uneti.edu.vn"
+    ],
+    "example": "[MSSV]@sv.uneti.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Sư phạm Kỹ thuật TP. Hồ Chí Minh",
+    "shortName": "HCMUTE",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@student.hcmute.edu.vn"
+    ],
+    "example": "[MSSV]@student.hcmute.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Công nghiệp TP. Hồ Chí Minh",
+    "shortName": "IUH",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@student.iuh.edu.vn",
+      "@iuh.edu.vn"
+    ],
+    "example": "[MSSV]@student.iuh.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Công Thương TP. Hồ Chí Minh (Trước đây là ĐH Công nghiệp Thực phẩm TP.HCM)",
+    "shortName": "DCT / HUIT (HUFI)",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@st.huit.edu.vn",
+      "@hufi.edu.vn"
+    ],
+    "example": "[MSSV]@st.huit.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Giao thông Vận tải TP. Hồ Chí Minh",
+    "shortName": "UTH",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@ut.edu.vn",
+      "@sv.ut.edu.vn"
+    ],
+    "example": "[MSSV]@sv.ut.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Nông Lâm TP. Hồ Chí Minh (Kèm Phân hiệu Ninh Thuận / Khánh Hòa)",
+    "shortName": "NLU",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@st.hcmuaf.edu.vn"
+    ],
+    "example": "[MSSV]@st.hcmuaf.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Kiến trúc TP. Hồ Chí Minh",
+    "shortName": "UAH",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@uah.edu.vn",
+      "@st.uah.edu.vn"
+    ],
+    "example": "[MSSV]@uah.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Kỹ thuật – Công nghệ Cần Thơ",
+    "shortName": "CTUT",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@student.ctuet.edu.vn"
+    ],
+    "example": "[MSSV]@student.ctuet.edu.vn"
+  },
+  {
+    "name": "Học viện Hàng không Việt Nam",
+    "shortName": "VAA",
+    "type": "ACADEMY",
+    "domains": [
+      "@vaa.edu.vn",
+      "@st.vaa.edu.vn"
+    ],
+    "example": "[MSSV]@vaa.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Sư phạm Kỹ thuật Hưng Yên",
+    "shortName": "UTEHY",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@utehy.edu.vn",
+      "@st.utehy.edu.vn"
+    ],
+    "example": "[MSSV]@utehy.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Sư phạm Kỹ thuật Nam Định",
+    "shortName": "NUTE",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@nute.edu.vn"
+    ],
+    "example": "[MSSV]@nute.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Sư phạm Kỹ thuật Vinh",
+    "shortName": "VUTE",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@vute.edu.vn"
+    ],
+    "example": "[MSSV]@vute.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Xây dựng Miền Trung",
+    "shortName": "MUCE",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@muce.edu.vn"
+    ],
+    "example": "[MSSV]@muce.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Xây dựng Miền Tây",
+    "shortName": "MTU",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@mtu.edu.vn"
+    ],
+    "example": "[MSSV]@mtu.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Công nghiệp Việt – Trì",
+    "shortName": "VUI",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@vui.edu.vn"
+    ],
+    "example": "[MSSV]@vui.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Công nghiệp Quảng Ninh",
+    "shortName": "QUI",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@qui.edu.vn"
+    ],
+    "example": "[MSSV]@qui.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Công nghiệp Việt – Hung",
+    "shortName": "VIU",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@viu.edu.vn"
+    ],
+    "example": "[MSSV]@viu.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Sao Đỏ",
+    "shortName": "SDU",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@saodo.edu.vn"
+    ],
+    "example": "[MSSV]@saodo.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Nông – Lâm Bắc Giang",
+    "shortName": "BAFU",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@bafu.edu.vn"
+    ],
+    "example": "[MSSV]@bafu.edu.vn"
+  },
+  {
+    "name": "Học viện Khoa học và Công nghệ (Viện Hàn lâm KH&CN Việt Nam)",
+    "shortName": "GUST",
+    "type": "ACADEMY",
+    "domains": [
+      "@gust-vast.vn",
+      "@vast.vn"
+    ],
+    "example": "[học_viên]@gust-vast.vn"
+  },
+  {
+    "name": "Trường Đại học Ngoại thương",
+    "shortName": "FTU",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@ftu.edu.vn"
+    ],
+    "example": "k64.2513568002@ftu.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Tài chính – Marketing",
+    "shortName": "UFM",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@sv.ufm.edu.vn"
+    ],
+    "example": "2021003447@sv.ufm.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Thương mại",
+    "shortName": "TMU",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@tmu.edu.vn",
+      "@sv.tmu.edu.vn"
+    ],
+    "example": "[MSSV]@sv.tmu.edu.vn"
+  },
+  {
+    "name": "Học viện Ngân hàng",
+    "shortName": "BAV",
+    "type": "ACADEMY",
+    "domains": [
+      "@hvnh.edu.vn",
+      "@st.hvnh.edu.vn"
+    ],
+    "example": "[MSSV]@hvnh.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Ngân hàng TP. Hồ Chí Minh",
+    "shortName": "HUB",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@st.buh.edu.vn",
+      "@st.hub.edu.vn"
+    ],
+    "example": "[MSSV]@st.buh.edu.vn"
+  },
+  {
+    "name": "Học viện Tài chính",
+    "shortName": "AOF",
+    "type": "ACADEMY",
+    "domains": [
+      "@hvtc.edu.vn",
+      "@sv.hvtc.edu.vn"
+    ],
+    "example": "[MSSV]@sv.hvtc.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Mở Hà Nội",
+    "shortName": "HOU",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@hou.edu.vn",
+      "@sv.hou.edu.vn"
+    ],
+    "example": "[MSSV]@sv.hou.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Mở TP. Hồ Chí Minh",
+    "shortName": "OU",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@ou.edu.vn"
+    ],
+    "example": "[tên]@ou.edu.vn"
+  },
+  {
+    "name": "Học viện Nông nghiệp Việt Nam (Trước đây là ĐH Nông nghiệp Hà Nội)",
+    "shortName": "VNUA",
+    "type": "ACADEMY",
+    "domains": [
+      "@sv.vnua.edu.vn"
+    ],
+    "example": "[MSSV]@sv.vnua.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Luật Hà Nội",
+    "shortName": "HLU",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@hlu.edu.vn",
+      "@sv.hlu.edu.vn"
+    ],
+    "example": "[MSSV]@hlu.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Luật TP. Hồ Chí Minh",
+    "shortName": "HCMULAW",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@hcmulaw.edu.vn"
+    ],
+    "example": "[MSSV]@hcmulaw.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Kiểm sát Hà Nội",
+    "shortName": "HPU",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@tks.edu.vn"
+    ],
+    "example": "[MSSV]@tks.edu.vn"
+  },
+  {
+    "name": "Học viện Hành chính Quốc gia (Đã sáp nhập Trường Đại học Nội vụ Hà Nội - NVH)",
+    "shortName": "NAPA",
+    "type": "ACADEMY",
+    "domains": [
+      "@napa.vn",
+      "@truongnoivu.edu.vn"
+    ],
+    "example": "[MSSV]@napa.vn"
+  },
+  {
+    "name": "Học viện Ngoại giao",
+    "shortName": "DAV",
+    "type": "ACADEMY",
+    "domains": [
+      "@dav.edu.vn"
+    ],
+    "example": "[tên_hoặc_MSSV]@dav.edu.vn"
+  },
+  {
+    "name": "Học viện Báo chí và Tuyên truyền",
+    "shortName": "AJC",
+    "type": "ACADEMY",
+    "domains": [
+      "@ajc.edu.vn",
+      "@st.ajc.edu.vn"
+    ],
+    "example": "[MSSV]@st.ajc.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Công đoàn",
+    "shortName": "TUU",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@dhcd.edu.vn"
+    ],
+    "example": "[MSSV]@dhcd.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Lao động – Xã hội (Trụ sở Hà Nội & Cơ sở II TP.HCM)",
+    "shortName": "ULSA",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@ulsa.edu.vn",
+      "@ulsa2.edu.vn"
+    ],
+    "example": "[MSSV]@ulsa.edu.vn"
+  },
+  {
+    "name": "Học viện Phụ nữ Việt Nam",
+    "shortName": "VWA",
+    "type": "ACADEMY",
+    "domains": [
+      "@hvpnvn.edu.vn"
+    ],
+    "example": "[MSSV]@hvpnvn.edu.vn"
+  },
+  {
+    "name": "Học viện Thanh thiếu niên Việt Nam",
+    "shortName": "VYA",
+    "type": "ACADEMY",
+    "domains": [
+      "@vya.edu.vn"
+    ],
+    "example": "[MSSV]@vya.edu.vn"
+  },
+  {
+    "name": "Học viện Quản lý Giáo dục",
+    "shortName": "NAEM",
+    "type": "ACADEMY",
+    "domains": [
+      "@naem.edu.vn"
+    ],
+    "example": "[MSSV]@naem.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Tài chính – Kế toán (Quảng Ngãi)",
+    "shortName": "UFA",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@tckt.edu.vn"
+    ],
+    "example": "[MSSV]@tckt.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Tài chính – Quản trị kinh doanh (Hưng Yên)",
+    "shortName": "UFBA",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@tcqtkd.edu.vn"
+    ],
+    "example": "[MSSV]@tcqtkd.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Y Hà Nội",
+    "shortName": "HMU",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@daihocyhanoi.edu.vn",
+      "@hmu.edu.vn"
+    ],
+    "example": "[MSSV]@daihocyhanoi.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Dược Hà Nội",
+    "shortName": "HUP",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@hup.edu.vn",
+      "@st.hup.edu.vn"
+    ],
+    "example": "[MSSV]@hup.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Y Dược TP. Hồ Chí Minh",
+    "shortName": "UMP",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@ump.edu.vn"
+    ],
+    "example": "[tên_hoặc_MSSV]@ump.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Y Khoa Phạm Ngọc Thạch",
+    "shortName": "PNTU",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@pnt.edu.vn"
+    ],
+    "example": "[MSSV]@pnt.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Y Dược Cần Thơ",
+    "shortName": "CTUMP",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@student.ctump.edu.vn"
+    ],
+    "example": "[MSSV]@student.ctump.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Y Dược Hải Phòng",
+    "shortName": "HPMU",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@hpmu.edu.vn",
+      "@st.hpmu.edu.vn"
+    ],
+    "example": "[MSSV]@hpmu.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Y Dược Thái Bình",
+    "shortName": "TBUMP",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@tbump.edu.vn"
+    ],
+    "example": "[MSSV]@tbump.edu.vn"
+  },
+  {
+    "name": "Học viện Y – Dược học Cổ truyền Việt Nam",
+    "shortName": "VUTM",
+    "type": "ACADEMY",
+    "domains": [
+      "@vutm.edu.vn"
+    ],
+    "example": "[MSSV]@vutm.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Y tế Công cộng",
+    "shortName": "HUPH",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@huph.edu.vn",
+      "@st.huph.edu.vn"
+    ],
+    "example": "[MSSV]@huph.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Điều dưỡng Nam Định",
+    "shortName": "NDUN",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@ndun.edu.vn"
+    ],
+    "example": "[MSSV]@ndun.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Kỹ thuật Y – Dược Đà Nẵng",
+    "shortName": "DUMTP",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@dhktyduocdn.edu.vn"
+    ],
+    "example": "[MSSV]@dhktyduocdn.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Kỹ thuật Y tế Hải Dương",
+    "shortName": "HMTU",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@hmtu.edu.vn"
+    ],
+    "example": "[MSSV]@hmtu.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Sư phạm Hà Nội",
+    "shortName": "HNUE",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@hnue.edu.vn"
+    ],
+    "example": "[MSSV]@hnue.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Sư phạm TP. Hồ Chí Minh",
+    "shortName": "HCMUE",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@student.hcmue.edu.vn",
+      "@hcmue.edu.vn"
+    ],
+    "example": "[MSSV]@student.hcmue.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Hà Nội",
+    "shortName": "HANU",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@s.hanu.edu.vn",
+      "@hanu.edu.vn"
+    ],
+    "example": "[MSSV]@s.hanu.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Sư phạm Hà Nội 2 (Vĩnh Phúc)",
+    "shortName": "HPU2",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@hpu2.edu.vn",
+      "@sv.hpu2.edu.vn"
+    ],
+    "example": "[MSSV]@hpu2.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Văn hóa Hà Nội",
+    "shortName": "HUC",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@huc.edu.vn",
+      "@st.huc.edu.vn"
+    ],
+    "example": "[MSSV]@huc.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Văn hóa TP. Hồ Chí Minh",
+    "shortName": "HCMUC",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@hcmuc.edu.vn"
+    ],
+    "example": "[MSSV]@hcmuc.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Mỹ thuật Việt Nam",
+    "shortName": "VNUFA",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@mythuatvietnam.edu.vn"
+    ],
+    "example": "[MSSV]@mythuatvietnam.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Mỹ thuật Công nghiệp",
+    "shortName": "UAD",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@mythuatcongnghiep.edu.vn"
+    ],
+    "example": "[MSSV]@mythuatcongnghiep.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Mỹ thuật TP. Hồ Chí Minh",
+    "shortName": "HCMUFA",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@hcmufa.edu.vn"
+    ],
+    "example": "[MSSV]@hcmufa.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Sân khấu – Điện ảnh Hà Nội",
+    "shortName": "SKDA",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@skda.edu.vn"
+    ],
+    "example": "[MSSV]@skda.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Sân khấu – Điện ảnh TP. Hồ Chí Minh",
+    "shortName": "SKS",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@skdahcm.edu.vn"
+    ],
+    "example": "[MSSV]@skdahcm.edu.vn"
+  },
+  {
+    "name": "Học viện Âm nhạc Quốc gia Việt Nam",
+    "shortName": "VNAM",
+    "type": "ACADEMY",
+    "domains": [
+      "@vnam.edu.vn"
+    ],
+    "example": "[MSSV]@vnam.edu.vn"
+  },
+  {
+    "name": "Nhạc viện TP. Hồ Chí Minh",
+    "shortName": "HCMCONS",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@hcmcons.vn"
+    ],
+    "example": "[MSSV]@hcmcons.vn"
+  },
+  {
+    "name": "Học viện Múa Việt Nam",
+    "shortName": "VNAD",
+    "type": "ACADEMY",
+    "domains": [
+      "@vnad.edu.vn"
+    ],
+    "example": "[MSSV]@vnad.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Thể dục Thể thao Bắc Ninh",
+    "shortName": "UPES1",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@upes1.edu.vn"
+    ],
+    "example": "[MSSV]@upes1.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Thể dục Thể thao TP. Hồ Chí Minh",
+    "shortName": "UPES",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@upes.edu.vn"
+    ],
+    "example": "[MSSV]@upes.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Thể dục Thể thao Đà Nẵng",
+    "shortName": "DSUPES",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@upes3.edu.vn"
+    ],
+    "example": "[MSSV]@upes3.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Văn hóa, Thể thao và Du lịch Thanh Hóa",
+    "shortName": "TUCST",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@dvtdt.edu.vn"
+    ],
+    "example": "[MSSV]@dvtdt.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Sư phạm Nghệ thuật Trung ương",
+    "shortName": "NUAE",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@spnttw.edu.vn"
+    ],
+    "example": "[MSSV]@spnttw.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Sư phạm Thể dục Thể thao Hà Nội",
+    "shortName": "HUPES",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@hupes.edu.vn"
+    ],
+    "example": "[MSSV]@hupes.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Sư phạm Thể dục Thể thao TP. Hồ Chí Minh",
+    "shortName": "STS",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@upes2.edu.vn"
+    ],
+    "example": "[MSSV]@upes2.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Tôn Đức Thắng",
+    "shortName": "TDTU",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@student.tdtu.edu.vn"
+    ],
+    "example": "[MSSV]@student.tdtu.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Đồng Tháp",
+    "shortName": "DTHU",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@student.dthu.edu.vn"
+    ],
+    "example": "[MSSV]@student.dthu.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Đồng Nai",
+    "shortName": "DNU",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@dnpu.edu.vn",
+      "@sv.dnpu.edu.vn"
+    ],
+    "example": "[MSSV]@dnpu.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Nha Trang",
+    "shortName": "NTU",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@ntu.edu.vn",
+      "@st.ntu.edu.vn"
+    ],
+    "example": "[MSSV]@ntu.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Khánh Hòa",
+    "shortName": "UKH",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@ukh.edu.vn"
+    ],
+    "example": "[MSSV]@ukh.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Sài Gòn",
+    "shortName": "SGU",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@sgu.edu.vn",
+      "@sv.sgu.edu.vn"
+    ],
+    "example": "[MSSV]@sv.sgu.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Thủ Dầu Một (Bình Dương)",
+    "shortName": "TDMU",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@student.tdmu.edu.vn"
+    ],
+    "example": "[MSSV]@student.tdmu.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Vinh",
+    "shortName": "VU",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@vinhuni.edu.vn"
+    ],
+    "example": "[MSSV]@vinhuni.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Hải Phòng",
+    "shortName": "DHP",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@dhhp.edu.vn"
+    ],
+    "example": "[MSSV]@dhhp.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Hạ Long (Quảng Ninh)",
+    "shortName": "HLU",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@daihochalong.edu.vn"
+    ],
+    "example": "[MSSV]@daihochalong.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Hồng Đức (Thanh Hóa)",
+    "shortName": "HDU",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@hdu.edu.vn"
+    ],
+    "example": "[MSSV]@hdu.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Quy Nhơn (Bình Định)",
+    "shortName": "QNU",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@qnu.edu.vn",
+      "@st.qnu.edu.vn"
+    ],
+    "example": "[MSSV]@qnu.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Đà Lạt (Lâm Đồng)",
+    "shortName": "DLU",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@dlu.edu.vn"
+    ],
+    "example": "[MSSV]@dlu.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Tây Nguyên (Đắk Lắk)",
+    "shortName": "TNU",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@ttn.edu.vn"
+    ],
+    "example": "[MSSV]@ttn.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Tây Bắc (Sơn La)",
+    "shortName": "UTU",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@utb.edu.vn"
+    ],
+    "example": "[MSSV]@utb.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Hùng Vương (Phú Thọ)",
+    "shortName": "HVU",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@hvu.edu.vn"
+    ],
+    "example": "[MSSV]@hvu.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Tân Trào (Tuyên Quang)",
+    "shortName": "TQU",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@daihoctantrao.edu.vn"
+    ],
+    "example": "[MSSV]@daihoctantrao.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Thái Bình",
+    "shortName": "TBU",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@tbu.edu.vn"
+    ],
+    "example": "[MSSV]@tbu.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Hoa Lư (Ninh Bình)",
+    "shortName": "HLU",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@hluv.edu.vn"
+    ],
+    "example": "[MSSV]@hluv.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Hà Tĩnh",
+    "shortName": "HTU",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@htu.edu.vn"
+    ],
+    "example": "[MSSV]@htu.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Quảng Bình",
+    "shortName": "QBU",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@qbu.edu.vn"
+    ],
+    "example": "[MSSV]@qbu.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Quảng Nam",
+    "shortName": "DQU",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@qnamuni.edu.vn"
+    ],
+    "example": "[MSSV]@qnamuni.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Phạm Văn Đồng (Quảng Ngãi)",
+    "shortName": "PDU",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@pdu.edu.vn"
+    ],
+    "example": "[MSSV]@pdu.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Phú Yên",
+    "shortName": "PYU",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@pyu.edu.vn"
+    ],
+    "example": "[MSSV]@pyu.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Tiền Giang",
+    "shortName": "TGU",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@tgu.edu.vn"
+    ],
+    "example": "[MSSV]@tgu.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Kiên Giang",
+    "shortName": "KGU",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@vnkgu.edu.vn"
+    ],
+    "example": "[MSSV]@vnkgu.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Bạc Liêu",
+    "shortName": "BLU",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@blu.edu.vn"
+    ],
+    "example": "[MSSV]@blu.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Việt – Đức (Bình Dương)",
+    "shortName": "VGU",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@student.vgu.edu.vn"
+    ],
+    "example": "[student_id]@student.vgu.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Khoa học và Công nghệ Hà Nội (ĐH Việt – Pháp)",
+    "shortName": "USTH",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@st.usth.edu.vn"
+    ],
+    "example": "[tên_họ_khóa]@st.usth.edu.vn"
+  },
+  {
+    "name": "Trường Dự bị Đại học Dân tộc Trung ương",
+    "shortName": "DBDT",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@dbdt.edu.vn"
+    ],
+    "example": "[mã_học_sinh]@dbdt.edu.vn"
+  },
+  {
+    "name": "Trường Dự bị Đại học Dân tộc Sầm Sơn",
+    "shortName": "DBDTS",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@dbdtss.edu.vn"
+    ],
+    "example": "[mã_học_sinh]@dbdtss.edu.vn"
+  },
+  {
+    "name": "Trường Dự bị Đại học Dân tộc Nha Trang",
+    "shortName": "DBDTNT",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@dbdhnhatrang.edu.vn"
+    ],
+    "example": "[mã_học_sinh]@dbdhnhatrang.edu.vn"
+  },
+  {
+    "name": "Trường Dự bị Đại học Dân tộc TP. Hồ Chí Minh",
+    "shortName": "DBDTHCM",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@dbdh.edu.vn"
+    ],
+    "example": "[mã_học_sinh]@dbdh.edu.vn"
+  },
+  {
+    "name": "Học viện Kỹ thuật Quân sự (Trường Đại học Kỹ thuật Lê Quý Đôn)",
+    "shortName": "KQH / MTA (LQDTU)",
+    "type": "ACADEMY",
+    "domains": [
+      "@mta.edu.vn",
+      "@lqdtu.edu.vn"
+    ],
+    "example": "[mã_học_viên]@mta.edu.vn"
+  },
+  {
+    "name": "Học viện Quân y",
+    "shortName": "VMMU",
+    "type": "ACADEMY",
+    "domains": [
+      "@vmmu.edu.vn"
+    ],
+    "example": "[mã_học_viên]@vmmu.edu.vn"
+  },
+  {
+    "name": "Học viện Khoa học Quân sự",
+    "shortName": "MSA",
+    "type": "ACADEMY",
+    "domains": [
+      "@msa.edu.vn"
+    ],
+    "example": "[mã_học_viên]@msa.edu.vn"
+  },
+  {
+    "name": "Học viện Hải quân",
+    "shortName": "VNA",
+    "type": "ACADEMY",
+    "domains": [
+      "@hocvienhaiquan.edu.vn"
+    ],
+    "example": "[MSSV]@hocvienhaiquan.edu.vn"
+  },
+  {
+    "name": "Trường Sĩ quan Thông tin (Trường Đại học Thông tin Liên lạc)",
+    "shortName": "TCU",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@tcu.edu.vn"
+    ],
+    "example": "[mã_học_viên]@tcu.edu.vn"
+  },
+  {
+    "name": "Trường Sĩ quan Không quân",
+    "shortName": "AFOC",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@tsqkq.edu.vn"
+    ],
+    "example": "[MSSV]@tsqkq.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Trần Đại Nghĩa (Trường Sĩ quan Kỹ thuật Quân sự - Vinhempich)",
+    "shortName": "TDNU",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@tdnu.edu.vn"
+    ],
+    "example": "[mã_học_viên]@tdnu.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Ngô Quyền (Trường Sĩ quan Công binh)",
+    "shortName": "SNQ",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@sqcb.edu.vn"
+    ],
+    "example": "[MSSV]@sqcb.edu.vn"
+  },
+  {
+    "name": "Học viện An ninh Nhân dân",
+    "shortName": "C500",
+    "type": "ACADEMY",
+    "domains": [
+      "@hvannd.edu.vn"
+    ],
+    "example": "[mã_học_viên]@hvannd.edu.vn"
+  },
+  {
+    "name": "Học viện Cảnh sát Nhân dân",
+    "shortName": "PPA",
+    "type": "ACADEMY",
+    "domains": [
+      "@hvcsnd.edu.vn"
+    ],
+    "example": "[mã_học_viên]@hvcsnd.edu.vn"
+  },
+  {
+    "name": "Học viện Kỹ thuật và Công nghệ An ninh (Trường ĐH Kỹ thuật - Hậu cần CAND)",
+    "shortName": "HCH",
+    "type": "ACADEMY",
+    "domains": [
+      "@dhkthc.edu.vn"
+    ],
+    "example": "[MSSV]@dhkthc.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Phòng cháy Chữa cháy",
+    "shortName": "UFP",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@daihocpccc.edu.vn"
+    ],
+    "example": "[mã_học_viên]@daihocpccc.edu.vn"
+  },
+  {
+    "name": "Trường Đại học FPT",
+    "shortName": "FPT",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@fpt.edu.vn"
+    ],
+    "example": "[mã_ngành_MSSV]@fpt.edu.vn"
+  },
+  {
+    "name": "Đại học Phenikaa",
+    "shortName": "PKA",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@st.phenikaa-uni.edu.vn"
+    ],
+    "example": "[MSSV]@st.phenikaa-uni.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Thăng Long",
+    "shortName": "TLU",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@thanglong.edu.vn"
+    ],
+    "example": "[mã_SV]@thanglong.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Đại Nam",
+    "shortName": "DNU",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@dainam.edu.vn",
+      "@sv.dainam.edu.vn"
+    ],
+    "example": "[MSSV]@dainam.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Công nghệ Đông Á (Bắc Ninh & Hà Nội)",
+    "shortName": "EAUT",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@eaut.edu.vn",
+      "@daihoccongnghedonga.edu.vn"
+    ],
+    "example": "[MSSV]@eaut.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Phương Đông",
+    "shortName": "PDU",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@phuongdong.edu.vn"
+    ],
+    "example": "[MSSV]@phuongdong.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Thành Đô",
+    "shortName": "TDU",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@thanhdo.edu.vn"
+    ],
+    "example": "[MSSV]@thanhdo.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Tài chính – Ngân hàng Hà Nội",
+    "shortName": "FBU",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@fbu.edu.vn"
+    ],
+    "example": "[MSSV]@fbu.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Nguyễn Trãi",
+    "shortName": "NTU",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@nguyentrai.edu.vn"
+    ],
+    "example": "[MSSV]@nguyentrai.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Đông Đô",
+    "shortName": "DDU",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@hdiu.edu.vn"
+    ],
+    "example": "[MSSV]@hdiu.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Hòa Bình",
+    "shortName": "HBU",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@daihochoabinh.edu.vn"
+    ],
+    "example": "[MSSV]@daihochoabinh.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Kinh doanh và Công nghệ Hà Nội",
+    "shortName": "HUBT",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@hubt.edu.vn"
+    ],
+    "example": "[MSSV]@hubt.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Quản lý và Công nghệ Hải Phòng (Trước đây là ĐH Dân lập Hải Phòng)",
+    "shortName": "HPU",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@hpu.edu.vn"
+    ],
+    "example": "[MSSV]@hpu.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Kinh Bắc (Bắc Ninh)",
+    "shortName": "UKB",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@ukb.edu.vn"
+    ],
+    "example": "[MSSV]@ukb.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Quốc tế Bắc Hà (Bắc Ninh)",
+    "shortName": "BHIU",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@bhiu.edu.vn"
+    ],
+    "example": "[MSSV]@bhiu.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Chu Văn An (Hưng Yên – Trường ĐH Ecopark)",
+    "shortName": "CVA",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@cva.edu.vn"
+    ],
+    "example": "[MSSV]@cva.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Lương Thế Vinh (Nam Định)",
+    "shortName": "LTVU",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@ltvu.edu.vn"
+    ],
+    "example": "[MSSV]@ltvu.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Trưng Vương (Vĩnh Phúc)",
+    "shortName": "TVU",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@dhtv.edu.vn"
+    ],
+    "example": "[MSSV]@dhtv.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Việt Bắc (Thái Nguyên)",
+    "shortName": "VBU",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@vietbac.edu.vn"
+    ],
+    "example": "[MSSV]@vietbac.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Tokyo Việt Nam (Hưng Yên)",
+    "shortName": "THUV",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@tokyo-human.edu.vn"
+    ],
+    "example": "[MSSV]@tokyo-human.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Anh Quốc Việt Nam (Hà Nội & Hưng Yên)",
+    "shortName": "BUV",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@st.buv.edu.vn"
+    ],
+    "example": "[MSSV]@st.buv.edu.vn"
+  },
+  {
+    "name": "Đại học Duy Tân (Đà Nẵng)",
+    "shortName": "DTU",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@dtu.edu.vn"
+    ],
+    "example": "[tên_định_danh]@dtu.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Đông Á (Đà Nẵng)",
+    "shortName": "UDA",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@donga.edu.vn"
+    ],
+    "example": "[MSSV]@donga.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Kiến trúc Đà Nẵng",
+    "shortName": "DAU",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@dau.edu.vn"
+    ],
+    "example": "[MSSV]@dau.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Mỹ tại Việt Nam (Đà Nẵng)",
+    "shortName": "AUV",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@auv.edu.vn"
+    ],
+    "example": "[student]@auv.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Phan Châu Trinh (Quảng Nam)",
+    "shortName": "PCTU",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@pctu.edu.vn"
+    ],
+    "example": "[MSSV]@pctu.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Công nghiệp Vinh (Nghệ An)",
+    "shortName": "IUV",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@iuv.edu.vn"
+    ],
+    "example": "[MSSV]@iuv.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Công nghệ Vạn Xuân (Nghệ An)",
+    "shortName": "VXUT",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@vxut.edu.vn"
+    ],
+    "example": "[MSSV]@vxut.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Quang Trung (Bình Định / Gia Lai)",
+    "shortName": "QTU",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@qtu.edu.vn"
+    ],
+    "example": "[MSSV]@qtu.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Thái Bình Dương (Khánh Hòa)",
+    "shortName": "POU",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@pou.edu.vn"
+    ],
+    "example": "[MSSV]@pou.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Yersin Đà Lạt (Lâm Đồng)",
+    "shortName": "YERSIN",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@yersin.edu.vn"
+    ],
+    "example": "[MSSV]@yersin.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Phan Thiết (Bình Thuận / Lâm Đồng)",
+    "shortName": "UPT",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@upt.edu.vn"
+    ],
+    "example": "[MSSV]@upt.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Y Dược Buôn Ma Thuột (Đắk Lắk)",
+    "shortName": "BMU",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@bmu.edu.vn",
+      "@student.bmu.edu.vn"
+    ],
+    "example": "[MSSV]@bmu.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Ngoại ngữ – Tin học TP. Hồ Chí Minh",
+    "shortName": "HUFLIT",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@st.huflit.edu.vn"
+    ],
+    "example": "[MSSV]@st.huflit.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Bình Dương",
+    "shortName": "BDU",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@student.bdu.edu.vn"
+    ],
+    "example": "[MSSV]@student.bdu.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Kinh tế – Kỹ thuật Bình Dương",
+    "shortName": "BETU",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@ktkt.edu.vn",
+      "@betu.edu.vn"
+    ],
+    "example": "[MSSV]@ktkt.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Văn Lang",
+    "shortName": "VLU",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@vanlanguni.vn"
+    ],
+    "example": ".[MSSV]@vanlanguni.vn"
+  },
+  {
+    "name": "Trường Đại học Công nghệ TP. Hồ Chí Minh",
+    "shortName": "HUTECH",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@hutech.edu.vn",
+      "@sv.hutech.edu.vn"
+    ],
+    "example": "[MSSV]@hutech.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Hoa Sen",
+    "shortName": "HSU",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@sinhvien.hoasen.edu.vn"
+    ],
+    "example": ".[họ_đệm_MSSV]@sinhvien.hoasen.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Nguyễn Tất Thành",
+    "shortName": "NTTU",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@ntt.edu.vn",
+      "@sv.ntt.edu.vn"
+    ],
+    "example": "[MSSV]@ntt.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Kinh tế – Tài chính TP. Hồ Chí Minh",
+    "shortName": "UEF",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@uef.edu.vn"
+    ],
+    "example": "[MSSV]@uef.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Quốc tế Hồng Bàng",
+    "shortName": "HIU",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@hiu.vn",
+      "@student.hiu.vn"
+    ],
+    "example": "[MSSV]@student.hiu.vn"
+  },
+  {
+    "name": "Trường Đại học Văn Hiến",
+    "shortName": "VHU",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@vhu.edu.vn",
+      "@sv.vhu.edu.vn"
+    ],
+    "example": "[MSSV]@sv.vhu.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Quốc tế Sài Gòn",
+    "shortName": "SIU",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@siu.edu.vn"
+    ],
+    "example": "[MSSV]@siu.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Quản lý và Công nghệ TP. Hồ Chí Minh",
+    "shortName": "UMT",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@st.umt.edu.vn",
+      "@umt.edu.vn"
+    ],
+    "example": "[MSSV]@st.umt.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Công nghệ Sài Gòn",
+    "shortName": "STU",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@stu.edu.vn",
+      "@student.stu.edu.vn"
+    ],
+    "example": "[MSSV]@student.stu.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Gia Định",
+    "shortName": "GDU",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@giadinh.edu.vn"
+    ],
+    "example": "[MSSV]@giadinh.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Quốc tế Miền Đông (Bình Dương)",
+    "shortName": "EIU",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@eiu.edu.vn"
+    ],
+    "example": ".[khóa]@eiu.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Lạc Hồng (Đồng Nai)",
+    "shortName": "LHU",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@lhu.edu.vn",
+      "@st.lhu.edu.vn"
+    ],
+    "example": "[MSSV]@lhu.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Công nghệ Đồng Nai",
+    "shortName": "DNTU",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@dntu.edu.vn"
+    ],
+    "example": "[MSSV]@dntu.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Công nghệ Miền Đông (Đồng Nai)",
+    "shortName": "MUT",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@mut.edu.vn"
+    ],
+    "example": "[MSSV]@mut.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Bà Rịa – Vũng Tàu",
+    "shortName": "BVU",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@bvu.edu.vn"
+    ],
+    "example": "[MSSV]@bvu.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Kinh tế Công nghiệp Long An",
+    "shortName": "DLA",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@daihoclongan.edu.vn"
+    ],
+    "example": "[MSSV]@daihoclongan.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Tân Tạo (Long An)",
+    "shortName": "TTU",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@ttu.edu.vn"
+    ],
+    "example": ".[họ]@ttu.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Nam Cần Thơ",
+    "shortName": "DNC",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@nctu.edu.vn"
+    ],
+    "example": "[MSSV]@nctu.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Tây Đô (Cần Thơ)",
+    "shortName": "TDU",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@tdu.edu.vn"
+    ],
+    "example": "[MSSV]@tdu.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Võ Trường Toản (Hậu Giang)",
+    "shortName": "VTTU",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@vttu.edu.vn"
+    ],
+    "example": "[MSSV]@vttu.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Cửu Long (Vĩnh Long)",
+    "shortName": "MKU",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@mku.edu.vn"
+    ],
+    "example": "[MSSV]@mku.edu.vn"
+  },
+  {
+    "name": "Đại học RMIT Việt Nam",
+    "shortName": "RMIT",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@rmit.edu.vn"
+    ],
+    "example": "s[MSSV]@rmit.edu.vn"
+  },
+  {
+    "name": "Trường Đại học Fulbright Việt Nam (TP.HCM)",
+    "shortName": "FUV",
+    "type": "UNIVERSITY",
+    "domains": [
+      "@student.fulbright.edu.vn"
+    ],
+    "example": ".[khóa]@student.fulbright.edu.vn"
+  },
+  {
+    "name": "Trường Cao đẳng Kỹ thuật Cao Thắng",
+    "shortName": "CKC",
+    "type": "COLLEGE",
+    "domains": [
+      "@caothang.edu.vn"
+    ],
+    "example": "0301261001@caothang.edu.vn"
+  },
+  {
+    "name": "Trường Cao đẳng Kinh tế Đối ngoại",
+    "shortName": "COFER",
+    "type": "COLLEGE",
+    "domains": [
+      "@cofer.edu.vn"
+    ],
+    "example": "nvan2300001@cofer.edu.vn"
+  },
+  {
+    "name": "Trường Cao đẳng nghề Bách khoa Hà Nội",
+    "shortName": "HACTECH",
+    "type": "COLLEGE",
+    "domains": [
+      "@hactech.edu.vn"
+    ],
+    "example": "[tên_định_danh_MSSV]@hactech.edu.vn"
+  },
+  {
+    "name": "Trường Cao đẳng FPT Polytechnic",
+    "shortName": "POLY",
+    "type": "COLLEGE",
+    "domains": [
+      "@fpt.edu.vn"
+    ],
+    "example": "[MSSV]@fpt.edu.vn"
+  },
+  {
+    "name": "Chương trình Melbourne Polytechnic Việt Nam",
+    "shortName": "MEL-POLY",
+    "type": "COLLEGE",
+    "domains": [
+      "@fpt.edu.vn"
+    ],
+    "example": "[tên_định_danh]@fpt.edu.vn"
+  },
+  {
+    "name": "Trường Cao đẳng CTIM",
+    "shortName": "CTIM",
+    "type": "COLLEGE",
+    "domains": [
+      "@ctim.edu.vn"
+    ],
+    "example": "[MSSV]@ctim.edu.vn"
+  },
+  {
+    "name": "Trường Cao đẳng Công nghệ Thủ Đức",
+    "shortName": "TDC",
+    "type": "COLLEGE",
+    "domains": [
+      "@mail.tdc.edu.vn",
+      "@tdc.edu.vn"
+    ],
+    "example": "[MSSV]@mail.tdc.edu.vn"
+  },
+  {
+    "name": "Trường Cao đẳng Kinh tế TP. Hồ Chí Minh",
+    "shortName": "HCE",
+    "type": "COLLEGE",
+    "domains": [
+      "@kthcm.edu.vn"
+    ],
+    "example": "[MSSV]@kthcm.edu.vn"
+  },
+  {
+    "name": "Trường Cao đẳng Kỹ thuật Lý Tự Trọng TP.HCM",
+    "shortName": "LTTC",
+    "type": "COLLEGE",
+    "domains": [
+      "@lttc.edu.vn"
+    ],
+    "example": "[MSSV]@lttc.edu.vn"
+  },
+  {
+    "name": "Trường Cao đẳng Công Thương TP. Hồ Chí Minh",
+    "shortName": "HITC",
+    "type": "COLLEGE",
+    "domains": [
+      "@hitu.edu.vn"
+    ],
+    "example": "[MSSV]@hitu.edu.vn"
+  },
+  {
+    "name": "Trường Cao đẳng Công nghệ Thông tin TP.HCM",
+    "shortName": "ITC",
+    "type": "COLLEGE",
+    "domains": [
+      "@itc.edu.vn"
+    ],
+    "example": "[MSSV]@itc.edu.vn"
+  },
+  {
+    "name": "Trường Cao đẳng Viễn Đông",
+    "shortName": "VDC",
+    "type": "COLLEGE",
+    "domains": [
+      "@viendong.edu.vn"
+    ],
+    "example": "[MSSV]@viendong.edu.vn"
+  },
+  {
+    "name": "Trường Cao đẳng Quốc tế TP.HCM",
+    "shortName": "ICH",
+    "type": "COLLEGE",
+    "domains": [
+      "@ich.edu.vn"
+    ],
+    "example": "[MSSV]@ich.edu.vn"
+  },
+  {
+    "name": "Trường Cao đẳng Điện tử – Điện lạnh Hà Nội",
+    "shortName": "DTDL",
+    "type": "COLLEGE",
+    "domains": [
+      "@dtdl.edu.vn"
+    ],
+    "example": "[MSSV]@dtdl.edu.vn"
+  },
+  {
+    "name": "Trường Cao đẳng nghề Công nghiệp Hà Nội",
+    "shortName": "HNIVC",
+    "type": "COLLEGE",
+    "domains": [
+      "@hnivc.edu.vn"
+    ],
+    "example": "[MSSV]@hnivc.edu.vn"
+  },
+  {
+    "name": "Trường Cao đẳng Công nghệ Cao Hà Nội",
+    "shortName": "HHT",
+    "type": "COLLEGE",
+    "domains": [
+      "@hht.edu.vn"
+    ],
+    "example": "[MSSV]@hht.edu.vn"
+  },
+  {
+    "name": "Trường Cao đẳng Thương mại và Du lịch Hà Nội",
+    "shortName": "HCCT",
+    "type": "COLLEGE",
+    "domains": [
+      "@hcct.edu.vn"
+    ],
+    "example": "[MSSV]@hcct.edu.vn"
+  },
+  {
+    "name": "Trường Cao đẳng Sư phạm Trung ương",
+    "shortName": "NCE",
+    "type": "COLLEGE",
+    "domains": [
+      "@cdsptw.edu.vn",
+      "@nce.edu.vn"
+    ],
+    "example": "[MSSV]@cdsptw.edu.vn"
+  },
+  {
+    "name": "Trường Cao đẳng Thương mại (Đà Nẵng)",
+    "shortName": "CDTM",
+    "type": "COLLEGE",
+    "domains": [
+      "@cdtm.edu.vn"
+    ],
+    "example": "[MSSV]@cdtm.edu.vn"
+  },
+  {
+    "name": "Trường Cao đẳng Công nghệ, Kinh tế và Thủy lợi Miền Trung",
+    "shortName": "CCT",
+    "type": "COLLEGE",
+    "domains": [
+      "@cct.edu.vn"
+    ],
+    "example": "[MSSV]@cct.edu.vn"
+  },
+  {
+    "name": "Trường Cao đẳng Huế",
+    "shortName": "CDHUE",
+    "type": "COLLEGE",
+    "domains": [
+      "@cdhue.edu.vn"
+    ],
+    "example": "[MSSV]@cdhue.edu.vn"
+  },
+  {
+    "name": "Trường Cao đẳng Y tế Khánh Hòa",
+    "shortName": "CYK",
+    "type": "COLLEGE",
+    "domains": [
+      "@cyk.edu.vn"
+    ],
+    "example": "[MSSV]@cyk.edu.vn"
+  },
+  {
+    "name": "Trường Cao đẳng Kỹ thuật Công nghệ Nha Trang",
+    "shortName": "CDKTCNNT",
+    "type": "COLLEGE",
+    "domains": [
+      "@cdktcnnt.edu.vn"
+    ],
+    "example": "[MSSV]@cdktcnnt.edu.vn"
+  },
+  {
+    "name": "Trường Cao đẳng Du lịch Nha Trang",
+    "shortName": "NTC",
+    "type": "COLLEGE",
+    "domains": [
+      "@ntc.edu.vn"
+    ],
+    "example": "[MSSV]@ntc.edu.vn"
+  },
+  {
+    "name": "Trường Cao đẳng Y Dược Sài Gòn",
+    "shortName": "CDYDSG",
+    "type": "COLLEGE",
+    "domains": [
+      "@caodangyduocsaigon.vn"
+    ],
+    "example": "[MSSV]@caodangyduocsaigon.vn"
+  },
+  {
+    "name": "Trường Cao đẳng Y tế Hà Nội",
+    "shortName": "YHN",
+    "type": "COLLEGE",
+    "domains": [
+      "@yhn.edu.vn"
+    ],
+    "example": "[MSSV]@yhn.edu.vn"
+  },
+  {
+    "name": "Trường Cao đẳng Y tế Bạch Mai",
+    "shortName": "BMMC",
+    "type": "COLLEGE",
+    "domains": [
+      "@bmmc.edu.vn"
+    ],
+    "example": "[MSSV]@bmmc.edu.vn"
+  },
+  {
+    "name": "Trường Cao đẳng Y tế Hà Đông",
+    "shortName": "CDYTHD",
+    "type": "COLLEGE",
+    "domains": [
+      "@cdythadong.edu.vn"
+    ],
+    "example": "[MSSV]@cdythadong.edu.vn"
+  },
+  {
+    "name": "Trường Cao đẳng Y tế Hải Phòng",
+    "shortName": "CDYTHP",
+    "type": "COLLEGE",
+    "domains": [
+      "@cdythp.edu.vn"
+    ],
+    "example": "[MSSV]@cdythp.edu.vn"
+  },
+  {
+    "name": "Trường Cao đẳng Y tế Thanh Hóa",
+    "shortName": "CYC",
+    "type": "COLLEGE",
+    "domains": [
+      "@cyc.edu.vn"
+    ],
+    "example": "[MSSV]@cyc.edu.vn"
+  },
+  {
+    "name": "Trường Cao đẳng Y tế Nghệ An",
+    "shortName": "CDYTNA",
+    "type": "COLLEGE",
+    "domains": [
+      "@cdytna.edu.vn"
+    ],
+    "example": "[MSSV]@cdytna.edu.vn"
+  },
+  {
+    "name": "Trường Cao đẳng Y tế Đà Nẵng",
+    "shortName": "CDYTDN",
+    "type": "COLLEGE",
+    "domains": [
+      "@cdytdn.edu.vn"
+    ],
+    "example": "[MSSV]@cdytdn.edu.vn"
+  },
+  {
+    "name": "Trường Cao đẳng Y tế Cần Thơ",
+    "shortName": "CDYTCT",
+    "type": "COLLEGE",
+    "domains": [
+      "@cdytct.edu.vn"
+    ],
+    "example": "[MSSV]@cdytct.edu.vn"
+  },
+  {
+    "name": "Trường Cao đẳng Y tế Đồng Nai",
+    "shortName": "CYD",
+    "type": "COLLEGE",
+    "domains": [
+      "@cyd.edu.vn"
+    ],
+    "example": "[MSSV]@cyd.edu.vn"
+  },
+  {
+    "name": "Trường Cao đẳng Y tế Bình Dương",
+    "shortName": "CDYTBD",
+    "type": "COLLEGE",
+    "domains": [
+      "@cdytbinhduong.edu.vn"
+    ],
+    "example": "[MSSV]@cdytbinhduong.edu.vn"
+  },
+  {
+    "name": "Trường Cao đẳng Y tế Tiền Giang",
+    "shortName": "CDYTTG",
+    "type": "COLLEGE",
+    "domains": [
+      "@cdyttg.edu.vn"
+    ],
+    "example": "[MSSV]@cdyttg.edu.vn"
+  },
+  {
+    "name": "Trường Cao đẳng Kỹ thuật Công nghiệp Bắc Giang",
+    "shortName": "BCIT",
+    "type": "COLLEGE",
+    "domains": [
+      "@bcit.edu.vn"
+    ],
+    "example": "[MSSV]@bcit.edu.vn"
+  },
+  {
+    "name": "Trường Cao đẳng Công nghiệp Thái Nguyên",
+    "shortName": "TCI",
+    "type": "COLLEGE",
+    "domains": [
+      "@tci.edu.vn"
+    ],
+    "example": "[MSSV]@tci.edu.vn"
+  },
+  {
+    "name": "Trường Cao đẳng Công nghiệp Nam Định",
+    "shortName": "CDCNND",
+    "type": "COLLEGE",
+    "domains": [
+      "@cdcnnd.edu.vn"
+    ],
+    "example": "[MSSV]@cdcnnd.edu.vn"
+  },
+  {
+    "name": "Trường Cao đẳng Kỹ thuật Việt – Đức Hà Tĩnh",
+    "shortName": "CDVIETDUC",
+    "type": "COLLEGE",
+    "domains": [
+      "@cdvietduc.edu.vn"
+    ],
+    "example": "[MSSV]@cdvietduc.edu.vn"
+  },
+  {
+    "name": "Trường Cao đẳng Kỹ thuật Đắk Lắk",
+    "shortName": "DAKLAKTEC",
+    "type": "COLLEGE",
+    "domains": [
+      "@daklaktec.edu.vn"
+    ],
+    "example": "[MSSV]@daklaktec.edu.vn"
+  },
+  {
+    "name": "Trường Cao đẳng Công nghệ Quốc tế LILAMA 2",
+    "shortName": "LILAMA2",
+    "type": "COLLEGE",
+    "domains": [
+      "@lilama2.edu.vn"
+    ],
+    "example": "[MSSV]@lilama2.edu.vn"
+  },
+  {
+    "name": "Trường Cao đẳng Kỹ thuật Đồng Nai",
+    "shortName": "DNTC",
+    "type": "COLLEGE",
+    "domains": [
+      "@dntc.edu.vn"
+    ],
+    "example": "[MSSV]@dntc.edu.vn"
+  },
+  {
+    "name": "Trường Cao đẳng Việt – Hàn Bình Dương",
+    "shortName": "VKC",
+    "type": "COLLEGE",
+    "domains": [
+      "@vkc.edu.vn"
+    ],
+    "example": "[MSSV]@vkc.edu.vn"
+  },
+  {
+    "name": "Trường Cao đẳng Việt – Sing Bình Dương",
+    "shortName": "VIETSING",
+    "type": "COLLEGE",
+    "domains": [
+      "@vietsing.edu.vn"
+    ],
+    "example": "[MSSV]@vietsing.edu.vn"
+  },
+  {
+    "name": "Trường Cao đẳng Nghề Cần Thơ",
+    "shortName": "CTVC",
+    "type": "COLLEGE",
+    "domains": [
+      "@ctvc.edu.vn"
+    ],
+    "example": "[MSSV]@ctvc.edu.vn"
+  },
+  {
+    "name": "Trường Cao đẳng Cộng đồng Đồng Tháp",
+    "shortName": "DTCC",
+    "type": "COLLEGE",
+    "domains": [
+      "@dtcc.edu.vn"
+    ],
+    "example": "[MSSV]@dtcc.edu.vn"
+  },
+  {
+    "name": "Trường Cao đẳng Cộng đồng Cà Mau",
+    "shortName": "CAMAUCC",
+    "type": "COLLEGE",
+    "domains": [
+      "@camau.edu.vn"
+    ],
+    "example": "[MSSV]@camau.edu.vn"
+  },
+  {
+    "name": "Trường Cao đẳng Cộng đồng Sóc Trăng",
+    "shortName": "STCC",
+    "type": "COLLEGE",
+    "domains": [
+      "@stcc.edu.vn"
+    ],
+    "example": "[MSSV]@stcc.edu.vn"
+  },
+  {
+    "name": "Trường Cao đẳng Kiên Giang",
+    "shortName": "KGC",
+    "type": "COLLEGE",
+    "domains": [
+      "@kgc.edu.vn"
+    ],
+    "example": "[MSSV]@kgc.edu.vn"
+  }
+]

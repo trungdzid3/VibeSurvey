@@ -163,6 +163,13 @@ ode -c public/app.js đạt 100% PASS không lỗi. |
   + Trang Hồ Sơ (renderProfileView): Tài khoản thường chỉ hiển thị 2 tab: 1. Thông Tin Cá Nhân và 2. Đăng Ký Gói Sinh Viên (ẩn hoàn toàn Tab 3 Hồ Sơ Doanh Nghiệp). Tài khoản Doanh nghiệp hiển thị: 1. Thông Tin Người Đại Diện và 2. Hồ Sơ Doanh Nghiệp (ẩn Tab Sinh Viên).
   + Cơ sở dữ liệu: Đã làm sạch toàn bộ các khảo sát test ảo phát sinh từ npm test, bảo tồn duy nhất 01 form thật Hay dùng sàn TMDT nào nhất (0265c6cc-6407-4ea8-ab56-1d5e6e7a3ede). Bộ kiểm thử tests/run_all_tests.js đã được tích hợp hook tự động dọn dẹp sạch sẽ test artifacts sau mỗi chu kỳ kiểm thử.
 
+- **Chuẩn Hóa Danh Mục Giáo Dục 293 Trường & 34 Tỉnh Thành Mới (v2.8)**:
+  + Cơ sở dữ liệu cấu hình: Tệp `server/config/vietnam_colleges_universities.json` lưu trữ 293 trường Đại học, Học viện và Cao đẳng với domain email chuẩn (@sis.hust.edu.vn, @st.neu.edu.vn, @caothang.edu.vn...).
+  + Tệp `server/config/vietnam_34_provinces.json` chuẩn hóa 34 tỉnh thành mới theo phân chia hành chính cập nhật.
+  + Sửa triệt để lỗi điền form khảo sát bằng việc bổ sung hai hàm điều hướng đáp án `selectSingleOption` và `toggleMultipleOption`.
+  + Nâng cấp toàn diện Custom Dropdown chuẩn cho Profile Tab 1 và Modal Rút Tiền; bổ sung cơ chế click outside to close cho tất cả popover.
+  + Thêm cơ chế Cooldown đếm ngược 60s và Anti-Spam (tối đa 5 lần gửi / 10 phút) cho nút Gửi Mã OTP sinh viên.
+
 ## 5. Hướng Dẫn Chuyển Giao Cho Phiên Tiếp Theo
 - Đọc `PROJECT_CONTEXT.md` để nắm trạng thái hiện tại.
 - Chạy `npm test` để kiểm tra độ tin cậy của mã nguồn trước khi thêm tính năng mới.

@@ -77,7 +77,8 @@ window.VIBE_OCCUPATIONS = [
   { code: 'Khác', name: 'Khác' }
 ];
 
-window.VIBE_UNIVERSITIES_DATA = [{"c":"ALL","n":"Tất cả trường","s":"Tất cả trường"},{"c":"VNU_HN","n":"Đại học Quốc gia Hà Nội","s":"ĐHQG Hà Nội"},{"c":"UET","n":"Trường ĐH Công nghệ - ĐHQGHN","s":"Công nghệ VNU"},{"c":"HUS","n":"Trường ĐH Khoa học Tự nhiên - ĐHQGHN","s":"KHTN VNU"},{"c":"USSH_HN","n":"Trường ĐH Khoa học Xã hội và Nhân văn - ĐHQGHN","s":"KHXH&NV VNU HN"},{"c":"ULIS","n":"Trường ĐH Ngoại ngữ - ĐHQGHN","s":"Ngoại ngữ VNU"},{"c":"UEB","n":"Trường ĐH Kinh tế - ĐHQGHN","s":"Kinh tế VNU"},{"c":"UED_HN","n":"Trường ĐH Giáo dục - ĐHQGHN","s":"Giáo dục VNU"},{"c":"UMP_HN","n":"Trường ĐH Y Dược - ĐHQGHN","s":"Y Dược VNU HN"},{"c":"VJU","n":"Trường ĐH Việt Nhật - ĐHQGHN","s":"Việt Nhật VNU"},{"c":"UL_HN","n":"Trường ĐH Luật - ĐHQGHN","s":"Luật VNU"},{"c":"HSB","n":"Trường Quản trị và Kinh doanh - ĐHQGHN","s":"HSB VNU"},{"c":"IS_VNU","n":"Trường Quốc tế - ĐHQGHN","s":"Quốc tế VNU"},{"c":"SIS_VNU","n":"Trường Khoa học liên ngành và Nghệ thuật - ĐHQGHN","s":"KHLN&NT VNU"},{"c":"VNU_HCM","n":"Đại học Quốc gia TP.HCM","s":"ĐHQG TP.HCM"},{"c":"HCMUT","n":"Trường ĐH Bách khoa - ĐHQG-HCM","s":"Bách Khoa HCM"},{"c":"HCMUS","n":"Trường ĐH Khoa học Tự nhiên - ĐHQG-HCM","s":"KHTN HCM"},{"c":"UIT","n":"Trường ĐH Công nghệ Thông tin - ĐHQG-HCM","s":"CNTT VNU HCM"},{"c":"USSH_HCM","n":"Trường ĐH Khoa học Xã hội và Nhân văn - ĐHQG-HCM","s":"KHXH&NV VNU HCM"},{"c":"UEL","n":"Trường ĐH Kinh tế - Luật - ĐHQG-HCM","s":"Kinh Tế Luật HCM"},{"c":"HCMIU","n":"Trường ĐH Quốc tế - ĐHQG-HCM","s":"ĐH Quốc Tế HCM"},{"c":"AGU","n":"Trường ĐH An Giang - ĐHQG-HCM","s":"ĐH An Giang"},{"c":"UHS","n":"Trường ĐH Khoa học Sức khỏe - ĐHQG-HCM","s":"Khoa học Sức khỏe HCM"},{"c":"HUST","n":"Đại học Bách khoa Hà Nội","s":"Bách Khoa HN"},{"c":"NEU","n":"Đại học Kinh tế Quốc dân","s":"Kinh Tế Quốc Dân"},{"c":"UEH","n":"Đại học Kinh tế TP.HCM","s":"UEH"},{"c":"HAUI","n":"Đại học Công nghiệp Hà Nội","s":"Công nghiệp HN"},{"c":"UDN","n":"Đại học Đà Nẵng","s":"ĐH Đà Nẵng"},{"c":"DUT","n":"Trường ĐH Bách khoa - ĐH Đà Nẵng","s":"Bách Khoa ĐN"},{"c":"DUE","n":"Trường ĐH Kinh tế - ĐH Đà Nẵng","s":"Kinh Tế ĐN"},{"c":"UED_DN","n":"Trường ĐH Sư phạm - ĐH Đà Nẵng","s":"Sư Phạm ĐN"},{"c":"UFL_DN","n":"Trường ĐH Ngoại ngữ - ĐH Đà Nẵng","s":"Ngoại Ngữ ĐN"},{"c":"UTE_DN","n":"Trường ĐH Sư phạm Kỹ thuật - ĐH Đà Nẵng","s":"SPKT ĐN"},{"c":"VKU","n":"Trường ĐH CNTT và Truyền thông Việt - Hàn","s":"VKU Đà Nẵng"},{"c":"HUEUNI","n":"Đại học Huế","s":"ĐH Huế"},{"c":"TNU","n":"Đại học Thái Nguyên","s":"ĐH Thái Nguyên"},{"c":"CTU","n":"Đại học Cần Thơ","s":"ĐH Cần Thơ"},{"c":"TVU","n":"Đại học Trà Vinh","s":"ĐH Trà Vinh"},{"c":"UTC","n":"Trường ĐH Giao thông Vận tải","s":"GTVT"},{"c":"VIMARU","n":"Trường ĐH Hàng hải Việt Nam","s":"Hàng Hải VIMARU"},{"c":"PTIT","n":"Học viện Công nghệ Bưu chính Viễn thông","s":"Bưu Chính PTIT"},{"c":"TLU","n":"Trường ĐH Thủy lợi","s":"Thủy Lợi"},{"c":"HUCE","n":"Trường ĐH Xây dựng Hà Nội","s":"Xây Dựng HN"},{"c":"HAU","n":"Trường ĐH Kiến trúc Hà Nội","s":"Kiến Trúc HN"},{"c":"HUMG","n":"Trường ĐH Mỏ - Địa chất","s":"Mỏ Địa Chất"},{"c":"EPU","n":"Trường ĐH Điện lực","s":"Điện Lực EPU"},{"c":"UTT","n":"Trường ĐH Công nghệ Giao thông Vận tải","s":"CN GTVT"},{"c":"VNUF","n":"Trường ĐH Lâm nghiệp","s":"Lâm Nghiệp"},{"c":"UNETI","n":"Trường ĐH Kinh tế - Kỹ thuật Công nghiệp","s":"UNETI"},{"c":"HCMUTE","n":"Trường ĐH Sư phạm Kỹ thuật TP.HCM","s":"SPKT TP.HCM"},{"c":"IUH","n":"Trường ĐH Công nghiệp TP.HCM","s":"Công Nghiệp HCM"},{"c":"HUIT","n":"Trường ĐH Công Thương TP.HCM","s":"Công Thương HUIT"},{"c":"UTH","n":"Trường ĐH Giao thông Vận tải TP.HCM","s":"GTVT TP.HCM"},{"c":"NLU","n":"Trường ĐH Nông Lâm TP.HCM","s":"Nông Lâm HCM"},{"c":"UAH","n":"Trường ĐH Kiến trúc TP.HCM","s":"Kiến Trúc HCM"},{"c":"CTUT","n":"Trường ĐH Kỹ thuật - Công nghệ Cần Thơ","s":"KTCN Cần Thơ"},{"c":"VAA","n":"Học viện Hàng không Việt Nam","s":"Hàng Không VAA"},{"c":"KMA","n":"Học viện Kỹ thuật Mật mã","s":"Mật Mã KMA"},{"c":"UTEHY","n":"Trường ĐH Sư phạm Kỹ thuật Hưng Yên","s":"SPKT Hưng Yên"},{"c":"NUTE","n":"Trường ĐH Sư phạm Kỹ thuật Nam Định","s":"SPKT Nam Định"},{"c":"VUTE","n":"Trường ĐH Sư phạm Kỹ thuật Vinh","s":"SPKT Vinh"},{"c":"MUCE","n":"Trường ĐH Xây dựng Miền Trung","s":"Xây Dựng Miền Trung"},{"c":"MTU","n":"Trường ĐH Xây dựng Miền Tây","s":"Xây Dựng Miền Tây"},{"c":"VUI","n":"Trường ĐH Công nghiệp Việt - Trì","s":"CN Việt Trì"},{"c":"QUI","n":"Trường ĐH Công nghiệp Quảng Ninh","s":"CN Quảng Ninh"},{"c":"VIU","n":"Trường ĐH Công nghiệp Việt - Hung","s":"CN Việt Hung"},{"c":"SDU","n":"Trường ĐH Sao Đỏ","s":"Sao Đỏ"},{"c":"BAFU","n":"Trường ĐH Nông - Lâm Bắc Giang","s":"Nông Lâm Bắc Giang"},{"c":"GUST","n":"Học viện Khoa học và Công nghệ (VAST)","s":"Học Viện KHCN"},{"c":"FTU","n":"Trường ĐH Ngoại thương","s":"Ngoại Thương"},{"c":"UFM","n":"Trường ĐH Tài chính - Marketing","s":"Tài Chính Marketing"},{"c":"TMU","n":"Trường ĐH Thương mại","s":"Thương Mại"},{"c":"BA","n":"Học viện Ngân hàng","s":"HV Ngân Hàng"},{"c":"HUB","n":"Trường ĐH Ngân hàng TP.HCM","s":"ĐH Ngân Hàng HCM"},{"c":"AOF","n":"Học viện Tài chính","s":"HV Tài Chính"},{"c":"HOU","n":"Trường ĐH Mở Hà Nội","s":"ĐH Mở HN"},{"c":"OU","n":"Trường ĐH Mở TP.HCM","s":"ĐH Mở HCM"},{"c":"VNUA","n":"Học viện Nông nghiệp Việt Nam","s":"HV Nông Nghiệp"},{"c":"HLU","n":"Trường ĐH Luật Hà Nội","s":"Luật Hà Nội"},{"c":"HCMULAW","n":"Trường ĐH Luật TP.HCM","s":"Luật TP.HCM"},{"c":"DKS","n":"Trường ĐH Kiểm sát Hà Nội","s":"Kiểm Sát HPU"},{"c":"NAPA","n":"Học viện Hành chính Quốc gia","s":"Học Viện Hành Chính"},{"c":"DAV","n":"Học viện Ngoại giao","s":"Ngoại Giao"},{"c":"AJC","n":"Học viện Báo chí và Tuyên truyền","s":"Báo Chí AJC"},{"c":"TUU","n":"Trường ĐH Công đoàn","s":"Công Đoàn TUU"},{"c":"ULSA","n":"Trường ĐH Lao động - Xã hội","s":"Lao Động Xã Hội"},{"c":"VWA","n":"Học viện Phụ nữ Việt Nam","s":"HV Phụ Nữ"},{"c":"VYA","n":"Học viện Thanh thiếu niên Việt Nam","s":"HV Thanh Thiếu Niên"},{"c":"NAEM","n":"Học viện Quản lý Giáo dục","s":"HV QL Giáo Dục"},{"c":"UFA","n":"Trường ĐH Tài chính - Kế toán (Quảng Ngãi)","s":"TCKT Quảng Ngãi"},{"c":"UFBA","n":"Trường ĐH Tài chính - Quản trị kinh doanh","s":"TC-QTKD Hưng Yên"},{"c":"HMU","n":"Trường ĐH Y Hà Nội","s":"ĐH Y Hà Nội"},{"c":"HUP","n":"Trường ĐH Dược Hà Nội","s":"Dược Hà Nội"},{"c":"UMP","n":"Trường ĐH Y Dược TP.HCM","s":"ĐH Y Dược HCM"},{"c":"PNTU","n":"Trường ĐH Y Khoa Phạm Ngọc Thạch","s":"Phạm Ngọc Thạch"},{"c":"CTUMP","n":"Trường ĐH Y Dược Cần Thơ","s":"Y Dược Cần Thơ"},{"c":"HPMU","n":"Trường ĐH Y Dược Hải Phòng","s":"Y Dược Hải Phòng"},{"c":"TBUMP","n":"Trường ĐH Y Dược Thái Bình","s":"Y Dược Thái Bình"},{"c":"VUTM","n":"Học viện Y - Dược học Cổ truyền Việt Nam","s":"Y Dược Cổ Truyền"},{"c":"HUPH","n":"Trường ĐH Y tế Công cộng","s":"Y Tế Công Cộng"},{"c":"NDUN","n":"Trường ĐH Điều dưỡng Nam Định","s":"Điều Dưỡng Nam Định"},{"c":"DUMTP","n":"Trường ĐH Kỹ thuật Y - Dược Đà Nẵng","s":"KTYD Đà Nẵng"},{"c":"HMTU","n":"Trường ĐH Kỹ thuật Y tế Hải Dương","s":"KTYT Hải Dương"},{"c":"HNUE","n":"Trường ĐH Sư phạm Hà Nội","s":"Sư Phạm HN"},{"c":"HCMUE","n":"Trường ĐH Sư phạm TP.HCM","s":"Sư Phạm HCM"},{"c":"HANU","n":"Trường ĐH Hà Nội","s":"ĐH Hà Nội"},{"c":"HPU2","n":"Trường ĐH Sư phạm Hà Nội 2","s":"Sư Phạm HN 2"},{"c":"HUC","n":"Trường ĐH Văn hóa Hà Nội","s":"Văn Hóa HN"},{"c":"HCMUC","n":"Trường ĐH Văn hóa TP.HCM","s":"Văn Hóa HCM"},{"c":"VNUFA","n":"Trường ĐH Mỹ thuật Việt Nam","s":"Mỹ Thuật VN"},{"c":"UAD","n":"Trường ĐH Mỹ thuật Công nghiệp","s":"Mỹ Thuật Công Nghiệp"},{"c":"HCMUFA","n":"Trường ĐH Mỹ thuật TP.HCM","s":"Mỹ Thuật HCM"},{"c":"SKDA","n":"Trường ĐH Sân khấu - Điện ảnh Hà Nội","s":"Sân Khấu ĐA HN"},{"c":"SKDAHCM","n":"Trường ĐH Sân khấu - Điện ảnh TP.HCM","s":"Sân Khấu ĐA HCM"},{"c":"VNAM","n":"Học viện Âm nhạc Quốc gia Việt Nam","s":"HV Âm Nhạc QG"},{"c":"HCMCONS","n":"Nhạc viện TP. Hồ Chí Minh","s":"Nhạc Viện HCM"},{"c":"VNAD","n":"Học viện Múa Việt Nam","s":"HV Múa VN"},{"c":"UPES1","n":"Trường ĐH Thể dục Thể thao Bắc Ninh","s":"TDTT Bắc Ninh"},{"c":"UPES","n":"Trường ĐH Thể dục Thể thao TP.HCM","s":"TDTT HCM"},{"c":"DSUPES","n":"Trường ĐH Thể dục Thể thao Đà Nẵng","s":"TDTT Đà Nẵng"},{"c":"TUCST","n":"Trường ĐH VH-TT-DL Thanh Hóa","s":"VHTTDL Thanh Hóa"},{"c":"NUAE","n":"Trường ĐH Sư phạm Nghệ thuật TW","s":"SP Nghệ Thuật TW"},{"c":"HUPES","n":"Trường ĐH Sư phạm TDTT Hà Nội","s":"SP TDTT HN"},{"c":"UPES2","n":"Trường ĐH Sư phạm TDTT TP.HCM","s":"SP TDTT HCM"},{"c":"TDTU","n":"Trường ĐH Tôn Đức Thắng","s":"Tôn Đức Thắng"},{"c":"DTHU","n":"Trường ĐH Đồng Tháp","s":"ĐH Đồng Tháp"},{"c":"DNU_DN","n":"Trường ĐH Đồng Nai","s":"ĐH Đồng Nai"},{"c":"NTU","n":"Trường ĐH Nha Trang","s":"ĐH Nha Trang"},{"c":"UKH","n":"Trường ĐH Khánh Hòa","s":"ĐH Khánh Hòa"},{"c":"SGU","n":"Trường ĐH Sài Gòn","s":"ĐH Sài Gòn"},{"c":"TDMU","n":"Trường ĐH Thủ Dầu Một","s":"Thủ Dầu Một"},{"c":"VU","n":"Trường ĐH Vinh","s":"ĐH Vinh"},{"c":"DHP_HP","n":"Trường ĐH Hải Phòng","s":"ĐH Hải Phòng"},{"c":"HLU_QN","n":"Trường ĐH Hạ Long","s":"ĐH Hạ Long"},{"c":"HDU","n":"Trường ĐH Hồng Đức","s":"Hồng Đức Thanh Hóa"},{"c":"QNU","n":"Trường ĐH Quy Nhơn","s":"ĐH Quy Nhơn"},{"c":"DLU","n":"Trường ĐH Đà Lạt","s":"ĐH Đà Lạt"},{"c":"TTN","n":"Trường ĐH Tây Nguyên","s":"ĐH Tây Nguyên"},{"c":"UTB","n":"Trường ĐH Tây Bắc","s":"ĐH Tây Bắc"},{"c":"HVU","n":"Trường ĐH Hùng Vương","s":"ĐH Hùng Vương"},{"c":"TQU","n":"Trường ĐH Tân Trào","s":"ĐH Tân Trào"},{"c":"TBU","n":"Trường ĐH Thái Bình","s":"ĐH Thái Bình"},{"c":"HLU_NB","n":"Trường ĐH Hoa Lư","s":"ĐH Hoa Lư"},{"c":"HTU","n":"Trường ĐH Hà Tĩnh","s":"ĐH Hà Tĩnh"},{"c":"QBU","n":"Trường ĐH Quảng Bình","s":"ĐH Quảng Bình"},{"c":"QNAMUNI","n":"Trường ĐH Quảng Nam","s":"ĐH Quảng Nam"},{"c":"PDU","n":"Trường ĐH Phạm Văn Đồng","s":"Phạm Văn Đồng"},{"c":"PYU","n":"Trường ĐH Phú Yên","s":"ĐH Phú Yên"},{"c":"TGU","n":"Trường ĐH Tiền Giang","s":"ĐH Tiền Giang"},{"c":"KGU","n":"Trường ĐH Kiên Giang","s":"ĐH Kiên Giang"},{"c":"BLU","n":"Trường ĐH Bạc Liêu","s":"ĐH Bạc Liêu"},{"c":"VGU","n":"Trường ĐH Việt - Đức","s":"Việt Đức VGU"},{"c":"USTH","n":"Trường ĐH Khoa học và Công nghệ Hà Nội","s":"Việt Pháp USTH"},{"c":"MTA","n":"Học viện Kỹ thuật Quân sự (Lê Quý Đôn)","s":"Kỹ Thuật Quân Sự"},{"c":"VMMU","n":"Học viện Quân y","s":"Học Viện Quân Y"},{"c":"MSA","n":"Học viện Khoa học Quân sự","s":"HV KH Quân Sự"},{"c":"TCU","n":"Trường Sĩ quan Thông tin","s":"SQ Thông Tin"},{"c":"C500","n":"Học viện An ninh Nhân dân","s":"An Ninh Nhân Dân"},{"c":"PPA","n":"Học viện Cảnh sát Nhân dân","s":"Cảnh Sát Nhân Dân"},{"c":"TDNU","n":"Trường ĐH Trần Đại Nghĩa (Vinhempich)","s":"Trần Đại Nghĩa"},{"c":"UFP","n":"Trường ĐH Phòng cháy Chữa cháy","s":"PCCC"},{"c":"FPT","n":"Đại học FPT","s":"FPT University"},{"c":"PHENIKAA","n":"Đại học Phenikaa","s":"Phenikaa"},{"c":"TLU_TL","n":"Trường ĐH Thăng Long","s":"Thăng Long"},{"c":"DNU_HN","n":"Trường ĐH Đại Nam","s":"Đại Nam"},{"c":"EAUT","n":"Trường ĐH Công nghệ Đông Á","s":"Công Nghệ Đông Á"},{"c":"PDU_HN","n":"Trường ĐH Phương Đông","s":"Phương Đông"},{"c":"TDU_HN","n":"Trường ĐH Thành Đô","s":"Thành Đô"},{"c":"FBU","n":"Trường ĐH Tài chính - Ngân hàng Hà Nội","s":"FBU Hà Nội"},{"c":"NTU_HN","n":"Trường ĐH Nguyễn Trãi","s":"Nguyễn Trãi"},{"c":"DDU","n":"Trường ĐH Đông Đô","s":"Đông Đô"},{"c":"HBU_HN","n":"Trường ĐH Hòa Bình","s":"Hòa Bình"},{"c":"HUBT","n":"Trường ĐH Kinh doanh và Công nghệ Hà Nội","s":"HUBT"},{"c":"HPU_HP2","n":"Trường ĐH Quản lý và Công nghệ Hải Phòng","s":"HPU Hải Phòng"},{"c":"UKB","n":"Trường ĐH Kinh Bắc","s":"Kinh Bắc"},{"c":"BHIU","n":"Trường ĐH Quốc tế Bắc Hà","s":"Bắc Hà BHIU"},{"c":"CVA","n":"Trường ĐH Chu Văn An (Ecopark)","s":"Chu Văn An"},{"c":"LTVU","n":"Trường ĐH Lương Thế Vinh","s":"Lương Thế Vinh"},{"c":"DHTV","n":"Trường ĐH Trưng Vương","s":"Trưng Vương"},{"c":"VBU","n":"Trường ĐH Việt Bắc","s":"Việt Bắc"},{"c":"THUV","n":"Trường ĐH Tokyo Việt Nam","s":"Tokyo Việt Nam"},{"c":"BUV","n":"Trường ĐH Anh Quốc Việt Nam","s":"BUV"},{"c":"DTU","n":"Đại học Duy Tân","s":"Duy Tân"},{"c":"UDA","n":"Trường ĐH Đông Á (Đà Nẵng)","s":"Đông Á ĐN"},{"c":"DAU","n":"Trường ĐH Kiến trúc Đà Nẵng","s":"Kiến Trúc ĐN"},{"c":"AUV","n":"Trường ĐH Mỹ tại Việt Nam","s":"ĐH Mỹ AUV"},{"c":"PCTU","n":"Trường ĐH Phan Châu Trinh","s":"Phan Châu Trinh"},{"c":"IUV","n":"Trường ĐH Công nghiệp Vinh","s":"CN Vinh"},{"c":"VXUT","n":"Trường ĐH Công nghệ Vạn Xuân","s":"Vạn Xuân"},{"c":"QTU","n":"Trường ĐH Quang Trung","s":"Quang Trung"},{"c":"POU","n":"Trường ĐH Thái Bình Dương","s":"Thái Bình Dương"},{"c":"YERSIN","n":"Trường ĐH Yersin Đà Lạt","s":"Yersin Đà Lạt"},{"c":"UPT","n":"Trường ĐH Phan Thiết","s":"Phan Thiết"},{"c":"BMU","n":"Trường ĐH Y Dược Buôn Ma Thuột","s":"Y Dược BMT"},{"c":"HUFLIT","n":"Trường ĐH Ngoại ngữ - Tin học TP.HCM","s":"HUFLIT"},{"c":"BDU","n":"Trường ĐH Bình Dương","s":"ĐH Bình Dương"},{"c":"BETU","n":"Trường ĐH Kinh tế - Kỹ thuật Bình Dương","s":"KT-KT Bình Dương"},{"c":"VLU","n":"Trường ĐH Văn Lang","s":"Văn Lang"},{"c":"HUTECH","n":"Trường ĐH Công nghệ TP.HCM","s":"HUTECH"},{"c":"HSU","n":"Trường ĐH Hoa Sen","s":"Hoa Sen"},{"c":"NTTU","n":"Trường ĐH Nguyễn Tất Thành","s":"Nguyễn Tất Thành"},{"c":"UEF","n":"Trường ĐH Kinh tế - Tài chính TP.HCM","s":"UEF"},{"c":"HIU","n":"Trường ĐH Quốc tế Hồng Bàng","s":"Hồng Bàng HIU"},{"c":"VHU","n":"Trường ĐH Văn Hiến","s":"Văn Hiến"},{"c":"SIU","n":"Trường ĐH Quốc tế Sài Gòn","s":"Quốc Tế Sài Gòn"},{"c":"UMT","n":"Trường ĐH Quản lý và Công nghệ TP.HCM","s":"UMT TP.HCM"},{"c":"STU","n":"Trường ĐH Công nghệ Sài Gòn","s":"CN Sài Gòn STU"},{"c":"GDU","n":"Trường ĐH Gia Định","s":"Gia Định"},{"c":"EIU","n":"Trường ĐH Quốc tế Miền Đông","s":"Quốc Tế Miền Đông"},{"c":"LHU","n":"Trường ĐH Lạc Hồng","s":"Lạc Hồng"},{"c":"DNTU","n":"Trường ĐH Công nghệ Đồng Nai","s":"CN Đồng Nai"},{"c":"MUT","n":"Trường ĐH Công nghệ Miền Đông","s":"CN Miền Đông"},{"c":"BVU","n":"Trường ĐH Bà Rịa - Vũng Tàu","s":"Bà Rịa Vũng Tàu"},{"c":"DLA","n":"Trường ĐH Kinh tế Công nghiệp Long An","s":"Kinh Tế Long An"},{"c":"TTU","n":"Trường ĐH Tân Tạo","s":"Tân Tạo"},{"c":"NCTU","n":"Trường ĐH Nam Cần Thơ","s":"Nam Cần Thơ"},{"c":"TDU_CT","n":"Trường ĐH Tây Đô","s":"Tây Đô"},{"c":"VTTU","n":"Trường ĐH Võ Trường Toản","s":"Võ Trường Toản"},{"c":"MKU","n":"Trường ĐH Cửu Long","s":"Cửu Long"},{"c":"RMIT","n":"RMIT University Vietnam","s":"RMIT"},{"c":"FUV","n":"Trường ĐH Fulbright Việt Nam","s":"Fulbright"},{"c":"VINUNI","n":"VinUniversity","s":"VinUni"},{"c":"CAOTHANG","n":"Trường Cao đẳng Kỹ thuật Cao Thắng","s":"CĐ Cao Thắng"},{"c":"COFER","n":"Trường Cao đẳng Kinh tế Đối ngoại","s":"CĐ Kinh Tế Đối Ngoại"},{"c":"HACTECH","n":"Trường CĐ nghề Bách khoa Hà Nội","s":"CĐ Bách Khoa HN"},{"c":"POLY","n":"Trường CĐ FPT Polytechnic","s":"FPT Polytechnic"},{"c":"CTIM","n":"Trường Cao đẳng CTIM","s":"CĐ CTIM"},{"c":"TDC","n":"Trường Cao đẳng Công nghệ Thủ Đức","s":"CĐ Thủ Đức TDC"},{"c":"HCE_CD","n":"Trường Cao đẳng Kinh tế TP.HCM","s":"CĐ Kinh Tế HCM"},{"c":"LTTC","n":"Trường CĐ Kỹ thuật Lý Tự Trọng","s":"CĐ Lý Tự Trọng"},{"c":"HITC","n":"Trường CĐ Công Thương TP.HCM","s":"CĐ Công Thương HCM"},{"c":"ITC","n":"Trường CĐ Công nghệ Thông tin TP.HCM","s":"CĐ CNTT ITC"},{"c":"VIENDONG","n":"Trường Cao đẳng Viễn Đông","s":"CĐ Viễn Đông"},{"c":"ICH","n":"Trường Cao đẳng Quốc tế TP.HCM","s":"CĐ Quốc Tế HCM"},{"c":"DTDL","n":"Trường CĐ Điện tử - Điện lạnh Hà Nội","s":"CĐ Điện Lạnh HN"},{"c":"HNIVC","n":"Trường CĐ nghề Công nghiệp Hà Nội","s":"CĐ CN Hà Nội"},{"c":"HHT","n":"Trường CĐ Công nghệ Cao Hà Nội","s":"CĐ Công Nghệ Cao HN"},{"c":"HCCT","n":"Trường CĐ Thương mại và Du lịch Hà Nội","s":"CĐ TM&DL Hà Nội"},{"c":"CDSPTW","n":"Trường CĐ Sư phạm Trung ương","s":"CĐ Sư Phạm TW"},{"c":"CDTM","n":"Trường Cao đẳng Thương mại (Đà Nẵng)","s":"CĐ Thương Mại ĐN"},{"c":"CCT","n":"Trường CĐ CN-KT và Thủy lợi Miền Trung","s":"CĐ Thủy Lợi MT"},{"c":"CDHUE","n":"Trường Cao đẳng Huế","s":"CĐ Huế"},{"c":"CYK","n":"Trường Cao đẳng Y tế Khánh Hòa","s":"CĐ Y Tế Khánh Hòa"},{"c":"CDKTCNNT","n":"Trường CĐ Kỹ thuật Công nghệ Nha Trang","s":"CĐ KTCN Nha Trang"},{"c":"NTC","n":"Trường Cao đẳng Du lịch Nha Trang","s":"CĐ Du Lịch Nha Trang"},{"c":"CDYDSG","n":"Trường CĐ Y Dược Sài Gòn","s":"CĐ Y Dược Sài Gòn"}];
+window.VIBE_UNIVERSITIES_DATA = [{"c":"ALL","n":"Tất cả trường","s":"Tất cả trường"},{"c":"VNU-UET","n":"Trường Đại học Công nghệ – ĐHQGHN","s":"Trường Đại học Công nghệ – ĐHQGHN","d":["@vnu.edu.vn","@uet.vnu.edu.vn"],"ex":"[MSSV]@vnu.edu.vn"},{"c":"VNU-HUS","n":"Trường Đại học Khoa học Tự nhiên – ĐHQGHN","s":"Trường Đại học Khoa học Tự nhiên – ĐHQGHN","d":["@hus.edu.vn","@vnu.edu.vn"],"ex":"[tên][họ_đệm]_[khóa]@hus.edu.vn hoặc [MSSV]@vnu.edu.vn"},{"c":"VNU-USSH","n":"Trường Đại học Khoa học Xã hội và Nhân văn – ĐHQGHN","s":"Trường Đại học Khoa học Xã hội và Nhân văn – ĐHQGHN","d":["@sv.ussh.edu.vn","@vnu.edu.vn"],"ex":"[MSSV]@sv.ussh.edu.vn"},{"c":"VNU-ULIS","n":"Trường Đại học Ngoại ngữ – ĐHQGHN","s":"Trường Đại học Ngoại ngữ – ĐHQGHN","d":["@vnu.edu.vn"],"ex":"[MSSV]@vnu.edu.vn"},{"c":"VNU-UEB","n":"Trường Đại học Kinh tế – ĐHQGHN","s":"Trường Đại học Kinh tế – ĐHQGHN","d":["@vnu.edu.vn","@ueb.edu.vn"],"ex":"[MSSV]@vnu.edu.vn"},{"c":"VNU-UEd","n":"Trường Đại học Giáo dục – ĐHQGHN","s":"Trường Đại học Giáo dục – ĐHQGHN","d":["@vnu.edu.vn","@education.vnu.edu.vn"],"ex":"[MSSV]@vnu.edu.vn"},{"c":"VNU-UMP","n":"Trường Đại học Y Dược – ĐHQGHN","s":"Trường Đại học Y Dược – ĐHQGHN","d":["@vnu.edu.vn","@ump.vnu.edu.vn"],"ex":"[MSSV]@vnu.edu.vn"},{"c":"VNU-VJU","n":"Trường Đại học Việt Nhật – ĐHQGHN","s":"Trường Đại học Việt Nhật – ĐHQGHN","d":["@st.vju.ac.vn","@vnu.edu.vn"],"ex":"[MSSV]@st.vju.ac.vn hoặc [MSSV]@vnu.edu.vn"},{"c":"VNU-UL","n":"Trường Đại học Luật – ĐHQGHN","s":"Trường Đại học Luật – ĐHQGHN","d":["@vnu.edu.vn","@law.vnu.edu.vn"],"ex":"[MSSV]@vnu.edu.vn"},{"c":"VNU-HSB","n":"Trường Quản trị và Kinh doanh – ĐHQGHN","s":"Trường Quản trị và Kinh doanh – ĐHQGHN","d":["@hsb.edu.vn","@vnu.edu.vn"],"ex":"[tên_định_danh]@hsb.edu.vn hoặc [MSSV]@vnu.edu.vn"},{"c":"VNU-IS","n":"Trường Quốc tế – ĐHQGHN","s":"Trường Quốc tế – ĐHQGHN","d":["@isvnu.vn","@vnu.edu.vn"],"ex":"[MSSV]@isvnu.vn hoặc [MSSV]@vnu.edu.vn"},{"c":"VNU-SIS","n":"Trường Khoa học liên ngành và Nghệ thuật – ĐHQGHN","s":"Trường Khoa học liên ngành và Nghệ thuật – ĐHQGHN","d":["@vnu.edu.vn"],"ex":"[MSSV]@vnu.edu.vn"},{"c":"VNUHCM-UT (HCMUT)","n":"Trường Đại học Bách khoa – ĐHQG-HCM","s":"Trường Đại học Bách khoa – ĐHQG-HCM","d":["@hcmut.edu.vn"],"ex":"[tên].[họ_đệm_hoặc_MSSV]@hcmut.edu.vn (Google Workspace)"},{"c":"VNUHCM-US (HCMUS)","n":"Trường Đại học Khoa học Tự nhiên – ĐHQG-HCM","s":"Trường Đại học Khoa học Tự nhiên – ĐHQG-HCM","d":["@student.hcmus.edu.vn"],"ex":"[MSSV + 2 số cuối CCCD]@student.hcmus.edu.vn"},{"c":"VNUHCM-UIT","n":"Trường Đại học Công nghệ Thông tin – ĐHQG-HCM","s":"Trường Đại học Công nghệ Thông tin – ĐHQG-HCM","d":["@gm.uit.edu.vn &amp","@ms.uit.edu.vn"],"ex":"[MSSV]@gm.uit.edu.vn (Google) và [MSSV]@ms.uit.edu.vn (MS 365)"},{"c":"VNUHCM-USSH","n":"Trường Đại học Khoa học Xã hội và Nhân văn – ĐHQG-HCM","s":"Trường Đại học Khoa học Xã hội và Nhân văn – ĐHQG-HCM","d":["@hcmussh.edu.vn"],"ex":"[MSSV]@hcmussh.edu.vn"},{"c":"VNUHCM-UEL","n":"Trường Đại học Kinh tế – Luật – ĐHQG-HCM","s":"Trường Đại học Kinh tế – Luật – ĐHQG-HCM","d":["@st.uel.edu.vn"],"ex":"[tên][họ_đệm][MSSV]@st.uel.edu.vn hoặc [MSSV]@st.uel.edu.vn"},{"c":"VNUHCM-IU","n":"Trường Đại học Quốc tế – ĐHQG-HCM","s":"Trường Đại học Quốc tế – ĐHQG-HCM","d":["@student.hcmiu.edu.vn"],"ex":"[MSSV]@student.hcmiu.edu.vn (Microsoft 365)"},{"c":"VNUHCM-AGU","n":"Trường Đại học An Giang – ĐHQG-HCM","s":"Trường Đại học An Giang – ĐHQG-HCM","d":["@student.agu.edu.vn"],"ex":"[tên_định_danh_hoặc_MSSV]@student.agu.edu.vn"},{"c":"VNUHCM-UHS","n":"Trường Đại học Khoa học Sức khỏe – ĐHQG-HCM","s":"Trường Đại học Khoa học Sức khỏe – ĐHQG-HCM","d":["@uhsvnu.edu.vn","@medvnu.edu.vn"],"ex":"[MSSV]@uhsvnu.edu.vn"},{"c":"HUST (BKA)","n":"ĐẠI HỌC BÁCH KHOA HÀ NỘI (HUST) (Gồm 6 trường: SoICT, SMS, SME, SCLS, SEEE, SEM)","s":"ĐẠI HỌC BÁCH KHOA HÀ NỘI (HUST) (Gồm 6 trường: SoICT, SMS, SME, SCLS, SEEE, SEM)","d":["@sis.hust.edu.vn"],"ex":"[tên].[viết_tắt_họ_đệm][MSSV_bỏ_20_đầu]@sis.hust.edu.vn (VD: khoa.tb171234@sis.hust.edu.vn)"},{"c":"NEU","n":"ĐẠI HỌC KINH TẾ QUỐC DÂN (NEU) (Gồm 3 trường: NCB, NCEPA, NCT)","s":"ĐẠI HỌC KINH TẾ QUỐC DÂN (NEU) (Gồm 3 trường: NCB, NCEPA, NCT)","d":["@st.neu.edu.vn &amp","@neu.edu.vn"],"ex":"[MSSV]@st.neu.edu.vn (VD: 11192754@st.neu.edu.vn)"},{"c":"UEH","n":"ĐẠI HỌC KINH TẾ TP. HỒ CHÍ MINH (UEH) (Gồm 4 trường: CoB, CELG, CTD, ISB; Phân hiệu Vĩnh Long - UEH Mekong &amp; Phân hiệu Khánh Hòa)","s":"ĐẠI HỌC KINH TẾ TP. HỒ CHÍ MINH (UEH) (Gồm 4 trường: CoB, CELG, CTD, ISB; Phân hiệu Vĩnh Long - UEH Mekong &amp; Phân hiệu Khánh Hòa)","d":["@st.ueh.edu.vn &amp","@student.isb.edu.vn"],"ex":"[tên_hoặc_MSSV]@st.ueh.edu.vn; riêng Viện ISB dùng [MSSV]@student.isb.edu.vn (VD: 31151020078@student.isb.edu.vn)"},{"c":"HaUI (DCH)","n":"ĐẠI HỌC CÔNG NGHIỆP HÀ NỘI (HaUI) (Gồm 3 trường: SICT, SEEE, SLT)","s":"ĐẠI HỌC CÔNG NGHIỆP HÀ NỘI (HaUI) (Gồm 3 trường: SICT, SEEE, SLT)","d":["@st.haui.edu.vn","@haui.edu.vn"],"ex":"[MSSV]@st.haui.edu.vn"},{"c":"UDN","n":"ĐẠI HỌC ĐÀ NẴNG (UDN)","s":"ĐẠI HỌC ĐÀ NẴNG (UDN)","d":["@udn.vn (Hành chính)"],"ex":"Phân bổ theo các trường đại học thành viên"},{"c":"DUT","n":"Trường Đại học Bách khoa – ĐH Đà Nẵng","s":"Trường Đại học Bách khoa – ĐH Đà Nẵng","d":["@sv.dut.udn.vn","@dut.udn.vn"],"ex":"[MSSV]@sv.dut.udn.vn"},{"c":"DUE","n":"Trường Đại học Kinh tế – ĐH Đà Nẵng","s":"Trường Đại học Kinh tế – ĐH Đà Nẵng","d":["@due.udn.vn","@due.edu.vn"],"ex":"[MSSV]@due.udn.vn"},{"c":"UED","n":"Trường Đại học Sư phạm – ĐH Đà Nẵng","s":"Trường Đại học Sư phạm – ĐH Đà Nẵng","d":["@ued.udn.vn"],"ex":"[MSSV]@ued.udn.vn"},{"c":"UFLS","n":"Trường Đại học Ngoại ngữ – ĐH Đà Nẵng","s":"Trường Đại học Ngoại ngữ – ĐH Đà Nẵng","d":["@ufl.udn.vn"],"ex":"[MSSV]@ufl.udn.vn"},{"c":"UTE","n":"Trường Đại học Sư phạm Kỹ thuật – ĐH Đà Nẵng","s":"Trường Đại học Sư phạm Kỹ thuật – ĐH Đà Nẵng","d":["@ute.udn.vn"],"ex":"[MSSV]@ute.udn.vn"},{"c":"VKU","n":"Trường Đại học Công nghệ Thông tin và Truyền thông Việt – Hàn – ĐH Đà Nẵng","s":"Trường Đại học Công nghệ Thông tin và Truyền thông Việt – Hàn – ĐH Đà Nẵng","d":["@vku.udn.vn"],"ex":"[tên][họ_đệm].[khóa_ngành]@vku.udn.vn hoặc [MSSV]@vku.udn.vn"},{"c":"DHH","n":"ĐẠI HỌC HUẾ (HUEUNI)","s":"ĐẠI HỌC HUẾ (HUEUNI)","d":["@hueuni.edu.vn"],"ex":"[MSSV]@hueuni.edu.vn hoặc theo từng trường thành viên"},{"c":"HUSC","n":"Trường Đại học Khoa học – ĐH Huế","s":"Trường Đại học Khoa học – ĐH Huế","d":["@husc.edu.vn"],"ex":"[MSSV]@husc.edu.vn"},{"c":"DHS, DHY, DHL, DHK, DHF, DHN, HUL","n":"Các trường thành viên khác thuộc ĐH Huế (Sư phạm, Y Dược, Nông Lâm, Kinh tế, Ngoại ngữ, Nghệ thuật, Luật)","s":"Các trường thành viên khác thuộc ĐH Huế (Sư phạm, Y Dược, Nông Lâm, Kinh tế, Ngoại ngữ, Nghệ thuật, Luật)","d":["@dhs.edu.vn","@huemed-univ.edu.vn","@huaf.edu.vn","@hce.edu.vn","@huflis.edu.vn","@hul.edu.vn"],"ex":"[MSSV]@[tên_miền_trường] hoặc đồng bộ qua @hueuni.edu.vn"},{"c":"TNU","n":"ĐẠI HỌC THÁI NGUYÊN (TNU)","s":"ĐẠI HỌC THÁI NGUYÊN (TNU)","d":["@tnu.edu.vn"],"ex":"Phân bổ theo các trường đại học thành viên"},{"c":"TNUT","n":"Trường Đại học Kỹ thuật Công nghiệp – ĐH Thái Nguyên","s":"Trường Đại học Kỹ thuật Công nghiệp – ĐH Thái Nguyên","d":["@tnut.edu.vn"],"ex":"[MSSV]@tnut.edu.vn"},{"c":"TNUFL","n":"Trường Đại học Ngoại ngữ – ĐH Thái Nguyên","s":"Trường Đại học Ngoại ngữ – ĐH Thái Nguyên","d":["@tnufl.edu.vn"],"ex":"[MSSV]@tnufl.edu.vn"},{"c":"TNUE, TUMP, TUAF, TUEBA, ICTU, TNUS","n":"Các trường thành viên khác thuộc ĐH Thái Nguyên (Sư phạm, Y Dược, Nông Lâm, Kinh tế &amp; QTKD, CNTT &amp; Truyền thông, Khoa học)","s":"Các trường thành viên khác thuộc ĐH Thái Nguyên (Sư phạm, Y Dược, Nông Lâm, Kinh tế &amp; QTKD, CNTT &amp; Truyền thông, Khoa học)","d":["@tnue.edu.vn","@tump.edu.vn","@tuaf.edu.vn","@tueba.edu.vn","@ictu.edu.vn","@tnus.edu.vn"],"ex":"[MSSV]@[tên_miền_trường] hoặc @st.[tên_miền_trường]"},{"c":"CTU (TCT)","n":"ĐẠI HỌC CẦN THƠ (CTU) (Gồm các Trường Bách khoa, CNTT&amp;TT, Kinh tế, Nông nghiệp, Thủy sản, Sư phạm...)","s":"ĐẠI HỌC CẦN THƠ (CTU) (Gồm các Trường Bách khoa, CNTT&amp;TT, Kinh tế, Nông nghiệp, Thủy sản, Sư phạm...)","d":["@student.ctu.edu.vn"],"ex":"[tên][MSSV]@student.ctu.edu.vn"},{"c":"TVU (DVT)","n":"ĐẠI HỌC TRÀ VINH (TVU)","s":"ĐẠI HỌC TRÀ VINH (TVU)","d":["@st.tvu.edu.vn","@tvu.edu.vn"],"ex":"[MSSV]@st.tvu.edu.vn"},{"c":"GHA / UTC","n":"Trường Đại học Giao thông Vận tải","s":"Trường Đại học Giao thông Vận tải","d":["@st.utc.edu.vn &amp","@lms.utc.edu.vn"],"ex":"[tên][MSSV]@st.utc.edu.vn (VD: an123456@st.utc.edu.vn) hoặc @lms.utc.edu.vn"},{"c":"HHA / VIMARU","n":"Trường Đại học Hàng hải Việt Nam","s":"Trường Đại học Hàng hải Việt Nam","d":["@st.vimaru.edu.vn"],"ex":"[tên_đăng_nhập]@st.vimaru.edu.vn (Mật khẩu mặc định: dd/mm/yyyy)"},{"c":"BVH / PTIT","n":"Học viện Công nghệ Bưu chính Viễn thông","s":"Học viện Công nghệ Bưu chính Viễn thông","d":["@stu.ptit.edu.vn","@ptit.edu.vn"],"ex":"[tên][viết_tắt_họ_đệm].[MSSV]@stu.ptit.edu.vn"},{"c":"TLA / TLU","n":"Trường Đại học Thủy lợi","s":"Trường Đại học Thủy lợi","d":["@e.tlu.edu.vn","@tlu.edu.vn"],"ex":"[MSSV]@e.tlu.edu.vn"},{"c":"XDA / HUCE","n":"Trường Đại học Xây dựng Hà Nội","s":"Trường Đại học Xây dựng Hà Nội","d":["@nuce.edu.vn","@huce.edu.vn"],"ex":"[MSSV]@huce.edu.vn hoặc [tên].[MSSV]@huce.edu.vn"},{"c":"KHA / HAU","n":"Trường Đại học Kiến trúc Hà Nội","s":"Trường Đại học Kiến trúc Hà Nội","d":["@hau.edu.vn","@st.hau.edu.vn"],"ex":"[MSSV]@hau.edu.vn"},{"c":"MDA / HUMG","n":"Trường Đại học Mỏ – Địa chất","s":"Trường Đại học Mỏ – Địa chất","d":["@sv.humg.edu.vn","@humg.edu.vn"],"ex":"[MSSV]@sv.humg.edu.vn (Microsoft 365)"},{"c":"DDL / EPU","n":"Trường Đại học Điện lực","s":"Trường Đại học Điện lực","d":["@epu.edu.vn","@st.epu.edu.vn"],"ex":"[MSSV]@epu.edu.vn"},{"c":"GTA / UTT","n":"Trường Đại học Công nghệ Giao thông Vận tải","s":"Trường Đại học Công nghệ Giao thông Vận tải","d":["@utt.edu.vn","@st.utt.edu.vn"],"ex":"[MSSV]@st.utt.edu.vn"},{"c":"LNH / VNUF","n":"Trường Đại học Lâm nghiệp","s":"Trường Đại học Lâm nghiệp","d":["@vnuf.edu.vn","@st.vnuf.edu.vn"],"ex":"[MSSV]@vnuf.edu.vn"},{"c":"DKK / UNETI","n":"Trường Đại học Kinh tế – Kỹ thuật Công nghiệp","s":"Trường Đại học Kinh tế – Kỹ thuật Công nghiệp","d":["@sv.uneti.edu.vn","@uneti.edu.vn"],"ex":"[MSSV]@sv.uneti.edu.vn"},{"c":"SPK / HCMUTE","n":"Trường Đại học Sư phạm Kỹ thuật TP. Hồ Chí Minh","s":"Trường Đại học Sư phạm Kỹ thuật TP. Hồ Chí Minh","d":["@student.hcmute.edu.vn"],"ex":"[MSSV]@student.hcmute.edu.vn (Google Workspace)"},{"c":"IUH","n":"Trường Đại học Công nghiệp TP. Hồ Chí Minh","s":"Trường Đại học Công nghiệp TP. Hồ Chí Minh","d":["@student.iuh.edu.vn","@iuh.edu.vn"],"ex":"[MSSV]@student.iuh.edu.vn"},{"c":"DCT / HUIT (HUFI)","n":"Trường Đại học Công Thương TP. Hồ Chí Minh (Trước đây là ĐH Công nghiệp Thực phẩm TP.HCM)","s":"Trường Đại học Công Thương TP. Hồ Chí Minh (Trước đây là ĐH Công nghiệp Thực phẩm TP.HCM)","d":["@st.huit.edu.vn","@hufi.edu.vn"],"ex":"[MSSV]@st.huit.edu.vn"},{"c":"GTS / UTH","n":"Trường Đại học Giao thông Vận tải TP. Hồ Chí Minh","s":"Trường Đại học Giao thông Vận tải TP. Hồ Chí Minh","d":["@ut.edu.vn","@sv.ut.edu.vn"],"ex":"[MSSV]@sv.ut.edu.vn hoặc [MSSV]@ut.edu.vn"},{"c":"NLS / NLU","n":"Trường Đại học Nông Lâm TP. Hồ Chí Minh (Kèm Phân hiệu Ninh Thuận / Khánh Hòa)","s":"Trường Đại học Nông Lâm TP. Hồ Chí Minh (Kèm Phân hiệu Ninh Thuận / Khánh Hòa)","d":["@st.hcmuaf.edu.vn"],"ex":"[MSSV]@st.hcmuaf.edu.vn"},{"c":"KTS / UAH","n":"Trường Đại học Kiến trúc TP. Hồ Chí Minh","s":"Trường Đại học Kiến trúc TP. Hồ Chí Minh","d":["@uah.edu.vn","@st.uah.edu.vn"],"ex":"[MSSV]@uah.edu.vn"},{"c":"KCT / CTUT","n":"Trường Đại học Kỹ thuật – Công nghệ Cần Thơ","s":"Trường Đại học Kỹ thuật – Công nghệ Cần Thơ","d":["@student.ctuet.edu.vn"],"ex":"[MSSV]@student.ctuet.edu.vn"},{"c":"HHK / VAA","n":"Học viện Hàng không Việt Nam","s":"Học viện Hàng không Việt Nam","d":["@vaa.edu.vn","@st.vaa.edu.vn"],"ex":"[MSSV]@vaa.edu.vn"},{"c":"SKH / UTEHY","n":"Trường Đại học Sư phạm Kỹ thuật Hưng Yên","s":"Trường Đại học Sư phạm Kỹ thuật Hưng Yên","d":["@utehy.edu.vn","@st.utehy.edu.vn"],"ex":"[MSSV]@utehy.edu.vn"},{"c":"SKN / NUTE","n":"Trường Đại học Sư phạm Kỹ thuật Nam Định","s":"Trường Đại học Sư phạm Kỹ thuật Nam Định","d":["@nute.edu.vn"],"ex":"[MSSV]@nute.edu.vn"},{"c":"SKV / VUTE","n":"Trường Đại học Sư phạm Kỹ thuật Vinh","s":"Trường Đại học Sư phạm Kỹ thuật Vinh","d":["@vute.edu.vn"],"ex":"[MSSV]@vute.edu.vn"},{"c":"XDT / MUCE","n":"Trường Đại học Xây dựng Miền Trung","s":"Trường Đại học Xây dựng Miền Trung","d":["@muce.edu.vn"],"ex":"[MSSV]@muce.edu.vn"},{"c":"MTU","n":"Trường Đại học Xây dựng Miền Tây","s":"Trường Đại học Xây dựng Miền Tây","d":["@mtu.edu.vn"],"ex":"[MSSV]@mtu.edu.vn"},{"c":"VTI / VUI","n":"Trường Đại học Công nghiệp Việt – Trì","s":"Trường Đại học Công nghiệp Việt – Trì","d":["@vui.edu.vn"],"ex":"[MSSV]@vui.edu.vn"},{"c":"DDM / QUI","n":"Trường Đại học Công nghiệp Quảng Ninh","s":"Trường Đại học Công nghiệp Quảng Ninh","d":["@qui.edu.vn"],"ex":"[MSSV]@qui.edu.vn"},{"c":"VHD / VIU","n":"Trường Đại học Công nghiệp Việt – Hung","s":"Trường Đại học Công nghiệp Việt – Hung","d":["@viu.edu.vn"],"ex":"[MSSV]@viu.edu.vn"},{"c":"SDU","n":"Trường Đại học Sao Đỏ","s":"Trường Đại học Sao Đỏ","d":["@saodo.edu.vn"],"ex":"[MSSV]@saodo.edu.vn"},{"c":"DBA / BAFU","n":"Trường Đại học Nông – Lâm Bắc Giang","s":"Trường Đại học Nông – Lâm Bắc Giang","d":["@bafu.edu.vn"],"ex":"[MSSV]@bafu.edu.vn"},{"c":"GUST","n":"Học viện Khoa học và Công nghệ (Viện Hàn lâm KH&amp;CN Việt Nam)","s":"Học viện Khoa học và Công nghệ (Viện Hàn lâm KH&amp;CN Việt Nam)","d":["@gust-vast.vn","@vast.vn"],"ex":"[học_viên]@gust-vast.vn"},{"c":"NTH / FTU","n":"Trường Đại học Ngoại thương (Hà Nội, Quảng Ninh &amp; Phân hiệu TP.HCM)","s":"Trường Đại học Ngoại thương (Hà Nội, Quảng Ninh &amp; Phân hiệu TP.HCM)","d":["@ftu.edu.vn"],"ex":"k[khóa].[MSSV]@ftu.edu.vn (VD: k64.2513568002@ftu.edu.vn), [tên][MSSV]@ftu.edu.vn hoặc [MSSV]@ftu.edu.vn"},{"c":"DMS / UFM","n":"Trường Đại học Tài chính – Marketing","s":"Trường Đại học Tài chính – Marketing","d":["@sv.ufm.edu.vn"],"ex":"[MSSV]@sv.ufm.edu.vn (VD: 2021003447@sv.ufm.edu.vn, 2021008017@sv.ufm.edu.vn)"},{"c":"TMA / TMU","n":"Trường Đại học Thương mại","s":"Trường Đại học Thương mại","d":["@tmu.edu.vn","@sv.tmu.edu.vn"],"ex":"[MSSV]@sv.tmu.edu.vn hoặc [MSSV]@tmu.edu.vn"},{"c":"NHH / BAV","n":"Học viện Ngân hàng","s":"Học viện Ngân hàng","d":["@hvnh.edu.vn","@st.hvnh.edu.vn"],"ex":"[MSSV]@hvnh.edu.vn"},{"c":"NHS / HUB","n":"Trường Đại học Ngân hàng TP. Hồ Chí Minh","s":"Trường Đại học Ngân hàng TP. Hồ Chí Minh","d":["@st.buh.edu.vn","@st.hub.edu.vn"],"ex":"[MSSV]@st.buh.edu.vn hoặc [MSSV]@st.hub.edu.vn"},{"c":"HTC / AOF","n":"Học viện Tài chính","s":"Học viện Tài chính","d":["@hvtc.edu.vn","@sv.hvtc.edu.vn"],"ex":"[MSSV]@sv.hvtc.edu.vn"},{"c":"MHN / HOU","n":"Trường Đại học Mở Hà Nội","s":"Trường Đại học Mở Hà Nội","d":["@hou.edu.vn","@sv.hou.edu.vn"],"ex":"[MSSV]@sv.hou.edu.vn"},{"c":"MBS / OU","n":"Trường Đại học Mở TP. Hồ Chí Minh","s":"Trường Đại học Mở TP. Hồ Chí Minh","d":["@ou.edu.vn"],"ex":"[MSSV][tên]@ou.edu.vn (Google Workspace)"},{"c":"HVN / VNUA","n":"Học viện Nông nghiệp Việt Nam (Trước đây là ĐH Nông nghiệp Hà Nội)","s":"Học viện Nông nghiệp Việt Nam (Trước đây là ĐH Nông nghiệp Hà Nội)","d":["@sv.vnua.edu.vn"],"ex":"[MSSV]@sv.vnua.edu.vn (Microsoft 365)"},{"c":"LPH / HLU","n":"Trường Đại học Luật Hà Nội","s":"Trường Đại học Luật Hà Nội","d":["@hlu.edu.vn","@sv.hlu.edu.vn"],"ex":"[MSSV]@hlu.edu.vn"},{"c":"LPS / HCMULAW","n":"Trường Đại học Luật TP. Hồ Chí Minh","s":"Trường Đại học Luật TP. Hồ Chí Minh","d":["@hcmulaw.edu.vn"],"ex":"[MSSV]@hcmulaw.edu.vn"},{"c":"DKS / HPU","n":"Trường Đại học Kiểm sát Hà Nội","s":"Trường Đại học Kiểm sát Hà Nội","d":["@tks.edu.vn"],"ex":"[MSSV]@tks.edu.vn"},{"c":"HHC / NAPA","n":"Học viện Hành chính Quốc gia (Đã sáp nhập Trường Đại học Nội vụ Hà Nội - NVH)","s":"Học viện Hành chính Quốc gia (Đã sáp nhập Trường Đại học Nội vụ Hà Nội - NVH)","d":["@napa.vn","@truongnoivu.edu.vn"],"ex":"[MSSV]@napa.vn"},{"c":"HQT / DAV","n":"Học viện Ngoại giao","s":"Học viện Ngoại giao","d":["@dav.edu.vn"],"ex":"[tên_hoặc_MSSV]@dav.edu.vn"},{"c":"HBT / AJC","n":"Học viện Báo chí và Tuyên truyền","s":"Học viện Báo chí và Tuyên truyền","d":["@ajc.edu.vn","@st.ajc.edu.vn"],"ex":"[MSSV]@st.ajc.edu.vn"},{"c":"LDA / TUU","n":"Trường Đại học Công đoàn","s":"Trường Đại học Công đoàn","d":["@dhcd.edu.vn"],"ex":"[MSSV]@dhcd.edu.vn"},{"c":"DLX &amp; DLS / ULSA","n":"Trường Đại học Lao động – Xã hội (Trụ sở Hà Nội &amp; Cơ sở II TP.HCM)","s":"Trường Đại học Lao động – Xã hội (Trụ sở Hà Nội &amp; Cơ sở II TP.HCM)","d":["@ulsa.edu.vn","@ulsa2.edu.vn"],"ex":"[MSSV]@ulsa.edu.vn"},{"c":"HPN / VWA","n":"Học viện Phụ nữ Việt Nam","s":"Học viện Phụ nữ Việt Nam","d":["@hvpnvn.edu.vn"],"ex":"[MSSV]@hvpnvn.edu.vn"},{"c":"HTN / VYA","n":"Học viện Thanh thiếu niên Việt Nam","s":"Học viện Thanh thiếu niên Việt Nam","d":["@vya.edu.vn"],"ex":"[MSSV]@vya.edu.vn"},{"c":"HVQ / NAEM","n":"Học viện Quản lý Giáo dục","s":"Học viện Quản lý Giáo dục","d":["@naem.edu.vn"],"ex":"[MSSV]@naem.edu.vn"},{"c":"DKT / UFA","n":"Trường Đại học Tài chính – Kế toán (Quảng Ngãi)","s":"Trường Đại học Tài chính – Kế toán (Quảng Ngãi)","d":["@tckt.edu.vn"],"ex":"[MSSV]@tckt.edu.vn"},{"c":"DFA / UFBA","n":"Trường Đại học Tài chính – Quản trị kinh doanh (Hưng Yên)","s":"Trường Đại học Tài chính – Quản trị kinh doanh (Hưng Yên)","d":["@tcqtkd.edu.vn"],"ex":"[MSSV]@tcqtkd.edu.vn"},{"c":"YHB / HMU","n":"Trường Đại học Y Hà Nội","s":"Trường Đại học Y Hà Nội","d":["@daihocyhanoi.edu.vn &amp","@hmu.edu.vn"],"ex":"[MSSV]@daihocyhanoi.edu.vn hoặc [tên_định_danh]@hmu.edu.vn"},{"c":"DKH / HUP","n":"Trường Đại học Dược Hà Nội","s":"Trường Đại học Dược Hà Nội","d":["@hup.edu.vn","@st.hup.edu.vn"],"ex":"[MSSV]@hup.edu.vn"},{"c":"YDS / UMP","n":"Trường Đại học Y Dược TP. Hồ Chí Minh","s":"Trường Đại học Y Dược TP. Hồ Chí Minh","d":["@ump.edu.vn"],"ex":"[tên_hoặc_MSSV]@ump.edu.vn (Microsoft 365)"},{"c":"TYS / PNTU","n":"Trường Đại học Y Khoa Phạm Ngọc Thạch","s":"Trường Đại học Y Khoa Phạm Ngọc Thạch","d":["@pnt.edu.vn"],"ex":"[MSSV]@pnt.edu.vn"},{"c":"YCT / CTUMP","n":"Trường Đại học Y Dược Cần Thơ","s":"Trường Đại học Y Dược Cần Thơ","d":["@student.ctump.edu.vn"],"ex":"[MSSV]@student.ctump.edu.vn"},{"c":"YPB / HPMU","n":"Trường Đại học Y Dược Hải Phòng","s":"Trường Đại học Y Dược Hải Phòng","d":["@hpmu.edu.vn","@st.hpmu.edu.vn"],"ex":"[MSSV]@hpmu.edu.vn"},{"c":"YTB / TBUMP","n":"Trường Đại học Y Dược Thái Bình","s":"Trường Đại học Y Dược Thái Bình","d":["@tbump.edu.vn"],"ex":"[MSSV]@tbump.edu.vn"},{"c":"HYD / VUTM","n":"Học viện Y – Dược học Cổ truyền Việt Nam","s":"Học viện Y – Dược học Cổ truyền Việt Nam","d":["@vutm.edu.vn"],"ex":"[MSSV]@vutm.edu.vn"},{"c":"YTC / HUPH","n":"Trường Đại học Y tế Công cộng","s":"Trường Đại học Y tế Công cộng","d":["@huph.edu.vn","@st.huph.edu.vn"],"ex":"[MSSV]@huph.edu.vn"},{"c":"YDD / NDUN","n":"Trường Đại học Điều dưỡng Nam Định","s":"Trường Đại học Điều dưỡng Nam Định","d":["@ndun.edu.vn"],"ex":"[MSSV]@ndun.edu.vn"},{"c":"DDN / DUMTP","n":"Trường Đại học Kỹ thuật Y – Dược Đà Nẵng","s":"Trường Đại học Kỹ thuật Y – Dược Đà Nẵng","d":["@dhktyduocdn.edu.vn"],"ex":"[MSSV]@dhktyduocdn.edu.vn"},{"c":"DKY / HMTU","n":"Trường Đại học Kỹ thuật Y tế Hải Dương","s":"Trường Đại học Kỹ thuật Y tế Hải Dương","d":["@hmtu.edu.vn"],"ex":"[MSSV]@hmtu.edu.vn"},{"c":"SPH / HNUE","n":"Trường Đại học Sư phạm Hà Nội","s":"Trường Đại học Sư phạm Hà Nội","d":["@hnue.edu.vn"],"ex":"[MSSV]@hnue.edu.vn (Microsoft 365)"},{"c":"SPS / HCMUE","n":"Trường Đại học Sư phạm TP. Hồ Chí Minh","s":"Trường Đại học Sư phạm TP. Hồ Chí Minh","d":["@student.hcmue.edu.vn","@hcmue.edu.vn"],"ex":"[MSSV]@student.hcmue.edu.vn"},{"c":"HAN / HANU","n":"Trường Đại học Hà Nội","s":"Trường Đại học Hà Nội","d":["@s.hanu.edu.vn","@hanu.edu.vn"],"ex":"[MSSV]@s.hanu.edu.vn"},{"c":"SP2 / HPU2","n":"Trường Đại học Sư phạm Hà Nội 2 (Vĩnh Phúc)","s":"Trường Đại học Sư phạm Hà Nội 2 (Vĩnh Phúc)","d":["@hpu2.edu.vn","@sv.hpu2.edu.vn"],"ex":"[MSSV]@hpu2.edu.vn"},{"c":"VHH / HUC","n":"Trường Đại học Văn hóa Hà Nội","s":"Trường Đại học Văn hóa Hà Nội","d":["@huc.edu.vn","@st.huc.edu.vn"],"ex":"[MSSV]@huc.edu.vn"},{"c":"VHS / HCMUC","n":"Trường Đại học Văn hóa TP. Hồ Chí Minh","s":"Trường Đại học Văn hóa TP. Hồ Chí Minh","d":["@hcmuc.edu.vn"],"ex":"[MSSV]@hcmuc.edu.vn"},{"c":"MTH / VNUFA","n":"Trường Đại học Mỹ thuật Việt Nam","s":"Trường Đại học Mỹ thuật Việt Nam","d":["@mythuatvietnam.edu.vn"],"ex":"[MSSV]@mythuatvietnam.edu.vn"},{"c":"MCN / UAD","n":"Trường Đại học Mỹ thuật Công nghiệp","s":"Trường Đại học Mỹ thuật Công nghiệp","d":["@mythuatcongnghiep.edu.vn"],"ex":"[MSSV]@mythuatcongnghiep.edu.vn"},{"c":"MTS / HCMUFA","n":"Trường Đại học Mỹ thuật TP. Hồ Chí Minh","s":"Trường Đại học Mỹ thuật TP. Hồ Chí Minh","d":["@hcmufa.edu.vn"],"ex":"[MSSV]@hcmufa.edu.vn"},{"c":"SKD / SKDA","n":"Trường Đại học Sân khấu – Điện ảnh Hà Nội","s":"Trường Đại học Sân khấu – Điện ảnh Hà Nội","d":["@skda.edu.vn"],"ex":"[MSSV]@skda.edu.vn"},{"c":"SKS","n":"Trường Đại học Sân khấu – Điện ảnh TP. Hồ Chí Minh","s":"Trường Đại học Sân khấu – Điện ảnh TP. Hồ Chí Minh","d":["@skdahcm.edu.vn"],"ex":"[MSSV]@skdahcm.edu.vn"},{"c":"NVN / VNAM","n":"Học viện Âm nhạc Quốc gia Việt Nam","s":"Học viện Âm nhạc Quốc gia Việt Nam","d":["@vnam.edu.vn"],"ex":"[MSSV]@vnam.edu.vn"},{"c":"NVS / HCMCONS","n":"Nhạc viện TP. Hồ Chí Minh","s":"Nhạc viện TP. Hồ Chí Minh","d":["@hcmcons.vn"],"ex":"[MSSV]@hcmcons.vn"},{"c":"NMV / VNAD","n":"Học viện Múa Việt Nam","s":"Học viện Múa Việt Nam","d":["@vnad.edu.vn"],"ex":"[MSSV]@vnad.edu.vn"},{"c":"TDN / UPES1","n":"Trường Đại học Thể dục Thể thao Bắc Ninh","s":"Trường Đại học Thể dục Thể thao Bắc Ninh","d":["@upes1.edu.vn"],"ex":"[MSSV]@upes1.edu.vn"},{"c":"TDS / UPES","n":"Trường Đại học Thể dục Thể thao TP. Hồ Chí Minh","s":"Trường Đại học Thể dục Thể thao TP. Hồ Chí Minh","d":["@upes.edu.vn"],"ex":"[MSSV]@upes.edu.vn"},{"c":"TTD / DSUPES","n":"Trường Đại học Thể dục Thể thao Đà Nẵng","s":"Trường Đại học Thể dục Thể thao Đà Nẵng","d":["@upes3.edu.vn"],"ex":"[MSSV]@upes3.edu.vn"},{"c":"DVD / TUCST","n":"Trường Đại học Văn hóa, Thể thao và Du lịch Thanh Hóa","s":"Trường Đại học Văn hóa, Thể thao và Du lịch Thanh Hóa","d":["@dvtdt.edu.vn"],"ex":"[MSSV]@dvtdt.edu.vn"},{"c":"GNT / NUAE","n":"Trường Đại học Sư phạm Nghệ thuật Trung ương","s":"Trường Đại học Sư phạm Nghệ thuật Trung ương","d":["@spnttw.edu.vn"],"ex":"[MSSV]@spnttw.edu.vn"},{"c":"TDH / HUPES","n":"Trường Đại học Sư phạm Thể dục Thể thao Hà Nội","s":"Trường Đại học Sư phạm Thể dục Thể thao Hà Nội","d":["@hupes.edu.vn"],"ex":"[MSSV]@hupes.edu.vn"},{"c":"STS","n":"Trường Đại học Sư phạm Thể dục Thể thao TP. Hồ Chí Minh","s":"Trường Đại học Sư phạm Thể dục Thể thao TP. Hồ Chí Minh","d":["@upes2.edu.vn"],"ex":"[MSSV]@upes2.edu.vn"},{"c":"DTT / TDTU","n":"Trường Đại học Tôn Đức Thắng (Trụ sở TP.HCM &amp; Phân hiệu Khánh Hòa, Bảo Lộc, Cà Mau)","s":"Trường Đại học Tôn Đức Thắng (Trụ sở TP.HCM &amp; Phân hiệu Khánh Hòa, Bảo Lộc, Cà Mau)","d":["@student.tdtu.edu.vn"],"ex":"[MSSV]@student.tdtu.edu.vn (Mật khẩu khởi tạo: TDTU[MSSV], VD: TDTUA25H9999)"},{"c":"SPD / DTHU","n":"Trường Đại học Đồng Tháp","s":"Trường Đại học Đồng Tháp","d":["@student.dthu.edu.vn"],"ex":"[MSSV]@student.dthu.edu.vn"},{"c":"DND / DNU","n":"Trường Đại học Đồng Nai","s":"Trường Đại học Đồng Nai","d":["@dnpu.edu.vn","@sv.dnpu.edu.vn"],"ex":"[MSSV]@dnpu.edu.vn (Các đơn vị trường dùng @dnpu.edu.vn, VD: phongctsv@dnpu.edu.vn)"},{"c":"TSN / NTU","n":"Trường Đại học Nha Trang","s":"Trường Đại học Nha Trang","d":["@ntu.edu.vn","@st.ntu.edu.vn"],"ex":"[MSSV]@ntu.edu.vn"},{"c":"UKH","n":"Trường Đại học Khánh Hòa","s":"Trường Đại học Khánh Hòa","d":["@ukh.edu.vn"],"ex":"[MSSV]@ukh.edu.vn"},{"c":"SGD / SGU","n":"Trường Đại học Sài Gòn","s":"Trường Đại học Sài Gòn","d":["@sgu.edu.vn","@sv.sgu.edu.vn"],"ex":"[MSSV]@sv.sgu.edu.vn"},{"c":"TDM / TDMU","n":"Trường Đại học Thủ Dầu Một (Bình Dương)","s":"Trường Đại học Thủ Dầu Một (Bình Dương)","d":["@student.tdmu.edu.vn"],"ex":"[MSSV]@student.tdmu.edu.vn (Google Workspace)"},{"c":"TDV / VU","n":"Trường Đại học Vinh","s":"Trường Đại học Vinh","d":["@vinhuni.edu.vn"],"ex":"[MSSV]@vinhuni.edu.vn"},{"c":"THP / DHP","n":"Trường Đại học Hải Phòng","s":"Trường Đại học Hải Phòng","d":["@dhhp.edu.vn"],"ex":"[MSSV]@dhhp.edu.vn"},{"c":"HLU","n":"Trường Đại học Hạ Long (Quảng Ninh)","s":"Trường Đại học Hạ Long (Quảng Ninh)","d":["@daihochalong.edu.vn"],"ex":"[MSSV]@daihochalong.edu.vn"},{"c":"HDT / HDU","n":"Trường Đại học Hồng Đức (Thanh Hóa)","s":"Trường Đại học Hồng Đức (Thanh Hóa)","d":["@hdu.edu.vn"],"ex":"[MSSV]@hdu.edu.vn"},{"c":"DQN / QNU","n":"Trường Đại học Quy Nhơn (Bình Định)","s":"Trường Đại học Quy Nhơn (Bình Định)","d":["@qnu.edu.vn","@st.qnu.edu.vn"],"ex":"[MSSV]@qnu.edu.vn"},{"c":"TDL / DLU","n":"Trường Đại học Đà Lạt (Lâm Đồng)","s":"Trường Đại học Đà Lạt (Lâm Đồng)","d":["@dlu.edu.vn"],"ex":"[MSSV]@dlu.edu.vn (Microsoft 365)"},{"c":"TTN / TNU","n":"Trường Đại học Tây Nguyên (Đắk Lắk)","s":"Trường Đại học Tây Nguyên (Đắk Lắk)","d":["@ttn.edu.vn"],"ex":"[MSSV]@ttn.edu.vn"},{"c":"TBB / UTU","n":"Trường Đại học Tây Bắc (Sơn La)","s":"Trường Đại học Tây Bắc (Sơn La)","d":["@utb.edu.vn"],"ex":"[MSSV]@utb.edu.vn"},{"c":"THV / HVU","n":"Trường Đại học Hùng Vương (Phú Thọ)","s":"Trường Đại học Hùng Vương (Phú Thọ)","d":["@hvu.edu.vn"],"ex":"[MSSV]@hvu.edu.vn"},{"c":"TQU","n":"Trường Đại học Tân Trào (Tuyên Quang)","s":"Trường Đại học Tân Trào (Tuyên Quang)","d":["@daihoctantrao.edu.vn"],"ex":"[MSSV]@daihoctantrao.edu.vn"},{"c":"TBU","n":"Trường Đại học Thái Bình","s":"Trường Đại học Thái Bình","d":["@tbu.edu.vn"],"ex":"[MSSV]@tbu.edu.vn"},{"c":"DHL / HLU","n":"Trường Đại học Hoa Lư (Ninh Bình)","s":"Trường Đại học Hoa Lư (Ninh Bình)","d":["@hluv.edu.vn"],"ex":"[MSSV]@hluv.edu.vn"},{"c":"DHT / HTU","n":"Trường Đại học Hà Tĩnh","s":"Trường Đại học Hà Tĩnh","d":["@htu.edu.vn"],"ex":"[MSSV]@htu.edu.vn"},{"c":"DQB / QBU","n":"Trường Đại học Quảng Bình","s":"Trường Đại học Quảng Bình","d":["@qbu.edu.vn"],"ex":"[MSSV]@qbu.edu.vn"},{"c":"DQU","n":"Trường Đại học Quảng Nam","s":"Trường Đại học Quảng Nam","d":["@qnamuni.edu.vn"],"ex":"[MSSV]@qnamuni.edu.vn"},{"c":"DPQ / PDU","n":"Trường Đại học Phạm Văn Đồng (Quảng Ngãi)","s":"Trường Đại học Phạm Văn Đồng (Quảng Ngãi)","d":["@pdu.edu.vn"],"ex":"[MSSV]@pdu.edu.vn"},{"c":"DPY / PYU","n":"Trường Đại học Phú Yên","s":"Trường Đại học Phú Yên","d":["@pyu.edu.vn"],"ex":"[MSSV]@pyu.edu.vn"},{"c":"TTG / TGU","n":"Trường Đại học Tiền Giang","s":"Trường Đại học Tiền Giang","d":["@tgu.edu.vn"],"ex":"[MSSV]@tgu.edu.vn"},{"c":"TKG / KGU","n":"Trường Đại học Kiên Giang","s":"Trường Đại học Kiên Giang","d":["@vnkgu.edu.vn"],"ex":"[MSSV]@vnkgu.edu.vn"},{"c":"DBL / BLU","n":"Trường Đại học Bạc Liêu","s":"Trường Đại học Bạc Liêu","d":["@blu.edu.vn"],"ex":"[MSSV]@blu.edu.vn"},{"c":"VGU","n":"Trường Đại học Việt – Đức (Bình Dương)","s":"Trường Đại học Việt – Đức (Bình Dương)","d":["@student.vgu.edu.vn"],"ex":"[student_id]@student.vgu.edu.vn"},{"c":"USTH","n":"Trường Đại học Khoa học và Công nghệ Hà Nội (ĐH Việt – Pháp)","s":"Trường Đại học Khoa học và Công nghệ Hà Nội (ĐH Việt – Pháp)","d":["@st.usth.edu.vn"],"ex":"[tên_họ_khóa]@st.usth.edu.vn"},{"c":"CEPU / DBDT","n":"Các Trường Dự bị Đại học Dân tộc (Trung ương Việt Trì, Sầm Sơn, Nha Trang, TP.HCM)","s":"Các Trường Dự bị Đại học Dân tộc (Trung ương Việt Trì, Sầm Sơn, Nha Trang, TP.HCM)","d":["@dbdhnhatrang.edu.vn","@dbdtss.edu.vn"],"ex":"[mã_học_sinh]@[tên_miền_trường]"},{"c":"KQH / MTA (LQDTU)","n":"Học viện Kỹ thuật Quân sự (Trường Đại học Kỹ thuật Lê Quý Đôn)","s":"Học viện Kỹ thuật Quân sự (Trường Đại học Kỹ thuật Lê Quý Đôn)","d":["@mta.edu.vn","@lqdtu.edu.vn"],"ex":"[mã_học_viên]@mta.edu.vn"},{"c":"YQH / VMMU","n":"Học viện Quân y","s":"Học viện Quân y","d":["@vmmu.edu.vn"],"ex":"[mã_học_viên]@vmmu.edu.vn"},{"c":"NQH / MSA","n":"Học viện Khoa học Quân sự","s":"Học viện Khoa học Quân sự","d":["@msa.edu.vn"],"ex":"[mã_học_viên]@msa.edu.vn"},{"c":"HGH / VNA","n":"Học viện Hải quân","s":"Học viện Hải quân","d":["@hocvienhaiquan.edu.vn"],"ex":"Quản lý nội bộ trên hocvienhaiquan.edu.vn"},{"c":"TTG / TCU","n":"Trường Sĩ quan Thông tin (Trường Đại học Thông tin Liên lạc)","s":"Trường Sĩ quan Thông tin (Trường Đại học Thông tin Liên lạc)","d":["@tcu.edu.vn"],"ex":"[mã_học_viên]@tcu.edu.vn"},{"c":"KGH / AFOC","n":"Trường Sĩ quan Không quân","s":"Trường Sĩ quan Không quân","d":["@tsqkq.edu.vn"],"ex":"Quản lý nội bộ trên tsqkq.edu.vn"},{"c":"ZCH / TDNU","n":"Trường Đại học Trần Đại Nghĩa (Trường Sĩ quan Kỹ thuật Quân sự - Vinhempich)","s":"Trường Đại học Trần Đại Nghĩa (Trường Sĩ quan Kỹ thuật Quân sự - Vinhempich)","d":["@tdnu.edu.vn"],"ex":"[mã_học_viên]@tdnu.edu.vn"},{"c":"SNQ","n":"Trường Đại học Ngô Quyền (Trường Sĩ quan Công binh)","s":"Trường Đại học Ngô Quyền (Trường Sĩ quan Công binh)","d":["@sqcb.edu.vn"],"ex":"Quản lý nội bộ khối kỹ thuật công binh"},{"c":"ANH / C500","n":"Học viện An ninh Nhân dân","s":"Học viện An ninh Nhân dân","d":["@hvannd.edu.vn"],"ex":"[mã_học_viên]@hvannd.edu.vn"},{"c":"CSH / PPA","n":"Học viện Cảnh sát Nhân dân","s":"Học viện Cảnh sát Nhân dân","d":["@hvcsnd.edu.vn"],"ex":"[mã_học_viên]@hvcsnd.edu.vn"},{"c":"HCH","n":"Học viện Kỹ thuật và Công nghệ An ninh (Trường ĐH Kỹ thuật - Hậu cần CAND)","s":"Học viện Kỹ thuật và Công nghệ An ninh (Trường ĐH Kỹ thuật - Hậu cần CAND)","d":["@dhkthc.edu.vn"],"ex":"Quản lý nội bộ ngành Công an"},{"c":"PCH / UFP","n":"Trường Đại học Phòng cháy Chữa cháy","s":"Trường Đại học Phòng cháy Chữa cháy","d":["@daihocpccc.edu.vn"],"ex":"[mã_học_viên]@daihocpccc.edu.vn"},{"c":"FPT","n":"Trường Đại học FPT (Hà Nội, TP.HCM, Đà Nẵng, Cần Thơ, Quy Nhơn)","s":"Trường Đại học FPT (Hà Nội, TP.HCM, Đà Nẵng, Cần Thơ, Quy Nhơn)","d":["@fpt.edu.vn"],"ex":"[tên][viết_tắt_họ_đệm][mã_ngành_MSSV]@fpt.edu.vn (Google Workspace)"},{"c":"PKA","n":"Đại học Phenikaa","s":"Đại học Phenikaa","d":["@st.phenikaa-uni.edu.vn"],"ex":"[MSSV]@st.phenikaa-uni.edu.vn (Microsoft 365)"},{"c":"DTL / TLU","n":"Trường Đại học Thăng Long","s":"Trường Đại học Thăng Long","d":["@thanglong.edu.vn"],"ex":"[mã_SV]@thanglong.edu.vn (Microsoft 365)"},{"c":"DDN / DNU","n":"Trường Đại học Đại Nam","s":"Trường Đại học Đại Nam","d":["@dainam.edu.vn","@sv.dainam.edu.vn"],"ex":"[MSSV]@dainam.edu.vn (Khuyến nghị chuẩn hóa chữ ký và đuôi trường học)"},{"c":"DDA / EAUT","n":"Trường Đại học Công nghệ Đông Á (Bắc Ninh &amp; Hà Nội)","s":"Trường Đại học Công nghệ Đông Á (Bắc Ninh &amp; Hà Nội)","d":["@eaut.edu.vn","@daihoccongnghedonga.edu.vn"],"ex":"[MSSV]@eaut.edu.vn"},{"c":"DPD / PDU","n":"Trường Đại học Phương Đông","s":"Trường Đại học Phương Đông","d":["@phuongdong.edu.vn"],"ex":"[MSSV]@phuongdong.edu.vn"},{"c":"TDD / TDU","n":"Trường Đại học Thành Đô","s":"Trường Đại học Thành Đô","d":["@thanhdo.edu.vn"],"ex":"[MSSV]@thanhdo.edu.vn"},{"c":"FBU","n":"Trường Đại học Tài chính – Ngân hàng Hà Nội","s":"Trường Đại học Tài chính – Ngân hàng Hà Nội","d":["@fbu.edu.vn"],"ex":"[MSSV]@fbu.edu.vn"},{"c":"NTU","n":"Trường Đại học Nguyễn Trãi","s":"Trường Đại học Nguyễn Trãi","d":["@nguyentrai.edu.vn"],"ex":"[MSSV]@nguyentrai.edu.vn"},{"c":"DDU","n":"Trường Đại học Đông Đô","s":"Trường Đại học Đông Đô","d":["@hdiu.edu.vn"],"ex":"[MSSV]@hdiu.edu.vn"},{"c":"ETU / HBU","n":"Trường Đại học Hòa Bình","s":"Trường Đại học Hòa Bình","d":["@daihochoabinh.edu.vn"],"ex":"[MSSV]@daihochoabinh.edu.vn"},{"c":"DQK / HUBT","n":"Trường Đại học Kinh doanh và Công nghệ Hà Nội","s":"Trường Đại học Kinh doanh và Công nghệ Hà Nội","d":["@hubt.edu.vn"],"ex":"[MSSV]@hubt.edu.vn"},{"c":"DHP / HPU","n":"Trường Đại học Quản lý và Công nghệ Hải Phòng (Trước đây là ĐH Dân lập Hải Phòng)","s":"Trường Đại học Quản lý và Công nghệ Hải Phòng (Trước đây là ĐH Dân lập Hải Phòng)","d":["@hpu.edu.vn"],"ex":"[MSSV]@hpu.edu.vn"},{"c":"UKB","n":"Trường Đại học Kinh Bắc (Bắc Ninh)","s":"Trường Đại học Kinh Bắc (Bắc Ninh)","d":["@ukb.edu.vn"],"ex":"[MSSV]@ukb.edu.vn"},{"c":"DBH / BHIU","n":"Trường Đại học Quốc tế Bắc Hà (Bắc Ninh)","s":"Trường Đại học Quốc tế Bắc Hà (Bắc Ninh)","d":["@bhiu.edu.vn"],"ex":"[MSSV]@bhiu.edu.vn"},{"c":"DCA / CVA","n":"Trường Đại học Chu Văn An (Hưng Yên – Trường ĐH Ecopark)","s":"Trường Đại học Chu Văn An (Hưng Yên – Trường ĐH Ecopark)","d":["@cva.edu.vn"],"ex":"[MSSV]@cva.edu.vn"},{"c":"DTV / LTVU","n":"Trường Đại học Lương Thế Vinh (Nam Định)","s":"Trường Đại học Lương Thế Vinh (Nam Định)","d":["@ltvu.edu.vn"],"ex":"[MSSV]@ltvu.edu.vn"},{"c":"DVP / TVU","n":"Trường Đại học Trưng Vương (Vĩnh Phúc)","s":"Trường Đại học Trưng Vương (Vĩnh Phúc)","d":["@dhtv.edu.vn"],"ex":"[MSSV]@dhtv.edu.vn"},{"c":"DVB / VBU","n":"Trường Đại học Việt Bắc (Thái Nguyên)","s":"Trường Đại học Việt Bắc (Thái Nguyên)","d":["@vietbac.edu.vn"],"ex":"[MSSV]@vietbac.edu.vn"},{"c":"THUV","n":"Trường Đại học Tokyo Việt Nam (Hưng Yên)","s":"Trường Đại học Tokyo Việt Nam (Hưng Yên)","d":["@tokyo-human.edu.vn"],"ex":"[MSSV]@tokyo-human.edu.vn"},{"c":"BUV","n":"Trường Đại học Anh Quốc Việt Nam (Hà Nội &amp; Hưng Yên)","s":"Trường Đại học Anh Quốc Việt Nam (Hà Nội &amp; Hưng Yên)","d":["@st.buv.edu.vn"],"ex":"[MSSV]@st.buv.edu.vn (Microsoft 365)"},{"c":"DDT / DTU","n":"Đại học Duy Tân (Đà Nẵng)","s":"Đại học Duy Tân (Đà Nẵng)","d":["@dtu.edu.vn"],"ex":"[tên_định_danh]@dtu.edu.vn"},{"c":"DAD / UDA","n":"Trường Đại học Đông Á (Đà Nẵng)","s":"Trường Đại học Đông Á (Đà Nẵng)","d":["@donga.edu.vn"],"ex":"[MSSV]@donga.edu.vn (Google Workspace)"},{"c":"KTD / DAU","n":"Trường Đại học Kiến trúc Đà Nẵng","s":"Trường Đại học Kiến trúc Đà Nẵng","d":["@dau.edu.vn"],"ex":"[MSSV]@dau.edu.vn"},{"c":"AUV","n":"Trường Đại học Mỹ tại Việt Nam (Đà Nẵng)","s":"Trường Đại học Mỹ tại Việt Nam (Đà Nẵng)","d":["@auv.edu.vn"],"ex":"[student]@auv.edu.vn"},{"c":"DPC / PCTU","n":"Trường Đại học Phan Châu Trinh (Quảng Nam)","s":"Trường Đại học Phan Châu Trinh (Quảng Nam)","d":["@pctu.edu.vn"],"ex":"[MSSV]@pctu.edu.vn"},{"c":"DCV / IUV","n":"Trường Đại học Công nghiệp Vinh (Nghệ An)","s":"Trường Đại học Công nghiệp Vinh (Nghệ An)","d":["@iuv.edu.vn"],"ex":"[MSSV]@iuv.edu.vn"},{"c":"DVX / VXUT","n":"Trường Đại học Công nghệ Vạn Xuân (Nghệ An)","s":"Trường Đại học Công nghệ Vạn Xuân (Nghệ An)","d":["@vxut.edu.vn"],"ex":"[MSSV]@vxut.edu.vn"},{"c":"DQT / QTU","n":"Trường Đại học Quang Trung (Bình Định / Gia Lai)","s":"Trường Đại học Quang Trung (Bình Định / Gia Lai)","d":["@qtu.edu.vn"],"ex":"[MSSV]@qtu.edu.vn"},{"c":"TBD / POU","n":"Trường Đại học Thái Bình Dương (Khánh Hòa)","s":"Trường Đại học Thái Bình Dương (Khánh Hòa)","d":["@pou.edu.vn"],"ex":"[MSSV]@pou.edu.vn"},{"c":"DYD / YERSIN","n":"Trường Đại học Yersin Đà Lạt (Lâm Đồng)","s":"Trường Đại học Yersin Đà Lạt (Lâm Đồng)","d":["@yersin.edu.vn"],"ex":"[MSSV]@yersin.edu.vn"},{"c":"DPT / UPT","n":"Trường Đại học Phan Thiết (Bình Thuận / Lâm Đồng)","s":"Trường Đại học Phan Thiết (Bình Thuận / Lâm Đồng)","d":["@upt.edu.vn"],"ex":"[MSSV]@upt.edu.vn"},{"c":"BMT / BMU","n":"Trường Đại học Y Dược Buôn Ma Thuột (Đắk Lắk)","s":"Trường Đại học Y Dược Buôn Ma Thuột (Đắk Lắk)","d":["@bmu.edu.vn","@student.bmu.edu.vn"],"ex":"[MSSV]@bmu.edu.vn"},{"c":"DNT / HUFLIT","n":"Trường Đại học Ngoại ngữ – Tin học TP. Hồ Chí Minh","s":"Trường Đại học Ngoại ngữ – Tin học TP. Hồ Chí Minh","d":["@st.huflit.edu.vn"],"ex":"[MSSV]@st.huflit.edu.vn (Office 365 for Student)"},{"c":"DBD / BDU","n":"Trường Đại học Bình Dương","s":"Trường Đại học Bình Dương","d":["@student.bdu.edu.vn"],"ex":"[MSSV]@student.bdu.edu.vn (Microsoft Teams / Office 365)"},{"c":"DKB / BETU","n":"Trường Đại học Kinh tế – Kỹ thuật Bình Dương","s":"Trường Đại học Kinh tế – Kỹ thuật Bình Dương","d":["@ktkt.edu.vn","@betu.edu.vn"],"ex":"[MSSV]@ktkt.edu.vn (Microsoft Office 365)"},{"c":"DVL / VLU","n":"Trường Đại học Văn Lang","s":"Trường Đại học Văn Lang","d":["@vanlanguni.vn"],"ex":"[tên].[MSSV]@vanlanguni.vn (Microsoft 365)"},{"c":"DKC / HUTECH","n":"Trường Đại học Công nghệ TP. Hồ Chí Minh","s":"Trường Đại học Công nghệ TP. Hồ Chí Minh","d":["@hutech.edu.vn","@sv.hutech.edu.vn"],"ex":"[MSSV]@hutech.edu.vn"},{"c":"DTH / HSU","n":"Trường Đại học Hoa Sen","s":"Trường Đại học Hoa Sen","d":["@sinhvien.hoasen.edu.vn"],"ex":"[tên].[họ_đệm_MSSV]@sinhvien.hoasen.edu.vn"},{"c":"DTT / NTTU","n":"Trường Đại học Nguyễn Tất Thành","s":"Trường Đại học Nguyễn Tất Thành","d":["@ntt.edu.vn","@sv.ntt.edu.vn"],"ex":"[MSSV]@ntt.edu.vn"},{"c":"KTC / UEF","n":"Trường Đại học Kinh tế – Tài chính TP. Hồ Chí Minh","s":"Trường Đại học Kinh tế – Tài chính TP. Hồ Chí Minh","d":["@uef.edu.vn"],"ex":"[tên][họ_đệm][MSSV]@uef.edu.vn (Google Workspace)"},{"c":"DHB / HIU","n":"Trường Đại học Quốc tế Hồng Bàng","s":"Trường Đại học Quốc tế Hồng Bàng","d":["@hiu.vn","@student.hiu.vn"],"ex":"[MSSV]@student.hiu.vn"},{"c":"DVH / VHU","n":"Trường Đại học Văn Hiến","s":"Trường Đại học Văn Hiến","d":["@vhu.edu.vn","@sv.vhu.edu.vn"],"ex":"[MSSV]@sv.vhu.edu.vn (Office 365)"},{"c":"TTQ / SIU","n":"Trường Đại học Quốc tế Sài Gòn","s":"Trường Đại học Quốc tế Sài Gòn","d":["@siu.edu.vn"],"ex":"[MSSV]@siu.edu.vn"},{"c":"UMT","n":"Trường Đại học Quản lý và Công nghệ TP. Hồ Chí Minh","s":"Trường Đại học Quản lý và Công nghệ TP. Hồ Chí Minh","d":["@st.umt.edu.vn","@umt.edu.vn"],"ex":"[MSSV]@st.umt.edu.vn (Microsoft 365)"},{"c":"DSG / STU","n":"Trường Đại học Công nghệ Sài Gòn","s":"Trường Đại học Công nghệ Sài Gòn","d":["@stu.edu.vn","@student.stu.edu.vn"],"ex":"[MSSV]@student.stu.edu.vn"},{"c":"DGD / GDU","n":"Trường Đại học Gia Định","s":"Trường Đại học Gia Định","d":["@giadinh.edu.vn"],"ex":"[MSSV]@giadinh.edu.vn"},{"c":"EIU","n":"Trường Đại học Quốc tế Miền Đông (Bình Dương)","s":"Trường Đại học Quốc tế Miền Đông (Bình Dương)","d":["@eiu.edu.vn"],"ex":"[tên].[họ].[khóa]@eiu.edu.vn (Google Workspace)"},{"c":"DLH / LHU","n":"Trường Đại học Lạc Hồng (Đồng Nai)","s":"Trường Đại học Lạc Hồng (Đồng Nai)","d":["@lhu.edu.vn","@st.lhu.edu.vn"],"ex":"[MSSV]@lhu.edu.vn"},{"c":"DCD / DNTU","n":"Trường Đại học Công nghệ Đồng Nai","s":"Trường Đại học Công nghệ Đồng Nai","d":["@dntu.edu.vn"],"ex":"[MSSV]@dntu.edu.vn"},{"c":"MUT","n":"Trường Đại học Công nghệ Miền Đông (Đồng Nai)","s":"Trường Đại học Công nghệ Miền Đông (Đồng Nai)","d":["@mut.edu.vn"],"ex":"[MSSV]@mut.edu.vn"},{"c":"DBV / BVU","n":"Trường Đại học Bà Rịa – Vũng Tàu","s":"Trường Đại học Bà Rịa – Vũng Tàu","d":["@bvu.edu.vn"],"ex":"[MSSV]@bvu.edu.vn (Office 365)"},{"c":"DLA","n":"Trường Đại học Kinh tế Công nghiệp Long An","s":"Trường Đại học Kinh tế Công nghiệp Long An","d":["@daihoclongan.edu.vn"],"ex":"[MSSV]@daihoclongan.edu.vn"},{"c":"TTU","n":"Trường Đại học Tân Tạo (Long An)","s":"Trường Đại học Tân Tạo (Long An)","d":["@ttu.edu.vn"],"ex":"[tên].[họ]@ttu.edu.vn"},{"c":"DNC","n":"Trường Đại học Nam Cần Thơ","s":"Trường Đại học Nam Cần Thơ","d":["@nctu.edu.vn"],"ex":"[MSSV]@nctu.edu.vn"},{"c":"DTD / TDU","n":"Trường Đại học Tây Đô (Cần Thơ)","s":"Trường Đại học Tây Đô (Cần Thơ)","d":["@tdu.edu.vn"],"ex":"[MSSV]@tdu.edu.vn"},{"c":"VTT / VTTU","n":"Trường Đại học Võ Trường Toản (Hậu Giang)","s":"Trường Đại học Võ Trường Toản (Hậu Giang)","d":["@vttu.edu.vn"],"ex":"[MSSV]@vttu.edu.vn"},{"c":"DCL / MKU","n":"Trường Đại học Cửu Long (Vĩnh Long)","s":"Trường Đại học Cửu Long (Vĩnh Long)","d":["@mku.edu.vn"],"ex":"[MSSV]@mku.edu.vn"},{"c":"RMIT","n":"Đại học RMIT Việt Nam (TP.HCM &amp; Hà Nội)","s":"Đại học RMIT Việt Nam (TP.HCM &amp; Hà Nội)","d":["@rmit.edu.vn"],"ex":"s[MSSV]@rmit.edu.vn (Microsoft 365)"},{"c":"FUV","n":"Trường Đại học Fulbright Việt Nam (TP.HCM)","s":"Trường Đại học Fulbright Việt Nam (TP.HCM)","d":["@student.fulbright.edu.vn"],"ex":"[tên].[họ].[khóa]@student.fulbright.edu.vn"},{"c":"Bộ Công Thương (TP.HCM)","n":"Trường Cao đẳng Kỹ thuật Cao Thắng","s":"Trường Cao đẳng Kỹ thuật Cao Thắng","d":["@caothang.edu.vn"],"ex":"[MSSV]@caothang.edu.vn (VD: 0301261001@caothang.edu.vn, MK mặc định: Số CCCD)"},{"c":"Bộ Công Thương (TP.HCM &amp; Cần Thơ)","n":"Trường Cao đẳng Kinh tế Đối ngoại (COFER)","s":"Trường Cao đẳng Kinh tế Đối ngoại (COFER)","d":["@cofer.edu.vn"],"ex":"[chữ_đầu_họ_lót + tên][MSSV]@cofer.edu.vn (VD: nvan2300001@cofer.edu.vn, MK: Ckd/[CCCD])"},{"c":"Đại học Bách khoa Hà Nội (Hà Nội)","n":"Trường Cao đẳng nghề Bách khoa Hà Nội (HACTECH)","s":"Trường Cao đẳng nghề Bách khoa Hà Nội (HACTECH)","d":["@hactech.edu.vn"],"ex":"[tên_định_danh_MSSV]@hactech.edu.vn"},{"c":"Tập đoàn FPT (Toàn quốc)","n":"Trường Cao đẳng FPT Polytechnic (Hà Nội, TP.HCM, Đà Nẵng, Cần Thơ, Tây Nguyên, Hải Phòng, Hà Nam, Thanh Hóa, Quy Nhơn, Đồng Nai, Thái Nguyên)","s":"Trường Cao đẳng FPT Polytechnic (Hà Nội, TP.HCM, Đà Nẵng, Cần Thơ, Tây Nguyên, Hải Phòng, Hà Nam, Thanh Hóa, Quy Nhơn, Đồng Nai, Thái Nguyên)","d":["@fpt.edu.vn"],"ex":"[tên][họ_đệm][MSSV]@fpt.edu.vn (Google Workspace)"},{"c":"Tổ chức Giáo dục FPT &amp; Melbourne Polytechnic Úc","n":"Chương trình Melbourne Polytechnic Việt Nam","s":"Chương trình Melbourne Polytechnic Việt Nam","d":["@fpt.edu.vn"],"ex":"[tên_định_danh]@fpt.edu.vn (Email quản lý: cdmelbourne@fpt.edu.vn)"},{"c":"Khu chế xuất Tân Thuận (TP.HCM)","n":"Trường Cao đẳng CTIM","s":"Trường Cao đẳng CTIM","d":["@ctim.edu.vn"],"ex":"[MSSV]@ctim.edu.vn (Gmail sinh viên / Google Workspace)"},{"c":"UBND TP.HCM","n":"Trường Cao đẳng Công nghệ Thủ Đức (TDC)","s":"Trường Cao đẳng Công nghệ Thủ Đức (TDC)","d":["@mail.tdc.edu.vn","@tdc.edu.vn"],"ex":"[MSSV]@mail.tdc.edu.vn (Google Workspace)"},{"c":"UBND TP.HCM","n":"Trường Cao đẳng Kinh tế TP. Hồ Chí Minh (HCE)","s":"Trường Cao đẳng Kinh tế TP. Hồ Chí Minh (HCE)","d":["@kthcm.edu.vn"],"ex":"[MSSV]@kthcm.edu.vn"},{"c":"UBND TP.HCM","n":"Trường Cao đẳng Kỹ thuật Lý Tự Trọng TP.HCM","s":"Trường Cao đẳng Kỹ thuật Lý Tự Trọng TP.HCM","d":["@lttc.edu.vn"],"ex":"[MSSV]@lttc.edu.vn"},{"c":"Bộ Công Thương (TP.HCM)","n":"Trường Cao đẳng Công Thương TP. Hồ Chí Minh (HITC)","s":"Trường Cao đẳng Công Thương TP. Hồ Chí Minh (HITC)","d":["@hitu.edu.vn"],"ex":"[MSSV]@hitu.edu.vn"},{"c":"TP. Hồ Chí Minh","n":"Trường Cao đẳng Công nghệ Thông tin TP.HCM (ITC)","s":"Trường Cao đẳng Công nghệ Thông tin TP.HCM (ITC)","d":["@itc.edu.vn"],"ex":"[MSSV]@itc.edu.vn"},{"c":"Tư thục (TP.HCM)","n":"Trường Cao đẳng Viễn Đông","s":"Trường Cao đẳng Viễn Đông","d":["@viendong.edu.vn"],"ex":"[MSSV]@viendong.edu.vn"},{"c":"Tư thục (TP.HCM)","n":"Trường Cao đẳng Quốc tế TP.HCM (ICH)","s":"Trường Cao đẳng Quốc tế TP.HCM (ICH)","d":["@ich.edu.vn"],"ex":"[MSSV]@ich.edu.vn"},{"c":"UBND TP. Hà Nội","n":"Trường Cao đẳng Điện tử – Điện lạnh Hà Nội","s":"Trường Cao đẳng Điện tử – Điện lạnh Hà Nội","d":["@dtdl.edu.vn"],"ex":"[MSSV]@dtdl.edu.vn"},{"c":"UBND TP. Hà Nội","n":"Trường Cao đẳng nghề Công nghiệp Hà Nội (HNIVC)","s":"Trường Cao đẳng nghề Công nghiệp Hà Nội (HNIVC)","d":["@hnivc.edu.vn"],"ex":"[MSSV]@hnivc.edu.vn"},{"c":"UBND TP. Hà Nội","n":"Trường Cao đẳng Công nghệ Cao Hà Nội (HHT)","s":"Trường Cao đẳng Công nghệ Cao Hà Nội (HHT)","d":["@hht.edu.vn"],"ex":"[MSSV]@hht.edu.vn"},{"c":"UBND TP. Hà Nội","n":"Trường Cao đẳng Thương mại và Du lịch Hà Nội (HCCT)","s":"Trường Cao đẳng Thương mại và Du lịch Hà Nội (HCCT)","d":["@hcct.edu.vn"],"ex":"[MSSV]@hcct.edu.vn"},{"c":"Bộ Giáo dục và Đào tạo","n":"Trường Cao đẳng Sư phạm Trung ương (Hà Nội, Nha Trang, TP.HCM)","s":"Trường Cao đẳng Sư phạm Trung ương (Hà Nội, Nha Trang, TP.HCM)","d":["@cdsptw.edu.vn","@nce.edu.vn"],"ex":"[MSSV]@cdsptw.edu.vn"},{"c":"Bộ Công Thương (Đà Nẵng)","n":"Trường Cao đẳng Thương mại (Đà Nẵng)","s":"Trường Cao đẳng Thương mại (Đà Nẵng)","d":["@cdtm.edu.vn"],"ex":"[MSSV]@cdtm.edu.vn"},{"c":"Bộ Nông nghiệp &amp; PTNT (Quảng Nam)","n":"Trường Cao đẳng Công nghệ, Kinh tế và Thủy lợi Miền Trung","s":"Trường Cao đẳng Công nghệ, Kinh tế và Thủy lợi Miền Trung","d":["@cct.edu.vn"],"ex":"[MSSV]@cct.edu.vn"},{"c":"UBND tỉnh Thừa Thiên Huế","n":"Trường Cao đẳng Huế","s":"Trường Cao đẳng Huế","d":["@cdhue.edu.vn"],"ex":"[MSSV]@cdhue.edu.vn"},{"c":"UBND tỉnh Khánh Hòa (Công lập)","n":"Trường Cao đẳng Y tế Khánh Hòa","s":"Trường Cao đẳng Y tế Khánh Hòa","d":["@cyk.edu.vn"],"ex":"[MSSV]@cyk.edu.vn"},{"c":"UBND tỉnh Khánh Hòa","n":"Trường Cao đẳng Kỹ thuật Công nghệ Nha Trang","s":"Trường Cao đẳng Kỹ thuật Công nghệ Nha Trang","d":["@cdktcnnt.edu.vn"],"ex":"[MSSV]@cdktcnnt.edu.vn"},{"c":"Bộ Văn hóa, Thể thao &amp; Du lịch","n":"Trường Cao đẳng Du lịch Nha Trang","s":"Trường Cao đẳng Du lịch Nha Trang","d":["@ntc.edu.vn"],"ex":"[MSSV]@ntc.edu.vn"},{"c":"Dân lập / Tư thục","n":"Trường Cao đẳng Y Dược Sài Gòn (TP.HCM &amp; Cơ sở Nha Trang)","s":"Trường Cao đẳng Y Dược Sài Gòn (TP.HCM &amp; Cơ sở Nha Trang)","d":["@caodangyduocsaigon.vn","@caodangyduocnhatrang.vn"],"ex":"Quản lý qua cổng sinh viên nội bộ"},{"c":"UBND các Tỉnh / Thành phố &amp; Bệnh viện Trung ương","n":"Hệ thống Trường Cao đẳng Y tế các Tỉnh / Thành phố (Hà Nội yhn.edu.vn, Bạch Mai bmmc.edu.vn, Hà Đông cdythadong.edu.vn, Hải Phòng cdythp.edu.vn, Thanh Hóa cyc.edu.vn, Nghệ An cdytna.edu.vn, Đà Nẵng cdytdn.edu.vn, Cần Thơ cdytct.edu.vn, Đồng Nai cyd.edu.vn, Bình Dương cdytbinhduong.edu.vn, Tiền Giang cdyttg.edu.vn...)","s":"Hệ thống Trường Cao đẳng Y tế các Tỉnh / Thành phố (Hà Nội yhn.edu.vn, Bạch Mai bmmc.edu.vn, Hà Đông cdythadong.edu.vn, Hải Phòng cdythp.edu.vn, Thanh Hóa cyc.edu.vn, Nghệ An cdytna.edu.vn, Đà Nẵng cdytdn.edu.vn, Cần Thơ cdytct.edu.vn, Đồng Nai cyd.edu.vn, Bình Dương cdytbinhduong.edu.vn, Tiền Giang cdyttg.edu.vn...)","d":["@[tên_miền_trường].edu.vn"],"ex":"[MSSV]@[tên_miền_trường].edu.vn hoặc cổng quản lý đào tạo nội bộ"},{"c":"Bộ Công Thương, Bộ Xây dựng &amp; UBND các Tỉnh / Thành phố","n":"Hệ thống Trường Cao đẳng Kỹ thuật, Công nghiệp và Cộng đồng các Tỉnh (CĐ Kỹ thuật Công nghiệp Bắc Giang bcit.edu.vn, CĐ Công nghiệp Thái Nguyên tci.edu.vn, CĐ Công nghiệp Nam Định cdcnnd.edu.vn, CĐ Kỹ thuật Việt – Đức Hà Tĩnh cdvietduc.edu.vn, CĐ Kỹ thuật Đắk Lắk daklaktec.edu.vn, CĐ Công nghệ Quốc tế LILAMA 2 lilama2.edu.vn, CĐ Kỹ thuật Đồng Nai dntc.edu.vn, CĐ Việt – Hàn Bình Dương vkc.edu.vn, CĐ Việt – Sing Bình Dương vietsing.edu.vn, CĐ Nghề Cần Thơ ctvc.edu.vn, CĐ Cộng đồng Đồng Tháp dtcc.edu.vn, CĐ Cộng đồng Cà Mau camau.edu.vn, CĐ Cộng đồng Sóc Trăng stcc.edu.vn, CĐ Kiên Giang kgc.edu.vn...)","s":"Hệ thống Trường Cao đẳng Kỹ thuật, Công nghiệp và Cộng đồng các Tỉnh (CĐ Kỹ thuật Công nghiệp Bắc Giang bcit.edu.vn, CĐ Công nghiệp Thái Nguyên tci.edu.vn, CĐ Công nghiệp Nam Định cdcnnd.edu.vn, CĐ Kỹ thuật Việt – Đức Hà Tĩnh cdvietduc.edu.vn, CĐ Kỹ thuật Đắk Lắk daklaktec.edu.vn, CĐ Công nghệ Quốc tế LILAMA 2 lilama2.edu.vn, CĐ Kỹ thuật Đồng Nai dntc.edu.vn, CĐ Việt – Hàn Bình Dương vkc.edu.vn, CĐ Việt – Sing Bình Dương vietsing.edu.vn, CĐ Nghề Cần Thơ ctvc.edu.vn, CĐ Cộng đồng Đồng Tháp dtcc.edu.vn, CĐ Cộng đồng Cà Mau camau.edu.vn, CĐ Cộng đồng Sóc Trăng stcc.edu.vn, CĐ Kiên Giang kgc.edu.vn...)","d":["@[tên_miền_trường].edu.vn"],"ex":"[MSSV]@[tên_miền_trường].edu.vn hoặc tích hợp cổng LMS"}];
+window.VIBE_34_PROVINCES = ["Cao Bằng","Sơn La","Lai Châu","Lạng Sơn","Tuyên Quang","Lào Cai","Thái Nguyên","Điện Biên","Phú Thọ","Bắc Ninh","Hà Nội","Quảng Ninh","Hải Phòng","Hưng Yên","Ninh Bình","Thanh Hóa","Nghệ An","Hà Tĩnh","Quảng Trị","Huế","Đà Nẵng","Quảng Ngãi","Gia Lai","Đắk Lắk","Khánh Hòa","Lâm Đồng","Đồng Nai","TP. Hồ Chí Minh","Tây Ninh","Đồng Tháp","Vĩnh Long","Cần Thơ","An Giang","Cà Mau"];
 
 /**
  * VibeSurvey - High-End Modern SaaS & Survey Rewards Platform
@@ -337,9 +338,67 @@ const VibeApp = {
     return 'bg-rose-500';
   },
 
+  
+  selectCustomFormOption(inputId, value, label, event) {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+    this.haptic('light');
+    const input = document.getElementById(inputId);
+    const labelEl = document.getElementById(inputId + '-label');
+    if (input) {
+      input.value = value;
+      input.dispatchEvent(new Event('change'));
+    }
+    if (labelEl) labelEl.textContent = label;
+    this.closeAllCustomDropdowns();
+  },
+
+  filterDemoUniversities(query) {
+    const q = (query || '').trim().toLowerCase();
+    const listEl = document.getElementById('demo-uni-dropdown-list');
+    const popover = document.getElementById('demo-uni-popover');
+    if (!listEl || !popover) return;
+    popover.classList.remove('hidden');
+
+    const schools = window.VIBE_UNIVERSITIES_DATA || [];
+    let matched = [];
+    if (!q) {
+      matched = schools.slice(1, 15);
+    } else {
+      matched = schools.filter(u => 
+        (u.n && u.n.toLowerCase().includes(q)) || 
+        (u.c && u.c.toLowerCase().includes(q))
+      ).slice(0, 15);
+    }
+
+    if (matched.length === 0) {
+      listEl.innerHTML = '<div class="p-3 text-stone-400 text-xs text-center">Không tìm thấy trường khớp</div>';
+      return;
+    }
+
+    listEl.innerHTML = matched.map(u => `
+      <div onclick="VibeApp.selectDemoUniversity('${u.n.replace(/'/g, "\\'")}')" class="p-2.5 rounded-lg hover:bg-orange-50 dark:hover:bg-stone-800 cursor-pointer text-xs transition-colors flex flex-col gap-0.5">
+        <span class="font-bold text-slate-800 dark:text-slate-100">${u.n}</span>
+        <span class="text-[10px] text-stone-400">${u.c !== u.n ? u.c : ''} ${u.d && u.d.length ? '• ' + u.d.join(', ') : ''}</span>
+      </div>
+    `).join('');
+  },
+
+  selectDemoUniversity(schoolName) {
+    this.haptic('light');
+    const input = document.getElementById('demo-university');
+    if (input) input.value = schoolName;
+    const popover = document.getElementById('demo-uni-popover');
+    if (popover) popover.classList.add('hidden');
+  },
+
   closeAllCustomDropdowns() {
     document.querySelectorAll('.custom-dropdown-menu').forEach(d => d.classList.add('hidden'));
     document.querySelectorAll('.dropdown-trigger-icon').forEach(i => i.classList.remove('rotate-180'));
+    const demoUniPop = document.getElementById('demo-uni-popover');
+    if (demoUniPop) demoUniPop.classList.add('hidden');
   },
 
   async init() {
@@ -361,6 +420,13 @@ const VibeApp = {
         return;
       }
       this.closeAllCustomDropdowns();
+      const studioUniPopover = document.getElementById('studio-uni-popover');
+      const studioUniInput = document.getElementById('studio-uni-input');
+      if (studioUniPopover && !studioUniPopover.classList.contains('hidden')) {
+        if (!studioUniPopover.contains(e.target) && e.target !== studioUniInput) {
+          studioUniPopover.classList.add('hidden');
+        }
+      }
     });
 
     // Keyboard Shortcuts
@@ -1970,16 +2036,14 @@ const VibeApp = {
     this.renderSurveysView(document.getElementById('app-root'), false);
   },
 
-  async renderSurveysView(root, forceFetch = false) {
-    // Chỉ fetch lại từ server khi cần ép buộc hoặc chưa có dữ liệu trong cache
-    if (forceFetch || !this.state.surveys || this.state.surveys.length === 0) {
-      try {
-        const res = await this.api('/surveys');
-        this.state.surveys = res.surveys || [];
-      } catch (err) {
-        console.warn('Không thể nạp danh sách khảo sát:', err.message);
-        if (!this.state.surveys) this.state.surveys = [];
-      }
+  async renderSurveysView(root, forceFetch = true) {
+    // Luôn fetch mới từ server để bảo đảm 100% đồng bộ với DB thực tế, không dính cache form ảo
+    try {
+      const res = await this.api('/surveys');
+      this.state.surveys = res.surveys || [];
+    } catch (err) {
+      console.warn('Không thể nạp danh sách khảo sát:', err.message);
+      if (!this.state.surveys) this.state.surveys = [];
     }
 
     const surveys = this.state.surveys;
@@ -2570,7 +2634,7 @@ const VibeApp = {
     const minMins = Math.max(1, Math.ceil((s.min_completion_time_sec || 30) / 60));
 
     return `
-      <div class="bento-card p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 transition-all ${
+      <div class="bento-card p-3 flex flex-wrap items-center justify-between gap-y-3 gap-x-4 pb-2 border-b border-stone-100 dark:border-stone-800 transition-all ${
         isPinned ? 'border-orange-500/50 dark:border-orange-500/40' : ''
       }">
         
@@ -3416,6 +3480,35 @@ const VibeApp = {
     }
 
     return '';
+  },
+
+  selectSingleOption(qId, encodedOpt) {
+    this.haptic('light');
+    if (!this.state.activeSession) return;
+    if (!this.state.activeSession.answers) this.state.activeSession.answers = {};
+    const opt = decodeURIComponent(encodedOpt);
+    this.state.activeSession.answers[qId] = opt;
+    this._saveActiveSessionToStorage();
+    this.renderTakeSurveyView(document.getElementById('app-root'), this.state.activeSession.surveyId);
+  },
+
+  toggleMultipleOption(qId, encodedOpt) {
+    this.haptic('light');
+    if (!this.state.activeSession) return;
+    if (!this.state.activeSession.answers) this.state.activeSession.answers = {};
+    const opt = decodeURIComponent(encodedOpt);
+    if (!Array.isArray(this.state.activeSession.answers[qId])) {
+      this.state.activeSession.answers[qId] = [];
+    }
+    const arr = this.state.activeSession.answers[qId];
+    const idx = arr.indexOf(opt);
+    if (idx !== -1) {
+      arr.splice(idx, 1);
+    } else {
+      arr.push(opt);
+    }
+    this._saveActiveSessionToStorage();
+    this.renderTakeSurveyView(document.getElementById('app-root'), this.state.activeSession.surveyId);
   },
 
   selectChoiceGridCell(qId, encodedRow, encodedCol) {
@@ -4312,24 +4405,46 @@ const VibeApp = {
             <p class="text-[11px] text-slate-500 dark:text-slate-400">Mốc 10.000đ áp dụng cho thẻ cào điện thoại. Chuyển khoản ngân hàng miễn phí từ 100.000đ (dưới 100.000đ phí 2.000đ bù phí cổng).</p>
           </div>
 
-          <div>
+          <!-- 1. Mệnh giá đổi thưởng (Custom Dropdown) -->
+          <div class="relative">
             <label class="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">Mệnh giá đổi thưởng:</label>
-            <select id="payout-points-select" onchange="VibeApp.updatePayoutUI()" class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-xs font-bold font-mono focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500">
+            <input type="hidden" id="payout-points-select" value="${denoms[0].points}">
+            <button type="button" onclick="VibeApp.toggleCustomDropdown('payout-points-menu', event)"
+                    class="custom-dropdown-trigger w-full flex items-center justify-between p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs font-bold text-slate-900 dark:text-white hover:border-orange-500 transition-all shadow-xs">
+              <span id="payout-points-select-label">${denoms[0].label}</span>
+              <i data-lucide="chevron-down" class="dropdown-trigger-icon w-3.5 h-3.5 stroke-[2] transition-transform duration-200 pointer-events-none"></i>
+            </button>
+            <div id="payout-points-menu" class="custom-dropdown-menu hidden absolute left-0 right-0 z-50 mt-1 max-h-56 overflow-y-auto p-1.5 rounded-xl bg-white dark:bg-stone-900 border border-slate-200 dark:border-stone-700 shadow-xl space-y-0.5">
               ${denoms.map(d => `
-                <option value="${d.points}" ${maxPoints < d.points ? 'disabled' : ''}>
-                  ${d.label} ${maxPoints < d.points ? '(Chưa đủ điểm)' : ''}
-                </option>
+                <div onclick="${maxPoints >= d.points ? `VibeApp.selectCustomFormOption('payout-points-select', '${d.points}', '${d.label.replace(/'/g, "\\'")}', event); VibeApp.updatePayoutUI()` : ''}"
+                     class="flex items-center justify-between px-3 py-2 rounded-lg text-xs font-semibold ${maxPoints < d.points ? 'opacity-40 cursor-not-allowed bg-stone-50 dark:bg-stone-800/40 text-stone-400' : 'cursor-pointer hover:bg-stone-100 dark:hover:bg-stone-800 text-slate-700 dark:text-slate-200'}">
+                  <span>${d.label}</span>
+                  ${maxPoints < d.points ? '<span class="text-[10px] text-red-500 font-bold">(Chưa đủ điểm)</span>' : ''}
+                </div>
               `).join('')}
-            </select>
+            </div>
           </div>
 
-          <div>
+          <!-- 2. Phương thức nhận (Custom Dropdown) -->
+          <div class="relative">
             <label class="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">Phương thức nhận:</label>
-            <select id="payout-method" onchange="VibeApp.updatePayoutUI()" class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-xs font-bold focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500">
-              <option value="PHONE_CARD">Thẻ Cào Điện Thoại (Viettel, VinaPhone, MobiFone - Miễn phí)</option>
-              <option value="BANK_TRANSFER">Chuyển Khoản Ngân Hàng (VietQR / NAPAS 24/7)</option>
-              <option value="MOMO">Ví Điện Tử MoMo</option>
-            </select>
+            <input type="hidden" id="payout-method" value="PHONE_CARD">
+            <button type="button" onclick="VibeApp.toggleCustomDropdown('payout-method-menu', event)"
+                    class="custom-dropdown-trigger w-full flex items-center justify-between p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs font-bold text-slate-900 dark:text-white hover:border-orange-500 transition-all shadow-xs">
+              <span id="payout-method-label">Thẻ Cào Điện Thoại (Viettel, VinaPhone, MobiFone - Miễn phí)</span>
+              <i data-lucide="chevron-down" class="dropdown-trigger-icon w-3.5 h-3.5 stroke-[2] transition-transform duration-200 pointer-events-none"></i>
+            </button>
+            <div id="payout-method-menu" class="custom-dropdown-menu hidden absolute left-0 right-0 z-50 mt-1 p-1.5 rounded-xl bg-white dark:bg-stone-900 border border-slate-200 dark:border-stone-700 shadow-xl space-y-0.5">
+              <div onclick="VibeApp.selectCustomFormOption('payout-method', 'PHONE_CARD', 'Thẻ Cào Điện Thoại (Viettel, VinaPhone, MobiFone - Miễn phí)', event); VibeApp.updatePayoutUI()" class="px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer hover:bg-stone-100 dark:hover:bg-stone-800 text-slate-700 dark:text-slate-200">
+                Thẻ Cào Điện Thoại (Viettel, VinaPhone, MobiFone - Miễn phí)
+              </div>
+              <div onclick="VibeApp.selectCustomFormOption('payout-method', 'BANK_TRANSFER', 'Chuyển Khoản Ngân Hàng (VietQR / NAPAS 24/7)', event); VibeApp.updatePayoutUI()" class="px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer hover:bg-stone-100 dark:hover:bg-stone-800 text-slate-700 dark:text-slate-200">
+                Chuyển Khoản Ngân Hàng (VietQR / NAPAS 24/7)
+              </div>
+              <div onclick="VibeApp.selectCustomFormOption('payout-method', 'MOMO', 'Ví Điện Tử MoMo', event); VibeApp.updatePayoutUI()" class="px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer hover:bg-stone-100 dark:hover:bg-stone-800 text-slate-700 dark:text-slate-200">
+                Ví Điện Tử MoMo
+              </div>
+            </div>
           </div>
 
           <!-- Thông báo mốc 10k -->
@@ -4339,15 +4454,21 @@ const VibeApp = {
 
           <!-- Nhánh 1: Thẻ cào điện thoại -->
           <div id="payout-fields-card" class="space-y-2.5">
-            <div>
+            <div class="relative">
               <label class="block text-[11px] font-bold text-slate-600 dark:text-slate-300 mb-1">Nhà mạng:</label>
-              <select id="payout-card-telco" class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-xs font-bold">
-                <option value="VIETTEL">Viettel</option>
-                <option value="VINAPHONE">VinaPhone</option>
-                <option value="MOBIFONE">MobiFone</option>
-              </select>
+              <input type="hidden" id="payout-card-telco" value="VIETTEL">
+              <button type="button" onclick="VibeApp.toggleCustomDropdown('payout-telco-menu', event)"
+                      class="custom-dropdown-trigger w-full flex items-center justify-between p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs font-bold text-slate-900 dark:text-white hover:border-orange-500 transition-all shadow-xs">
+                <span id="payout-card-telco-label">Viettel</span>
+                <i data-lucide="chevron-down" class="dropdown-trigger-icon w-3.5 h-3.5 stroke-[2] transition-transform duration-200 pointer-events-none"></i>
+              </button>
+              <div id="payout-telco-menu" class="custom-dropdown-menu hidden absolute left-0 right-0 z-50 mt-1 p-1.5 rounded-xl bg-white dark:bg-stone-900 border border-slate-200 dark:border-stone-700 shadow-xl space-y-0.5">
+                <div onclick="VibeApp.selectCustomFormOption('payout-card-telco', 'VIETTEL', 'Viettel', event)" class="px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer hover:bg-stone-100 dark:hover:bg-stone-800 text-slate-700 dark:text-slate-200">Viettel</div>
+                <div onclick="VibeApp.selectCustomFormOption('payout-card-telco', 'VINAPHONE', 'VinaPhone', event)" class="px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer hover:bg-stone-100 dark:hover:bg-stone-800 text-slate-700 dark:text-slate-200">VinaPhone</div>
+                <div onclick="VibeApp.selectCustomFormOption('payout-card-telco', 'MOBIFONE', 'MobiFone', event)" class="px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer hover:bg-stone-100 dark:hover:bg-stone-800 text-slate-700 dark:text-slate-200">MobiFone</div>
+              </div>
             </div>
-            <div>
+          <div>
               <label class="block text-[11px] font-bold text-slate-600 dark:text-slate-300 mb-1">Số điện thoại nhận mã thẻ:</label>
               <input type="tel" id="payout-card-phone" placeholder="VD: 0912345678" class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-xs font-mono font-bold">
             </div>
@@ -5952,7 +6073,7 @@ const VibeApp = {
                     <!-- 3. Hàng 3: Trường Đại Học (Searchable Autocomplete Combobox) -->
                     <div>
                       <div class="flex items-center justify-between mb-1">
-                        <span class="font-bold text-stone-700 dark:text-stone-300">Trường Đại Học / Học Viện:</span>
+                        <span class="font-bold text-stone-700 dark:text-stone-300">Trường Đại Học / Học Viện / Cao Đẳng:</span>
                         ${(this.state.targetDemographics?.university && this.state.targetDemographics?.university !== 'ALL') ? `
                           <button type="button" onclick="VibeApp.setStudioTargetUniversity('ALL')" class="text-[10px] text-red-500 hover:underline font-bold flex items-center gap-0.5">
                             <span>Bỏ chọn trường</span>
@@ -6587,12 +6708,12 @@ const VibeApp = {
             <span class="h-4 w-px bg-stone-200 dark:bg-stone-700 mx-1"></span>
 
             <!-- Required Switch -->
-            <label class="flex items-center gap-2 cursor-pointer select-none">
+            <label for="req-toggle-${qIdx}" onclick="event.stopPropagation()" class="flex items-center gap-2 cursor-pointer select-none">
               <span class="font-bold text-stone-700 dark:text-stone-300 text-[11px]">
                 ${['CHOICE_GRID', 'CHECKBOX_GRID'].includes(q.type) ? 'Yêu cầu trong mỗi hàng' : 'Bắt buộc'}
               </span>
               <div class="relative inline-block w-8 h-4">
-                <input type="checkbox" ${isReq ? 'checked' : ''} onchange="VibeApp.toggleStudioRequired(${qIdx}, this.checked)" class="sr-only peer">
+                <input id="req-toggle-${qIdx}" type="checkbox" ${isReq ? 'checked' : ''} onchange="VibeApp.toggleStudioRequired(${qIdx}, this.checked)" class="sr-only peer">
                 <div class="w-8 h-4 bg-stone-300 dark:bg-stone-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-stone-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-orange-600"></div>
               </div>
             </label>
@@ -6993,8 +7114,9 @@ const VibeApp = {
   },
 
   toggleStudioRequired(qIdx, isRequired) {
+    this.haptic('light');
     if (this.state.builderQuestions && this.state.builderQuestions[qIdx]) {
-      this.state.builderQuestions[qIdx].is_required = isRequired;
+      this.state.builderQuestions[qIdx].is_required = !!isRequired;
     }
   },
 
@@ -7554,71 +7676,130 @@ const VibeApp = {
           <div class="bg-white dark:bg-[#18181B] border border-stone-200 dark:border-stone-800 rounded-2xl p-6 shadow-sm space-y-4">
             
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
+              
+              <!-- 1. Giới tính -->
+              <div class="relative">
                 <label class="block text-xs font-bold text-stone-700 dark:text-stone-300 mb-1">Giới tính:</label>
-                <select id="demo-gender" ${isLocked ? 'disabled' : ''} class="w-full p-2.5 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 text-xs font-bold">
-                  <option value="MALE" ${demographics.gender === 'MALE' ? 'selected' : ''}>Nam</option>
-                  <option value="FEMALE" ${demographics.gender === 'FEMALE' ? 'selected' : ''}>Nữ</option>
-                  <option value="OTHER" ${demographics.gender === 'OTHER' ? 'selected' : ''}>Khác / Không tiết lộ</option>
-                </select>
+                <input type="hidden" id="demo-gender" value="${demographics.gender || 'MALE'}">
+                <button type="button" ${isLocked ? 'disabled' : ''} onclick="VibeApp.toggleCustomDropdown('demo-gender-menu', event)"
+                        class="custom-dropdown-trigger w-full flex items-center justify-between p-2.5 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 text-xs font-bold text-slate-800 dark:text-slate-200 hover:border-orange-500 transition-all ${isLocked ? 'opacity-70 cursor-not-allowed' : ''}">
+                  <span id="demo-gender-label">${demographics.gender === 'FEMALE' ? 'Nữ' : (demographics.gender === 'OTHER' ? 'Khác / Không tiết lộ' : 'Nam')}</span>
+                  <i data-lucide="chevron-down" class="dropdown-trigger-icon w-3.5 h-3.5 stroke-[2] transition-transform duration-200 pointer-events-none"></i>
+                </button>
+                ${!isLocked ? `
+                  <div id="demo-gender-menu" class="custom-dropdown-menu hidden absolute left-0 right-0 z-50 mt-1 p-1.5 rounded-xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-700 shadow-xl space-y-0.5">
+                    <div onclick="VibeApp.selectCustomFormOption('demo-gender', 'MALE', 'Nam', event)" class="flex items-center justify-between px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer hover:bg-stone-100 dark:hover:bg-stone-800 text-slate-700 dark:text-slate-200">
+                      <span>Nam</span>
+                    </div>
+                    <div onclick="VibeApp.selectCustomFormOption('demo-gender', 'FEMALE', 'Nữ', event)" class="flex items-center justify-between px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer hover:bg-stone-100 dark:hover:bg-stone-800 text-slate-700 dark:text-slate-200">
+                      <span>Nữ</span>
+                    </div>
+                    <div onclick="VibeApp.selectCustomFormOption('demo-gender', 'OTHER', 'Khác / Không tiết lộ', event)" class="flex items-center justify-between px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer hover:bg-stone-100 dark:hover:bg-stone-800 text-slate-700 dark:text-slate-200">
+                      <span>Khác / Không tiết lộ</span>
+                    </div>
+                  </div>
+                ` : ''}
               </div>
 
+              <!-- 2. Ngày sinh -->
               <div>
                 <label class="block text-xs font-bold text-stone-700 dark:text-stone-300 mb-1">Ngày sinh:</label>
                 <input type="date" id="demo-birthdate" value="${demographics.birth_date || ''}" ${isLocked ? 'disabled' : ''}
-                       class="w-full p-2.5 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 text-xs font-bold">
+                       class="w-full p-2.5 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 text-xs font-bold text-slate-800 dark:text-slate-200 focus:outline-none focus:border-orange-500 ${isLocked ? 'opacity-70 cursor-not-allowed' : ''}">
               </div>
 
-              <div>
-                <label class="block text-xs font-bold text-stone-700 dark:text-stone-300 mb-1">Tỉnh / Thành phố sinh sống:</label>
-                <select id="demo-province" ${isLocked ? 'disabled' : ''} class="w-full p-2.5 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 text-xs font-bold">
-                  <option value="Hà Nội" ${demographics.province === 'Hà Nội' ? 'selected' : ''}>Hà Nội</option>
-                  <option value="TP. Hồ Chí Minh" ${demographics.province === 'TP. Hồ Chí Minh' ? 'selected' : ''}>TP. Hồ Chí Minh</option>
-                  <option value="Đà Nẵng" ${demographics.province === 'Đà Nẵng' ? 'selected' : ''}>Đà Nẵng</option>
-                  <option value="Cần Thơ" ${demographics.province === 'Cần Thơ' ? 'selected' : ''}>Cần Thơ</option>
-                  <option value="Hải Phòng" ${demographics.province === 'Hải Phòng' ? 'selected' : ''}>Hải Phòng</option>
-                  <option value="Khác" ${!['Hà Nội', 'TP. Hồ Chí Minh', 'Đà Nẵng', 'Cần Thơ', 'Hải Phòng'].includes(demographics.province) ? 'selected' : ''}>Tỉnh / Thành phố khác</option>
-                </select>
+              <!-- 3. Tỉnh / Thành phố sinh sống (34 tỉnh thành mới) -->
+              <div class="relative">
+                <label class="block text-xs font-bold text-stone-700 dark:text-stone-300 mb-1">Tỉnh / Thành phố sinh sống (34 Tỉnh Thành Mới):</label>
+                <input type="hidden" id="demo-province" value="${demographics.province || 'Hà Nội'}">
+                <button type="button" ${isLocked ? 'disabled' : ''} onclick="VibeApp.toggleCustomDropdown('demo-province-menu', event)"
+                        class="custom-dropdown-trigger w-full flex items-center justify-between p-2.5 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 text-xs font-bold text-slate-800 dark:text-slate-200 hover:border-orange-500 transition-all ${isLocked ? 'opacity-70 cursor-not-allowed' : ''}">
+                  <span id="demo-province-label">${demographics.province || 'Hà Nội'}</span>
+                  <i data-lucide="chevron-down" class="dropdown-trigger-icon w-3.5 h-3.5 stroke-[2] transition-transform duration-200 pointer-events-none"></i>
+                </button>
+                ${!isLocked ? `
+                  <div id="demo-province-menu" class="custom-dropdown-menu hidden absolute left-0 right-0 z-50 mt-1 max-h-60 overflow-y-auto p-1.5 rounded-xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-700 shadow-xl space-y-0.5">
+                    ${(window.VIBE_34_PROVINCES || []).map(p => `
+                      <div onclick="VibeApp.selectCustomFormOption('demo-province', '${p}', '${p}', event)" 
+                           class="flex items-center justify-between px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer hover:bg-stone-100 dark:hover:bg-stone-800 ${demographics.province === p ? 'text-orange-600 dark:text-orange-400 font-bold bg-orange-50 dark:bg-stone-800' : 'text-slate-700 dark:text-slate-200'}">
+                        <span>${p}</span>
+                      </div>
+                    `).join('')}
+                  </div>
+                ` : ''}
               </div>
 
-              <div>
+              <!-- 4. Nghề nghiệp / Đối tượng -->
+              <div class="relative">
                 <label class="block text-xs font-bold text-stone-700 dark:text-stone-300 mb-1">Nghề nghiệp / Đối tượng:</label>
-                <select id="demo-occupation" ${isLocked ? 'disabled' : ''} class="w-full p-2.5 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 text-xs font-bold">
-                  <option value="Sinh viên" ${demographics.occupation === 'Sinh viên' ? 'selected' : ''}>Học sinh / Sinh viên đại học</option>
-                  <option value="Nhân viên văn phòng" ${demographics.occupation === 'Nhân viên văn phòng' ? 'selected' : ''}>Nhân viên văn phòng</option>
-                  <option value="Kinh doanh" ${demographics.occupation === 'Kinh doanh' ? 'selected' : ''}>Kinh doanh / Tự do (Freelancer)</option>
-                  <option value="Chuyên gia" ${demographics.occupation === 'Chuyên gia' ? 'selected' : ''}>Chuyên gia / Quản lý</option>
-                  <option value="Khác" ${demographics.occupation === 'Khác' ? 'selected' : ''}>Khác</option>
-                </select>
+                <input type="hidden" id="demo-occupation" value="${demographics.occupation || 'Sinh viên'}">
+                <button type="button" ${isLocked ? 'disabled' : ''} onclick="VibeApp.toggleCustomDropdown('demo-occupation-menu', event)"
+                        class="custom-dropdown-trigger w-full flex items-center justify-between p-2.5 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 text-xs font-bold text-slate-800 dark:text-slate-200 hover:border-orange-500 transition-all ${isLocked ? 'opacity-70 cursor-not-allowed' : ''}">
+                  <span id="demo-occupation-label">${demographics.occupation === 'Nhân viên văn phòng' ? 'Nhân viên văn phòng' : (demographics.occupation === 'Kinh doanh' ? 'Kinh doanh / Tự do (Freelancer)' : (demographics.occupation === 'Chuyên gia' ? 'Chuyên gia / Quản lý' : (demographics.occupation === 'Khác' ? 'Khác' : 'Học sinh / Sinh viên đại học')))}</span>
+                  <i data-lucide="chevron-down" class="dropdown-trigger-icon w-3.5 h-3.5 stroke-[2] transition-transform duration-200 pointer-events-none"></i>
+                </button>
+                ${!isLocked ? `
+                  <div id="demo-occupation-menu" class="custom-dropdown-menu hidden absolute left-0 right-0 z-50 mt-1 p-1.5 rounded-xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-700 shadow-xl space-y-0.5">
+                    <div onclick="VibeApp.selectCustomFormOption('demo-occupation', 'Sinh viên', 'Học sinh / Sinh viên đại học', event)" class="px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer hover:bg-stone-100 dark:hover:bg-stone-800 text-slate-700 dark:text-slate-200">Học sinh / Sinh viên đại học</div>
+                    <div onclick="VibeApp.selectCustomFormOption('demo-occupation', 'Nhân viên văn phòng', 'Nhân viên văn phòng', event)" class="px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer hover:bg-stone-100 dark:hover:bg-stone-800 text-slate-700 dark:text-slate-200">Nhân viên văn phòng</div>
+                    <div onclick="VibeApp.selectCustomFormOption('demo-occupation', 'Kinh doanh', 'Kinh doanh / Tự do (Freelancer)', event)" class="px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer hover:bg-stone-100 dark:hover:bg-stone-800 text-slate-700 dark:text-slate-200">Kinh doanh / Tự do (Freelancer)</div>
+                    <div onclick="VibeApp.selectCustomFormOption('demo-occupation', 'Chuyên gia', 'Chuyên gia / Quản lý', event)" class="px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer hover:bg-stone-100 dark:hover:bg-stone-800 text-slate-700 dark:text-slate-200">Chuyên gia / Quản lý</div>
+                    <div onclick="VibeApp.selectCustomFormOption('demo-occupation', 'Khác', 'Khác', event)" class="px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer hover:bg-stone-100 dark:hover:bg-stone-800 text-slate-700 dark:text-slate-200">Khác</div>
+                  </div>
+                ` : ''}
               </div>
 
-              <div>
-                <label class="block text-xs font-bold text-stone-700 dark:text-stone-300 mb-1">Trường Đại học / Cao đẳng (nếu có):</label>
-                <input type="text" id="demo-university" value="${demographics.university || ''}" ${isLocked ? 'disabled' : ''} placeholder="VD: ĐH Bách Khoa Hà Nội, ĐH Kinh tế Quốc dân..."
-                       class="w-full p-2.5 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 text-xs font-medium">
+              <!-- 5. Trường Đại Học / Học Viện / Cao Đẳng (Gõ tìm kiếm + Dropdown 293 trường) -->
+              <div class="relative">
+                <label class="block text-xs font-bold text-stone-700 dark:text-stone-300 mb-1">Trường Đại Học / Học Viện / Cao Đẳng:</label>
+                <div class="relative">
+                  <input type="text" id="demo-university" value="${demographics.university || ''}" ${isLocked ? 'disabled' : ''} 
+                         placeholder="Gõ tìm trường (VD: Bách Khoa, Kinh Tế, FPT, Cao Thắng...)"
+                         onfocus="VibeApp.filterDemoUniversities(this.value)"
+                         oninput="VibeApp.filterDemoUniversities(this.value)"
+                         class="w-full p-2.5 pr-8 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 text-xs font-bold text-slate-800 dark:text-slate-200 focus:outline-none focus:border-orange-500 ${isLocked ? 'opacity-70 cursor-not-allowed' : ''}">
+                  <i data-lucide="search" class="w-3.5 h-3.5 text-stone-400 absolute right-2.5 top-3 pointer-events-none"></i>
+                </div>
+                ${!isLocked ? `
+                  <div id="demo-uni-popover" class="hidden absolute left-0 right-0 z-50 mt-1 max-h-60 overflow-y-auto p-1.5 rounded-xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-700 shadow-xl space-y-0.5">
+                    <div id="demo-uni-dropdown-list" class="space-y-0.5"></div>
+                  </div>
+                ` : ''}
               </div>
 
+              <!-- 6. Ngành học / Chuyên môn -->
               <div>
                 <label class="block text-xs font-bold text-stone-700 dark:text-stone-300 mb-1">Ngành học / Chuyên môn:</label>
                 <input type="text" id="demo-major" value="${demographics.major || ''}" ${isLocked ? 'disabled' : ''} placeholder="VD: Công nghệ thông tin, Marketing, Quản trị kinh doanh..."
-                       class="w-full p-2.5 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 text-xs font-medium">
+                       class="w-full p-2.5 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 text-xs font-medium text-slate-800 dark:text-slate-200 focus:outline-none focus:border-orange-500 ${isLocked ? 'opacity-70 cursor-not-allowed' : ''}">
               </div>
 
+              <!-- 7. Năm tốt nghiệp -->
               <div>
                 <label class="block text-xs font-bold text-stone-700 dark:text-stone-300 mb-1">Năm tốt nghiệp (dự kiến):</label>
                 <input type="number" id="demo-gradyear" value="${demographics.graduation_year || 2026}" min="1980" max="2035" ${isLocked ? 'disabled' : ''}
-                       class="w-full p-2.5 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 text-xs font-bold font-mono">
+                       class="w-full p-2.5 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 text-xs font-bold font-mono text-slate-800 dark:text-slate-200 focus:outline-none focus:border-orange-500 ${isLocked ? 'opacity-70 cursor-not-allowed' : ''}">
               </div>
 
-              <div>
+              <!-- 8. Mức thu nhập hàng tháng -->
+              <div class="relative">
                 <label class="block text-xs font-bold text-stone-700 dark:text-stone-300 mb-1">Mức thu nhập hàng tháng:</label>
-                <select id="demo-income" ${isLocked ? 'disabled' : ''} class="w-full p-2.5 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 text-xs font-bold">
-                  <option value="Dưới 5 triệu" ${demographics.monthly_income === 'Dưới 5 triệu' ? 'selected' : ''}>Dưới 5 triệu VNĐ</option>
-                  <option value="5 - 10 triệu" ${demographics.monthly_income === '5 - 10 triệu' ? 'selected' : ''}>5 - 10 triệu VNĐ</option>
-                  <option value="10 - 20 triệu" ${demographics.monthly_income === '10 - 20 triệu' ? 'selected' : ''}>10 - 20 triệu VNĐ</option>
-                  <option value="Trên 20 triệu" ${demographics.monthly_income === 'Trên 20 triệu' ? 'selected' : ''}>Trên 20 triệu VNĐ</option>
-                </select>
+                <input type="hidden" id="demo-income" value="${demographics.monthly_income || 'Dưới 5 triệu'}">
+                <button type="button" ${isLocked ? 'disabled' : ''} onclick="VibeApp.toggleCustomDropdown('demo-income-menu', event)"
+                        class="custom-dropdown-trigger w-full flex items-center justify-between p-2.5 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 text-xs font-bold text-slate-800 dark:text-slate-200 hover:border-orange-500 transition-all ${isLocked ? 'opacity-70 cursor-not-allowed' : ''}">
+                  <span id="demo-income-label">${demographics.monthly_income ? demographics.monthly_income + ' VNĐ' : 'Dưới 5 triệu VNĐ'}</span>
+                  <i data-lucide="chevron-down" class="dropdown-trigger-icon w-3.5 h-3.5 stroke-[2] transition-transform duration-200 pointer-events-none"></i>
+                </button>
+                ${!isLocked ? `
+                  <div id="demo-income-menu" class="custom-dropdown-menu hidden absolute left-0 right-0 z-50 mt-1 p-1.5 rounded-xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-700 shadow-xl space-y-0.5">
+                    <div onclick="VibeApp.selectCustomFormOption('demo-income', 'Dưới 5 triệu', 'Dưới 5 triệu VNĐ', event)" class="px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer hover:bg-stone-100 dark:hover:bg-stone-800 text-slate-700 dark:text-slate-200">Dưới 5 triệu VNĐ</div>
+                    <div onclick="VibeApp.selectCustomFormOption('demo-income', '5 - 10 triệu', '5 - 10 triệu VNĐ', event)" class="px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer hover:bg-stone-100 dark:hover:bg-stone-800 text-slate-700 dark:text-slate-200">5 - 10 triệu VNĐ</div>
+                    <div onclick="VibeApp.selectCustomFormOption('demo-income', '10 - 20 triệu', '10 - 20 triệu VNĐ', event)" class="px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer hover:bg-stone-100 dark:hover:bg-stone-800 text-slate-700 dark:text-slate-200">10 - 20 triệu VNĐ</div>
+                    <div onclick="VibeApp.selectCustomFormOption('demo-income', 'Trên 20 triệu', 'Trên 20 triệu VNĐ', event)" class="px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer hover:bg-stone-100 dark:hover:bg-stone-800 text-slate-700 dark:text-slate-200">Trên 20 triệu VNĐ</div>
+                  </div>
+                ` : ''}
               </div>
+
             </div>
 
             ${!isLocked ? `
@@ -7677,7 +7858,7 @@ const VibeApp = {
             ` : `
               <div class="space-y-4">
                 <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">
-                  Nhập địa chỉ email trường của bạn (Ví dụ: <code class="font-mono bg-stone-100 dark:bg-stone-800 px-1.5 py-0.5 rounded">student@hust.edu.vn</code>, <code class="font-mono bg-stone-100 dark:bg-stone-800 px-1.5 py-0.5 rounded">st.neu.edu.vn</code>). Hệ thống sẽ gửi mã OTP 6 chữ số để kích hoạt tức thì trong 30 giây.
+                  Nhập địa chỉ email trường của bạn (Ví dụ: <code class="font-mono bg-stone-100 dark:bg-stone-800 px-1.5 py-0.5 rounded">khoa.tb171234@sis.hust.edu.vn</code>, <code class="font-mono bg-stone-100 dark:bg-stone-800 px-1.5 py-0.5 rounded">11192754@st.neu.edu.vn</code>, <code class="font-mono bg-stone-100 dark:bg-stone-800 px-1.5 py-0.5 rounded">0301261001@caothang.edu.vn</code>). Hệ thống sẽ gửi mã OTP 6 chữ số để kích hoạt tức thì.
                 </p>
 
                 <div class="space-y-2 max-w-md">
@@ -7685,7 +7866,7 @@ const VibeApp = {
                   <div class="flex gap-2">
                     <input type="email" id="student-email-input" placeholder="nhap.email@truong.edu.vn"
                            class="flex-1 p-2.5 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 text-xs font-mono font-bold">
-                    <button type="button" onclick="VibeApp.sendStudentEmailOtpAction()" class="py-2.5 px-4 rounded-xl bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold shrink-0 shadow-xs">
+                    <button type="button" id="student-send-otp-btn" onclick="VibeApp.sendStudentEmailOtpAction()" class="py-2.5 px-4 rounded-xl bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold shrink-0 shadow-xs transition-all">
                       Gửi Mã OTP
                     </button>
                   </div>
@@ -7883,6 +8064,28 @@ const VibeApp = {
       return;
     }
 
+    // Cooldown check
+    if (this.state.studentOtpCooldown > 0) {
+      this.showToast(`Vui lòng đợi ${this.state.studentOtpCooldown} giây trước khi gửi lại mã!`, 'warning');
+      return;
+    }
+
+    // Anti-Spam check (tối đa 5 lần gửi / 10 phút)
+    const now = Date.now();
+    if (!this.state.otpSendHistory) this.state.otpSendHistory = [];
+    this.state.otpSendHistory = this.state.otpSendHistory.filter(t => now - t < 10 * 60 * 1000);
+    if (this.state.otpSendHistory.length >= 5) {
+      this.showToast('Bạn đã gửi mã quá 5 lần trong 10 phút. Vui lòng thử lại sau ít phút để bảo vệ hệ thống!', 'error');
+      return;
+    }
+
+    const btn = document.getElementById('student-send-otp-btn');
+    if (btn) {
+      btn.disabled = true;
+      btn.classList.add('opacity-50', 'cursor-not-allowed');
+      btn.innerText = 'Đang gửi...';
+    }
+
     try {
       this.showToast('Đang gửi mã xác thực OTP về email...', 'info');
       const res = await this.api('/auth/student/send-otp', {
@@ -7898,10 +8101,54 @@ const VibeApp = {
         if (res.debugOtp) {
           console.log('[DEBUG OTP Sinh Viên]:', res.debugOtp);
         }
+
+        // Bắt đầu Cooldown 60s
+        this.state.otpSendHistory.push(now);
+        this.startStudentOtpCooldown(60);
+      } else {
+        if (btn) {
+          btn.disabled = false;
+          btn.classList.remove('opacity-50', 'cursor-not-allowed');
+          btn.innerText = 'Gửi Mã OTP';
+        }
       }
     } catch (err) {
       this.showToast(err.message, 'error');
+      if (btn) {
+        btn.disabled = false;
+        btn.classList.remove('opacity-50', 'cursor-not-allowed');
+        btn.innerText = 'Gửi Mã OTP';
+      }
     }
+  },
+
+  startStudentOtpCooldown(seconds) {
+    this.state.studentOtpCooldown = seconds;
+    if (this._otpCooldownInterval) clearInterval(this._otpCooldownInterval);
+
+    const updateBtn = () => {
+      const btn = document.getElementById('student-send-otp-btn');
+      if (!btn) return;
+      if (this.state.studentOtpCooldown > 0) {
+        btn.disabled = true;
+        btn.classList.add('opacity-50', 'cursor-not-allowed');
+        btn.innerText = `Gửi lại sau (${this.state.studentOtpCooldown}s)`;
+      } else {
+        btn.disabled = false;
+        btn.classList.remove('opacity-50', 'cursor-not-allowed');
+        btn.innerText = 'Gửi Mã OTP';
+        clearInterval(this._otpCooldownInterval);
+      }
+    };
+
+    updateBtn();
+    this._otpCooldownInterval = setInterval(() => {
+      this.state.studentOtpCooldown--;
+      updateBtn();
+      if (this.state.studentOtpCooldown <= 0) {
+        clearInterval(this._otpCooldownInterval);
+      }
+    }, 1000);
   },
 
   async verifyStudentEmailOtpAction() {
