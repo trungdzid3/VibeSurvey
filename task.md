@@ -1,36 +1,59 @@
-# DANH SÁCH CÔNG VIỆC THỰC THI (TASK LIST) - ARGON VIBE STUDIO
+# DANH SÁCH CÔNG VIỆC THỰC THI (TASK LIST) - HỆ THỐNG KINH TẾ 1:1 VNĐ, GOOGLE FORMS STUDIO & 3 PHÂN KHÚC
 
-## 🎯 Mục tiêu: Giải quyết dứt điểm 6 phản hồi kiểm thử cốt lõi & Đẩy lên Git
+Tài liệu tham chiếu duy nhất: [KE_HOACH_TONG_THE.md](file:///c:/Users/Lenovo/Downloads/Linh/KE_HOACH_TONG_THE.md) | [TUONG_LAI_HE_THONG.md](file:///c:/Users/Lenovo/Downloads/Linh/TUONG_LAI_HE_THONG.md) | [DESIGN.md](file:///c:/Users/Lenovo/Downloads/Linh/DESIGN.md)
 
-- [x] **Task 1: Form Builder Dropdown & Bento-Card Layout**
-  - [x] Sửa triệt để dropdown loại câu hỏi: chuyển đổi toàn bộ options sang thẻ `<button type="button">`, không bị lẫn sự kiện.
-  - [x] Thêm class `allow-overflow` và CSS `overflow: visible !important;` cho `.bento-card` của Form Builder và Question Container để menu dropdown không bị cắt đáy.
-  - [x] Phóng to nút chọn loại câu hỏi (`h-9 sm:h-10 px-3.5 sm:px-4 text-xs sm:text-sm font-extrabold rounded-xl`) và menu dropdown (`min-w-[280px] sm:min-w-[320px]`, item padding rộng `py-2.5 px-3`, icon to `w-4 h-4`).
-  - [x] Tăng kích thước thang đo/loại câu hỏi và các tùy chọn trực quan, dễ nhìn trên cả mobile lẫn desktop.
+## Giai đoạn 1: Lập Kế Hoạch & Chuẩn Hóa Chính Sách (Đã Hoàn Thành)
+- [x] Chuẩn hóa tỷ lệ tiền tệ 1:1 VNĐ (`1 Point = 1 VNĐ`, `1 Credit = 1 VNĐ`) và khóa van một chiều.
+- [x] Chuẩn hóa Mô hình Định giá 2 Tầng: Giá sàn tối thiểu $P_{\text{sàn}}$ cho 3 Phân khúc (Sinh viên 400đ/500đ/600đ, Cá nhân 800đ/1.000đ/1.200đ, Doanh nghiệp 1.500đ/2.000đ/2.500đ).
+- [x] Thiết lập 3 nấc giá đề xuất gắn với thời gian thu mẫu SLA (Tiết kiệm 3-5 ngày, Đề xuất +25% 24-48h, Hỏa tốc +60% 2-6h) và cơ chế Tăng thưởng tự do (Creator Boost) chia sẻ công bằng: 85% cho người điền / 15% cho sàn (Sinh viên), 80% cho người điền / 20% cho sàn (Cá nhân & Doanh nghiệp).
+- [x] Thiết lập chính sách phụ phí Bộ lọc đối tượng + Auto-Screener (+100đ/mẫu cho Sinh viên, +200đ/mẫu cho Cá nhân, Miễn phí 100% cho Doanh nghiệp).
+- [x] Thiết lập định mức 30 lượt miễn phí/tháng cho Sinh viên (trừ 10 lượt cho mỗi 50 mẫu đăng) và 25 lượt miễn phí đầu tay cho Cá nhân khi hoàn thiện 100% Profile.
+- [x] Thiết kế lại Trình tạo form chuẩn Google Forms với **Bố cục 2 Cột Studio**: Cột trái (~65% Canvas) là thẻ câu hỏi chuẩn Google Forms (viền nhấn dọc 4px màu cam, 6 chấm kéo thả, menu chọn 12 định dạng, thanh công cụ nổi dọc bên cạnh, nút Duplicate, Trash, công tắc Bắt buộc); Cột phải (~35% Sticky Sidebar) ghim cố định Giá, Ngân sách ký quỹ, Phân khúc, Hạn treo và Tạm tính Escrow Real-time.
+- [x] Mở rộng đầy đủ 12 định dạng câu hỏi chuẩn Google Forms (bao gồm Lưới trắc nghiệm `CHOICE_GRID` và Lưới hộp kiểm `CHECKBOX_GRID`).
+- [x] Thiết lập cơ chế tự động nhận diện 100% dạng câu hỏi và cờ bắt buộc `is_required` từ Google Forms (`FB_PUBLIC_LOAD_DATA_`) và Microsoft Forms (`runtimeForms`).
+- [x] Chuẩn hóa công thức hoàn tiền an toàn khi hủy sớm khóa theo `escrow_locked_balance` với hàm chặn âm `Math.max(0, ...)`, triệt tiêu lỗ hổng hoàn vượt số tiền thực nạp khi dùng lượt free.
+- [x] Thiết lập bảng mốc nạp tiền mới từ 20.000đ đến 5.000.000đ+, hợp nhất Vé Ghim VIP + Push APK + Email.
+- [x] Thiết lập 5 ưu đãi độc quyền Gói Doanh Nghiệp, quy trình 2 cấp độ mở khóa Hồ sơ Doanh nghiệp (ghi chú lưu lại phương án Gói Thuê Bao Tháng/Năm cho giai đoạn sau, chưa triển khai ngay).
+- [x] Thiết lập quy trình xác thực Email trường (`.edu.vn` / `.ac.vn`) qua Gmail SMTP & Brevo, mục Hồ sơ cá nhân và Sàng lọc thích ứng (Adaptive Auto-Screener).
+- [x] Thiết lập 5 chốt chặn Anti-Fraud và nâng cấp bảo mật (tắt thưởng tiền mặt khi Screen-out; thống nhất trừ `-12 điểm uy tín` khi `REJECTED`; sửa Auto-Ban chỉ tính theo `device_fingerprint` để tránh khóa nhầm Wi-Fi trường đại học; không tính thời gian câu tự luận).
+- [x] Hợp nhất toàn bộ vào 1 file duy nhất `KE_HOACH_TONG_THE.md` và loại bỏ toàn bộ các file kế hoạch cũ.
 
-- [x] **Task 2: Tính toán Escrow & Dòng Tạm Tính Chi Phí Minh Bạch**
-  - [x] Sửa `updateFastEscrowCalculation()`: Bổ sung dòng hiển thị tạm tính ngân sách rõ ràng ngay dưới 2 ô nhập mẫu & điểm thưởng.
-  - [x] Tính năng Free Trial: Miễn phí 25 mẫu đầu (50.000 VNĐ). Khi người dùng nhập `targets > 25`, tự động tính tiền cho phần phụ trội `(targets - 25) * (reward * 10)`.
-
-- [x] **Task 3: Bảo Toàn Trạng Thái Router (State Persistence cho Ví & Guest Flash)**
-  - [x] Lưu `vibe_current_tab` vào `localStorage`. Khi F5 ở tab `wallet` vẫn giữ nguyên ở tab `wallet`.
-  - [x] Khôi phục `currentUser` từ `localStorage` ngay trong hàm `init()` trước khi render lần đầu để triệt tiêu hoàn toàn hiện tượng lóe trạng thái khách (flash guest state).
-
-- [x] **Task 4: Trải Nghiệm Khảo Sát (Mất Tiến Độ Khi F5 & Nút Thoát Khảo Sát)**
-  - [x] Lưu `vibe_active_session` vào `localStorage` mỗi khi chọn câu trả lời / chuyển câu hỏi.
-  - [x] Khi F5 giữa bài, tự động phục hồi phiên làm bài với đầy đủ đáp án đã chọn và đồng hồ bấm giờ, kèm toast nhắc nhở tiếp tục.
-  - [x] Sửa nút "Thoát Khảo Sát": Bổ sung modal popup xác nhận "Bạn có chắc chắn muốn thoát? Dữ liệu bài làm sẽ bị hủy", bấm Đồng ý mới xóa session và quay về trang Khảo sát.
-
-- [x] **Task 5: Sửa Nút "Quay Lại" Modal Apps Script, Ghim VIP Confirm & 5 Vé Hỏa Tốc**
-  - [x] Sửa nút "Quay Lại" ở modal Google Apps Script: Gọi `VibeApp.closeModal()` để chỉ đóng modal popup, không reset/xóa form và tiêu đề khảo sát.
-  - [x] Thêm popup xác nhận khi tick Ghim VIP: Thông báo rõ ràng chi phí 50.000 VNĐ hoặc sử dụng 1 vé ghim VIP; nếu bấm Hủy thì bỏ tick.
-  - [x] Hiển thị trực quan huy hiệu `⚡ ${user.fast_track_tickets || 5} Vé Hỏa Tốc` trên Header (gần Balance Pill) và trong Form Builder / Tab Ví của Creator.
-
-- [x] **Task 6: Bộ Logo Vector SVG Chuẩn Nhận Diện Thương Hiệu Cho Voucher**
-  - [x] Cập nhật vector SVG chuẩn chính hãng, tỉ lệ và mã màu chính xác cho Shopee, Grab, Highlands Coffee, Phúc Long, CGV Cinemas, Starbucks.
-
-- [x] **Task 7: Kiểm Tra Cú Pháp, Chạy Test Suites & Push Git Origin Main**
-  - [x] Chạy `node -c public/app.js` (PASS).
-  - [x] Nâng cache buster `v=3.5.10` trong `public/index.html`.
-  - [x] Chạy `npm test` xác nhận 13/13 Test Suites PASS (100%).
-  - [x] Commit và `git push origin main`.
+## Giai đoạn 2: Triển Khai Mã Nguồn (Chờ Lệnh Thực Thi Từ Người Dùng)
+- [x] **Task 1: Cấu hình Kinh tế học 1:1 VNĐ, Bảng giá Sàn & Động cơ Tăng thưởng Boost (`server/config/index.js`, `server/services/pricingService.js`)**
+  - [x] Cập nhật tỷ giá 1:1 VNĐ, bảng giá sàn Sinh viên / Cá nhân / Doanh nghiệp theo 3 mức độ dài câu hỏi ($\le 10$, $11-25$, $>25$).
+  - [x] Tích hợp logic tính 3 nấc SLA đề xuất (Tiết kiệm, Đề xuất +25%, Hỏa tốc +60%) và thuật toán chia sẻ phần tiền tăng thêm $\Delta P$: 85% cho người điền / 15% cho sàn (Gói Sinh Viên), 80% cho người điền / 20% cho sàn (Gói Cá Nhân & Doanh Nghiệp).
+  - [x] Tích hợp tính phụ phí Bộ lọc đối tượng (+100đ SV, +200đ Cá nhân, 0đ DN) và chiết khấu quy mô lớn (10% từ 300 mẫu, 15% từ 500 mẫu cho DN).
+  - [x] Khóa cứng công thức tính `EscrowRefund` khi hủy form sớm bằng `Math.min(escrow_locked_balance, Math.max(0, TotalEscrow - (collected * effective_cost)))`.
+- [x] **Task 2: Sổ cái Tiền tệ, Mốc Nạp từ 20k & Đổi Point sang Credit +5% (`server/services/ledgerService.js`, `server/controllers/walletController.js`)**
+  - [x] Hạ mức nạp tối thiểu xuống 20.000đ, cập nhật bậc thưởng nạp (2% - 10%) và tặng Vé Ghim VIP.
+  - [x] Cập nhật hàm đổi Point sang Credit (+5% thưởng tái đầu tư) và bảng mốc rút tiền/thẻ cào/voucher theo chuẩn 1 Point = 1 VNĐ.
+- [x] **Task 3: Hồ sơ Cá nhân (Profile), Xác thực Sinh viên (`.edu.vn`) & Hồ sơ Doanh nghiệp 2 Cấp độ (`server/controllers/authController.js`, `server/services/matchingService.js`)**
+  - [x] Xây dựng API xác thực OTP Email trường (`.edu.vn` / `.ac.vn`) qua Gmail SMTP & Brevo kèm nhánh dự phòng tải ảnh thẻ sinh viên.
+  - [x] Tích hợp cơ sở dữ liệu định danh số toàn diện: Nạp toàn bộ danh mục 13 Đại học, Đại học Quốc gia, Đại học Vùng, ĐH đa ngành, các trường đại học chuyên ngành và cao đẳng trên cả nước kèm 5 mô hình subdomain (`@st.`, `@student.`, `@sv.`, `@sis.`, `@ms.`, `@gm.`, `@lms.`, `@stu.`,...) và các tên miền trường đặc thù vào `matchingService.js`.
+  - [x] Xây dựng API lưu Hồ sơ cá nhân (mở khóa 25 lượt free Cá nhân hoặc 30 lượt free/tháng cho SV, khóa sửa các trường nhân khẩu học 90 ngày) và Hồ sơ Doanh nghiệp Cấp độ 1 & 2.
+- [x] **Task 4: Trình Bóc Tách Form Đa Năng 12 Định Dạng & Tự Động Nhận Diện Link Ngoài (`server/services/formParserService.js`)**
+  - [x] Nâng cấp bóc tách Google Forms (`FB_PUBLIC_LOAD_DATA_`): Nhận diện đúng 12 dạng câu hỏi (đặc biệt `item[3] === 7` bóc tách thành `CHOICE_GRID` và `CHECKBOX_GRID` với danh sách `rows` và `columns`), trích xuất chính xác cờ bắt buộc `is_required`.
+  - [x] Nâng cấp bóc tách Microsoft Forms (`runtimeForms`): Nhận diện `MatrixChoiceGroup` / `Likert` thành dạng Lưới, trích xuất `question.required`.
+  - [x] Nâng cấp Smart Text Paste: Nhận diện cú pháp ma trận hàng - cột và cờ bắt buộc.
+- [x] **Task 5: Câu hỏi Sàng lọc Thích ứng (Adaptive Auto-Screener), Cờ `is_required` & Bảo hành 1 Đổi 1 (`server/controllers/surveyController.js`)**
+  - [x] Tự động sinh câu hỏi sàng lọc ở đầu bài cho người chưa khớp Profile, ẩn tự động với người đã khớp 100% Profile và tự động điền ngầm (Auto-fill) dữ liệu Profile vào file xuất CSV/Google Sheets.
+  - [x] Bổ sung cột `is_required` (Bắt buộc trả lời / Không bắt buộc) vào bảng câu hỏi trong DB, hỗ trợ lưu trữ cấu trúc Hàng $\times$ Cột của câu hỏi Lưới (`CHOICE_GRID`, `CHECKBOX_GRID`).
+  - [x] Bổ sung tính năng yêu cầu đổi mẫu lỗi (tối đa 15% số mẫu trong 7 ngày) cho Gói Doanh Nghiệp.
+- [x] **Task 6: Nâng cấp Anti-Fraud Engine (`server/services/antiFraudService.js`)**
+  - [x] Chuyển thưởng `Screen-out` về `0 Point` (chỉ cộng `+0.2 trust_score`).
+  - [x] Sửa điều kiện Auto-Ban chỉ kích hoạt khi $\ge 3$ tài khoản trùng mã phần cứng `device_fingerprint` trong 24h, bảo vệ người dùng chung IP Wi-Fi trường học.
+  - [x] Chốt chặn 1 & 4: Không tính thời gian (`0 giây`) đối với câu tự luận (`OPEN_TEXT`, `SHORT_TEXT`, `PARAGRAPH`) trong bẫy tốc độ và chấp nhận các câu trả lời ngắn hợp lệ (kể cả chỉ ghi số `0`, *"Không"*, *"Có"*), chỉ chặn chuỗi phím gõ bừa vô nghĩa (`asdfgh`, `aaaaaa`).
+  - [x] Chốt chặn 2: Chèn động câu hỏi bẫy tập trung ở vị trí ngẫu nhiên giữa bài (30%-80%) theo từng phiên làm bài (không gắn cứng vị trí) và bổ sung cơ chế **thêm 01 cơ hội thứ hai** nếu người làm vô tình click nhầm ở lần đầu.
+  - [x] Cơ chế Điểm Uy Tín (`trust_score`): Khởi tạo `85 điểm`; từ `80 - 100 điểm` nhận đủ 100% thưởng; từ `40 - 79 điểm` khấu trừ phạt `1%` cho mỗi điểm thiếu dưới mốc 80; dưới `40 điểm` tự động khóa tài khoản (`BAN`); bài làm bị từ chối `REJECTED` trừ `-12 điểm uy tín`; làm bài chuẩn cộng `+2 điểm` để phục hồi uy tín.
+- [x] **Task 7: Giao diện Frontend Google Forms Studio 2 Cột & Trình Làm Bài (`public/app.js`, `public/index.html`)**
+  - [x] Xây dựng Bố cục 2 Cột Studio cho màn hình Tạo Khảo Sát: Cột Trái (~65% Canvas) chứa Active Question Card có viền nhấn dọc 4px màu cam, 6 chấm kéo thả, menu chọn 12 định dạng câu hỏi, thanh công cụ nổi dọc bên cạnh, nút Duplicate/Trash/Required; Cột Phải (~35% Sticky Sidebar) ghim cố định Bảng giá & 3 nấc SLA, Thanh trượt Boost chia tiền 85/15 hoặc 80/20, Số mẫu, Bộ lọc, Cài đặt thời hạn và Tạm tính Escrow Real-time.
+  - [x] Nâng cấp Trình làm bài Stepper: Render đầy đủ 12 định dạng câu hỏi (giao diện chọn ma trận Hàng $\times$ Cột cho `CHOICE_GRID` và `CHECKBOX_GRID`), kiểm tra tính hợp lệ của câu hỏi có cờ `is_required`.
+  - [x] Cập nhật giao diện Tab Hồ sơ (Cá nhân / Sinh viên / Doanh nghiệp), Ví & Mốc nạp 20k.
+- [ ] **Task 8: Kiểm Thử Tự Hành & Xác Minh Toàn Diện (`tests/`)**
+  - [ ] Kiểm tra cú pháp `node -c` toàn bộ các tệp JavaScript.
+  - [ ] Viết test bổ sung và chạy toàn bộ bộ kiểm thử tự hành đạt 100% PASS.
+- [ ] **Task 9: Hạ tầng triển khai — Oracle Cloud Always Free + Tên miền riêng + Cloudflare Tunnel (KE_HOACH_TONG_THE.md Phần VI)**
+  - [ ] Đăng ký tên miền miễn phí DigitalPlat (`vibesurvey.dpdns.org`), trỏ NS về Cloudflare Free, bật Cloudflare Tunnel thay vì mở cổng 80/443.
+  - [ ] Khởi tạo VM Ampere A1 (2 OCPU / 6GB, Ubuntu LTS, SSH key-only), cài Node.js 24 ARM64, `npm ci` rebuild module native (bcrypt), chạy server bằng pm2 + `cloudflared`.
+  - [ ] Cập nhật Google OAuth redirect URIs, `APP_URL`, Capacitor Android; reset dữ liệu test (không cần bảo toàn số dư — dự án chưa công khai); ngừng commit `vibesurvey.db` lên git.
+  - [ ] Thiết lập crontab theo Phần V: auto-close hết hạn + hoàn tiền escrow, hạ ghim sau 7 ngày, làm mới 30 lượt free ngày 01; backup SQLite hằng ngày lên Object Storage; gia cố `unattended-upgrades` + `fail2ban`; giữ Render song song 1–2 tuần làm fallback.

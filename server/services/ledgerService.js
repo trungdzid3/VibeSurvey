@@ -15,42 +15,48 @@ class LedgerService {
   }
 
   /**
-   * Tạo giao dịch nạp tiền cho Creator
-   */
-  /**
-   * Tính toán thưởng bonus nạp tiền bằng Credit tạo form theo bậc thang (Tiered Deposit Bonus)
-   * Nạp nhiều hơn một chút thì bonus thêm một chút hợp lý ("hơn 1 tẹo thôi"):
-   * - Dưới 100K: 0%
-   * - 100K - 499K: +2% (VD: 100K -> +2,000đ Credit tạo form)
-   * - 500K - 999K: +4% (VD: 500K -> +20,000đ Credit tạo form)
-   * - 1M - 1.99M: +6% (VD: 1M -> +60,000đ Credit tạo form, tổng nhận 1.060.000đ)
-   * - 2M - 4.99M: +8% (VD: 2M -> +160,000đ Credit tạo form, tổng nhận 2.160.000đ)
-   * - 5M - 9.99M: +10% (VD: 5M -> +500,000đ Credit tạo form, tổng nhận 5.500.000đ)
-   * - Từ 10M trở lên: +12% (VD: 10M -> +1,200,000đ Credit tạo form, tổng nhận 11.200.000đ)
+   * Tính toán thưởng bonus nạp tiền bằng Credit tạo form theo bảng mốc (Tiered Deposit Bonus)
+   * Nạp từ 20.000đ trở lên theo config.ECONOMICS.DEPOSIT_TIERS:
+   * - Dưới 20K: 0%
+   * - 20K - 49.999đ: 0% bonus, 0 vé VIP
+   * - 50K - 99.999đ: +2% bonus, 0 vé VIP
+   * - 100K - 199.999đ: +3% bonus, 0 vé VIP
+   * - 200K - 499.999đ: +4% bonus, 1 vé VIP
+   * - 500K - 999.999đ: +5% bonus, 2 vé VIP
+   * - 1M - 1.99M: +6% bonus, 4 vé VIP
+   * - 2M - 4.99M: +8% bonus, 8 vé VIP
+   * - Từ 5M trở lên: +10% bonus, 20 vé VIP
    */
   calculateDepositBonus(amountVnd) {
     const amount = Math.floor(Number(amountVnd) || 0);
+    const tiers = (config.ECONOMICS && config.ECONOMICS.DEPOSIT_TIERS) || [
+      { amount: 20000, bonusRate: 0.00, bonusCredit: 0, vipTickets: 0, label: 'Sinh viên (50 mẫu)' },
+      { amount: 50000, bonusRate: 0.02, bonusCredit: 1000, vipTickets: 0, label: 'Sinh viên (100 mẫu) / Cá nhân' },
+      { amount: 100000, bonusRate: 0.03, bonusCredit: 3000, vipTickets: 0, label: 'Cá nhân (100 mẫu)' },
+      { amount: 200000, bonusRate: 0.04, bonusCredit: 8000, vipTickets: 1, label: 'Cá nhân / Nhóm NCKH (Tặng 1 vé VIP)' },
+      { amount: 500000, bonusRate: 0.05, bonusCredit: 25000, vipTickets: 2, label: 'Startup / SME nhỏ (Tặng 2 vé VIP)' },
+      { amount: 1000000, bonusRate: 0.06, bonusCredit: 60000, vipTickets: 4, label: 'Doanh nghiệp Vàng (Tặng 4 vé VIP)' },
+      { amount: 2000000, bonusRate: 0.08, bonusCredit: 160000, vipTickets: 8, label: 'Doanh nghiệp Bạch Kim (Tặng 8 vé VIP)' },
+      { amount: 5000000, bonusRate: 0.10, bonusCredit: 500000, vipTickets: 20, label: 'Doanh nghiệp Kim Cương (Tặng 20 vé VIP)' }
+    ];
+
+    let matchedTier = null;
+    const sortedTiers = [...tiers].sort((a, b) => b.amount - a.amount);
+    for (const t of sortedTiers) {
+      if (amount >= t.amount) {
+        matchedTier = t;
+        break;
+      }
+    }
+
     let bonusRate = 0;
+    let bonusTickets = 0;
     let tier = 'Cơ bản';
 
-    if (amount >= 10000000) {
-      bonusRate = 0.12;
-      tier = 'Doanh Nghiệp Đối Tác (+12%)';
-    } else if (amount >= 5000000) {
-      bonusRate = 0.10;
-      tier = 'Doanh Nghiệp Kim Cương (+10%)';
-    } else if (amount >= 2000000) {
-      bonusRate = 0.08;
-      tier = 'Doanh Nghiệp Bạch Kim (+8%)';
-    } else if (amount >= 1000000) {
-      bonusRate = 0.06;
-      tier = 'Doanh Nghiệp Vàng (+6%)';
-    } else if (amount >= 500000) {
-      bonusRate = 0.04;
-      tier = 'Bạc (Silver +4%)';
-    } else if (amount >= 100000) {
-      bonusRate = 0.02;
-      tier = 'Đồng (Bronze +2%)';
+    if (matchedTier) {
+      bonusRate = matchedTier.bonusRate;
+      bonusTickets = matchedTier.vipTickets || matchedTier.bonusTickets || 0;
+      tier = matchedTier.label;
     }
 
     const bonusCreditVnd = Math.floor(amount * bonusRate);
@@ -58,6 +64,7 @@ class LedgerService {
       amountVnd: amount,
       bonusRate,
       bonusPercent: Math.round(bonusRate * 100),
+      bonusTickets,
       tier,
       bonusCreditVnd,
       totalCreditVnd: amount + bonusCreditVnd
@@ -66,38 +73,25 @@ class LedgerService {
 
   /**
    * Tính toán gói dịch vụ gia tăng đặc quyền cho Doanh nghiệp (Enterprise Perks)
-   * - Hỗ trợ Xuất Hóa Đơn Điện Tử VAT FULL 100% cho mọi khoản nạp doanh nghiệp
-   * - Tặng lượt Gom Mẫu Hỏa Tốc (Ghim đầu trang + Bắn Thông Báo Đẩy trên App APK + Gửi Email hệ thống)
+   * - Hỗ trợ Xuất Hóa Đơn Điện Tử VAT FULL 100% cho các khoản nạp từ 200.000đ trở lên
+   * - Tặng lượt Ghim VIP (Ghim đầu trang + Bắn Thông Báo Đẩy trên App APK + Gửi Email hệ thống)
    */
   calculateEnterprisePerks(amountVnd) {
-    const amount = Math.floor(Number(amountVnd) || 0);
-    let fastTrackTickets = 0;
-    const vatInvoiceEligible = true; // FULL VAT 100% cho doanh nghiệp
-    let tier = 'Tiêu chuẩn';
-    let perkSummary = 'Hỗ trợ xuất hóa đơn VAT Full 100%';
+    const bonusInfo = this.calculateDepositBonus(amountVnd);
+    const amount = bonusInfo.amountVnd;
+    const vatInvoiceEligible = amount >= 200000;
+    let perkSummary = vatInvoiceEligible 
+      ? 'Hỗ trợ xuất hóa đơn VAT' 
+      : 'Không hỗ trợ xuất hóa đơn VAT';
 
-    if (amount >= 10000000) {
-      fastTrackTickets = 20;
-      tier = 'Doanh Nghiệp Đối Tác';
-      perkSummary = 'Tặng 20 Lượt Gom Mẫu Hỏa Tốc (Ghim Top + Push App APK + Gửi Email) + Xuất Hóa Đơn VAT FULL 100%';
-    } else if (amount >= 5000000) {
-      fastTrackTickets = 10;
-      tier = 'Doanh Nghiệp Kim Cương';
-      perkSummary = 'Tặng 10 Lượt Gom Mẫu Hỏa Tốc (Ghim Top + Push App APK + Gửi Email) + Xuất Hóa Đơn VAT FULL 100%';
-    } else if (amount >= 2000000) {
-      fastTrackTickets = 4;
-      tier = 'Doanh Nghiệp Bạch Kim';
-      perkSummary = 'Tặng 4 Lượt Gom Mẫu Hỏa Tốc (Ghim Top + Push App APK + Gửi Email) + Xuất Hóa Đơn VAT FULL 100%';
-    } else if (amount >= 1000000) {
-      fastTrackTickets = 2;
-      tier = 'Doanh Nghiệp Vàng';
-      perkSummary = 'Tặng 2 Lượt Gom Mẫu Hỏa Tốc (Ghim Top + Push App APK + Gửi Email) + Xuất Hóa Đơn VAT FULL 100%';
+    if (bonusInfo.bonusTickets > 0) {
+      perkSummary += ' + Tặng ' + bonusInfo.bonusTickets + ' Vé Ghim VIP (Ghim Top + Push App APK + Email)';
     }
 
     return {
       amountVnd: amount,
-      tier,
-      fastTrackTickets,
+      tier: bonusInfo.tier,
+      fastTrackTickets: bonusInfo.bonusTickets,
       freeTargetingTickets: 0,
       vatInvoiceEligible,
       hasVip: amount >= 5000000 ? 1 : 0,
@@ -107,7 +101,7 @@ class LedgerService {
 
   /**
    * Nạp tiền vào tài khoản Doanh nghiệp / Creator (Credit Top-up) kèm cơ chế Thưởng Bonus Credit tạo form
-   * và Gói Dịch Vụ Gia Tăng Đặc Quyền (Vé Hỏa Tốc, Lọc Sâu Đối Tượng)
+   * và Gói Dịch Vụ Gia Tăng Đặc Quyền (Vé Ghim VIP, Lọc Sâu Đối Tượng)
    * Đảm bảo tính nguyên tử ACID
    */
   depositCredit(userId, amountVnd, description = 'Nạp tiền vào tài khoản') {
@@ -120,10 +114,11 @@ class LedgerService {
     const enterprisePerks = this.calculateEnterprisePerks(amount);
     const bonusCreditVnd = bonusInfo.bonusCreditVnd;
     const totalCreditToAdd = amount + bonusCreditVnd;
+    const bonusTickets = bonusInfo.bonusTickets;
 
     db.exec('BEGIN IMMEDIATE TRANSACTION');
     try {
-      // Cập nhật số dư credit_balance và cộng thêm vé dịch vụ gia tăng cho tài khoản
+      // Cập nhật số dư credit_balance và cộng thêm vé VIP (fast_track_tickets) cho tài khoản
       const updateRes = db.prepare(`
         UPDATE users 
         SET credit_balance = credit_balance + ?,
@@ -131,7 +126,7 @@ class LedgerService {
             free_targeting_tickets = COALESCE(free_targeting_tickets, 0) + ?,
             has_vip_enterprise = CASE WHEN ? = 1 THEN 1 ELSE COALESCE(has_vip_enterprise, 0) END
         WHERE id = ?
-      `).run(totalCreditToAdd, enterprisePerks.fastTrackTickets, enterprisePerks.freeTargetingTickets, enterprisePerks.hasVip, userId);
+      `).run(totalCreditToAdd, bonusTickets, enterprisePerks.freeTargetingTickets, enterprisePerks.hasVip, userId);
 
       if (updateRes.changes === 0) {
         throw new Error('Người dùng không tồn tại');
@@ -160,7 +155,7 @@ class LedgerService {
           txId, 
           bonusCreditVnd, 
           newBalance, 
-          `Thưởng nạp tiền bậc ${bonusInfo.tier}: Tặng +${bonusInfo.bonusPercent}% Credit tạo form (+${bonusCreditVnd.toLocaleString('vi-VN')}đ Credit) & ${enterprisePerks.perkSummary}`
+          `Thưởng nạp tiền bậc ${bonusInfo.tier}: Tặng +${bonusInfo.bonusPercent}% Credit tạo form (+${bonusCreditVnd.toLocaleString('vi-VN')} Credit) & ${enterprisePerks.perkSummary}`
         );
       }
 
@@ -172,6 +167,7 @@ class LedgerService {
         bonusCreditVnd, 
         bonusPercent: bonusInfo.bonusPercent, 
         tier: bonusInfo.tier, 
+        bonusTickets,
         totalCreditVnd: bonusInfo.totalCreditVnd,
         enterprisePerks,
         fastTrackTickets: user.fast_track_tickets,
@@ -202,37 +198,66 @@ class LedgerService {
       if (!survey) throw new Error('Khảo sát không tồn tại hoặc không thuộc quyền sở hữu');
       if (survey.status !== 'DRAFT') throw new Error('Khảo sát đã được xuất bản hoặc đã kết thúc');
 
-      // 2a. Nếu kích hoạt Gói Dùng Thử Miễn Phí (First Survey Free Trial - 25 Lượt)
+      // 2a. Nếu kích hoạt Gói Dùng Thử Miễn Phí (First Survey Free Trial - 25 Lượt Đầu Miễn Phí)
       if (options.useFreeTrial) {
         const user = db.prepare('SELECT id, credit_balance, free_trial_surveys_available FROM users WHERE id = ?').get(userId);
         if (!user || (user.free_trial_surveys_available || 0) < 1) {
           throw new Error('Bạn đã sử dụng hết lượt khảo sát dùng thử miễn phí');
         }
-        if (survey.target_responses > 25) {
-          throw new Error('Gói khảo sát miễn phí áp dụng tối đa 25 lượt phản hồi. Vui lòng giảm số mẫu xuống 25 hoặc nạp quỹ.');
+
+        const target = survey.target_responses || 1;
+        const costPerResp = Math.round(escrowAmount / target);
+        const freeResponses = Math.min(25, target);
+        const paidResponses = Math.max(0, target - freeResponses);
+        const sponsoredAmount = freeResponses * costPerResp;
+        const userPaidAmount = paidResponses * costPerResp;
+
+        if (userPaidAmount > 0 && user.credit_balance < userPaidAmount) {
+          throw new Error(`Bạn được tặng 25 lượt miễn phí, ${paidResponses} lượt còn lại cần ${userPaidAmount.toLocaleString('vi-VN')} đ (Số dư hiện tại: ${user.credit_balance.toLocaleString('vi-VN')} đ). Vui lòng nạp thêm quỹ.`);
         }
 
-        // Trừ 1 lượt dùng thử
-        db.prepare('UPDATE users SET free_trial_surveys_available = free_trial_surveys_available - 1 WHERE id = ?').run(userId);
+        // Trừ 1 lượt dùng thử và trừ tiền phần vượt quá (nếu có)
+        db.prepare(`
+          UPDATE users 
+          SET free_trial_surveys_available = free_trial_surveys_available - 1,
+              credit_balance = credit_balance - ? 
+          WHERE id = ?
+        `).run(userPaidAmount, userId);
 
-        // Kích hoạt khảo sát sang ACTIVE và nạp quỹ tài trợ do sàn cấp
+        // Kích hoạt khảo sát sang ACTIVE và nạp đủ quỹ ký quỹ (phần sàn tài trợ + phần người dùng trả)
         db.prepare(`
           UPDATE surveys 
           SET escrow_locked_balance = ?, status = 'ACTIVE', is_free_trial = 1, updated_at = CURRENT_TIMESTAMP 
           WHERE id = ? AND creator_id = ? AND status = 'DRAFT'
         `).run(escrowAmount, surveyId, userId);
 
-        const txId = crypto.randomUUID();
+        const newBal = user.credit_balance - userPaidAmount;
+
+        // Ghi transaction tài trợ miễn phí
+        const txFreeId = crypto.randomUUID();
         db.prepare(`
           INSERT INTO point_transactions (id, user_id, reference_id, tx_type, currency, amount, balance_after, description)
           VALUES (?, ?, ?, 'ESCROW_LOCK', 'VND', 0, ?, ?)
-        `).run(txId, userId, surveyId, user.credit_balance, `[Tài Trợ Miễn Phí] Gói dùng thử 25 lượt phản hồi đầu tay (Sàn tài trợ ${escrowAmount.toLocaleString('vi-VN')} đ)`);
+        `).run(txFreeId, userId, surveyId, newBal, `[Tài Trợ Miễn Phí] Miễn phí ${freeResponses} lượt phản hồi đầu tay (Sàn tài trợ ${sponsoredAmount.toLocaleString('vi-VN')} đ)`);
+
+        // Nếu có phần vượt quá 25 lượt, ghi transaction trừ tiền thật
+        if (userPaidAmount > 0) {
+          const txPaidId = crypto.randomUUID();
+          db.prepare(`
+            INSERT INTO point_transactions (id, user_id, reference_id, tx_type, currency, amount, balance_after, description)
+            VALUES (?, ?, ?, 'ESCROW_LOCK', 'VND', ?, ?, ?)
+          `).run(txPaidId, userId, surveyId, -userPaidAmount, newBal, `Ký quỹ ${paidResponses} lượt khảo sát (vượt gói 25 lượt miễn phí): ${surveyId}`);
+        }
 
         db.exec('COMMIT');
         return {
           success: true,
           isFreeTrial: true,
-          newCreditBalance: user.credit_balance,
+          freeResponses,
+          paidResponses,
+          sponsoredAmount,
+          userPaidAmount,
+          newCreditBalance: newBal,
           newEscrowBalance: escrowAmount,
           freeTrialSurveysAvailable: (user.free_trial_surveys_available - 1)
         };
@@ -426,10 +451,11 @@ class LedgerService {
 
   /**
    * Tạo yêu cầu rút tiền/đổi thẻ cào: Trừ điểm ngay lập tức (Atomic) để chống double spend
-   * - Ngưỡng rút phá băng lần đầu: 1,000 điểm = 10,000 VNĐ (chỉ thẻ cào PHONE_CARD)
-   * - Ngưỡng rút tiêu chuẩn: 5,000 điểm = 50,000 VNĐ
-   * - Phí thẻ cào: 0đ (miễn phí 100%)
-   * - Phí ngân hàng: Rút < 100k thu 2,000đ; Rút >= 100k miễn phí
+   * - Ngưỡng rút phá băng lần đầu: 10.000 điểm = 10.000 VNĐ (chỉ thẻ cào PHONE_CARD, phí 0đ)
+   * - Ngưỡng thẻ cào tiêu chuẩn: 20.000 / 50.000 / 100.000 điểm (phí 0đ)
+   * - Ngưỡng rút ngân hàng / MoMo: Mốc 50.000đ (thu 2.000đ phí, nhận 48.000đ); từ 100.000đ trở lên phí 0đ
+   * - Ngưỡng Voucher: Tối thiểu 30.000 điểm (phí 0đ)
+   * - Kiểm tra trust_score >= 60.0
    */
   requestPayout(userId, pointsAmount, payoutMethod, recipientInfo, feeVnd = null) {
     const points = Math.floor(Number(pointsAmount));
@@ -444,11 +470,18 @@ class LedgerService {
     const previousPayoutCount = previousPayout ? previousPayout.count : 0;
 
     const isFirstTimePhoneCard = (previousPayoutCount === 0 && payoutMethod === 'PHONE_CARD');
-    const minPoints = isFirstTimePhoneCard 
-      ? (config.ECONOMICS.MIN_FIRST_TIME_PAYOUT_POINTS || 1000)
-      : (config.ECONOMICS.MIN_PAYOUT_POINTS || 5000);
+    let minPoints = 20000;
+    if (isFirstTimePhoneCard) {
+      minPoints = config.ECONOMICS.MIN_FIRST_TIME_PAYOUT_POINTS || 10000;
+    } else if (payoutMethod === 'PHONE_CARD') {
+      minPoints = config.ECONOMICS.MIN_PAYOUT_POINTS || 20000;
+    } else if (payoutMethod === 'BANK_TRANSFER' || payoutMethod === 'MOMO') {
+      minPoints = 50000; // Ngân hàng / MoMo tối thiểu 50k
+    } else if (payoutMethod === 'VOUCHER') {
+      minPoints = 30000; // E-Voucher tối thiểu 30k
+    }
 
-    const rate = config.ECONOMICS.POINT_TO_VND_RATE || 10;
+    const rate = config.ECONOMICS.POINT_TO_VND_RATE || 1;
     const fiatAmountVnd = points * rate;
 
     if (points < minPoints) {
@@ -460,7 +493,7 @@ class LedgerService {
     let fee = 0;
     if (feeVnd !== null && feeVnd !== undefined) {
       fee = Math.max(0, Math.floor(Number(feeVnd) || 0));
-    } else if (payoutMethod === 'PHONE_CARD') {
+    } else if (payoutMethod === 'PHONE_CARD' || payoutMethod === 'VOUCHER') {
       fee = config.ECONOMICS.PHONE_CARD_FEE_VND || 0;
     } else {
       fee = fiatAmountVnd < 100000 
@@ -563,21 +596,23 @@ class LedgerService {
 
   /**
    * Đổi Điểm Thưởng sang Credit tạo khảo sát (Point-to-Credit Swap)
-   * Chính sách Sàn: Đổi điểm sang credit tạo form nhận ÍT HƠN giá trị gốc (Không thể nhiều hơn hoặc ngang giá)
-   * Tỷ lệ chiết khấu: 1 Point = 7 VND Credit (Tương đương 70% giá trị danh nghĩa, sàn thu phí chênh lệch 30%)
-   * Bảo đảm tính nguyên tử ACID, chống race condition số dư âm & ghi nhận sổ cái kép đầy đủ
+   * Tỷ lệ quy đổi: 1 Point = 1 VNĐ, nhận thưởng +5% Credit (SWAP_BONUS_RATE = 1.05)
+   * Tối thiểu 5.000 Point/lần
+   * Khóa van 1 chiều: Trừ Point, cộng Credit, ghi sổ cái kép
    */
   swapPointsToCredit(userId, pointsAmount) {
     const points = Math.floor(Number(pointsAmount));
-    if (!Number.isInteger(points) || points < 1000) {
-      throw new Error('Số điểm đổi tối thiểu là 1,000 điểm (tương đương 7,000 VNĐ Credit tạo khảo sát)');
+    const minSwapPoints = (config.ECONOMICS && config.ECONOMICS.MIN_SWAP_POINTS) || 5000;
+    if (!Number.isInteger(points) || points < minSwapPoints) {
+      const bonusRate = (config.ECONOMICS && config.ECONOMICS.SWAP_BONUS_RATE) || 1.05;
+      throw new Error(`Số điểm đổi tối thiểu là ${minSwapPoints.toLocaleString()} điểm (tương đương ${Math.floor(minSwapPoints * bonusRate).toLocaleString('vi-VN')} Credit tạo khảo sát)`);
     }
     if (points > 10000000) {
       throw new Error('Số điểm đổi tối đa mỗi lần là 10,000,000 điểm');
     }
 
-    const SWAP_DISCOUNT_RATE = 0.70; // Chỉ nhận 70% giá trị danh nghĩa (1 Điểm = 7 VNĐ Credit, sàn hưởng chênh lệch 30%)
-    const creditValueVnd = Math.floor((points * 10) * SWAP_DISCOUNT_RATE);
+    const swapBonusRate = (config.ECONOMICS && config.ECONOMICS.SWAP_BONUS_RATE) || 1.05;
+    const creditValueVnd = Math.floor(points * swapBonusRate);
 
     db.exec('BEGIN IMMEDIATE TRANSACTION');
     try {
@@ -612,7 +647,7 @@ class LedgerService {
         null, 
         -points, 
         updatedUser.point_balance, 
-        `Đổi ${points.toLocaleString()} điểm sang ${creditValueVnd.toLocaleString('vi-VN')}đ Credit tạo khảo sát (Tỷ lệ chiết khấu sàn 30%, nhận 70%)`
+        `Đổi ${points.toLocaleString()} điểm sang ${creditValueVnd.toLocaleString('vi-VN')} Credit tạo khảo sát (+5% thưởng tái đầu tư)`
       );
 
       const txCreditId = crypto.randomUUID();
@@ -625,7 +660,7 @@ class LedgerService {
         txPointId, 
         creditValueVnd, 
         updatedUser.credit_balance, 
-        `Nhận ${creditValueVnd.toLocaleString('vi-VN')}đ Credit từ quy đổi ${points.toLocaleString()} điểm (Chiết khấu sàn 30%)`
+        `Nhận ${creditValueVnd.toLocaleString('vi-VN')} Credit từ quy đổi ${points.toLocaleString()} điểm (+5% thưởng tái đầu tư)`
       );
 
       db.exec('COMMIT');
@@ -633,7 +668,7 @@ class LedgerService {
         success: true,
         pointsDeducted: points,
         creditAddedVnd: creditValueVnd,
-        exchangeRate: '1 Point = 7 VND Credit (-30% so với giá trị danh nghĩa)',
+        exchangeRate: '1 Point = 1.05 Credit (+5% thưởng tái đầu tư)',
         newPointBalance: updatedUser.point_balance,
         newCreditBalance: updatedUser.credit_balance
       };

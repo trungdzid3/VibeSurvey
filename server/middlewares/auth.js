@@ -15,7 +15,7 @@ function authenticateToken(req, res, next) {
       return res.status(403).json({ success: false, message: 'Phiên đăng nhập đã hết hạn hoặc không hợp lệ' });
     }
 
-    const user = db.prepare('SELECT id, email, name, role, credit_balance, point_balance, trust_score, status, free_trial_surveys_available, fast_track_tickets, is_google_linked, google_id, is_email_verified, demographics_json FROM users WHERE id = ?').get(decoded.id);
+    const user = db.prepare('SELECT * FROM users WHERE id = ?').get(decoded.id);
     if (!user) {
       return res.status(401).json({ success: false, message: 'Tài khoản không tồn tại' });
     }
@@ -23,6 +23,9 @@ function authenticateToken(req, res, next) {
       return res.status(403).json({ success: false, message: 'Tài khoản của bạn đã bị khóa do vi phạm chính sách nền tảng' });
     }
 
+    delete user.password_hash;
+    delete user.email_otp;
+    delete user.student_otp;
     req.user = user;
     next();
   });
@@ -44,8 +47,11 @@ function optionalAuthenticateToken(req, res, next) {
     }
 
     try {
-      const user = db.prepare('SELECT id, email, name, role, credit_balance, point_balance, trust_score, status, free_trial_surveys_available, fast_track_tickets, is_google_linked, google_id, is_email_verified, demographics_json FROM users WHERE id = ?').get(decoded.id);
+      const user = db.prepare('SELECT * FROM users WHERE id = ?').get(decoded.id);
       if (user && user.status !== 'BANNED') {
+        delete user.password_hash;
+        delete user.email_otp;
+        delete user.student_otp;
         req.user = user;
       } else {
         req.user = null;

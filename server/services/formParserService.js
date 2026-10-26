@@ -8,8 +8,11 @@ class FormParserService {
     this.ALLOWED_FORM_DOMAINS = [
       'docs.google.com',
       'forms.gle',
+      'forms.google.com',
+      'drive.google.com',
       'forms.office.com',
-      'forms.cloud.microsoft'
+      'forms.cloud.microsoft',
+      'form.cloud.microsoft'
     ];
   }
 
@@ -135,15 +138,15 @@ class FormParserService {
     const isAllowed = this.ALLOWED_FORM_DOMAINS.includes(hostname);
 
     if (!isAllowed) {
-      throw new Error(`Tên miền "${hostname}" không được hỗ trợ. Hệ thống chỉ hỗ trợ Google Forms (docs.google.com, forms.gle) và Microsoft Forms (forms.office.com, forms.cloud.microsoft).`);
+      throw new Error(`Tên miền "${hostname}" không được hỗ trợ. Hệ thống chỉ hỗ trợ Google Forms (docs.google.com, forms.gle) và Microsoft Forms (forms.office.com, forms.cloud.microsoft, form.cloud.microsoft).`);
     }
 
     return {
       isValid: true,
       url: parsed.href,
       hostname,
-      isGoogle: hostname === 'docs.google.com' || hostname === 'forms.gle',
-      isMicrosoft: hostname === 'forms.office.com' || hostname === 'forms.cloud.microsoft'
+      isGoogle: hostname === 'docs.google.com' || hostname === 'forms.gle' || hostname === 'forms.google.com' || hostname === 'drive.google.com',
+      isMicrosoft: hostname === 'forms.office.com' || hostname === 'forms.cloud.microsoft' || hostname === 'form.cloud.microsoft'
     };
   }
 
@@ -173,7 +176,22 @@ class FormParserService {
   }
 
   /**
-   * 2. Bóc tách Google Forms từ HTML public
+   * 2. Bóc tách Google Forms từ HTML public (FB_PUBLIC_LOAD_DATA_)
+   * Ánh xạ chuẩn 12 dạng câu hỏi theo mã item[3]:
+   *  0 -> SHORT_TEXT
+   *  1 -> PARAGRAPH
+   *  2 -> SINGLE_CHOICE (đọc options từ item[4][0][1])
+   *  3 -> DROPDOWN (đọc options từ item[4][0][1])
+   *  4 -> MULTIPLE_CHOICE (đọc options từ item[4][0][1])
+   *  5 -> LINEAR_SCALE (đọc thang từ item[4][0][1], nhãn từ item[4][0][3])
+   *  7 -> LƯỚI MA TRẬN: rows từ item[4].map(r => r[3][0]), columns từ item[4][0][1].map(c => c[0])
+   *       loại checkbox (item[4][0][11] === 1) -> CHECKBOX_GRID, ngược lại -> CHOICE_GRID
+   *       cờ bắt buộc: item[4][0][2] === 1 -> is_required = 1
+   *  9 -> DATE_INPUT
+   * 10 -> TIME_INPUT
+   * 13 -> FILE_UPLOAD
+   * 18 -> RATING_STARS
+   * Cờ bắt buộc is_required câu thường: item[4][0][2] === 1 -> is_required = 1, ngược lại 0.
    */
   parseGoogleFormsHtml(html, originalUrl) {
     let title = 'Khảo sát Google Form';
@@ -207,39 +225,225 @@ class FormParserService {
           for (const item of items) {
             if (!item || !Array.isArray(item)) continue;
             const qTitle = item[1];
-            const qTypeNum = item[3]; // 0: text, 1: textarea, 2: radio, 3: dropdown, 4: checkbox, 5: scale
-            const qData = item[4] && item[4][0];
+            const qTypeNum = item[3];
+            const qSubArray = item[4];
+            const qData = qSubArray && qSubArray[0];
 
             if (!qTitle) continue;
 
             let questionType = 'SINGLE_CHOICE';
-            let options = [];
+            let options = null;
+            let rows = null;
+            let columns = null;
+            let isRequired = 0;
+            let minLabel = null;
+            let maxLabel = null;
+            let videoUrl = null;
+            let imageUrl = null;
 
-            if (qTypeNum === 0 || qTypeNum === 1) {
-              questionType = 'OPEN_TEXT';
-              options = null;
-            } else if (qTypeNum === 4) {
-              questionType = 'MULTIPLE_CHOICE';
-              if (qData && Array.isArray(qData[1])) {
-                options = qData[1].map(opt => String(opt[0] || '').trim()).filter(Boolean);
-              }
-            } else if (qTypeNum === 5) {
-              questionType = 'LIKERT_SCALE';
-              options = ['1 - Hoàn toàn không đồng ý', '2 - Không đồng ý', '3 - Trung lập', '4 - Đồng ý', '5 - Hoàn toàn đồng ý'];
-            } else {
-              // 2: radio hoặc 3: dropdown
-              questionType = 'SINGLE_CHOICE';
-              if (qData && Array.isArray(qData[1])) {
-                options = qData[1].map(opt => String(opt[0] || '').trim()).filter(Boolean);
-              }
+            // Trích xuất cờ bắt buộc is_required từ item[4][0][2] === 1
+            if (qData && qData[2] === 1) {
+              isRequired = 1;
             }
 
-            questions.push({
+            switch (qTypeNum) {
+              case 0: // SHORT_TEXT
+                questionType = 'SHORT_TEXT';
+                options = null;
+                break;
+
+              case 1: // PARAGRAPH
+                questionType = 'PARAGRAPH';
+                options = null;
+                break;
+
+              case 2: // SINGLE_CHOICE
+                questionType = 'SINGLE_CHOICE';
+                if (qData && Array.isArray(qData[1])) {
+                  options = qData[1].map(opt => String(opt[0] || '').trim()).filter(Boolean);
+                }
+                break;
+
+              case 3: // DROPDOWN
+                questionType = 'DROPDOWN';
+                if (qData && Array.isArray(qData[1])) {
+                  options = qData[1].map(opt => String(opt[0] || '').trim()).filter(Boolean);
+                }
+                break;
+
+              case 4: // MULTIPLE_CHOICE
+                questionType = 'MULTIPLE_CHOICE';
+                if (qData && Array.isArray(qData[1])) {
+                  options = qData[1].map(opt => String(opt[0] || '').trim()).filter(Boolean);
+                }
+                break;
+
+              case 5: { // LINEAR_SCALE (Phạm vi tuyến tính)
+                questionType = 'LINEAR_SCALE';
+                
+                // 1. Trích xuất nhãn hai đầu từ qData[3] (Vị trí chuẩn trong Google Forms)
+                if (qData && Array.isArray(qData[3])) {
+                  if (qData[3][0] !== undefined && qData[3][0] !== null && String(qData[3][0]).trim() !== '') {
+                    minLabel = String(qData[3][0]).trim();
+                  }
+                  if (qData[3][1] !== undefined && qData[3][1] !== null && String(qData[3][1]).trim() !== '') {
+                    maxLabel = String(qData[3][1]).trim();
+                  }
+                }
+
+                // 2. Quét dự phòng trong toàn bộ mảng qData nếu chưa tìm thấy nhãn
+                if ((!minLabel || !maxLabel) && qData && Array.isArray(qData)) {
+                  for (let i = 1; i < qData.length; i++) {
+                    const el = qData[i];
+                    if (Array.isArray(el) && el.length >= 2) {
+                      const str0 = String(el[0] || '').trim();
+                      const str1 = String(el[1] || '').trim();
+                      if (str0 && str1 && !/^\d+$/.test(str0) && !/^\d+$/.test(str1)) {
+                        if (!minLabel) minLabel = str0;
+                        if (!maxLabel) maxLabel = str1;
+                        break;
+                      }
+                    }
+                  }
+                }
+
+                // 3. Quét trong mảng qSubArray
+                if ((!minLabel || !maxLabel) && Array.isArray(qSubArray)) {
+                  for (const sub of qSubArray) {
+                    if (Array.isArray(sub) && Array.isArray(sub[3])) {
+                      if (!minLabel && sub[3][0]) minLabel = String(sub[3][0]).trim();
+                      if (!maxLabel && sub[3][1]) maxLabel = String(sub[3][1]).trim();
+                    }
+                  }
+                }
+
+                // 4. Trích xuất thang điểm (1 đến 5 hoặc 0 đến 10)
+                if (qData && Array.isArray(qData[1]) && qData[1].length > 0) {
+                  options = qData[1].map(opt => Array.isArray(opt) ? String(opt[0] || '').trim() : String(opt || '').trim()).filter(Boolean);
+                } else if (qData && Array.isArray(qData[4]) && qData[4].length === 2 && typeof qData[4][0] === 'number') {
+                  const start = qData[4][0];
+                  const end = qData[4][1];
+                  options = [];
+                  for (let n = start; n <= end; n++) options.push(String(n));
+                }
+
+                if (!options || options.length === 0) {
+                  options = ['1', '2', '3', '4', '5'];
+                }
+                break;
+              }
+
+              case 7: { // LƯỚI MA TRẬN: CHOICE_GRID hoặc CHECKBOX_GRID
+                if (Array.isArray(qSubArray)) {
+                  // rows từ item[4].map(r => r[3][0])
+                  rows = qSubArray.map(r => {
+                    if (r && Array.isArray(r[3]) && r[3][0]) return String(r[3][0]).trim();
+                    if (r && r[1]) return String(r[1]).trim();
+                    return '';
+                  }).filter(Boolean);
+
+                  // columns từ item[4][0][1].map(c => c[0])
+                  if (qSubArray[0] && Array.isArray(qSubArray[0][1])) {
+                    columns = qSubArray[0][1].map(c => {
+                      if (Array.isArray(c)) return String(c[0] || '').trim();
+                      return String(c || '').trim();
+                    }).filter(Boolean);
+                  }
+
+                  // Cờ bắt buộc mỗi hàng đọc từ item[4][0][2] === 1
+                  if (qSubArray[0] && qSubArray[0][2] === 1) {
+                    isRequired = 1;
+                  } else if (qSubArray.some(r => r && r[2] === 1)) {
+                    isRequired = 1;
+                  }
+
+                  // Checkbox grid nếu item[4][0][11] === 1
+                  const isCheckbox = qSubArray[0] && (qSubArray[0][11] === 1 || qSubArray[0][11] === true);
+                  questionType = isCheckbox ? 'CHECKBOX_GRID' : 'CHOICE_GRID';
+                  options = columns;
+                } else {
+                  questionType = 'CHOICE_GRID';
+                }
+                break;
+              }
+
+              case 9: // DATE_INPUT
+                questionType = 'DATE_INPUT';
+                options = null;
+                break;
+
+              case 10: // TIME_INPUT
+                questionType = 'TIME_INPUT';
+                options = null;
+                break;
+
+              case 13: // FILE_UPLOAD
+                questionType = 'FILE_UPLOAD';
+                options = null;
+                break;
+
+              case 6: // TITLE & DESCRIPTION BLOCK (Tt)
+                questionType = 'TEXT_BLOCK';
+                options = null;
+                break;
+
+              case 8: // SECTION HEADER (== Thêm Phần)
+                questionType = 'SECTION_HEADER';
+                options = null;
+                break;
+
+              case 11: // IMAGE BLOCK
+                questionType = 'IMAGE_BLOCK';
+                options = null;
+                break;
+
+              case 12: { // VIDEO BLOCK (YouTube)
+                questionType = 'VIDEO_BLOCK';
+                options = null;
+                // Trích xuất YouTube video id / url nếu có trong payload
+                try {
+                  const videoPayload = JSON.stringify(item);
+                  const ytMatch = videoPayload.match(/(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/i);
+                  if (ytMatch && ytMatch[1]) {
+                    videoUrl = `https://www.youtube.com/watch?v=${ytMatch[1]}`;
+                  }
+                } catch(e) {}
+                break;
+              }
+
+              case 18: // RATING_STARS
+                questionType = 'RATING_STARS';
+                options = ['1', '2', '3', '4', '5'];
+                break;
+
+              default:
+                // Fallback nếu có options thì trắc nghiệm, ngược lại trả lời ngắn
+                if (qData && Array.isArray(qData[1]) && qData[1].length > 0) {
+                  questionType = 'SINGLE_CHOICE';
+                  options = qData[1].map(opt => String(opt[0] || '').trim()).filter(Boolean);
+                } else {
+                  questionType = 'SHORT_TEXT';
+                  options = null;
+                }
+                break;
+            }
+
+            const qObj = {
               order_index: qIndex++,
               type: questionType,
               content: qTitle.trim(),
+              is_required: isRequired,
               options: options && options.length > 0 ? options : null
-            });
+            };
+
+            if (minLabel) qObj.min_label = minLabel;
+            if (maxLabel) qObj.max_label = maxLabel;
+            if (videoUrl) qObj.video_url = videoUrl;
+            if (imageUrl) qObj.image_url = imageUrl;
+            if (rows && rows.length > 0) qObj.rows = rows;
+            if (columns && columns.length > 0) qObj.columns = columns;
+
+            questions.push(qObj);
           }
         }
       } catch (err) {
@@ -267,11 +471,246 @@ class FormParserService {
   }
 
   /**
-   * 3. Bóc tách Microsoft Forms
+   * Helper an toan parse JSON hoac JavaScript Object Literal
+   */
+  _safeParseJsonOrObject(str) {
+    if (!str || typeof str !== 'string') return null;
+    try {
+      return JSON.parse(str);
+    } catch (e1) {
+      try {
+        const jsonStr = str
+          .replace(/([{,]\s*)([a-zA-Z0-9_$]+)\s*:/g, '$1"$2":')
+          .replace(/:\s*'([^']*)'/g, ':"$1"')
+          .replace(/,\s*([}\]])/g, '$1');
+        return JSON.parse(jsonStr);
+      } catch (e2) {
+        try {
+          const fn = new Function(`return (${str});`);
+          return fn();
+        } catch (e3) {
+          return null;
+        }
+      }
+    }
+  }
+
+  /**
+   * Helper trich xuat JSON hoac JS object literal theo bien bang thuat toan brace-matching
+   */
+  _extractJsonObject(html, varName) {
+    const regex = new RegExp(`(?:var|let|const|window\\.)\\s*${varName}\\s*=\\s*`, 'i');
+    const match = regex.exec(html);
+    if (!match) return null;
+
+    const startIdx = match.index + match[0].length;
+    let openBraces = 0;
+    let foundFirst = false;
+    let jsonStart = -1;
+    let inString = false;
+    let stringChar = '';
+
+    for (let i = startIdx; i < html.length; i++) {
+      const ch = html[i];
+      const prevCh = html[i - 1];
+
+      if (inString) {
+        if (ch === stringChar && prevCh !== '\\') {
+          inString = false;
+        }
+        continue;
+      }
+
+      if (ch === '"' || ch === "'" || ch === '`') {
+        inString = true;
+        stringChar = ch;
+        continue;
+      }
+
+      if (ch === '{') {
+        if (!foundFirst) {
+          foundFirst = true;
+          jsonStart = i;
+        }
+        openBraces++;
+      } else if (ch === '}') {
+        openBraces--;
+        if (foundFirst && openBraces === 0) {
+          const rawStr = html.substring(jsonStart, i + 1);
+          return this._safeParseJsonOrObject(rawStr);
+        }
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Helper trích xuất cấu trúc form JSON từ HTML Microsoft Forms
+   */
+  _extractMicrosoftFormData(html) {
+    if (!html || typeof html !== 'string') return null;
+
+    const candidateVars = ['runtimeForms', 'OfficeFormServerInfo', 'formContext', 'formData', 'formInfo'];
+    for (const v of candidateVars) {
+      const obj = this._extractJsonObject(html, v);
+      if (obj) {
+        if (obj.form) return obj.form;
+        return obj;
+      }
+    }
+
+    // Mẫu 4: <script id="__NEXT_DATA__" type="application/json">...</script>
+    const nextDataMatch = html.match(/<script[^>]*id="__NEXT_DATA__"[^>]*>([\s\S]*?)<\/script>/);
+    if (nextDataMatch) {
+      const parsed = this._safeParseJsonOrObject(nextDataMatch[1]);
+      if (parsed?.props?.pageProps?.form) return parsed.props.pageProps.form;
+    }
+
+    return null;
+  }
+
+  /**
+   * Helper ánh xạ một câu hỏi Microsoft Forms
+   * Choice: single -> SINGLE_CHOICE, multi -> MULTIPLE_CHOICE, dropdown -> DROPDOWN
+   * TextField: multiline -> PARAGRAPH, ngược lại -> SHORT_TEXT
+   * Rating: sao -> RATING_STARS, số/NPS -> LINEAR_SCALE
+   * MatrixChoiceGroup / Likert -> CHOICE_GRID / CHECKBOX_GRID
+   * DateTime -> DATE_INPUT, FileUpload -> FILE_UPLOAD
+   * Cờ question.required === true -> is_required = 1
+   */
+  _parseMicrosoftQuestion(q, orderIndex) {
+    const rawType = String(q.type || q.questionType || '');
+    const title = String(q.title || q.name || q.prompt || `Câu hỏi ${orderIndex}`).trim();
+    const isRequired = (q.required === true || q.isRequired === true) ? 1 : 0;
+
+    let questionType = 'SINGLE_CHOICE';
+    let options = null;
+    let rows = null;
+    let columns = null;
+    let minLabel = null;
+    let maxLabel = null;
+
+    const lowerType = rawType.toLowerCase();
+
+    // 1. MatrixChoiceGroup / Likert (Phải kiểm tra trước Choice vì Question.MatrixChoiceGroup có chứa 'choice')
+    if (lowerType.includes('matrix') || lowerType.includes('likert')) {
+      const isMulti = q.isMultiChoice === true || q.multiSelection === true;
+      questionType = isMulti ? 'CHECKBOX_GRID' : 'CHOICE_GRID';
+
+      const rawRows = q.rows || q.subQuestions || q.questions || [];
+      const rawCols = q.columns || q.choices || q.options || [];
+
+      rows = rawRows.map(r => typeof r === 'string' ? r : (r.title || r.name || r.text || String(r))).filter(Boolean);
+      columns = rawCols.map(c => typeof c === 'string' ? c : (c.title || c.name || c.text || c.description || String(c))).filter(Boolean);
+      options = columns;
+    }
+    // 2. Choice
+    else if (lowerType.includes('choice')) {
+      const isMulti = q.isMultiChoice === true || q.multiSelection === true || q.isMultiple === true;
+      const isDropdown = q.isDropdown === true || q.subType === 'Dropdown' || q.displayType === 'Dropdown';
+
+      if (isMulti) {
+        questionType = 'MULTIPLE_CHOICE';
+      } else if (isDropdown) {
+        questionType = 'DROPDOWN';
+      } else {
+        questionType = 'SINGLE_CHOICE';
+      }
+
+      const choices = q.choices || q.options || [];
+      if (Array.isArray(choices)) {
+        options = choices.map(c => typeof c === 'string' ? c : (c.description || c.title || c.name || String(c))).filter(Boolean);
+      }
+    }
+    // 3. TextField
+    else if (lowerType.includes('text') || lowerType.includes('string')) {
+      const isMultiline = q.isMultiline === true || q.isLongText === true || q.subType === 'MultiLine';
+      questionType = isMultiline ? 'PARAGRAPH' : 'SHORT_TEXT';
+      options = null;
+    }
+    // 4. Rating & Net Promoter Score (NPS)
+    else if (lowerType.includes('nps') || lowerType.includes('netpromoter')) {
+      questionType = 'LINEAR_SCALE';
+      options = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10'];
+      minLabel = 'Cực kỳ không có khả năng';
+      maxLabel = 'Cực kỳ có khả năng';
+    }
+    else if (lowerType.includes('rating') || lowerType.includes('score')) {
+      const ratingType = String(q.ratingType || q.subType || q.iconType || '').toLowerCase();
+      const maxLevel = parseInt(q.maxRating || q.ratingLevel || q.levelCount || 5, 10);
+      const safeMax = Math.min(10, Math.max(2, isNaN(maxLevel) ? 5 : maxLevel));
+      
+      if (ratingType.includes('number') || ratingType.includes('linear')) {
+        questionType = 'LINEAR_SCALE';
+        options = [];
+        for (let i = 1; i <= safeMax; i++) options.push(String(i));
+      } else {
+        questionType = 'RATING_STARS';
+        options = [];
+        for (let i = 1; i <= safeMax; i++) options.push(String(i));
+      }
+    }
+    // 5. Ranking (Xếp thứ tự)
+    else if (lowerType.includes('ranking') || lowerType.includes('rank') || lowerType.includes('order')) {
+      questionType = 'RANKING';
+      const choices = q.choices || q.options || [];
+      if (Array.isArray(choices)) {
+        options = choices.map(c => typeof c === 'string' ? c : (c.description || c.title || c.name || String(c))).filter(Boolean);
+      }
+    }
+    // 6. Section / Mục (Phân đoạn)
+    else if (lowerType.includes('section') || lowerType.includes('page') || lowerType.includes('group')) {
+      questionType = 'SECTION_HEADER';
+      options = null;
+    }
+    // 7. DateTime
+    else if (lowerType.includes('date')) {
+      questionType = 'DATE_INPUT';
+      options = null;
+    }
+    // 8. Time
+    else if (lowerType.includes('time')) {
+      questionType = 'TIME_INPUT';
+      options = null;
+    }
+    // 9. FileUpload
+    else if (lowerType.includes('file')) {
+      questionType = 'FILE_UPLOAD';
+      options = null;
+    }
+    // Fallback
+    else {
+      if (Array.isArray(q.choices) && q.choices.length > 0) {
+        questionType = 'SINGLE_CHOICE';
+        options = q.choices.map(c => typeof c === 'string' ? c : (c.description || c.title || c.name || String(c))).filter(Boolean);
+      } else {
+        questionType = 'SHORT_TEXT';
+      }
+    }
+
+    const res = {
+      order_index: orderIndex,
+      type: questionType,
+      content: title,
+      is_required: isRequired,
+      options: options && options.length > 0 ? options : null
+    };
+
+    if (minLabel) res.min_label = minLabel;
+    if (maxLabel) res.max_label = maxLabel;
+    if (rows && rows.length > 0) res.rows = rows;
+    if (columns && columns.length > 0) res.columns = columns;
+
+    return res;
+  }
+
+  /**
+   * 3. Bóc tách Microsoft Forms từ HTML public (runtimeForms / OfficeFormServerInfo)
    */
   parseMicrosoftFormsHtml(html, originalUrl) {
     let title = 'Khảo sát Microsoft Forms';
     let description = '';
+    const questions = [];
 
     const titleMatch = html.match(/<meta property="og:title" content="([^"]+)">/i) ||
                        html.match(/<title>([^<]+)<\/title>/i);
@@ -282,6 +721,59 @@ class FormParserService {
     const descMatch = html.match(/<meta property="og:description" content="([^"]+)">/i);
     if (descMatch && descMatch[1]) {
       description = descMatch[1].trim();
+    }
+
+    // Bóc tách JSON nếu có trong HTML
+    const formData = this._extractMicrosoftFormData(html);
+
+    if (formData) {
+      if (formData.title) title = formData.title;
+      if (formData.description) description = formData.description;
+
+      const rawQuestions = formData.questions || formData.items || [];
+      const groupedMatrix = new Map();
+      let qIndex = 1;
+
+      for (const q of rawQuestions) {
+        if (!q) continue;
+
+        const typeStr = String(q.type || q.questionType || '').toLowerCase();
+        const groupId = q.groupId || q.matrixGroupId;
+
+        // Nếu là Likert/Matrix được chia thành các câu con có chung groupId
+        if (groupId && (typeStr.includes('matrix') || typeStr.includes('likert'))) {
+          if (!groupedMatrix.has(groupId)) {
+            groupedMatrix.set(groupId, {
+              order_index: qIndex++,
+              type: (q.isMultiChoice || q.multiSelection) ? 'CHECKBOX_GRID' : 'CHOICE_GRID',
+              content: q.groupTitle || q.matrixTitle || 'Ma trận đánh giá',
+              is_required: (q.required === true || q.isRequired === true) ? 1 : 0,
+              rows: [],
+              columns: [],
+              options: []
+            });
+          }
+          const group = groupedMatrix.get(groupId);
+          const rowTitle = q.title || q.name || q.prompt;
+          if (rowTitle && !group.rows.includes(rowTitle)) {
+            group.rows.push(rowTitle);
+          }
+          if (Array.isArray(q.choices) && group.columns.length === 0) {
+            group.columns = q.choices.map(c => typeof c === 'string' ? c : (c.description || c.title || c.name || String(c))).filter(Boolean);
+            group.options = group.columns;
+          }
+          continue;
+        }
+
+        const parsedQ = this._parseMicrosoftQuestion(q, qIndex++);
+        if (parsedQ) {
+          questions.push(parsedQ);
+        }
+      }
+
+      for (const group of groupedMatrix.values()) {
+        questions.push(group);
+      }
     }
 
     // Chuẩn hóa link embed Microsoft Forms
@@ -296,9 +788,11 @@ class FormParserService {
       description,
       originalUrl,
       embedUrl,
-      questions: [],
-      questionCount: 0,
-      note: 'Microsoft Forms là Single-Page-App được render phía client. Đã trích xuất tiêu đề & embedUrl sẵn sàng hiển thị qua khung tương tác trực tiếp.'
+      questions,
+      questionCount: questions.length,
+      note: questions.length > 0
+        ? `Đã bóc tách thành công ${questions.length} câu hỏi từ Microsoft Forms.`
+        : 'Microsoft Forms là Single-Page-App được render phía client. Đã trích xuất tiêu đề & embedUrl sẵn sàng hiển thị qua khung tương tác trực tiếp.'
     };
   }
 
@@ -385,6 +879,11 @@ class FormParserService {
 
   /**
    * 5. Smart Text Paste Parser: Tự động nhận diện câu hỏi từ văn bản thô (Word, Notion, Google Docs)
+   * Nhận diện chuẩn xác:
+   * - Trắc nghiệm (A, B, C hoặc -, *)
+   * - Hộp kiểm ([ ])
+   * - Ma trận Lưới (Hàng: ... | Cột: ...)
+   * - Cờ bắt buộc is_required qua dấu * cuối câu hoặc cụm (bắt buộc)
    */
   parseSmartText(rawText) {
     if (!rawText || typeof rawText !== 'string' || rawText.trim().length === 0) {
@@ -402,22 +901,20 @@ class FormParserService {
       throw new Error('Văn bản không có nội dung hợp lệ');
     }
 
-    let title = 'Khảo sát khảo sát ý kiến';
+    let title = 'Khảo sát mới';
     let description = '';
     const questions = [];
 
     // Mẫu regex nhận diện bắt đầu câu hỏi
-    // VD: "Câu 1:", "Câu 1.", "1.", "1/", "1)", "Question 1:", "Q1:", "1 - ", "Bài 1:"
     const questionStartRegex = /^(?:câu\s*(\d+)[:.]?|question\s*(\d+)[:.]?|q(\d+)[:.]?|(\d+)[.)/:-])\s*(.*)$/i;
 
     // Mẫu regex nhận diện đáp án trắc nghiệm
-    // VD: "A.", "A)", "a.", "- ", "* ", "• ", "[ ]", "( )"
     const optionLetterRegex = /^[A-Za-z][.)/:-]\s*(.*)$/;
     const optionBulletRegex = /^[-*•–—]\s*(.*)$/;
     const optionCheckboxRegex = /^\[[ xX]?\]\s*(.*)$/;
 
     let currentQuestion = null;
-    let titleAssigned = false;
+    let readingMode = null; // 'ROWS' | 'COLUMNS' | null
 
     // Xử lý tiêu đề ở đầu văn bản (nếu dòng đầu không phải là câu hỏi)
     let startIndex = 0;
@@ -425,7 +922,6 @@ class FormParserService {
       title = lines[0]
         .replace(/^(?:tiêu đề|khảo sát|survey|tên bài)[:：]\s*/i, '')
         .trim() || lines[0].trim();
-      titleAssigned = true;
       startIndex = 1;
 
       // Nếu dòng thứ hai cũng không phải câu hỏi, có thể là mô tả
@@ -452,33 +948,93 @@ class FormParserService {
         currentQuestion = {
           content: rawContent || `Câu hỏi ${questions.length + 1}`,
           rawOptions: [],
-          typeHint: null
+          rows: null,
+          columns: null,
+          hasCheckboxOptions: false
         };
+        readingMode = null;
         continue;
       }
 
-      // Kiểm tra có phải phương án trắc nghiệm không
       if (currentQuestion) {
-        const letterMatch = line.match(optionLetterRegex);
-        const bulletMatch = line.match(optionBulletRegex);
-        const checkMatch = line.match(optionCheckboxRegex);
+        // 1. Kiểm tra dòng chuyển chế độ Hàng / Cột cho Ma trận
+        if (/^(?:hàng|rows)[:：]?$/i.test(line)) {
+          readingMode = 'ROWS';
+          if (!currentQuestion.rows) currentQuestion.rows = [];
+          continue;
+        }
 
+        if (/^(?:cột|columns)[:：]?$/i.test(line)) {
+          readingMode = 'COLUMNS';
+          if (!currentQuestion.columns) currentQuestion.columns = [];
+          continue;
+        }
+
+        // Kiểm tra dòng chứa cả Hàng và Cột: "Hàng: A, B | Cột: X, Y"
+        const inlineMatrixMatch = line.match(/^(?:hàng|rows)[:：]\s*([^|]+)\s*\|\s*(?:cột|columns)[:：]\s*(.*)$/i);
+        if (inlineMatrixMatch) {
+          currentQuestion.rows = inlineMatrixMatch[1].split(/[,;]/).map(s => s.trim()).filter(Boolean);
+          currentQuestion.columns = inlineMatrixMatch[2].split(/[,;]/).map(s => s.trim()).filter(Boolean);
+          continue;
+        }
+
+        // Kiểm tra dòng chỉ có "Hàng: A, B, C"
+        const inlineRowsMatch = line.match(/^(?:hàng|rows)[:：]\s*(.+)$/i);
+        if (inlineRowsMatch) {
+          currentQuestion.rows = inlineRowsMatch[1].split(/[,;]/).map(s => s.trim()).filter(Boolean);
+          continue;
+        }
+
+        // Kiểm tra dòng chỉ có "Cột: X, Y, Z"
+        const inlineColsMatch = line.match(/^(?:cột|columns)[:：]\s*(.+)$/i);
+        if (inlineColsMatch) {
+          currentQuestion.columns = inlineColsMatch[1].split(/[,;]/).map(s => s.trim()).filter(Boolean);
+          continue;
+        }
+
+        // Nếu đang ở chế độ đọc ROWS
+        if (readingMode === 'ROWS') {
+          const bullet = line.match(optionBulletRegex) || line.match(optionLetterRegex);
+          const val = bullet ? bullet[1].trim() : line;
+          if (val) {
+            if (!currentQuestion.rows) currentQuestion.rows = [];
+            currentQuestion.rows.push(val);
+          }
+          continue;
+        }
+
+        // Nếu đang ở chế độ đọc COLUMNS
+        if (readingMode === 'COLUMNS') {
+          const bullet = line.match(optionBulletRegex) || line.match(optionLetterRegex);
+          const val = bullet ? bullet[1].trim() : line;
+          if (val) {
+            if (!currentQuestion.columns) currentQuestion.columns = [];
+            currentQuestion.columns.push(val);
+          }
+          continue;
+        }
+
+        // 2. Kiểm tra phương án trắc nghiệm
+        const checkMatch = line.match(optionCheckboxRegex);
+        if (checkMatch) {
+          currentQuestion.hasCheckboxOptions = true;
+          currentQuestion.rawOptions.push(checkMatch[1].trim());
+          continue;
+        }
+
+        const letterMatch = line.match(optionLetterRegex);
         if (letterMatch) {
           currentQuestion.rawOptions.push(letterMatch[1].trim());
           continue;
         }
 
+        const bulletMatch = line.match(optionBulletRegex);
         if (bulletMatch) {
           currentQuestion.rawOptions.push(bulletMatch[1].trim());
           continue;
         }
 
-        if (checkMatch) {
-          currentQuestion.rawOptions.push(checkMatch[1].trim());
-          continue;
-        }
-
-        // Nếu câu hỏi chưa có options và dòng này ngắn, không có dấu ? -> có thể là option tiếp
+        // Nếu câu hỏi đã có options và dòng ngắn -> option tiếp theo
         if (currentQuestion.rawOptions.length > 0 && line.length < 100 && !line.includes('?')) {
           currentQuestion.rawOptions.push(line);
           continue;
@@ -489,7 +1045,6 @@ class FormParserService {
           currentQuestion.content += ' ' + line;
         }
       } else {
-        // Chưa có câu hỏi hiện tại, dòng này có thể là mô tả
         if (!description) {
           description = line;
         }
@@ -506,12 +1061,13 @@ class FormParserService {
       for (let i = 0; i < lines.length; i++) {
         const line = lines[i];
         if (line.includes('?') || line.length > 10) {
-          questions.push({
-            order_index: questions.length + 1,
-            type: 'OPEN_TEXT',
+          questions.push(this._finalizeQuestion({
             content: line,
-            options: null
-          });
+            rawOptions: [],
+            rows: null,
+            columns: null,
+            hasCheckboxOptions: false
+          }, questions.length + 1));
         }
       }
     }
@@ -526,40 +1082,124 @@ class FormParserService {
   }
 
   /**
-   * Helper xác định loại câu hỏi từ nội dung và options
+   * Helper xác định loại câu hỏi từ nội dung và options trong Smart Text
    */
   _finalizeQuestion(rawQ, orderIndex) {
-    const content = rawQ.content.trim();
+    let content = rawQ.content.trim();
+    let isRequired = 0;
+
+    // Kiểm tra cờ bắt buộc qua dấu * cuối câu hoặc cụm (bắt buộc)
+    if (/\*$/.test(content) || /\*\s*$/.test(content) || /\(\s*bắt\s*buộc\s*\)|\[\s*bắt\s*buộc\s*\]|\(\s*required\s*\)/i.test(content)) {
+      isRequired = 1;
+      content = content.replace(/\s*\*+\s*$/, '').replace(/\(\s*bắt\s*buộc\s*\)|\[\s*bắt\s*buộc\s*\]|\(\s*required\s*\)/gi, '').trim();
+    }
+
+    let rows = rawQ.rows;
+    let columns = rawQ.columns;
+
+    // Kiểm tra nếu trong content có cú pháp ma trận Hàng x Cột: (Hàng: ... | Cột: ...)
+    if (!rows && !columns) {
+      const matrixMatch = content.match(/(?:hàng|rows)[:：]\s*([^|]+)\s*\|\s*(?:cột|columns)[:：]\s*(.*)$/i);
+      if (matrixMatch) {
+        rows = matrixMatch[1].split(/[,;]/).map(s => s.trim()).filter(Boolean);
+        columns = matrixMatch[2].split(/[,;]/).map(s => s.trim()).filter(Boolean);
+        content = content.replace(/(?:\(|\[)?\s*(?:hàng|rows)[:：][^)]*(?:\)|\])?/gi, '').trim();
+      }
+    }
+
+    // 1. Nếu có ma trận Hàng x Cột -> CHOICE_GRID hoặc CHECKBOX_GRID
+    if (rows && columns && rows.length > 0 && columns.length > 0) {
+      const isCheckbox = /hộp\s*kiểm|checkbox|nhiều/i.test(content) || /hộp\s*kiểm|checkbox/i.test(rawQ.content);
+      const qType = isCheckbox ? 'CHECKBOX_GRID' : 'CHOICE_GRID';
+      return {
+        order_index: orderIndex,
+        type: qType,
+        content,
+        is_required: isRequired,
+        rows,
+        columns,
+        options: columns
+      };
+    }
+
     const options = rawQ.rawOptions.map(opt => opt.trim()).filter(Boolean);
+    const hasCheckboxOptions = rawQ.hasCheckboxOptions || options.some(opt => /^\[[ xX]?\]/.test(opt));
+    const cleanOptions = options.map(opt => opt.replace(/^\[[ xX]?\]\s*/, '').trim());
 
-    // 1. Kiểm tra Thang đo Likert (1-5 sao, thang điểm 1-5, mức độ hài lòng/đồng ý)
-    const isLikert = /thang\s*(?:đo|điểm)|likert|(?:từ\s*)?1\s*(?:đến|-|–)\s*5|đánh\s*giá\s*mức\s*độ|rất\s*đồng\s*ý|mức\s*độ\s*hài\s*lòng/i.test(content);
-    if (isLikert && options.length <= 1) {
+    // 2. Xếp hạng sao (RATING_STARS)
+    if (/đánh\s*giá\s*sao|xếp\s*hạng\s*sao|số\s*sao|star\s*rating|(?:từ\s*)?1\s*(?:đến|-|–)\s*5\s*sao/i.test(content)) {
       return {
         order_index: orderIndex,
-        type: 'LIKERT_SCALE',
+        type: 'RATING_STARS',
         content,
-        options: ['1 - Rất không hài lòng / Hoàn toàn không đồng ý', '2 - Không hài lòng / Không đồng ý', '3 - Bình thường / Trung lập', '4 - Hài lòng / Đồng ý', '5 - Rất hài lòng / Hoàn toàn đồng ý']
+        is_required: isRequired,
+        options: ['1', '2', '3', '4', '5']
       };
     }
 
-    // 2. Kiểm tra Trắc nghiệm chọn nhiều (Multiple Choice)
-    const isMultiple = /chọn\s*nhiều|nhiều\s*đáp\s*án|chọn\s*tất\s*cả|các\s*lựa\s*chọn\s*phù\s*hợp|multiple/i.test(content);
-    if (options.length > 0) {
+    // 3. Thang đo tuyến tính (LINEAR_SCALE)
+    const isLinear = /thang\s*(?:đo|điểm)|likert|(?:từ\s*)?1\s*(?:đến|-|–)\s*(?:5|10)|đánh\s*giá\s*mức\s*độ|rất\s*đồng\s*ý|mức\s*độ\s*hài\s*lòng/i.test(content);
+    if (isLinear && cleanOptions.length <= 2) {
+      const minLab = cleanOptions[0] || (/hài\s*lòng/i.test(content) ? 'Rất không hài lòng' : 'Hoàn toàn không đồng ý');
+      const maxLab = cleanOptions[1] || (/hài\s*lòng/i.test(content) ? 'Rất hài lòng' : 'Hoàn toàn đồng ý');
       return {
         order_index: orderIndex,
-        type: isMultiple ? 'MULTIPLE_CHOICE' : 'SINGLE_CHOICE',
+        type: 'LINEAR_SCALE',
         content,
-        options
+        is_required: isRequired,
+        min_label: minLab,
+        max_label: maxLab,
+        options: ['1', '2', '3', '4', '5']
       };
     }
 
-    // 3. Không có options -> Câu hỏi mở (OPEN_TEXT)
+    // 4. Không có options -> Xét các dạng tự luận / input đặc thù
+    if (cleanOptions.length === 0) {
+      if (/ngày\s*(?:sinh|tháng|bắt\s*đầu|kết\s*thúc)|chọn\s*ngày|date/i.test(content)) {
+        return { order_index: orderIndex, type: 'DATE_INPUT', content, is_required: isRequired, options: null };
+      }
+      if (/giờ|thời\s*gian\s*\((?:giờ|phút)\)|time/i.test(content)) {
+        return { order_index: orderIndex, type: 'TIME_INPUT', content, is_required: isRequired, options: null };
+      }
+      if (/tải\s*(?:lên\s*)?tệp|đính\s*kèm\s*file|upload\s*file|tải\s*ảnh/i.test(content)) {
+        return { order_index: orderIndex, type: 'FILE_UPLOAD', content, is_required: isRequired, options: null };
+      }
+      if (/đoạn\s*văn|tự\s*luận\s*dài|chia\s*sẻ\s*chi\s*tiết|mô\s*tả\s*cụ\s*thể|paragraph/i.test(content)) {
+        return { order_index: orderIndex, type: 'PARAGRAPH', content, is_required: isRequired, options: null };
+      }
+      return { order_index: orderIndex, type: 'SHORT_TEXT', content, is_required: isRequired, options: null };
+    }
+
+    // 5. Menu thả xuống (DROPDOWN)
+    if (/menu\s*thả\s*xuống|dropdown|danh\s*sách\s*thả/i.test(content)) {
+      return {
+        order_index: orderIndex,
+        type: 'DROPDOWN',
+        content,
+        is_required: isRequired,
+        options: cleanOptions
+      };
+    }
+
+    // 6. Trắc nghiệm chọn nhiều (MULTIPLE_CHOICE)
+    const isMultiple = hasCheckboxOptions || /chọn\s*nhiều|nhiều\s*đáp\s*án|chọn\s*tất\s*cả|các\s*lựa\s*chọn\s*phù\s*hợp|hộp\s*kiểm|multiple/i.test(content);
+    if (isMultiple) {
+      return {
+        order_index: orderIndex,
+        type: 'MULTIPLE_CHOICE',
+        content,
+        is_required: isRequired,
+        options: cleanOptions
+      };
+    }
+
+    // 7. Mặc định là Trắc nghiệm 1 lựa chọn (SINGLE_CHOICE)
     return {
       order_index: orderIndex,
-      type: 'OPEN_TEXT',
+      type: 'SINGLE_CHOICE',
       content,
-      options: null
+      is_required: isRequired,
+      options: cleanOptions
     };
   }
 }

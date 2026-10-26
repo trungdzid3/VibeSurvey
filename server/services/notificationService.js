@@ -593,6 +593,106 @@ class NotificationService {
       ORDER BY created_at DESC
     `).all(userId);
   }
+
+  /**
+   * Tạo mẫu email OTP chuẩn Master Template tương thích 100% với Gmail Action Card
+   * Tự động kích hoạt widget "Cần nhập mã" [Mã OTP] [Sao chép mã] trên Gmail Android/iOS/Web
+   */
+  buildOtpEmailTemplate(options = {}) {
+    const {
+      title = 'XÁC THỰC TÀI KHOẢN',
+      subtitle = 'Bảo mật tài khoản VibeSurvey',
+      name = 'bạn',
+      otp,
+      validMinutes = 10,
+      actionDescription = 'xác thực tài khoản',
+      note = 'Tuyệt đối không chia sẻ mã này cho bất kỳ ai.'
+    } = options;
+    const brandDark = '#09090B';
+    const brandAccent = '#EA580C';
+    const brandBg = '#FAFAFA';
+    const brandBorder = '#E7E5E4';
+    const brandOtpBg = '#FFF7ED';
+
+    return `<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${title} - ${otp}</title>
+  <!-- Google Fonts: Montserrat chuẩn SSOT DESIGN.md -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+  <!-- Schema.org Markup cho Google Email Actions -->
+  <script type="application/ld+json">
+  {
+    "@context": "http://schema.org",
+    "@type": "EmailMessage",
+    "description": "${title}: ${otp}"
+  }
+  </script>
+</head>
+<body style="margin: 0; padding: 0; background-color: ${brandBg}; font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+  <!-- Hidden Preheader: Gmail Heuristic đọc chính xác câu này để dựng widget "Cần nhập mã" + "Sao chép mã" -->
+  <div style="display:none;font-size:1px;color:#ffffff;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;mso-hide:all;">
+    Mã xác thực của bạn là ${otp}. Mã này có hiệu lực trong ${validMinutes} phút. Tuyệt đối không chia sẻ mã xác thực này cho người khác.
+  </div>
+
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: ${brandBg}; padding: 32px 12px;">
+    <tr>
+      <td align="center">
+        <table role="presentation" width="100%" style="max-width: 520px; background: #ffffff; border-radius: 16px; overflow: hidden; border: 1px solid ${brandBorder}; box-shadow: 0 4px 24px rgba(9, 9, 11, 0.05);" cellspacing="0" cellpadding="0" border="0">
+          <!-- Header Thương hiệu: Đen Obsidian #09090B -->
+          <tr>
+            <td style="background: ${brandDark}; padding: 28px 24px; text-align: center;">
+              <h1 style="margin: 0; font-size: 22px; font-weight: 900; letter-spacing: 0.5px; color: #ffffff; font-family: 'Montserrat', sans-serif;">VIBESURVEY</h1>
+              <p style="margin: 6px 0 0; font-size: 13px; font-weight: 700; color: #A1A1AA; text-transform: uppercase; letter-spacing: 1px; font-family: 'Montserrat', sans-serif;">${title}</p>
+            </td>
+          </tr>
+
+          <!-- Nội dung chính -->
+          <tr>
+            <td style="padding: 32px 28px; text-align: center;">
+              <p style="font-size: 15px; color: #09090B; margin-top: 0; text-align: left; font-family: 'Montserrat', sans-serif;">
+                Xin chào <strong>${name}</strong>,
+              </p>
+              <p style="font-size: 14px; color: #52525B; line-height: 1.6; text-align: left; margin: 12px 0 24px; font-family: 'Montserrat', sans-serif;">
+                Bạn vừa yêu cầu ${actionDescription} trên nền tảng VibeSurvey. Dưới đây là mã xác thực One-Time Password (OTP) của bạn:
+              </p>
+
+              <!-- Khung Mã OTP Chuẩn DESIGN.md: Nền Kem Cam Sứ #FFF7ED + Viền nét đứt Cam Vibe #EA580C -->
+              <div style="margin: 20px auto; background: ${brandOtpBg}; border: 2px dashed ${brandAccent}; border-radius: 12px; padding: 18px 24px; display: inline-block;">
+                <span class="verification-code" style="font-size: 38px; font-weight: 900; font-family: 'SF Mono', Consolas, Monaco, monospace; letter-spacing: 10px; color: ${brandAccent}; display: inline-block; padding-left: 10px;">${otp}</span>
+              </div>
+
+              <p style="font-size: 13px; font-weight: 500; color: #71717A; margin: 20px 0 6px; font-family: 'Montserrat', sans-serif;">
+                Mã xác thực có hiệu lực trong vòng <strong style="color: #09090B;">${validMinutes} phút</strong>.
+              </p>
+              <p style="font-size: 12px; color: #A1A1AA; margin: 0; font-family: 'Montserrat', sans-serif;">
+                ${note}
+              </p>
+            </td>
+          </tr>
+
+          <!-- Footer Hợp chuẩn CAN-SPAM & Google Sender Guidelines -->
+          <tr>
+            <td style="background: #FAFAFA; border-top: 1px solid ${brandBorder}; padding: 20px 24px; text-align: center; font-size: 11px; color: #71717A; line-height: 1.6; font-family: 'Montserrat', sans-serif;">
+              <p style="margin: 0 0 6px; font-weight: 700; color: #09090B;">
+                VibeSurvey Platform • Nền tảng khảo sát trực tuyến & đổi thưởng uy tín
+              </p>
+              <p style="margin: 0; color: #A1A1AA;">
+                Email này được gửi tự động từ hệ thống bảo mật. Nếu bạn không thực hiện yêu cầu này, vui lòng liên hệ trung tâm hỗ trợ.
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`;
+  }
 }
 
 module.exports = new NotificationService();

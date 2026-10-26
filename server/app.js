@@ -4,12 +4,8 @@ const helmet = require('helmet');
 const path = require('path');
 const config = require('./config');
 const apiRoutes = require('./routes/api');
-const seedDatabase = require('./db/seed');
 
 const app = express();
-
-// Khởi tạo dữ liệu mẫu nếu cần
-seedDatabase();
 
 // Bảo mật với Helmet (cấu hình cho phép SPA và nhúng assets an toàn)
 app.use(

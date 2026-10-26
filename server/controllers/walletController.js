@@ -26,14 +26,18 @@ class WalletController {
           vatInvoiceEligible: true,
           fiatValueVnd,
           trust_score: user.trust_score,
-          minFirstTimePayoutPoints: config.ECONOMICS.MIN_FIRST_TIME_PAYOUT_POINTS,
-          minFirstTimePayoutVnd: config.ECONOMICS.MIN_FIRST_TIME_PAYOUT_POINTS * config.ECONOMICS.POINT_TO_VND_RATE,
-          minPayoutPoints: config.ECONOMICS.MIN_PAYOUT_POINTS,
-          minPayoutVnd: config.ECONOMICS.MIN_PAYOUT_POINTS * config.ECONOMICS.POINT_TO_VND_RATE,
-          phoneCardFeeVnd: config.ECONOMICS.PHONE_CARD_FEE_VND,
-          bankFeeUnder100kVnd: config.ECONOMICS.BANK_TRANSFER_FEE_UNDER_100K_VND,
-          bankFeeFrom100kVnd: config.ECONOMICS.BANK_TRANSFER_FEE_FROM_100K_VND,
-          swapDiscountRate: config.ECONOMICS.SWAP_DISCOUNT_RATE,
+          minFirstTimePayoutPoints: config.ECONOMICS.MIN_FIRST_TIME_PAYOUT_POINTS || 10000,
+          minFirstTimePayoutVnd: (config.ECONOMICS.MIN_FIRST_TIME_PAYOUT_POINTS || 10000) * config.ECONOMICS.POINT_TO_VND_RATE,
+          minPayoutPoints: config.ECONOMICS.MIN_PAYOUT_POINTS || 20000,
+          minPayoutVnd: (config.ECONOMICS.MIN_PAYOUT_POINTS || 20000) * config.ECONOMICS.POINT_TO_VND_RATE,
+          minBankPayoutPoints: 50000,
+          minBankPayoutVnd: 50000 * config.ECONOMICS.POINT_TO_VND_RATE,
+          phoneCardFeeVnd: config.ECONOMICS.PHONE_CARD_FEE_VND || 0,
+          bankFeeUnder100kVnd: config.ECONOMICS.BANK_TRANSFER_FEE_UNDER_100K_VND ?? 2000,
+          bankFeeFrom100kVnd: config.ECONOMICS.BANK_TRANSFER_FEE_FROM_100K_VND ?? 0,
+          swapBonusRate: config.ECONOMICS.SWAP_BONUS_RATE || 1.05,
+          minSwapPoints: config.ECONOMICS.MIN_SWAP_POINTS || 5000,
+          depositTiers: config.ECONOMICS.DEPOSIT_TIERS,
           payoutFeeVnd: config.ECONOMICS.PAYOUT_FIXED_FEE_VND,
           exchangeRate: config.ECONOMICS.POINT_TO_VND_RATE
         },
@@ -51,15 +55,15 @@ class WalletController {
       const { amount_vnd, description } = req.body;
 
       const amount = parseInt(amount_vnd, 10);
-      if (isNaN(amount) || amount < 10000 || amount > 1000000000) {
-        return res.status(400).json({ success: false, message: 'Số tiền nạp tối thiểu là 10,000 VNĐ và tối đa 1,000,000,000 VNĐ' });
+      if (isNaN(amount) || amount < 20000 || amount > 1000000000) {
+        return res.status(400).json({ success: false, message: 'Số tiền nạp tối thiểu là 20,000 VNĐ và tối đa 1,000,000,000 VNĐ' });
       }
 
       const safeDescription = String(description || 'Nạp tiền vào tài khoản').trim().substring(0, 200);
       const result = ledgerService.depositCredit(user.id, amount, safeDescription);
 
       const bonusMsg = result.bonusCreditVnd > 0 
-        ? ` (Tặng thêm +${result.bonusCreditVnd.toLocaleString('vi-VN')}đ Credit tạo form bậc ${result.tier})` 
+        ? ` (Tặng thêm +${result.bonusCreditVnd.toLocaleString('vi-VN')} Credit tạo form bậc ${result.tier})` 
         : '';
 
       return res.json({
@@ -89,7 +93,7 @@ class WalletController {
         return res.status(400).json({ success: false, message: 'Vui lòng cung cấp số điểm rút, phương thức và thông tin nhận' });
       }
 
-      if (!['BANK_TRANSFER', 'MOMO', 'PHONE_CARD'].includes(payout_method)) {
+      if (!['BANK_TRANSFER', 'MOMO', 'PHONE_CARD', 'VOUCHER'].includes(payout_method)) {
         return res.status(400).json({ success: false, message: 'Phương thức thanh toán không được hỗ trợ' });
       }
 
@@ -97,7 +101,17 @@ class WalletController {
         return res.status(400).json({ success: false, message: 'Thông tin tài khoản thụ hưởng phải là đối tượng hợp lệ' });
       }
 
-      // Kiểm tra ngưỡng rút: lần đầu tiên qua thẻ cào (1.000 điểm = 10.000 VNĐ), các trường hợp khác 5.000 điểm = 50.000 VNĐ
+      // Kiểm tra điểm uy tín trust_score >= 60.0
+      const dbUser = db.prepare('SELECT trust_score FROM users WHERE id = ?').get(user.id);
+      if (!dbUser || dbUser.trust_score < 60) {
+        const score = dbUser ? dbUser.trust_score.toFixed(1) : '0.0';
+        return res.status(400).json({
+          success: false,
+          message: `Điểm uy tín của bạn là ${score}/100, cần tối thiểu 60.0 để thực hiện rút tiền`
+        });
+      }
+
+      // Kiểm tra ngưỡng rút
       const prevPayout = db.prepare(`
         SELECT COUNT(*) as count FROM payout_requests 
         WHERE user_id = ? AND status != 'REJECTED'
@@ -105,9 +119,16 @@ class WalletController {
       const prevCount = prevPayout ? prevPayout.count : 0;
 
       const isFirstTimePhoneCard = (prevCount === 0 && payout_method === 'PHONE_CARD');
-      const minRequiredPoints = isFirstTimePhoneCard 
-        ? config.ECONOMICS.MIN_FIRST_TIME_PAYOUT_POINTS 
-        : config.ECONOMICS.MIN_PAYOUT_POINTS;
+      let minRequiredPoints = 20000;
+      if (isFirstTimePhoneCard) {
+        minRequiredPoints = config.ECONOMICS.MIN_FIRST_TIME_PAYOUT_POINTS || 10000;
+      } else if (payout_method === 'PHONE_CARD') {
+        minRequiredPoints = config.ECONOMICS.MIN_PAYOUT_POINTS || 20000;
+      } else if (payout_method === 'BANK_TRANSFER' || payout_method === 'MOMO') {
+        minRequiredPoints = 50000;
+      } else if (payout_method === 'VOUCHER') {
+        minRequiredPoints = 30000;
+      }
 
       const points = parseInt(points_amount, 10);
       if (isNaN(points) || points < minRequiredPoints || points > 10000000) {
@@ -117,15 +138,15 @@ class WalletController {
         });
       }
 
-      // Xác định phí rút: Thẻ cào 0đ; Ngân hàng < 100k thu 2k, >= 100k miễn phí
+      // Xác định phí rút: Thẻ cào / Voucher 0đ; Ngân hàng < 100k thu 2k, >= 100k miễn phí
       const fiatAmountVnd = points * config.ECONOMICS.POINT_TO_VND_RATE;
       let calculatedFeeVnd = 0;
-      if (payout_method === 'PHONE_CARD') {
-        calculatedFeeVnd = config.ECONOMICS.PHONE_CARD_FEE_VND || 0;
+      if (payout_method === 'PHONE_CARD' || payout_method === 'VOUCHER') {
+        calculatedFeeVnd = 0;
       } else {
         calculatedFeeVnd = fiatAmountVnd < 100000 
-          ? config.ECONOMICS.BANK_TRANSFER_FEE_UNDER_100K_VND 
-          : config.ECONOMICS.BANK_TRANSFER_FEE_FROM_100K_VND;
+          ? (config.ECONOMICS.BANK_TRANSFER_FEE_UNDER_100K_VND ?? 2000) 
+          : (config.ECONOMICS.BANK_TRANSFER_FEE_FROM_100K_VND ?? 0);
       }
 
       const result = ledgerService.requestPayout(
@@ -141,6 +162,7 @@ class WalletController {
         message: 'Đã tạo yêu cầu rút thưởng thành công. Tiền/Thẻ sẽ được chuyển sau khi hệ thống phê duyệt.',
         payoutId: result.payoutId,
         netAmountVnd: result.netAmountVnd,
+        feeVnd: result.feeVnd,
         newPointBalance: result.newPointBalance
       });
     } catch (err) {
@@ -174,16 +196,17 @@ class WalletController {
         return res.status(400).json({ success: false, message: 'Vui lòng cung cấp số điểm cần đổi' });
       }
 
+      const minSwapPoints = config.ECONOMICS.MIN_SWAP_POINTS || 5000;
       const points = parseInt(points_amount, 10);
-      if (isNaN(points) || points < 1000 || points > 10000000) {
-        return res.status(400).json({ success: false, message: 'Số điểm quy đổi phải từ 1,000 đến 10,000,000 điểm' });
+      if (isNaN(points) || points < minSwapPoints || points > 10000000) {
+        return res.status(400).json({ success: false, message: `Số điểm quy đổi phải từ ${minSwapPoints.toLocaleString()} đến 10,000,000 điểm` });
       }
 
       const result = ledgerService.swapPointsToCredit(user.id, points);
 
       return res.json({
         success: true,
-        message: `Đổi thành công ${points.toLocaleString()} điểm sang ${result.creditAddedVnd.toLocaleString('vi-VN')} VNĐ Credit tạo khảo sát (Đã trừ phí dịch vụ chuyển đổi sàn 30%)!`,
+        message: `Đổi thành công ${points.toLocaleString()} điểm sang ${result.creditAddedVnd.toLocaleString('vi-VN')} VNĐ Credit tạo khảo sát (+5% thưởng tái đầu tư)!`,
         ...result
       });
     } catch (err) {

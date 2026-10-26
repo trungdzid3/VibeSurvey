@@ -25,6 +25,12 @@ router.post('/auth/link-google', authenticateToken, (req, res) => authController
 router.post('/auth/verify-email', authenticateToken, (req, res) => authController.verifyEmail(req, res));
 router.post('/auth/send-verification-otp', authenticateToken, (req, res) => authController.sendVerificationOtp(req, res));
 router.post('/auth/verify-email-otp', authenticateToken, (req, res) => authController.verifyEmailOtp(req, res));
+router.post('/auth/student/send-otp', authenticateToken, (req, res) => authController.sendStudentEmailOtp(req, res));
+router.post('/auth/student/verify-otp', authenticateToken, (req, res) => authController.verifyStudentEmailOtp(req, res));
+router.put('/auth/profile/demographics', authenticateToken, (req, res) => authController.updateDemographicProfile(req, res));
+router.post('/auth/profile/demographics', authenticateToken, (req, res) => authController.updateDemographicProfile(req, res));
+router.post('/auth/enterprise/profile', authenticateToken, (req, res) => authController.registerEnterpriseProfile(req, res));
+router.put('/auth/enterprise/profile', authenticateToken, (req, res) => authController.registerEnterpriseProfile(req, res));
 
 // === 2. Tuyến Đường Khảo Sát (Surveys) ===
 // Hỗ trợ khách chưa đăng nhập vẫn xem được danh sách và nội dung khảo sát công khai
@@ -40,11 +46,13 @@ router.post('/surveys/:id/screen-out', authenticateToken, requireRole(['RESPONDE
 router.get('/surveys/:id/analytics', authenticateToken, requireRole(['RESPONDENT', 'CREATOR', 'ADMIN']), (req, res) => surveyController.getAnalytics(req, res));
 router.get('/surveys/:id/export', authenticateToken, requireRole(['RESPONDENT', 'CREATOR', 'ADMIN']), (req, res) => surveyController.exportSurveyData(req, res));
 router.post('/surveys/:id/close', authenticateToken, requireRole(['RESPONDENT', 'CREATOR', 'ADMIN']), (req, res) => surveyController.closeSurvey(req, res));
+router.delete('/surveys/:id', authenticateToken, requireRole(['RESPONDENT', 'CREATOR', 'ADMIN']), (req, res) => surveyController.deleteSurvey(req, res));
 router.post('/surveys/parse-external', authenticateToken, requireRole(['RESPONDENT', 'CREATOR', 'ADMIN']), (req, res) => surveyController.parseExternalForm(req, res));
 router.post('/surveys/:id/sponsor-vouchers', authenticateToken, requireRole(['RESPONDENT', 'CREATOR', 'ADMIN']), (req, res) => surveyController.addSponsorVouchers(req, res));
 router.post('/surveys/:id/boost-fast-track', authenticateToken, requireRole(['RESPONDENT', 'CREATOR', 'ADMIN']), (req, res) => surveyController.boostFastTrack(req, res));
 router.post('/surveys/:id/pin', authenticateToken, requireRole(['RESPONDENT', 'CREATOR', 'ADMIN']), (req, res) => surveyController.pinSurvey(req, res));
 router.post('/surveys/:id/unpin', authenticateToken, requireRole(['RESPONDENT', 'CREATOR', 'ADMIN']), (req, res) => surveyController.unpinSurvey(req, res));
+router.post('/surveys/:id/warranty-claim', authenticateToken, requireRole(['RESPONDENT', 'CREATOR', 'ADMIN']), (req, res) => surveyController.claimWarranty(req, res));
 router.get('/notifications', authenticateToken, (req, res) => surveyController.getNotifications(req, res));
 router.put('/notifications/:id/read', authenticateToken, (req, res) => surveyController.markNotificationAsRead(req, res));
 

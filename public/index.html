@@ -90,7 +90,11 @@
           <!-- Element ẩn vĩnh viễn để bảo toàn tương thích logic textContent -->
           <div id="user-balance-pill" class="hidden" style="display: none !important;"><span id="header-points-text">0 Điểm</span><span id="header-credit-text">0đ</span></div>
           <div id="header-tickets-chip" class="hidden" style="display: none !important;"><span id="header-tickets-text">0 Vé</span></div>
-          <button id="header-create-btn" class="hidden" style="display: none !important;"></button>
+          <!-- Header Create Survey Quick Action Button -->
+          <button id="header-create-btn" onclick="VibeApp.openCreateSurveyModal()" class="h-9 px-3.5 bg-orange-600 hover:bg-orange-700 active:scale-95 text-white text-xs font-bold rounded-xl shadow-xs transition-all flex items-center gap-1.5 flex-shrink-0">
+            <i data-lucide="plus" class="w-3.5 h-3.5 stroke-[2.5]"></i>
+            <span class="hidden sm:inline">Tạo Khảo Sát</span>
+          </button>
 
           <!-- Theme Toggle Button (Light/Dark Mode) -->
           <button id="theme-toggle-btn" onclick="VibeApp.toggleTheme()" class="w-9 h-9 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 flex items-center justify-center transition-colors active:scale-95 flex-shrink-0" title="Chuyển chế độ Sáng / Tối">
@@ -388,6 +392,6 @@
   </div>
 
   <!-- Application Script -->
-  <script src="/app.js?v=3.6.4"></script>
+  <script src="/app.js?v=1793029800000"></script>
 </body>
 </html>

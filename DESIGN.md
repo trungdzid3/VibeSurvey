@@ -45,6 +45,16 @@
 - **Nguy hiểm / Hủy (Danger / Banned)**: `#DC2626` (`red-600`) - Dùng cho nút hủy, lỗi form, thông báo vi phạm.
 - **Trung tính (Neutral / Closed)**: `#71717A` (`zinc-500`) - Dùng cho khảo sát đã đóng, nút disabled.
 
+### 2.5. Quy Định Màu Nhận Diện 3 Gói Tài Khoản (Tràn Viền `border: none` - Thích Ứng Light / Dark Mode)
+
+Ba phân khúc tài khoản sử dụng trực tiếp **3 màu cốt lõi (Trắng Kem — Cam — Đen)** với thiết kế **màu đặc tràn viền (`border: none`, không bo viền bao quanh)** và tự động điều chỉnh sắc độ nền để không bao giờ bị chìm vào nền trang ở cả Light Mode (`#FFFFFF`) lẫn Dark Mode (`#09090B`):
+
+| Phân khúc Gói | Đại diện Màu Cốt Lõi | Nền Tràn Viền ở Light Mode (`border: none`) | Nền Tràn Viền ở Dark Mode (`border: none`) | Màu Chữ & Nhãn Ghi Rõ Gói |
+| :--- | :--- | :--- | :--- | :--- |
+| **1. Gói Sinh Viên**<br>*(Student `.edu.vn`)* | **Tông TRẮNG KEM SỨ**<br>*(Academic Cream)* | **Nền Kem Cam Sứ `#FFF7ED`** (`orange-50`) tràn viền + `shadow-sm` nhẹ (tách khối rõ trên nền trang trắng `#FFFFFF` mà không cần viền). | **Nền Trắng Sứ `#FAFAFA` / `#FFF7ED`** tràn viền (nổi bật hoàn toàn trên nền trang đen `#09090B`). | - **Chữ chính**: Đen đậm `#09090B`.<br>- **Số liệu**: Cam đậm `#C2410C`.<br>- **Nhãn ghi rõ**: **`GÓI SINH VIÊN (.EDU.VN)`** |
+| **2. Gói Cá Nhân**<br>*(Người dùng thường)* | **Tông CAM VIBE**<br>*(Signature Orange)* | **Nền Cam `#EA580C`** (`linear-gradient(135deg, #F97316, #EA580C)`) tràn viền 100%. | **Nền Cam `#EA580C`** (`linear-gradient(135deg, #F97316, #EA580C)`) tràn viền 100%. | - **Chữ & Số liệu**: Trắng tinh khiết `#FFFFFF`.<br>- **Nhãn ghi rõ**: **`GÓI CÁ NHÂN (NGƯỜI THƯỜNG)`** |
+| **3. Gói Doanh Nghiệp**<br>*(Enterprise / VIP)* | **Tông ĐEN OBSIDIAN**<br>*(Black / Graphite Card)* | **Nền Đen Obsidian `#09090B`** tràn viền 100% (tương phản tuyệt đối trên nền trang trắng `#FFFFFF`). | **Nền Than Chì Graphite `#27272A`** (`zinc-800`) tràn viền 100% (sáng hơn nền trang `#09090B` nên tách khối rõ nét mà không cần viền). | - **Chữ chính**: Trắng sáng `#FAFAFA`.<br>- **Số liệu**: Cam sáng `#F97316`.<br>- **Nhãn ghi rõ**: **`GÓI DOANH NGHIỆP`** |
+
 ---
 
 ## 3. Hệ Thống Kiểu Chữ (Typography Architecture)
@@ -79,7 +89,7 @@
   - Icon phụ trợ trong nút/badge: `w-3.5 h-3.5` hoặc `w-4 h-4`.
   - Icon tiêu đề mục/thẻ: `w-5 h-5`.
 - **TUYỆT ĐỐI CẤM (STRICTLY BANNED)**:
-  - **Không chèn emoji rác vô tội vạ** vào tiêu đề, nút bấm, tab điều hướng (ví dụ: cấm `👥`, `💎`, `🚀`, `🔥`, `🎉`, `💰`).
+  - **Không chèn emoji hoặc sticker màu sắc** vào tiêu đề, nút bấm, tab điều hướng hoặc tài liệu.
   - Không dùng các icon 3D cồng kềnh, không dùng icon màu mè lạc quẻ.
 
 ### 4.2. Logo Thương Hiệu (Vouchers / Đối tác):
@@ -128,6 +138,17 @@
 - Hiển thị đầy đủ thông tin pháp lý và hỗ trợ: Tên nền tảng/công ty, địa chỉ trụ sở, số điện thoại hotline, email hỗ trợ, link Fanpage/Cộng đồng và dòng thông báo bản quyền.
 - Tông màu xám trung tính, viền trên mảnh ngăn cách rõ ràng với nội dung chính.
 
+### 5.7. Trình Tạo Khảo Sát Chuẩn Google Forms Studio (Two-Column Form Studio)
+- **Bố Cục 2 Cột (Desktop & Tablet ngang)**:
+  - **Cột Trái (~65% Canvas Soạn Thảo)**:
+    - Thẻ Tiêu Đề Biểu Mẫu (`Form Header Card`) với dải màu Cam Vibe `#EA580C` trên đỉnh (`h-2.5 rounded-t-xl`).
+    - Thẻ Câu Hỏi Đang Chọn (`Active Question Card`): Dải viền màu cam nhấn dọc bên trái (`border-l-4 border-orange-600`), cụm 6 chấm kéo thả (`Drag Handle`) ở đỉnh giữa, ô nhập tiêu đề câu hỏi, menu chọn 1 trong 12 định dạng chuẩn Google Forms.
+    - Thanh Công Cụ Nổi Dọc Bên Cạnh (`Floating Toolbar`): `(+) Thêm câu hỏi`, `Nhập nhanh`, `(Tt) Thêm tiêu đề`, `Thêm ảnh`, `Thêm phần`.
+    - Chân thẻ: Nút `Nhân bản (Duplicate)`, nút `Xóa (Trash)`, vạch ngăn dọc, công tắc bật/tắt `Bắt buộc` (`is_required`), và Menu 3 chấm mở rộng.
+  - **Cột Phải (~35% Sticky Sidebar - Ghim Cố Định `position: sticky; top: 80px`)**:
+    - Gom toàn bộ tính năng Định giá, Ngân sách và Cài đặt: Phân khúc (`Sinh Viên` / `Cá Nhân` / `Doanh Nghiệp`), Số mẫu mục tiêu ($N$), 3 nấc lựa chọn giá SLA (Tiết kiệm, Đề xuất +25%, Hỏa tốc +60%) kèm thanh trượt Creator Boost chia 85/15 hoặc 80/20, Bộ lọc đối tượng, Cài đặt thời hạn treo và Khối tạm tính ký quỹ Escrow Real-time kèm 2 nút cố định `[Lưu Bản Nháp]` và `[Xuất Bản Khảo Sát]`.
+- **Tương Thích Màn Hình Nhỏ (Mobile / Tablet Dọc)**: Tự động chuyển về bố cục 1 cột dọc mượt mà, đưa bảng Tạm tính ký quỹ và nút Xuất bản xuống thanh ghim cố định ở đáy màn hình (`Bottom Sticky Bar`).
+
 ---
 
 ## 6. Phân Quyền & Hành Vi Nghiệp Vụ Trên Giao Diện (Role-Based UI Behaviors)
@@ -150,13 +171,13 @@
 
 ## 7. Danh Sách Những Điều Tuyệt Đối Cấm (Anti-Patterns / Banned List)
 
-- ❌ **CẤM** sử dụng màu lạ không nằm trong hệ thống: Không tím, không xanh ngọc, không hổ phách, không hồng, không gradient đa sắc.
-- ❌ **CẤM** chèn emoji bừa bãi vào giao diện (`💎`, `👥`, `🔥`, `🚀`...).
-- ❌ **CẤM** ép font chữ `p` hoặc `span` thành mảnh mờ `font-weight: 200` làm giảm khả năng đọc của người dùng.
-- ❌ **CẤM** tạo các khối thanh phân khúc (tier-tab-bar) gây rối rắm và phân mảnh giao diện nếu không có chỉ định rõ ràng.
-- ❌ **CẤM** để Creator làm bài khảo sát hoặc nhận thưởng khảo sát.
-- ❌ **CẤM** đưa nút tạo khảo sát màu cam dư thừa lên header khi đã có khu vực quản lý chiến dịch chuyên biệt.
-- ❌ **CẤM** sử dụng hiệu ứng bóng đổ neon rực rỡ (glow), viền phát sáng chói mắt kiểu web cờ bạc/tiền ảo rác.
+- **CẤM** sử dụng màu lạ không nằm trong hệ thống: Không tím, không xanh ngọc, không hổ phách, không hồng, không gradient đa sắc.
+- **CẤM** chèn emoji hoặc icon sticker màu sắc vào giao diện và tài liệu.
+- **CẤM** ép font chữ `p` hoặc `span` thành mảnh mờ `font-weight: 200` làm giảm khả năng đọc của người dùng.
+- **CẤM** tạo các khối thanh phân khúc (tier-tab-bar) gây rối rắm và phân mảnh giao diện nếu không có chỉ định rõ ràng.
+- **CẤM** để Creator làm bài khảo sát hoặc nhận thưởng khảo sát.
+- **CẤM** đưa nút tạo khảo sát màu cam dư thừa lên header khi đã có khu vực quản lý chiến dịch chuyên biệt.
+- **CẤM** sử dụng hiệu ứng bóng đổ neon rực rỡ (glow), viền phát sáng chói mắt kiểu web cờ bạc/tiền ảo rác.
 
 ---
 

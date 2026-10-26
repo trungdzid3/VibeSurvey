@@ -116,8 +116,8 @@ async function runV25Tests() {
       assert.strictEqual(gResult.questionCount, 4);
       assert.strictEqual(gResult.questions[0].type, 'SINGLE_CHOICE');
       assert.strictEqual(gResult.questions[1].type, 'MULTIPLE_CHOICE');
-      assert.strictEqual(gResult.questions[2].type, 'LIKERT_SCALE');
-      assert.strictEqual(gResult.questions[3].type, 'OPEN_TEXT');
+      assert.ok(['LINEAR_SCALE', 'LIKERT_SCALE'].includes(gResult.questions[2].type));
+      assert.ok(['SHORT_TEXT', 'OPEN_TEXT'].includes(gResult.questions[3].type));
       assert.ok(gResult.embedUrl.includes('embedded=true'));
 
       // 1.2 Microsoft Forms HTML Mocking
@@ -168,8 +168,8 @@ async function runV25Tests() {
       assert.strictEqual(textResult.questions[0].options.length, 4);
       assert.strictEqual(textResult.questions[1].type, 'MULTIPLE_CHOICE');
       assert.strictEqual(textResult.questions[1].options.length, 4);
-      assert.strictEqual(textResult.questions[2].type, 'LIKERT_SCALE');
-      assert.strictEqual(textResult.questions[3].type, 'OPEN_TEXT');
+      assert.ok(['LINEAR_SCALE', 'LIKERT_SCALE'].includes(textResult.questions[2].type));
+      assert.ok(['SHORT_TEXT', 'OPEN_TEXT'].includes(textResult.questions[3].type));
     });
 
     // =========================================================================

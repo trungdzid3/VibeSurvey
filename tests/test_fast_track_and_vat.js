@@ -14,18 +14,18 @@ async function runFastTrackAndVatTests() {
   console.log('🚀 BẮT ĐẦU KIỂM THỬ: BONUS TINH GỌN, FULL VAT & GOM MẪU HỎA TỐC');
   console.log('===============================================================');
 
-  // 1. Kiểm tra tỷ lệ bonus nạp tiền "hơn 1 tẹo thôi"
-  console.log('\n--- 1. Kiểm tra công thức bonus nạp tiền tinh gọn ("hơn 1 tẹo thôi") ---');
+  // 1. Kiểm tra tỷ lệ bonus nạp tiền theo chuẩn Kế hoạch tổng thể
+  console.log('\n--- 1. Kiểm tra công thức bonus nạp tiền theo chuẩn Kế hoạch tổng thể ---');
   const b100k = ledgerService.calculateDepositBonus(100000);
-  assert.strictEqual(b100k.bonusPercent, 2, '100K: +2%');
-  assert.strictEqual(b100k.bonusCreditVnd, 2000);
+  assert.strictEqual(b100k.bonusPercent, 3, '100K: +3%');
+  assert.strictEqual(b100k.bonusCreditVnd, 3000);
 
   const b500k = ledgerService.calculateDepositBonus(500000);
-  assert.strictEqual(b500k.bonusPercent, 4, '500K: +4%');
-  assert.strictEqual(b500k.bonusCreditVnd, 20000);
+  assert.strictEqual(b500k.bonusPercent, 5, '500K: +5%');
+  assert.strictEqual(b500k.bonusCreditVnd, 25000);
 
   const b1m = ledgerService.calculateDepositBonus(1000000);
-  assert.strictEqual(b1m.bonusPercent, 6, '1M: +6% (hơn 1 tẹo)');
+  assert.strictEqual(b1m.bonusPercent, 6, '1M: +6%');
   assert.strictEqual(b1m.bonusCreditVnd, 60000, 'Tặng 60,000đ Credit');
   assert.strictEqual(b1m.totalCreditVnd, 1060000);
 
@@ -40,9 +40,9 @@ async function runFastTrackAndVatTests() {
   assert.strictEqual(b5m.totalCreditVnd, 5500000);
 
   const b10m = ledgerService.calculateDepositBonus(10000000);
-  assert.strictEqual(b10m.bonusPercent, 12, '10M: +12%');
-  assert.strictEqual(b10m.bonusCreditVnd, 1200000);
-  assert.strictEqual(b10m.totalCreditVnd, 11200000);
+  assert.strictEqual(b10m.bonusPercent, 10, '10M (thuộc mốc >= 5M): +10%');
+  assert.strictEqual(b10m.bonusCreditVnd, 1000000);
+  assert.strictEqual(b10m.totalCreditVnd, 11000000);
   console.log('  ✅ [PASS] Tỷ lệ thưởng nạp chuẩn xác: 100k(+2%), 500k(+4%), 1M(+6%), 2M(+8%), 5M(+10%), 10M(+12%)!');
 
   // 2. Khởi động server test
@@ -84,8 +84,8 @@ async function runFastTrackAndVatTests() {
 
   assert.strictEqual(depRes.success, true);
   assert.strictEqual(depRes.bonusCreditVnd, 60000, 'Bonus đúng 60,000đ');
-  assert.strictEqual(depRes.fastTrackTickets, 2, 'Nhận đúng 2 vé gom mẫu hỏa tốc');
-  console.log('  ✅ [PASS] Nạp thành công: Nhận 1.060.000đ Credit + 2 vé Gom Mẫu Hỏa Tốc!');
+  assert.strictEqual(depRes.fastTrackTickets, 4, 'Nhận đúng 4 vé VIP theo mốc 1 Triệu');
+  console.log('  ✅ [PASS] Nạp thành công: Nhận 1.060.000đ Credit + 4 vé VIP!');
 
   // 4. Kiểm tra yêu cầu Xuất Hóa Đơn VAT FULL 100%
   console.log('\n--- 3. Kiểm tra tính năng Xuất Hóa Đơn Điện Tử VAT FULL 100% ---');
@@ -143,7 +143,7 @@ async function runFastTrackAndVatTests() {
   }).then(r => r.json());
 
   assert.strictEqual(boostRes.success, true);
-  assert.strictEqual(boostRes.remainingTickets, 1, 'Đã trừ 1 vé, còn lại 1 vé');
+  assert.strictEqual(boostRes.remainingTickets, 3, 'Đã trừ 1 vé, còn lại 3 vé');
   assert(boostRes.dispatchResult.pushCount > 0, 'Đã bắn thông báo đẩy');
   assert(boostRes.dispatchResult.emailCount > 0, 'Đã gửi email hệ thống tới người dùng');
   console.log(`  ✅ [PASS] Kích hoạt Gom Mẫu Hỏa Tốc: Bắn ${boostRes.dispatchResult.pushCount} Push APK & Gửi ${boostRes.dispatchResult.emailCount} Email hệ thống!`);
