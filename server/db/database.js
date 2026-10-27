@@ -336,6 +336,8 @@ function initSchema() {
     'ALTER TABLE questions ADD COLUMN max_label TEXT;',
     'ALTER TABLE surveys ADD COLUMN allow_edit_response INTEGER DEFAULT 0;',
     'ALTER TABLE surveys ADD COLUMN allow_view_response INTEGER DEFAULT 1;',
+    'ALTER TABLE surveys ADD COLUMN duration_days INTEGER DEFAULT 14;',
+    'ALTER TABLE surveys ADD COLUMN expires_at TEXT;',
     'ALTER TABLE responses ADD COLUMN edited_at TEXT;',
     `CREATE TABLE IF NOT EXISTS warranty_claims (
       id TEXT PRIMARY KEY,
@@ -473,32 +475,7 @@ function ensureEssentialAccounts() {
     const salt = bcrypt.genSaltSync(10);
 
     const essentialUsers = [
-      {
-        email: 'creator@vibesurvey.com',
-        password: 'creator123',
-        name: 'Doanh Nghiệp Test (Creator)',
-        role: 'CREATOR',
-        credit_balance: 10000000,
-        point_balance: 0,
-        fast_track_tickets: 5,
-        free_trial_surveys_available: 1,
-        is_email_verified: 1,
-        status: 'ACTIVE'
-      },
-      {
-        email: 'user@vibesurvey.com',
-        password: 'user123',
-        name: 'Đáp Viên Test (Respondent)',
-        role: 'RESPONDENT',
-        credit_balance: 0,
-        point_balance: 0,
-        fast_track_tickets: 0,
-        free_trial_surveys_available: 1,
-        is_email_verified: 1,
-        status: 'ACTIVE'
-      },
-      {
-        email: 'admin@vibesurvey.com',
+      { email: 'admin@vibesurvey.com',
         password: 'admin123',
         name: 'Quản Trị Viên Hệ Thống',
         role: 'ADMIN',
@@ -558,7 +535,7 @@ function ensureEssentialAccounts() {
         `).run(hash, u.fast_track_tickets || 0, u.credit_balance || 0, u.free_trial_surveys_available || 0, existing.id);
       }
     }
-    console.log('🛡️ [DB Bootstrap] Đã tự động đảm bảo các tài khoản kiểm thử cốt lõi (Admin, Creator, User).');
+    console.log('🛡️ [DB Bootstrap] Đã tự động đảm bảo các tài khoản quản trị cốt lõi.');
   } catch (err) {
     console.warn('⚠️ [DB Bootstrap] Không thể tự động tạo tài khoản kiểm thử:', err.message);
   }

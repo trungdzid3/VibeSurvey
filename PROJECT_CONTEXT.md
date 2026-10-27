@@ -38,7 +38,10 @@ c:\Users\Lenovo\Downloads\Linh\
 ## 3. Hiện Trạng Các Phân Hệ Tính Năng Cốt Lõi
 
 ### A. Phân Hệ Người Tạo Khảo Sát (Creator Studio)
-- **Studio 2 cột chuẩn Google Forms**: Canvas soạn thảo câu hỏi bên trái (~65%) và Sticky Sidebar bên phải (~35%).
+- **Studio 2 cột cuộn độc lập riêng biệt (Dual Independent Scroll Panes)**:
+  - Cột Trái (~65% Canvas soạn câu hỏi): Khung cuộn riêng biệt `overflow-y: auto`, đệm lề phải `pr-14` bảo vệ thanh công cụ nổi Google Forms không bị cắt cụt.
+  - Cột Phải (~35% Cài đặt & Ngân sách): Khung cuộn riêng biệt `overflow-y: auto`, cuộn tự do không ảnh hưởng đến vị trí đọc/soạn câu hỏi ở cột trái.
+  - Top Action Header cố định ở trên, giữ nút Lưu nháp và Xuất bản luôn trong tầm mắt.
 - **Hỗ trợ 12 loại câu hỏi**: Single choice, Multiple choice, Short text, Paragraph, Dropdown, Linear scale, Choice grid (ma trận radio), Checkbox grid (ma trận checkbox), Date, Time, Rating stars, File upload.
 - **3 Phân khúc tài khoản Creator**:
   - Sinh Viên (.edu.vn): Giá sàn 400đ - 600đ/mẫu, miễn phí 30 lượt/tháng.
@@ -87,3 +90,71 @@ c:\Users\Lenovo\Downloads\Linh\
   1. Xây dựng module dùng chung 	ests/test_cleanup_helper.js: Tự động nhận diện và xóa sạch 100% tài khoản test (@api-test.com, @test.local, cheater_, student_, spammer_, hybrid_,...) và các bài khảo sát test, câu hỏi, phản hồi, voucher rác, bảo vệ an toàn tuyệt đối các tài khoản người dùng thật.
   2. Tích hợp cleanAllTestData vào 	ests/run_all_tests.js: Chạy tự động cả trước (pre-cleanup) và sau khi kết thúc toàn bộ test (post-cleanup trong khối finally).
   3. Bổ sung lệnh Admin Console /cleantest và nút bấm nhanh trong giao diện Admin để người dùng có thể dọn sạch dữ liệu test bất kỳ lúc nào.
+
+
+### Khôi Phục Đầy Đủ 5 Bộ Lọc Đối Tượng & Cơ Chế Escrow Hoàn Tiền (v3.1.4)
+- **Vấn đề đã xử lý**:
+  1. Người dùng thắc mắc về cơ chế thời hạn treo trên sàn: Có tính tiền theo ngày không và có đền bù gì nếu không đạt tốc độ gom mẫu không?
+  2. Tab "Bộ Lọc & Cài Đặt" (Card 3) trong Studio trước đó bị thiếu mất mục Lĩnh vực/Ngành nghề và mục Trường Đại học; đồng thời mục Khu vực bị hiển thị nhầm thành 63 tỉnh thành cũ thay vì danh sách 34 tỉnh thành mới.
+- **Giải pháp triển khai**:
+  1. **Làm rõ Cơ chế Thời Hạn & Ký Quỹ Escrow**:
+     - Hoàn toàn KHÔNG tính phí theo số ngày treo trên sàn. Đơn giá chỉ tính trên số mẫu hoàn thành thực tế (Cost Per Response).
+     - Bảo vệ Escrow 100%: Nếu hết hạn treo mà không gom đủ số mẫu đăng ký hoặc Creator chủ động dừng khảo sát sớm, toàn bộ số tiền cọc tương ứng với các mẫu chưa thu được sẽ được hoàn trả 100% về số dư ví Creator, không mất bất kỳ khoản phí phạt nào.
+     - Tốc độ gom mẫu là thời gian ước tính theo xác suất hành vi của đáp viên khi thấy mức thưởng cao, không phải cam kết đóng băng hay trừ tiền phạt.
+  2. **Khôi Phục Trọn Vẹn 5 Tiêu Chí Bộ Lọc Đối Tượng trong Studio**:
+     - Tiêu chí 1: Giới tính mục tiêu (Tất cả / Nam / Nữ).
+     - Tiêu chí 2: Độ tuổi mục tiêu (Mọi lứa tuổi / 18–22 / 23–29 / 30 trở lên).
+     - Tiêu chí 3: Khu vực sinh sống chuẩn hóa theo **34 Tỉnh Thành Mới** & 3 Vùng Miền (`VIBE_PROVINCES_34`), tích hợp ô tìm kiếm lọc nhanh (xóa bỏ triệt để 63 tỉnh cũ).
+     - Tiêu chí 4: Lĩnh vực / Nghề nghiệp mục tiêu (`VIBE_OCCUPATIONS`: Học sinh/Sinh viên, CNTT, Kinh doanh, Tài chính, Y tế, Giáo dục...).
+     - Tiêu chí 5: Trường Đại học / Học viện mục tiêu với ô tìm kiếm autocomplete từ 293 trường Đại học/Cao đẳng (`VIBE_UNIVERSITIES_DATA`).
+  3. **Minh Bạch Hóa Thẻ Creator Boost**:
+     - Hiển thị rõ số tiền thưởng tăng thêm: `Phân chia thưởng Boost (+1.600đ): 80% điền / 20% sàn`.
+     - Kèm tỷ lệ phần trăm thực nhận trên tổng giá: `Đáp viên nhận: 1.880 Point (78,3%) | Sàn thu: 520 Credit (21,7%)`.
+  4. Cập nhật cache buster mới nhất trong `public/index.html`: `v=1793122409819`.
+
+
+### Mô Hình Dự Báo Tốc Độ Gom Mẫu Động (Dynamic Velocity Engine) (v3.1.5)
+- **Vấn đề đã xử lý**:
+  1. Người dùng chỉ ra việc ghi cứng các mốc thời gian ("~3-5 ngày", "~24-48 giờ", "~2-6 giờ") là phi thực tế và mang tính tĩnh cứng (hardcoded), không có căn cứ theo quy mô khảo sát.
+  2. Yêu cầu xây dựng cơ chế tự động theo dõi, tính toán đề xuất và chèn thời gian hoàn thành dự báo thực tế vào giao diện.
+- **Giải pháp triển khai**:
+  1. **Xây Dựng Thuật Toán Dự Báo Tốc Độ Động (Dynamic Velocity Engine)**:
+     - Tích hợp hàm `estimateDynamicVelocity` trong `pricingService.js` và `VibeApp`:
+     - Phân tích đa biến số thực tế:
+       * **Quy mô số mẫu ($N$)**: Thời gian tỷ lệ thuận với số mẫu cần thu (ví dụ 30 mẫu khác hoàn toàn 500 mẫu).
+       * **Hệ số độ dài câu hỏi ($k_{\text{loi}}$)**: $\le 5$ câu ($0.70$), $6-12$ câu ($1.00$), $13-25$ câu ($1.35$), $>25$ câu ($1.80$).
+       * **Hệ số độ sâu bộ lọc đối tượng ($k_{\text{target}}$)**: Toàn quốc ($1.00$), lọc 1 tiêu chí ($1.25$), lọc 2 tiêu chí ($1.60$), lọc sâu $\ge 3$ tiêu chí hoặc trường ĐH hẹp ($2.20$).
+       * **Lực hút thù lao ($v_{\text{boost}}$)**: Gia tốc phi tuyến tính theo tỷ lệ đơn giá Creator trả so với giá sàn ($v_{\text{boost}} = 1.0 + 5.5 \times (P/P_{\text{sàn}} - 1)^{1.15}$).
+     - Tốc độ hoàn thành thực tế $V = (R_0 \times v_{\text{boost}}) / (k_{\text{loi}} \times k_{\text{target}})$, thời gian dự kiến $T = N / V$ (giờ).
+  2. **Chèn Trực Tiếp Vào Giao Diện Thực Tế**:
+     - Cả 3 thẻ SLA (Mức Sàn, Mức Đề Xuất, Mức Hỏa Tốc) tự động tính toán và hiển thị thời gian dự kiến thực tế cùng tốc độ mẫu/giờ (`Dự kiến: ~... | X mẫu/h`).
+     - Thanh trượt Creator Boost tự do: Khi người dùng kéo giá từ sàn lên cao, thẻ theo dõi tốc độ tự động co giãn thời gian hoàn thành theo thời gian thực (ví dụ từ `~2 ngày` xuống `~3 giờ`, hiển thị rõ `12.5 mẫu/giờ`).
+     - Hiển thị tóm tắt cơ sở dữ liệu dự báo: Quy mô N mẫu, thời lượng câu hỏi và trạng thái bộ lọc.
+  3. Cập nhật cache buster mới nhất trong `public/index.html`: `v=1793122640024`.
+
+
+### Chuyển Về Thước Đo Lực Hút Thù Lao & Độ Ưu Tiên Phân Phối Thực Tế (v3.1.6)
+- **Vấn đề đã xử lý**:
+  1. Người dùng phê bình gay gắt và chính xác: Hệ thống ở giai đoạn demo/khởi chạy chưa có dữ liệu phản hồi lịch sử (0 responses), việc đưa ra các con số ngày/giờ/tốc độ cụ thể (như `~8-12 giờ | 4.5 mẫu/h`) là tự bịa công thức, thiếu trung thực và tạo cam kết ảo cho khách hàng.
+  2. Yêu cầu phản ánh đúng bản chất thực tế, minh bạch và có cơ sở.
+- **Giải pháp triển khai**:
+  1. **Xóa Bỏ Toàn Bộ Con Số Ngày/Giờ/Mẫu/h Giả Lập**:
+     - Xóa bỏ triệt để các chuỗi thời gian ước tính tĩnh hoặc giả lập công thức lý thuyết khỏi cả 3 nấc SLA và thanh trượt Boost.
+  2. **Đưa Về Đúng Bản Chất: "Mức Thưởng & Độ Ưu Tiên Phân Phối (Distribution Priority)"**:
+     - **Mức Sàn Tiết Kiệm**: `Phân phối: Hàng chờ tiêu chuẩn | Tối ưu chi phí` (Phân phối theo thứ tự tự nhiên của hệ thống).
+     - **Mức Đề Xuất (+25%)**: `Phân phối: Ưu tiên hiển thị nổi bật (+25%) | Thu hút đáp viên` (Đẩy lên danh mục bài làm được đề xuất, đáp viên chọn làm trước).
+     - **Mức Hỏa Tốc (+60%)**: `Phân phối: Gắn nhãn [Thưởng Cao] (+60%) | Ưu tiên tối đa` (Gắn badge thưởng cao kích thích đáp viên vào làm ngay).
+  3. **Thước Đo Lực Hút Thù Lao (Incentive Strength Index)**:
+     - Trên thanh trượt Creator Boost, hiển thị độ chênh lệch thực tế so với giá sàn: `Lực hút thù lao: +X VNĐ (+Y%)`.
+     - Phân cấp ưu tiên thời gian thực: `Hàng chờ tiêu chuẩn` -> `Ưu tiên hiển thị nổi bật` -> `Đẩy luồng ưu tiên cao` -> `Ưu tiên tối đa toàn sàn`.
+  4. **Ghi Chú Minh Bạch Tuyệt Đối**:
+     - Ghi rõ ràng: Thời gian gom mẫu thực tế phụ thuộc vào lưu lượng đáp viên online và mức độ hấp dẫn của thù lao tại từng thời điểm. Khảo sát hiển thị trên sàn cho đến khi đủ mẫu hoặc hết số ngày do Creator tự cài đặt. Tiền cọc các mẫu chưa thu được hoàn trả 100%.
+  5. Cập nhật cache buster mới nhất trong `public/index.html`: `v=1793122909897`.
+
+
+### Làm Sạch Triệt Để Giao Dịch Sổ Cái & Gỡ Bỏ Tài Khoản Test Khỏi Bootstrap (v3.1.2)
+- **Vấn đề đã xử lý**: Bảng Sổ Cái Sàn Gần Nhất (Ledger Stream) hiển thị 11 giao dịch test của `creator@vibesurvey.com` (Doanh Nghiệp Test) và `user@vibesurvey.com` (Đáp Viên Test) cùng 62 thông báo test cũ.
+- **Giải pháp dứt điểm**:
+  1. Gỡ bỏ việc tự động sinh tài khoản `creator@vibesurvey.com` và `user@vibesurvey.com` trong hàm `ensureEssentialAccounts` của `server/db/database.js`.
+  2. Xóa bỏ hoàn toàn 11 bản ghi giao dịch test trong bảng `point_transactions`, 62 bản ghi trong `notifications` và `email_notifications_log`.
+  3. Xóa bỏ 2 tài khoản `creator@vibesurvey.com` và `user@vibesurvey.com` khỏi cơ sở dữ liệu. Bảng Sổ Cái Sàn nay tinh khiết 100%, sẵn sàng cho các giao dịch thực tế.
