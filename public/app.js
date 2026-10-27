@@ -1057,36 +1057,13 @@ const VibeApp = {
           <div class="space-y-2">
             <div class="flex items-center justify-between">
               <label class="text-[11px] font-bold text-stone-600 dark:text-stone-300">Phân khúc tài khoản:</label>
-              ${user?.role === 'ADMIN' ? `
-                <span class="text-[10px] font-mono font-bold text-orange-600 dark:text-orange-400">Admin Mode</span>
-              ` : (user?.account_tier !== 'STUDENT' && user?.account_tier !== 'ENTERPRISE' ? `
+              ${user?.account_tier !== 'STUDENT' && user?.account_tier !== 'ENTERPRISE' ? `
                 <a href="javascript:void(0)" onclick="VibeApp.navigate('profile')" class="text-[10px] text-orange-600 dark:text-orange-400 font-bold hover:underline flex items-center gap-0.5">
                   <span>Xác thực để nhận ưu đãi</span>
                   <i data-lucide="arrow-right" class="w-3 h-3"></i>
                 </a>
-              ` : '')}
+              ` : ''}
             </div>
-
-            ${user?.role === 'ADMIN' ? `
-              <!-- Bộ Chọn Phân Khúc Dành Cho Admin Trong Studio (Sinh Viên - Cá Nhân - Doanh Nghiệp) -->
-              <div class="grid grid-cols-3 gap-1.5 p-1 bg-stone-100 dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800">
-                <button type="button" onclick="VibeApp.switchAdminTier('STUDENT')" 
-                  class="py-2 px-1 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1 ${this.state.creatorTier === 'STUDENT' ? 'bg-orange-600 text-white shadow-xs' : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white'}">
-                  <i data-lucide="graduation-cap" class="w-3.5 h-3.5"></i>
-                  <span>Sinh Viên</span>
-                </button>
-                <button type="button" onclick="VibeApp.switchAdminTier('PERSONAL')" 
-                  class="py-2 px-1 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1 ${this.state.creatorTier === 'PERSONAL' || (!this.state.creatorTier || (this.state.creatorTier !== 'STUDENT' && this.state.creatorTier !== 'ENTERPRISE')) ? 'bg-stone-900 dark:bg-stone-100 text-white dark:text-stone-900 shadow-xs' : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white'}">
-                  <i data-lucide="user" class="w-3.5 h-3.5"></i>
-                  <span>Cá Nhân</span>
-                </button>
-                <button type="button" onclick="VibeApp.switchAdminTier('ENTERPRISE')" 
-                  class="py-2 px-1 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1 ${this.state.creatorTier === 'ENTERPRISE' ? 'bg-amber-600 text-white shadow-xs' : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white'}">
-                  <i data-lucide="building-2" class="w-3.5 h-3.5"></i>
-                  <span>Doanh Nghiệp</span>
-                </button>
-              </div>
-            ` : ''}
             
             <div class="p-3 rounded-xl border ${
               this.state.creatorTier === 'STUDENT' 
@@ -6410,8 +6387,12 @@ const VibeApp = {
     if (!this.state.createSurveyTab) this.state.createSurveyTab = 'BUILDER';
     if (!this.state.studioSidebarSubTab) this.state.studioSidebarSubTab = 'BUDGET';
     if (this.state.activeQuestionIdx === undefined) this.state.activeQuestionIdx = 0;
-    if (!this.state.creatorTier) {
-      this.state.creatorTier = user?.account_tier === 'STUDENT' ? 'STUDENT' : (user?.account_tier === 'ENTERPRISE' ? 'ENTERPRISE' : 'PERSONAL');
+    if (!this.state.creatorTier || this.state.adminViewMode === 'CREATOR') {
+      if (this.state.adminViewMode === 'CREATOR') {
+        this.state.creatorTier = 'ENTERPRISE';
+      } else {
+        this.state.creatorTier = user?.account_tier === 'STUDENT' ? 'STUDENT' : (user?.account_tier === 'ENTERPRISE' ? 'ENTERPRISE' : 'PERSONAL');
+      }
     }
     if (!this.state.selectedSla) this.state.selectedSla = 'RECOMMENDED';
     if (!this.state.targetResponses) {
@@ -8869,12 +8850,12 @@ const VibeApp = {
             </div>
           </div>
 
-          <!-- 3. Khu Vực Vận Hành 2 Cột Đối Xứng (Split Grid Layout) -->
-          <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+          <!-- 3. Khu Vực Vận Hành 2 Cột Đối Xứng Ngang Bằng Nhau (Equal Height Split Grid) -->
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
             <!-- Cột Trái: Phân Bổ Khảo Sát & Sổ Cái Sàn (lg:col-span-7) -->
-            <div class="lg:col-span-7 space-y-4">
+            <div class="lg:col-span-7 flex flex-col gap-4">
               <!-- Khối Phân Bổ Khảo Sát Theo Phân Khúc -->
-              <div class="bg-white dark:bg-[#18181B] border border-stone-200 dark:border-stone-800 rounded-2xl p-4 sm:p-5 shadow-xs space-y-3">
+              <div class="bg-white dark:bg-[#18181B] border border-stone-200 dark:border-stone-800 rounded-2xl p-4 sm:p-5 shadow-xs space-y-3 shrink-0">
                 <div class="flex items-center justify-between">
                   <div>
                     <h2 class="text-xs font-black uppercase tracking-wider text-stone-900 dark:text-white flex items-center gap-1.5">
@@ -8932,9 +8913,9 @@ const VibeApp = {
                 </div>
               </div>
 
-              <!-- Khối Bảng Biến Động Sổ Cái Sàn Gần Nhất -->
-              <div class="bg-white dark:bg-[#18181B] border border-stone-200 dark:border-stone-800 rounded-2xl p-4 sm:p-5 shadow-xs space-y-3">
-                <div class="flex items-center justify-between">
+              <!-- Khối Bảng Biến Động Sổ Cái Sàn Gần Nhất (Co giãn flex-1 để ngang bằng đáy) -->
+              <div class="bg-white dark:bg-[#18181B] border border-stone-200 dark:border-stone-800 rounded-2xl p-4 sm:p-5 shadow-xs flex-1 flex flex-col min-h-0 space-y-3">
+                <div class="flex items-center justify-between shrink-0">
                   <div>
                     <h2 class="text-xs font-black uppercase tracking-wider text-stone-900 dark:text-white flex items-center gap-1.5">
                       <i data-lucide="layers" class="w-4 h-4 text-orange-600"></i>
@@ -8944,7 +8925,7 @@ const VibeApp = {
                   <span class="text-[11px] text-stone-400 font-mono">${ledger.length} giao dịch gần nhất</span>
                 </div>
 
-                <div class="overflow-x-auto rounded-xl border border-stone-100 dark:border-stone-800 max-h-[380px] overflow-y-auto scrollbar-thin">
+                <div class="overflow-x-auto rounded-xl border border-stone-100 dark:border-stone-800 flex-1 min-h-[220px] max-h-[380px] overflow-y-auto scrollbar-thin">
                   <table class="w-full text-left text-xs">
                     <thead class="bg-stone-50 dark:bg-stone-900/80 text-stone-500 font-bold uppercase tracking-wider border-b border-stone-100 dark:border-stone-800 sticky top-0 z-10 backdrop-blur-xs">
                       <tr>
@@ -9014,11 +8995,11 @@ const VibeApp = {
               </div>
             </div>
 
-            <!-- Cột Phải: Admin Fast Command Console Gọn Gàng (lg:col-span-5) -->
-            <div class="lg:col-span-5 space-y-4">
-              <div class="admin-console-box bg-[#09090B] border border-stone-800 rounded-2xl p-4 sm:p-5 shadow-xl space-y-3 text-stone-200">
+            <!-- Cột Phải: Admin Fast Command Console Ngang Bằng 100% (lg:col-span-5) -->
+            <div class="lg:col-span-5 flex flex-col">
+              <div class="admin-console-box bg-[#09090B] border border-stone-800 rounded-2xl p-4 sm:p-5 shadow-xl flex-1 flex flex-col justify-between min-h-0 space-y-3 text-stone-200">
                 <!-- Header Console -->
-                <div class="flex items-center justify-between pb-2.5 border-b border-stone-800/80">
+                <div class="flex items-center justify-between pb-2.5 border-b border-stone-800/80 shrink-0">
                   <div class="flex items-center gap-2">
                     <div class="flex items-center gap-1.5">
                       <span class="w-2.5 h-2.5 rounded-full bg-red-500/80 inline-block"></span>
@@ -9041,7 +9022,7 @@ const VibeApp = {
                 </div>
 
                 <!-- Dải nút lệnh tắt 1 chạm -->
-                <div class="flex items-center flex-wrap gap-1 text-[11px] font-mono">
+                <div class="flex items-center flex-wrap gap-1 text-[11px] font-mono shrink-0">
                   <button type="button" onclick="VibeApp.submitAdminConsoleCommand('/help')" class="px-2 py-0.5 rounded bg-stone-900 hover:bg-stone-800 text-stone-300 border border-stone-800 transition-colors">/help</button>
                   <button type="button" onclick="VibeApp.submitAdminConsoleCommand('/stats')" class="px-2 py-0.5 rounded bg-stone-900 hover:bg-stone-800 text-stone-300 border border-stone-800 transition-colors">/stats</button>
                   <button type="button" onclick="VibeApp.submitAdminConsoleCommand('/naptien acc1 100000')" class="px-2 py-0.5 rounded bg-stone-900 hover:bg-stone-800 text-orange-400 border border-stone-800 transition-colors font-bold">+100k</button>
@@ -9051,12 +9032,12 @@ const VibeApp = {
                   <button type="button" onclick="VibeApp.submitAdminConsoleCommand('/resetpoint all')" class="px-2 py-0.5 rounded bg-stone-900 hover:bg-stone-800 text-red-400 border border-stone-800 transition-colors">Reset</button>
                 </div>
 
-                <!-- Màn hình Terminal Output Gọn Gàng Vừa Vặn -->
-                <div id="adminConsoleOutput" class="admin-console-output bg-black/90 border border-stone-800/90 rounded-xl p-3 sm:p-4 h-[300px] min-h-[240px] max-h-[340px] overflow-y-auto font-mono text-xs space-y-1.5 leading-relaxed scrollbar-thin scrollbar-thumb-stone-800">
+                <!-- Màn hình Terminal Output Tự Động Co Giãn Ngang Bằng Cột Trái -->
+                <div id="adminConsoleOutput" class="admin-console-output bg-black/90 border border-stone-800/90 rounded-xl p-3 sm:p-4 flex-1 min-h-[220px] max-h-[420px] overflow-y-auto font-mono text-xs space-y-1.5 leading-relaxed scrollbar-thin scrollbar-thumb-stone-800">
                 </div>
 
                 <!-- Input Form Nhập Lệnh -->
-                <form onsubmit="event.preventDefault(); VibeApp.submitAdminConsoleCommand(null, this);" class="flex items-center gap-1.5 pt-0.5">
+                <form onsubmit="event.preventDefault(); VibeApp.submitAdminConsoleCommand(null, this);" class="flex items-center gap-1.5 pt-0.5 shrink-0">
                   <div class="flex-1 flex items-center gap-2 bg-black/90 border border-stone-800 focus-within:border-orange-600 rounded-xl px-3 py-2 sm:py-2.5 transition-all">
                     <span class="text-orange-500 font-mono font-black select-none text-xs">vibe:~$</span>
                     <input 
@@ -9078,7 +9059,7 @@ const VibeApp = {
                     <span>Chạy</span>
                   </button>
                 </form>
-                <div class="flex items-center justify-between text-[10px] text-stone-500 font-mono px-0.5">
+                <div class="flex items-center justify-between text-[10px] text-stone-500 font-mono px-0.5 shrink-0">
                   <span>Phím tắt: Enter chạy | ↑/↓ lịch sử</span>
                   <span>Nhấn F2 để phóng to</span>
                 </div>

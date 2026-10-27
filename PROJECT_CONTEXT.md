@@ -260,3 +260,11 @@ ode -c public/app.js đạt 100% PASS không lỗi. |
   1. Khi ở góc nhìn "Người Điền" (RESPONDENT): Ẩn hoàn toàn khối phân hạng gói tạo khảo sát trong Profile Dropdown.
   2. Khi ở góc nhìn "Doanh Nghiệp" (CREATOR): Tự động đồng bộ gói tài khoản sang Doanh Nghiệp (ENTERPRISE).
   3. Mở rộng bộ chọn phân hạng gói trong Profile Dropdown và Studio Tạo Khảo Sát lên đủ 3 phân khúc: Sinh Viên (.EDU.VN) | Cá Nhân (Tiêu chuẩn) | Doanh Nghiệp (B2B VAT).
+
+
+### Xóa bỏ hoàn toàn bộ chọn phân khúc thừa thãi trong Studio Tạo Khảo Sát (v3.0.7)
+- **Vấn đề đã khắc phục**: Trong màn hình Studio Tạo Khảo Sát xuất hiện thanh 3 nút chọn phân khúc và nhãn "Admin Mode" thừa thãi làm hỏng giao diện chuẩn của studio.
+- **Giải pháp**:
+  1. Gỡ bỏ hoàn toàn bộ 3 nút chọn phân khúc và dòng chữ "Admin Mode" khỏi Studio Tạo Khảo Sát.
+  2. Phân khúc trong Studio nay tự động hiển thị sạch đẹp theo đúng thông tin tài khoản hiện tại (Sinh Viên, Cá Nhân hoặc Doanh Nghiệp).
+  3. Khi Admin chuyển sang góc nhìn "Doanh Nghiệp" (CREATOR), Studio tự động nhận diện gói Doanh Nghiệp (ENTERPRISE) với giá sàn 1.500 đ và quyền lợi B2B VAT, không còn bị kẹt ở gói Cá nhân 800 đ.
