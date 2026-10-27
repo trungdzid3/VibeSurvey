@@ -32,6 +32,7 @@ function initSchema() {
       trust_score REAL DEFAULT 100.0,
       status TEXT DEFAULT 'ACTIVE' CHECK(status IN ('ACTIVE', 'SUSPENDED', 'BANNED')),
       free_trial_surveys_available INTEGER DEFAULT 1,
+      last_active_at TEXT,
       created_at TEXT DEFAULT CURRENT_TIMESTAMP
     );
 
@@ -321,6 +322,7 @@ function initSchema() {
     'ALTER TABLE users ADD COLUMN monthly_income TEXT;',
     'ALTER TABLE users ADD COLUMN ban_reason TEXT;',
     'ALTER TABLE users ADD COLUMN banned_at TEXT;',
+    'ALTER TABLE users ADD COLUMN last_active_at TEXT;',
     'ALTER TABLE questions ADD COLUMN is_required INTEGER DEFAULT 1;',
     'ALTER TABLE questions ADD COLUMN rows_json TEXT;',
     'ALTER TABLE questions ADD COLUMN columns_json TEXT;',

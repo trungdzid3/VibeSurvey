@@ -26,6 +26,7 @@ function authenticateToken(req, res, next) {
     delete user.password_hash;
     delete user.email_otp;
     delete user.student_otp;
+    try { db.prepare("UPDATE users SET last_active_at = datetime('now') WHERE id = ?").run(user.id); } catch (e) {}
     req.user = user;
     next();
   });

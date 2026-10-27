@@ -1910,6 +1910,10 @@ class SurveyController {
       // Xóa dữ liệu liên quan trong transaction ACID
       db.exec('BEGIN IMMEDIATE TRANSACTION');
       try {
+        db.prepare('DELETE FROM fraud_logs WHERE survey_id = ?').run(id);
+        db.prepare('DELETE FROM notifications WHERE survey_id = ?').run(id);
+        db.prepare('DELETE FROM email_notifications_log WHERE survey_id = ?').run(id);
+        db.prepare('DELETE FROM voucher_codes WHERE survey_id = ?').run(id);
         db.prepare('DELETE FROM responses WHERE survey_id = ?').run(id);
         db.prepare('DELETE FROM questions WHERE survey_id = ?').run(id);
         db.prepare('DELETE FROM warranty_claims WHERE survey_id = ?').run(id);

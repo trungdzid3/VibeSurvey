@@ -144,6 +144,68 @@ class AdminController {
       // l. Thống kê chống gian lận
       const fraudCountRow = db.prepare('SELECT COUNT(*) AS total_fraud_caught FROM fraud_logs').get();
 
+      // m. Thống kê người dùng thời gian thực & Tỉ lệ giữ chân thực tế 100% từ Database
+      // 1. Số người dùng đang hoạt động thực tế trong 15 phút qua (hoặc phiên hiện tại của Admin)
+      const activeUsersRow = db.prepare(`
+        SELECT COUNT(DISTINCT id) AS c 
+        FROM users 
+        WHERE last_active_at >= datetime('now', '-15 minutes')
+      `).get();
+      const activeUsersNow = (activeUsersRow && activeUsersRow.c > 0) ? activeUsersRow.c : 1;
+
+      // 2. Số bài làm khảo sát đang ở trạng thái điền dở (IN_PROGRESS)
+      const fillingRow = db.prepare(`
+        SELECT COUNT(*) AS c 
+        FROM responses 
+        WHERE status = 'IN_PROGRESS'
+      `).get();
+      const fillingFormsNow = (fillingRow && fillingRow.c) ? fillingRow.c : 0;
+
+      // 3. Tỉ lệ người dùng quay lại thực tế tính từ lịch sử tương tác (device_ip_logs)
+      const retentionRow = db.prepare(`
+        SELECT 
+          COUNT(DISTINCT user_id) AS total_active_users,
+          SUM(CASE WHEN days_active >= 2 THEN 1 ELSE 0 END) AS returned_after_first,
+          SUM(CASE WHEN days_active >= 3 THEN 1 ELSE 0 END) AS frequent_users
+        FROM (
+          SELECT user_id, COUNT(DISTINCT date(created_at)) AS days_active 
+          FROM device_ip_logs 
+          WHERE user_id IS NOT NULL 
+          GROUP BY user_id
+        )
+      `).get();
+
+      const totalActive = (retentionRow && retentionRow.total_active_users) || 0;
+      const returned1 = (retentionRow && retentionRow.returned_after_first) || 0;
+      const returnedFreq = (retentionRow && retentionRow.frequent_users) || 0;
+
+      const firstTimeRetentionRate = totalActive > 0 ? Number(((returned1 / totalActive) * 100).toFixed(1)) : 0;
+      const repeatRetentionRate = totalActive > 0 ? Number(((returnedFreq / totalActive) * 100).toFixed(1)) : 0;
+
+      // 4. Tỉ lệ hoàn thành biểu mẫu & thời gian điền trung bình thực tế từ bảng responses
+      const respStats = db.prepare(`
+        SELECT 
+          COUNT(*) AS total_sessions,
+          SUM(CASE WHEN status = 'VALIDATED' THEN 1 ELSE 0 END) AS validated_sessions,
+          AVG(CASE WHEN status = 'VALIDATED' AND duration_sec > 0 THEN duration_sec ELSE NULL END) AS avg_duration
+        FROM responses
+      `).get();
+
+      const totalSessions = (respStats && respStats.total_sessions) || 0;
+      const validatedSessions = (respStats && respStats.validated_sessions) || 0;
+      const completionRatePct = totalSessions > 0 ? Number(((validatedSessions / totalSessions) * 100).toFixed(1)) : 0;
+      const avgCompletionTimeSec = Math.round((respStats && respStats.avg_duration) || 0);
+
+      // 5. Điểm uy tín trung bình thực tế của các đáp viên trong bảng users
+      const trustStats = db.prepare(`
+        SELECT AVG(trust_score) AS avg_score, COUNT(*) AS count 
+        FROM users 
+        WHERE role = 'RESPONDENT'
+      `).get();
+      const avgTrustScore = (trustStats && trustStats.count > 0 && trustStats.avg_score != null)
+        ? Number(Number(trustStats.avg_score).toFixed(1))
+        : 0;
+
       return res.json({
         success: true,
         overview: {
@@ -169,6 +231,17 @@ class AdminController {
             effectiveTakeRatePercent: Number(actualTakeRatePct),
             targetTakeRatePct: config.ECONOMICS.PLATFORM_TAKE_RATE * 100,
             unrealizedLiabilityVnd: circulatingPointLiabilityVnd
+          },
+          analytics: {
+            activeUsersNow,
+            fillingFormsNow,
+            firstTimeRetentionRate,
+            repeatRetentionRate,
+            completionRatePct,
+            avgCompletionTimeSec,
+            avgTrustScore,
+            totalActiveUsersSample: totalActive,
+            totalSessionsSample: totalSessions
           },
           surveyDistribution,
           recentLedgerTransactions,

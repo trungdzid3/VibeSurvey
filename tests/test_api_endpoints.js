@@ -47,6 +47,7 @@ async function runApiTests() {
   let respondentToken = null;
   let respondentId = null;
   let spammerToken = null;
+  let spammerId = null;
   let testSurveyId = null;
 
   try {
@@ -102,6 +103,7 @@ async function runApiTests() {
       const dataSpamReg = await resSpamReg.json();
       assert.strictEqual(resSpamReg.status, 201);
       spammerToken = dataSpamReg.token;
+      spammerId = dataSpamReg.user.id;
 
       // Kiểm tra chặn đăng ký trùng email -> 409 Conflict
       const resDup = await fetch(`${baseUrl}/auth/register`, {
@@ -384,6 +386,32 @@ async function runApiTests() {
     });
 
   } finally {
+    // Dọn dẹp dữ liệu kiểm thử để không làm ô nhiễm DB người dùng
+    try {
+      const uids = [creatorId, respondentId, spammerId].filter(Boolean);
+      db.exec('PRAGMA foreign_keys = OFF;');
+      if (testSurveyId) {
+        db.prepare('DELETE FROM fraud_logs WHERE survey_id = ?').run(testSurveyId);
+        db.prepare('DELETE FROM notifications WHERE survey_id = ?').run(testSurveyId);
+        db.prepare('DELETE FROM email_notifications_log WHERE survey_id = ?').run(testSurveyId);
+        db.prepare('DELETE FROM voucher_codes WHERE survey_id = ?').run(testSurveyId);
+        db.prepare('DELETE FROM responses WHERE survey_id = ?').run(testSurveyId);
+        db.prepare('DELETE FROM questions WHERE survey_id = ?').run(testSurveyId);
+        db.prepare('DELETE FROM warranty_claims WHERE survey_id = ?').run(testSurveyId);
+        db.prepare('DELETE FROM surveys WHERE id = ?').run(testSurveyId);
+      }
+      uids.forEach(uid => {
+        db.prepare('DELETE FROM fraud_logs WHERE user_id = ?').run(uid);
+        db.prepare('DELETE FROM notifications WHERE user_id = ?').run(uid);
+        db.prepare('DELETE FROM responses WHERE respondent_id = ?').run(uid);
+        db.prepare('DELETE FROM surveys WHERE creator_id = ?').run(uid);
+        db.prepare('DELETE FROM point_transactions WHERE user_id = ?').run(uid);
+        db.prepare('DELETE FROM users WHERE id = ?').run(uid);
+      });
+      db.exec('PRAGMA foreign_keys = ON;');
+    } catch (cleanupErr) {
+      console.warn('Cảnh báo dọn dẹp test data:', cleanupErr.message);
+    }
     // Đóng server để giải phóng port
     server.close();
   }
