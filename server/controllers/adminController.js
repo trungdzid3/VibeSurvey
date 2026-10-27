@@ -4,6 +4,9 @@ const antiFraudService = require('../services/antiFraudService');
 const config = require('../config');
 
 class AdminController {
+  /**
+   * Tổng quan kinh tế toàn diện hệ thống (Admin Economics & Platform Governance)
+   */
   getOverview(req, res) {
     try {
       // 1. Số liệu người dùng
@@ -33,38 +36,108 @@ class AdminController {
           COUNT(*) AS total_payout_requests,
           SUM(CASE WHEN status = 'COMPLETED' THEN net_amount_vnd ELSE 0 END) AS total_fiat_paid_vnd,
           SUM(CASE WHEN status = 'COMPLETED' THEN fee_vnd ELSE 0 END) AS total_payout_fees_earned_vnd,
-          SUM(CASE WHEN status = 'PENDING' THEN 1 ELSE 0 END) AS pending_payout_count
+          SUM(CASE WHEN status = 'PENDING' THEN 1 ELSE 0 END) AS pending_payout_count,
+          SUM(CASE WHEN status = 'PENDING' THEN net_amount_vnd ELSE 0 END) AS pending_payout_vnd
         FROM payout_requests
       `).get();
 
-      // 4. Doanh thu & Lợi nhuận sàn (Platform Economics)
-      // Doanh thu Creator chi trả cho các mẫu hợp lệ = SUM(collected_responses * cost_per_response)
+      // 4. Các chỉ số kinh tế hệ thống chi tiết
+      // a. Tổng tiền đã nạp qua sổ cái (VND)
+      const depositRow = db.prepare(`
+        SELECT COALESCE(SUM(amount), 0) AS total_deposited_vnd
+        FROM point_transactions
+        WHERE tx_type = 'DEPOSIT_CREDIT' AND currency = 'VND'
+      `).get();
+      const totalDepositedVnd = depositRow.total_deposited_vnd || 0;
+
+      // b. Tổng số dư Escrow đang ký quỹ bị khóa cho các khảo sát ACTIVE
+      const escrowRow = db.prepare(`
+        SELECT COALESCE(SUM(escrow_locked_balance), 0) AS escrow_locked_balance
+        FROM surveys
+        WHERE status = 'ACTIVE'
+      `).get();
+      const escrowLockedBalance = escrowRow.escrow_locked_balance || 0;
+
+      // c. Tổng tiền đã chi trả thưởng cho đáp viên (1 Point = 10 VND)
+      const respondentEarnedRow = db.prepare(`
+        SELECT COALESCE(SUM(points_rewarded * 10), 0) AS total_respondent_earned_vnd
+        FROM responses
+        WHERE status = 'VALIDATED'
+      `).get();
+      const totalRespondentEarnedVnd = respondentEarnedRow.total_respondent_earned_vnd || 0;
+
+      // d. Doanh thu Creator chi trả cho các mẫu hoàn thành hợp lệ
       const revenueRow = db.prepare(`
-        SELECT SUM(collected_responses * cost_per_response) AS total_creator_spend_vnd
+        SELECT COALESCE(SUM(collected_responses * cost_per_response), 0) AS total_creator_spend_vnd
         FROM surveys
       `).get();
       const totalCreatorSpendVnd = revenueRow.total_creator_spend_vnd || 0;
 
-      // Điểm thưởng đã trả cho các mẫu hợp lệ = SUM(points_rewarded * 10)
-      const rewardRow = db.prepare(`
-        SELECT SUM(points_rewarded * 10) AS total_rewards_issued_vnd
-        FROM responses
-        WHERE status = 'VALIDATED'
-      `).get();
-      const totalRewardsIssuedVnd = rewardRow.total_rewards_issued_vnd || 0;
-
       // Lợi nhuận gộp từ chênh lệch khảo sát (Spread Margin)
-      const grossSurveySpreadProfitVnd = Math.max(0, totalCreatorSpendVnd - totalRewardsIssuedVnd);
+      const grossSurveySpreadProfitVnd = Math.max(0, totalCreatorSpendVnd - totalRespondentEarnedVnd);
 
-      // Tổng lợi nhuận nền tảng = Lợi nhuận chênh lệch + Phí rút tiền
-      const totalPlatformProfitVnd = grossSurveySpreadProfitVnd + (payoutStats.total_payout_fees_earned_vnd || 0);
+      // Phí xử lý rút tiền đã thực thu
+      const payoutFeesEarnedVnd = payoutStats.total_payout_fees_earned_vnd || 0;
 
-      // Tỷ lệ take rate thực tế
+      // Doanh thu và lợi nhuận sàn thực thu (Platform Gross Profit)
+      const grossPlatformProfitVnd = grossSurveySpreadProfitVnd + payoutFeesEarnedVnd;
+
+      // e. Tổng số Point đang lưu hành trong ví người dùng (Circulating Point Liability)
+      const pointLiabilityRow = db.prepare(`
+        SELECT COALESCE(SUM(point_balance), 0) AS circulating_point_liability
+        FROM users
+      `).get();
+      const circulatingPointLiability = pointLiabilityRow.circulating_point_liability || 0;
+      const circulatingPointLiabilityVnd = circulatingPointLiability * (config.ECONOMICS.POINT_TO_VND_RATE || 10);
+
+      // f. Tổng số tiền rút đang chờ duyệt (Pending Payouts VND)
+      const pendingPayoutVnd = payoutStats.pending_payout_vnd || 0;
+
+      // g. Tổng số tiền rút đã chi trả thành công (Completed Payouts VND)
+      const totalCompletedPayoutVnd = payoutStats.total_fiat_paid_vnd || 0;
+
+      // h. Tổng điểm đã đổi sang Credit (+5% thưởng tái đầu tư)
+      const swapRow = db.prepare(`
+        SELECT COALESCE(SUM(amount), 0) AS swapped_credit_vnd
+        FROM point_transactions
+        WHERE tx_type = 'POINT_TO_CREDIT_SWAP' AND currency = 'VND'
+      `).get();
+      const swappedCreditVnd = swapRow.swapped_credit_vnd || 0;
+
+      // i. Tỷ lệ take rate thực tế
       const actualTakeRatePct = totalCreatorSpendVnd > 0 
         ? ((grossSurveySpreadProfitVnd / totalCreatorSpendVnd) * 100).toFixed(1) 
         : (config.ECONOMICS.PLATFORM_TAKE_RATE * 100).toFixed(1);
 
-      // 5. Thống kê chống gian lận
+      // j. Phân rã số lượng khảo sát theo 3 phân khúc (Sinh viên, Cá nhân, Doanh nghiệp)
+      const surveyDistRow = db.prepare(`
+        SELECT 
+          COALESCE(SUM(CASE WHEN s.package_type = 'STUDENT' OR u.account_tier = 'STUDENT' OR s.pricing_tier = 'STUDENT' THEN 1 ELSE 0 END), 0) AS student,
+          COALESCE(SUM(CASE WHEN s.package_type = 'ENTERPRISE' OR u.account_tier = 'ENTERPRISE' OR s.pricing_tier = 'ENTERPRISE' THEN 1 ELSE 0 END), 0) AS enterprise,
+          COALESCE(SUM(CASE WHEN (s.package_type IS NULL OR s.package_type = 'PERSONAL') AND (u.account_tier IS NULL OR u.account_tier = 'PERSONAL') AND (s.pricing_tier IS NULL OR (s.pricing_tier != 'STUDENT' AND s.pricing_tier != 'ENTERPRISE')) THEN 1 ELSE 0 END), 0) AS personal,
+          COUNT(*) AS total
+        FROM surveys s
+        LEFT JOIN users u ON s.creator_id = u.id
+      `).get();
+
+      const surveyDistribution = {
+        student: surveyDistRow.student || 0,
+        personal: surveyDistRow.personal || 0,
+        enterprise: surveyDistRow.enterprise || 0,
+        total: surveyDistRow.total || 0
+      };
+
+      // k. 15 giao dịch sổ cái kép gần nhất từ bảng point_transactions
+      const recentLedgerTransactions = db.prepare(`
+        SELECT t.id, t.user_id, t.reference_id, t.tx_type, t.currency, t.amount, t.balance_after, t.description, t.created_at,
+               u.name AS user_name, u.email AS user_email, u.role AS user_role
+        FROM point_transactions t
+        LEFT JOIN users u ON t.user_id = u.id
+        ORDER BY t.created_at DESC
+        LIMIT 15
+      `).all();
+
+      // l. Thống kê chống gian lận
       const fraudCountRow = db.prepare('SELECT COUNT(*) AS total_fraud_caught FROM fraud_logs').get();
 
       return res.json({
@@ -74,15 +147,27 @@ class AdminController {
           surveys: surveyStats,
           payouts: payoutStats,
           financials: {
+            totalDepositedVnd,
+            escrowLockedBalance,
+            totalRespondentEarnedVnd,
+            totalRespondentEarnVnd: totalRespondentEarnedVnd,
             totalCreatorSpendVnd,
-            totalRewardsIssuedVnd,
             grossSurveySpreadProfitVnd,
-            payoutFeesEarnedVnd: payoutStats.total_payout_fees_earned_vnd || 0,
-            totalPlatformProfitVnd,
+            payoutFeesEarnedVnd,
+            grossPlatformProfitVnd,
+            totalPlatformProfitVnd: grossPlatformProfitVnd,
+            circulatingPointLiability,
+            circulatingPointLiabilityVnd,
+            pendingPayoutVnd,
+            totalCompletedPayoutVnd,
+            swappedCreditVnd,
             actualTakeRatePct: Number(actualTakeRatePct),
+            effectiveTakeRatePercent: Number(actualTakeRatePct),
             targetTakeRatePct: config.ECONOMICS.PLATFORM_TAKE_RATE * 100,
-            unrealizedLiabilityVnd: (userStats.total_active_points || 0) * config.ECONOMICS.POINT_TO_VND_RATE
+            unrealizedLiabilityVnd: circulatingPointLiabilityVnd
           },
+          surveyDistribution,
+          recentLedgerTransactions,
           fraud: {
             totalFraudCaught: fraudCountRow.total_fraud_caught || 0
           }
@@ -94,30 +179,73 @@ class AdminController {
     }
   }
 
+  /**
+   * Danh sách yêu cầu rút tiền với bộ lọc phương thức, trạng thái và phân trang
+   */
   listPayouts(req, res) {
     try {
-      const { status } = req.query;
-      let sql = `
+      const { status, type, page = 1, limit = 20 } = req.query;
+      const pageNum = Math.max(1, parseInt(page, 10) || 1);
+      const limitNum = Math.max(1, Math.min(100, parseInt(limit, 10) || 20));
+      const offset = (pageNum - 1) * limitNum;
+
+      let whereClauses = [];
+      let params = [];
+
+      const allowedStatus = ['PENDING', 'APPROVED', 'COMPLETED', 'REJECTED'];
+      if (status && allowedStatus.includes(String(status).toUpperCase())) {
+        whereClauses.push('p.status = ?');
+        params.push(String(status).toUpperCase());
+      }
+
+      const allowedMethods = ['BANK_TRANSFER', 'MOMO', 'PHONE_CARD'];
+      if (type && allowedMethods.includes(String(type).toUpperCase())) {
+        whereClauses.push('p.payout_method = ?');
+        params.push(String(type).toUpperCase());
+      }
+
+      const whereSql = whereClauses.length > 0 ? 'WHERE ' + whereClauses.join(' AND ') : '';
+
+      // Đếm tổng số bản ghi
+      const countRow = db.prepare(`
+        SELECT COUNT(*) AS total
+        FROM payout_requests p
+        JOIN users u ON p.user_id = u.id
+        ${whereSql}
+      `).get(...params);
+      const totalItems = countRow.total || 0;
+      const totalPages = Math.ceil(totalItems / limitNum) || 1;
+
+      // Lấy dữ liệu phân trang kèm trust_score
+      const sql = `
         SELECT p.*, u.name AS user_name, u.email AS user_email, u.trust_score
         FROM payout_requests p
         JOIN users u ON p.user_id = u.id
+        ${whereSql}
+        ORDER BY p.created_at DESC
+        LIMIT ? OFFSET ?
       `;
-      const params = [];
-      const allowedStatus = ['PENDING', 'APPROVED', 'COMPLETED', 'REJECTED'];
-      if (status && allowedStatus.includes(String(status).toUpperCase())) {
-        sql += ' WHERE p.status = ?';
-        params.push(String(status).toUpperCase());
-      }
-      sql += ' ORDER BY p.created_at DESC';
+      const payouts = db.prepare(sql).all(...params, limitNum, offset);
 
-      const payouts = db.prepare(sql).all(...params);
-      return res.json({ success: true, payouts });
+      return res.json({
+        success: true,
+        payouts,
+        pagination: {
+          page: pageNum,
+          limit: limitNum,
+          totalItems,
+          totalPages
+        }
+      });
     } catch (err) {
       console.error('Lỗi listPayouts:', err);
       return res.status(500).json({ success: false, message: 'Lỗi tải danh sách yêu cầu thanh toán' });
     }
   }
 
+  /**
+   * Xử lý duyệt hoặc từ chối yêu cầu rút tiền
+   */
   handlePayout(req, res) {
     try {
       const { id } = req.params;
@@ -156,6 +284,163 @@ class AdminController {
     }
   }
 
+  /**
+   * Thống kê chi tiết các vi phạm theo 5 loại bẫy gian lận
+   */
+  getFraudStats(req, res) {
+    try {
+      const rows = db.prepare('SELECT id, reason, score_details_json, created_at FROM fraud_logs').all();
+
+      let speedTrapCount = 0;
+      let attentionCheckCount = 0;
+      let straightLiningCount = 0;
+      let openTextFilterCount = 0;
+      let duplicateFingerprintCount = 0;
+
+      for (const r of rows) {
+        const reason = String(r.reason || '').toLowerCase();
+        const details = String(r.score_details_json || '').toLowerCase();
+
+        // 1. Bẫy Tốc độ (Speed Trap)
+        if (reason.includes('quá nhanh') || reason.includes('thời lượng đọc') || reason.includes('speed') || details.includes('speedverdict') || details.includes('tmin')) {
+          speedTrapCount++;
+        }
+        // 2. Bẫy Tập trung (Attention Check)
+        if (reason.includes('độ chú ý') || reason.includes('độ tập trung') || reason.includes('attention') || details.includes('attentionscore') || details.includes('secondchance')) {
+          attentionCheckCount++;
+        }
+        // 3. Phương sai thẳng hàng (Straight-lining)
+        if (reason.includes('straight-lining') || reason.includes('giống hệt nhau') || reason.includes('phương sai') || details.includes('isstraightlining')) {
+          straightLiningCount++;
+        }
+        // 4. Bộ lọc tự luận rác (Open-Text Filter)
+        if (reason.includes('tự luận') || reason.includes('spam phím') || reason.includes('ký tự lặp') || reason.includes('quá ngắn') || reason.includes('open_text') || reason.includes('shannon')) {
+          openTextFilterCount++;
+        }
+        // 5. Vân tay thiết bị & IP trùng lặp (Duplicate Fingerprint)
+        if (reason.includes('multi_account') || reason.includes('ip/thiết bị') || reason.includes('auto_ban') || reason.includes('canh_bao_ip') || reason.includes('fingerprint') || details.includes('distinctusers')) {
+          duplicateFingerprintCount++;
+        }
+      }
+
+      const bannedIpsCount = db.prepare('SELECT COUNT(*) AS count FROM banned_ips').get().count || 0;
+      const bannedUsersCount = db.prepare("SELECT COUNT(*) AS count FROM users WHERE status = 'BANNED'").get().count || 0;
+
+      return res.json({
+        success: true,
+        stats: {
+          totalFraudLogs: rows.length,
+          bannedIpsCount,
+          bannedUsersCount,
+          traps: {
+            speedTrap: speedTrapCount,
+            attentionCheck: attentionCheckCount,
+            straightLining: straightLiningCount,
+            openTextFilter: openTextFilterCount,
+            duplicateFingerprint: duplicateFingerprintCount
+          }
+        }
+      });
+    } catch (err) {
+      console.error('Lỗi getFraudStats:', err);
+      return res.status(500).json({ success: false, message: 'Lỗi tải thống kê gian lận' });
+    }
+  }
+
+  /**
+   * Tìm kiếm tài khoản theo Email hoặc Google ID kèm lịch sử khảo sát
+   */
+  searchUsers(req, res) {
+    try {
+      const query = String(req.query.q || '').trim();
+      if (!query) {
+        return res.status(400).json({ success: false, message: 'Vui lòng nhập từ khóa tìm kiếm (Email hoặc Google ID)' });
+      }
+
+      const searchTerm = `%${query}%`;
+      const users = db.prepare(`
+        SELECT id, email, name, role, status, trust_score, credit_balance, point_balance,
+               google_id, is_google_linked, account_tier, is_student_verified, ban_reason, banned_at, created_at
+        FROM users
+        WHERE email LIKE ? OR google_id LIKE ? OR id = ? OR name LIKE ?
+        ORDER BY created_at DESC
+        LIMIT 10
+      `).all(searchTerm, searchTerm, query, searchTerm);
+
+      // Truy xuất lịch sử các bài khảo sát đã làm cho từng tài khoản tìm thấy
+      const usersWithHistory = users.map(user => {
+        const responses = db.prepare(`
+          SELECT r.id AS response_id, r.survey_id, r.status AS response_status,
+                 r.started_at, r.submitted_at, r.duration_sec, r.quality_score, r.points_rewarded,
+                 s.title AS survey_title, s.category AS survey_category, s.reward_points_per_response
+          FROM responses r
+          JOIN surveys s ON r.survey_id = s.id
+          WHERE r.respondent_id = ?
+          ORDER BY r.started_at DESC
+          LIMIT 50
+        `).all(user.id);
+
+        return {
+          ...user,
+          responses
+        };
+      });
+
+      return res.json({
+        success: true,
+        users: usersWithHistory
+      });
+    } catch (err) {
+      console.error('Lỗi searchUsers:', err);
+      return res.status(500).json({ success: false, message: 'Lỗi tìm kiếm tài khoản' });
+    }
+  }
+
+  /**
+   * Mở khóa tài khoản (Unban): Đưa về ACTIVE, xóa ban_reason/banned_at và reset trust_score về 80 (nếu < 80)
+   */
+  unbanUser(req, res) {
+    try {
+      const { id } = req.params;
+      if (!id) {
+        return res.status(400).json({ success: false, message: 'Mã tài khoản không hợp lệ' });
+      }
+
+      const user = db.prepare('SELECT id, email, name, status, trust_score FROM users WHERE id = ?').get(id);
+      if (!user) {
+        return res.status(404).json({ success: false, message: 'Không tìm thấy tài khoản người dùng' });
+      }
+
+      const newTrustScore = user.trust_score < 80.0 ? 80.0 : user.trust_score;
+
+      db.prepare(`
+        UPDATE users
+        SET status = 'ACTIVE',
+            ban_reason = NULL,
+            banned_at = NULL,
+            trust_score = ?
+        WHERE id = ?
+      `).run(newTrustScore, id);
+
+      return res.json({
+        success: true,
+        message: `Đã mở khóa tài khoản ${user.email} thành công. Điểm uy tín được phục hồi về ${newTrustScore}.`,
+        user: {
+          id: user.id,
+          email: user.email,
+          status: 'ACTIVE',
+          trust_score: newTrustScore
+        }
+      });
+    } catch (err) {
+      console.error('Lỗi unbanUser:', err);
+      return res.status(500).json({ success: false, message: 'Lỗi mở khóa tài khoản' });
+    }
+  }
+
+  /**
+   * Danh sách nhật ký gian lận (100 bản ghi mới nhất)
+   */
   listFraudLogs(req, res) {
     try {
       const logs = db.prepare(`

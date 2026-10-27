@@ -82,7 +82,31 @@ Tài liệu tham chiếu duy nhất: [KE_HOACH_TONG_THE.md](file:///c:/Users/Len
 - [x] Bổ sung ô gõ tìm kiếm nhanh cho phần Khu Vực (34 tỉnh thành mới) trong bộ lọc đối tượng đích khi tạo khảo sát.
 - [x] Chuyển nút "+ Thêm ảnh bìa form" ra khỏi thanh công cụ "Chế độ tạo khảo sát", dời xuống thẻ tiêu đề form (Form Header / Title Card) để thanh chế độ tạo và lĩnh vực rộng rãi, hoàn toàn không bị chèn ép.
 - [x] Responsive Mobile Studio Tạo Khảo Sát: Trên màn hình điện thoại thu nhỏ, thay thế việc dồn cột Sidebar xuống dưới đáy bằng nút chuyển đổi 2 chế độ hiển thị ("Soạn Câu Hỏi" và "Cài Đặt & Ngân Sách") để thao tác nhanh chóng và mượt mà.
-- [x] Đồng bộ hiển thị Tab Hồ Sơ Doanh Nghiệp trong Profile View:
-  - [x] Khi người dùng chuyển sang góc nhìn hoặc vai trò Doanh Nghiệp (`adminMode === 'CREATOR'`, `role === 'CREATOR'`, hoặc `account_tier === 'ENTERPRISE'`), tự động mở và hiển thị Tab "Hồ Sơ Doanh Nghiệp" (Cấp 1 & Cấp 2: Thương hiệu, Mã số thuế, Hóa đơn VAT) thay vì ép vào Tab "Đăng Ký Gói Sinh Viên".
-  - [x] Sửa lỗi mapping biến trạng thái cấp độ xác minh: sử dụng chuẩn xác trường `enterprise_verify_level` từ cơ sở dữ liệu SQLite.
-  - [x] Cho phép người dùng chuyển đổi linh hoạt hoặc chọn nâng cấp giữa Xác Thực Sinh Viên và Hồ Sơ Doanh Nghiệp.
+- [x] Đồng bộ hiển thị Tab Hồ Sơ Doanh Nghiệp trong Profile View (nhận diện `adminMode === 'CREATOR'`, `role === 'CREATOR'`, sửa biến `enterprise_verify_level`).
+- [x] Nâng cấp Trang Giám Sát Gian Lận Admin (`admin-fraud`):
+  - [x] Báo cáo số liệu trực quan: Tổng số phát hiện, tỷ lệ vi phạm, phân rã số lượng vi phạm theo từng loại (Speed Trap, Bẫy Tập Trung, Straight-lining, Tự Luận Rác, Trùng Thiết Bị Sybil).
+  - [x] Tích hợp thanh tìm kiếm tài khoản theo Email hoặc Tài khoản Google (`google_id`).
+  - [x] Hiển thị chi tiết hồ sơ tài khoản tìm kiếm: Lý do bị khóa (`ban_reason`), thời gian khóa, trạng thái hiện tại kèm nút Mở Khóa Tài Khoản (`Unban`).
+  - [x] Bổ sung xem Lịch sử làm bài khảo sát chi tiết của tài khoản (danh sách bài, thời gian làm bài, điểm uy tín được cộng/trừ, trạng thái phản hồi).
+- [x] Nâng cấp Trang Duyệt Rút Tiền Admin (`admin-payouts`):
+  - [x] Thiết kế lại bố cục gọn gàng, hỗ trợ bộ lọc đa tiêu chí: Lọc theo Phương thức nhận (Ngân hàng, Thẻ cào Viettel/Vina/Mobi, Ví MoMo) và Lọc theo Trạng thái (Chờ duyệt, Đã duyệt, Đã từ chối).
+  - [x] Tích hợp phân trang và tùy chọn số lượng hiển thị (10, 20, 50 yêu cầu/trang), chấm dứt tình trạng bảng cuộn kéo dài.
+  - [x] Hiển thị trực quan Điểm Uy Tín (`trust_score`) của người yêu cầu rút tiền kèm cảnh báo rủi ro (<60 điểm) để Admin ra quyết định duyệt/từ chối an toàn và chính xác.
+- [x] Mở rộng Trang Tổng Quan Kinh Tế Toàn Diện Admin (`admin-overview`):
+  - [x] Mở rộng hệ thống chỉ số kinh tế đa chiều:
+    - [x] Dòng tiền nạp & Ký quỹ: Tổng tiền đã nạp thực tế, Số dư Escrow đang ký quỹ bị khóa, Tổng tiền chi trả đáp viên, Lợi nhuận sàn thực thu (từ phí chênh lệch spread, phụ phí lọc đối tượng, vé ghim VIP, phí xử lý rút tiền).
+    - [x] Kinh tế điểm thưởng & Công nợ: Tổng điểm thưởng Point đang lưu hành trong ví người dùng (Circulating Point Liability), Tổng tiền đã rút thành công, Tổng tiền rút đang chờ duyệt (`PENDING`), Tổng lượng điểm tái đầu tư đổi sang Credit (+5% bonus).
+    - [x] Thống kê vận hành khảo sát: Tổng số lượng khảo sát theo 3 phân khúc (Sinh viên, Cá nhân, Doanh nghiệp), Tỷ lệ hoàn thành mẫu (Completion Rate), Tổng số mẫu đã thu thập hợp lệ.
+  - [x] Tích hợp Bảng Theo Dõi Biến Động Sổ Cái Sàn (Real-time Financial Ledger Stream) ghi nhận các giao dịch tài chính gần nhất trong hệ thống.
+  - [x] Trực quan hóa cơ cấu doanh thu theo nấc SLA và theo từng phân khúc khách hàng.
+- [x] Tối Ưu Hóa Giao Diện Theme Tối (Dark Mode) Studio Chuẩn `ui-ux-pro-max`:
+  - [x] Triệt tiêu hoàn toàn lỗi khung hộp đen nổi cộm, viền cứng thô ráp của các ô input (Tiêu đề khảo sát, Mô tả, Tiêu đề câu hỏi, Các dòng đáp án lựa chọn) trong Dark Mode do cờ `!important` của CSS toàn cục.
+  - [x] Áp dụng nguyên lý Seamless Borderless / Fluent Typography chuẩn Google Forms & Notion: Toàn bộ ô nhập liệu chữ hòa quyện 100% vào nền Card với `background: transparent !important`, không viền hộp chữ nhật.
+  - [x] Chỉ hiển thị đường gạch chân mỏng nhẹ (`border-b border-stone-800` hoặc đường nhấn cam mượt mà khi focus/hover), tạo cảm giác soạn thảo tự nhiên, thanh thoát và cao cấp.
+- [x] Xử Lý Thấu Đáo & Chỉ Dẫn Fallback Khi Đồng Bộ Google Forms Trả Về Lỗi 401:
+  - [x] Bắt mã lỗi 401 tại `server/services/formParserService.js` và `public/app.js`: Nhận diện biểu mẫu Google Forms đang bật chế độ "Yêu cầu đăng nhập tài khoản Google" hoặc "Giới hạn trong tổ chức".
+  - [x] Hiển thị thông báo hướng dẫn trực quan: Hướng dẫn người tạo vào Cài đặt Google Forms tắt tùy chọn yêu cầu đăng nhập, hoặc kích hoạt nhanh giải pháp dự phòng 1-Click: Tự động mở Modal hướng dẫn đồng bộ qua Google Apps Script hoặc chuyển sang tab "Dán Text Nhanh".
+- [x] Tái Cấu Trúc Bố Cục Cột Phải Studio & Responsive Đúng Chuẩn:
+  - [x] Khắc phục triệt để tình trạng khối Ký Quỹ Escrow Real-time và Nút Xuất Bản bị dồn trôi xuống đáy: Đưa phần Ký Quỹ Escrow và Nút Xuất Bản luôn nằm trong tầm quan sát trực tiếp ở cột bên phải trên Desktop.
+  - [x] Tách cột bên phải thành 2 tab/phần con tinh gọn (Phần 1: "Ngân Sách & Bảng Giá", Phần 2: "Bộ Lọc & Cài Đặt") để chiều dài cột vừa vặn, không bị cuộn dài lê thê.
+  - [x] Đảm bảo trên Desktop (màn hình lớn), 2 cột luôn hiển thị song song đồng thời; chỉ khi màn hình thực sự thu nhỏ (Mobile / Màn hình hẹp), mới chuyển sang hiển thị 1 cột kèm nút chuyển đổi qua lại mượt mà giữa các bên.

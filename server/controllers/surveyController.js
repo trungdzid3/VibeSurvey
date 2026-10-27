@@ -1969,7 +1969,13 @@ class SurveyController {
       }
     } catch (err) {
       console.error('Lỗi parseExternalForm:', err);
-      return res.status(400).json({ success: false, message: err.message });
+      const statusCode = err.status || err.statusCode || (err.message && err.message.includes('Yêu cầu đăng nhập tài khoản Google') ? 401 : 400);
+      return res.status(statusCode).json({
+        success: false,
+        status: statusCode,
+        message: err.message,
+        isAuthRequired: statusCode === 401 || (err.message && err.message.includes('Yêu cầu đăng nhập tài khoản Google'))
+      });
     }
   }
 

@@ -835,6 +835,14 @@ class FormParserService {
             throw new Error('Máy chủ phản hồi chuyển hướng nhưng thiếu tiêu đề Location');
           }
 
+          // Phát hiện biểu mẫu Google Forms bật chế độ đăng nhập hoặc giới hạn tổ chức chuyển hướng đến Accounts
+          if (location.includes('accounts.google.com') || location.includes('ServiceLogin')) {
+            const authErr = new Error("Biểu mẫu Google Forms này đang bật chế độ 'Yêu cầu đăng nhập tài khoản Google' hoặc 'Giới hạn trong tổ chức'. Vui lòng mở Google Forms > Cài đặt (Settings) > Tắt 'Giới hạn ở 1 câu trả lời' và cấp quyền công khai, hoặc sử dụng tính năng Đồng bộ qua Google Apps Script / Dán Text Nhanh.");
+            authErr.status = 401;
+            authErr.statusCode = 401;
+            throw authErr;
+          }
+
           const nextUrl = new URL(location, currentUrl).href;
           redirectCount++;
           if (redirectCount > MAX_REDIRECTS) {
@@ -847,6 +855,12 @@ class FormParserService {
         }
 
         if (!resp.ok) {
+          if (resp.status === 401) {
+            const authErr = new Error("Biểu mẫu Google Forms này đang bật chế độ 'Yêu cầu đăng nhập tài khoản Google' hoặc 'Giới hạn trong tổ chức'. Vui lòng mở Google Forms > Cài đặt (Settings) > Tắt 'Giới hạn ở 1 câu trả lời' và cấp quyền công khai, hoặc sử dụng tính năng Đồng bộ qua Google Apps Script / Dán Text Nhanh.");
+            authErr.status = 401;
+            authErr.statusCode = 401;
+            throw authErr;
+          }
           throw new Error(`Máy chủ biểu mẫu trả về mã phản hồi ${resp.status}`);
         }
 

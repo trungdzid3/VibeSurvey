@@ -854,18 +854,36 @@ html.dark .border-slate-200\/50 {
 }
 
 /* Ô nhập liệu Input, Select, Textarea trong Dark Mode */
-html.dark input,
-html.dark select,
-html.dark textarea {
+html.dark input:not(.bg-transparent):not(.seamless-input),
+html.dark select:not(.bg-transparent):not(.seamless-input),
+html.dark textarea:not(.bg-transparent):not(.seamless-input) {
   background-color: #18181B !important;
   color: #F4F4F5 !important;
   border-color: #27272A !important;
 }
-html.dark input:focus,
-html.dark select:focus,
-html.dark textarea:focus {
+html.dark input:not(.bg-transparent):not(.seamless-input):focus,
+html.dark select:not(.bg-transparent):not(.seamless-input):focus,
+html.dark textarea:not(.bg-transparent):not(.seamless-input):focus {
   border-color: #EA580C !important;
   box-shadow: 0 0 0 1px #EA580C !important;
+}
+
+/* Class chuyên dụng cho input trong suốt & seamless chuẩn Google Forms / Notion */
+html.dark input.bg-transparent,
+html.dark textarea.bg-transparent,
+html.dark .seamless-input {
+  background-color: transparent !important;
+  border-top-color: transparent !important;
+  border-left-color: transparent !important;
+  border-right-color: transparent !important;
+  box-shadow: none !important;
+}
+html.dark input.bg-transparent:focus,
+html.dark textarea.bg-transparent:focus,
+html.dark .seamless-input:focus {
+  background-color: transparent !important;
+  border-bottom-color: #EA580C !important;
+  box-shadow: none !important;
 }
 
 /* Nút phụ / Nút hủy / Nút xám trong Dark Mode */

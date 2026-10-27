@@ -79,8 +79,11 @@ router.get('/vouchers/my-vouchers', authenticateToken, (req, res) => voucherCont
 router.get('/admin/overview', authenticateToken, requireRole(['ADMIN']), (req, res) => adminController.getOverview(req, res));
 router.get('/admin/payouts', authenticateToken, requireRole(['ADMIN']), (req, res) => adminController.listPayouts(req, res));
 router.post('/admin/payouts/:id/action', authenticateToken, requireRole(['ADMIN']), (req, res) => adminController.handlePayout(req, res));
+router.get('/admin/fraud-stats', authenticateToken, requireRole(['ADMIN']), (req, res) => adminController.getFraudStats(req, res));
 router.get('/admin/fraud-logs', authenticateToken, requireRole(['ADMIN']), (req, res) => adminController.listFraudLogs(req, res));
 router.get('/admin/banned-ips', authenticateToken, requireRole(['ADMIN']), (req, res) => adminController.listBannedIps(req, res));
 router.post('/admin/unban-ip', authenticateToken, requireRole(['ADMIN']), (req, res) => adminController.unbanIp(req, res));
+router.get('/admin/users/search', authenticateToken, requireRole(['ADMIN']), (req, res) => adminController.searchUsers(req, res));
+router.post('/admin/users/:id/unban', authenticateToken, requireRole(['ADMIN']), (req, res) => adminController.unbanUser(req, res));
 
 module.exports = router;
