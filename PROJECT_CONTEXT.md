@@ -158,3 +158,9 @@ c:\Users\Lenovo\Downloads\Linh\
   1. Gỡ bỏ việc tự động sinh tài khoản `creator@vibesurvey.com` và `user@vibesurvey.com` trong hàm `ensureEssentialAccounts` của `server/db/database.js`.
   2. Xóa bỏ hoàn toàn 11 bản ghi giao dịch test trong bảng `point_transactions`, 62 bản ghi trong `notifications` và `email_notifications_log`.
   3. Xóa bỏ 2 tài khoản `creator@vibesurvey.com` và `user@vibesurvey.com` khỏi cơ sở dữ liệu. Bảng Sổ Cái Sàn nay tinh khiết 100%, sẵn sàng cho các giao dịch thực tế.
+
+
+### Ẩn Khối Phân Chia Thưởng Boost Trên Studio (v3.1.3)
+- **Yêu cầu**: Ẩn khối hiển thị `Phân chia thưởng Boost (+375đ): 80% điền / 20% sàn | Đáp viên nhận: ... | Sàn thu: ...` trên sidebar Studio Tạo Khảo Sát.
+- **Lý do**: Đây là thông số cơ chế biên lợi nhuận / take rate nội bộ của nền tảng, việc hiển thị trực diện trên form tạo khảo sát gây rối rắm và tạo cảm giác tính phí hoa hồng lộ liễu cho Creator.
+- **Thực hiện**: Đã ẩn hoàn toàn khối này (`id="boost-split-box" class="hidden"`) khỏi giao diện Studio, giữ logic tính toán ngầm nguyên vẹn không ảnh hưởng đến hệ thống.

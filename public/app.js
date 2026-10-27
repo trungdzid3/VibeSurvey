@@ -109,6 +109,11 @@ const VibeApp = {
     fraudLogPage: 1,
     adminViewMode: localStorage.getItem('vibesurvey_admin_view_mode') || 'ADMIN', // 'ADMIN' | 'RESPONDENT' | 'CREATOR'
     adminMode: localStorage.getItem('vibesurvey_admin_view_mode') || 'ADMIN',
+    velocityBenchmark: {
+      has_sufficient_data: false,
+      completed_surveys_count: 0,
+      threshold_required: 30
+    },
     imagePicker: {
       isOpen: false,
       target: 'cover',
@@ -1196,8 +1201,13 @@ const VibeApp = {
                 <span class="font-mono text-xs font-extrabold text-stone-900 dark:text-white">${calc.slaPrices.FLOOR.toLocaleString('vi-VN')}đ</span>
               </div>
               <div class="text-[11px] text-stone-500 dark:text-stone-400 mt-1 pl-5.5 flex items-center justify-between">
-                <span>Phân phối: <strong class="text-stone-700 dark:text-stone-300 font-medium">Hàng chờ tiêu chuẩn</strong></span>
-                <span class="text-stone-400">Tối ưu chi phí</span>
+                ${calc.isDataDriven ? `
+                  <span>Dự kiến thực tế: <strong class="text-stone-700 dark:text-stone-300 font-bold">${calc.actualEtaFloor}</strong></span>
+                  <span class="text-stone-400 font-mono">Dựa trên ${calc.completedSurveysCount} bài</span>
+                ` : `
+                  <span>Phân phối: <strong class="text-stone-700 dark:text-stone-300 font-medium">Hàng chờ tiêu chuẩn</strong></span>
+                  <span class="text-stone-400">Tối ưu chi phí</span>
+                `}
               </div>
             </div>
 
@@ -1215,8 +1225,13 @@ const VibeApp = {
                 <span class="font-mono text-xs font-extrabold text-orange-600 dark:text-orange-400">${calc.slaPrices.RECOMMENDED.toLocaleString('vi-VN')}đ</span>
               </div>
               <div class="text-[11px] text-stone-500 dark:text-stone-400 mt-1 pl-5.5 flex items-center justify-between">
-                <span>Phân phối: <strong class="text-orange-600 dark:text-orange-400 font-bold">Ưu tiên hiển thị nổi bật (+25%)</strong></span>
-                <span class="text-orange-600 dark:text-orange-400 font-semibold">Thu hút đáp viên</span>
+                ${calc.isDataDriven ? `
+                  <span>Dự kiến thực tế: <strong class="text-orange-600 dark:text-orange-400 font-bold">${calc.actualEtaRecommended}</strong></span>
+                  <span class="text-orange-600 dark:text-orange-400 font-semibold font-mono">Dựa trên ${calc.completedSurveysCount} bài</span>
+                ` : `
+                  <span>Phân phối: <strong class="text-orange-600 dark:text-orange-400 font-bold">Ưu tiên hiển thị nổi bật (+25%)</strong></span>
+                  <span class="text-orange-600 dark:text-orange-400 font-semibold">Thu hút đáp viên</span>
+                `}
               </div>
             </div>
 
@@ -1234,13 +1249,22 @@ const VibeApp = {
                 <span class="font-mono text-xs font-extrabold text-amber-600 dark:text-amber-400">${calc.slaPrices.RUSH.toLocaleString('vi-VN')}đ</span>
               </div>
               <div class="text-[11px] text-stone-500 dark:text-stone-400 mt-1 pl-5.5 flex items-center justify-between">
-                <span>Phân phối: <strong class="text-amber-600 dark:text-amber-400 font-bold">Gắn nhãn [Thưởng Cao] (+60%)</strong></span>
-                <span class="text-amber-600 dark:text-amber-400 font-semibold">Ưu tiên tối đa</span>
+                ${calc.isDataDriven ? `
+                  <span>Dự kiến thực tế: <strong class="text-amber-600 dark:text-amber-400 font-bold">${calc.actualEtaRush}</strong></span>
+                  <span class="text-amber-600 dark:text-amber-400 font-semibold font-mono">Dựa trên ${calc.completedSurveysCount} bài</span>
+                ` : `
+                  <span>Phân phối: <strong class="text-amber-600 dark:text-amber-400 font-bold">Gắn nhãn [Thưởng Cao] (+60%)</strong></span>
+                  <span class="text-amber-600 dark:text-amber-400 font-semibold">Ưu tiên tối đa</span>
+                `}
               </div>
             </div>
           </div>
           <p class="text-[10.5px] text-stone-500 dark:text-stone-400 leading-relaxed pt-1">
-            * <strong>Minh bạch vận hành</strong>: Thời gian hoàn thành thực tế phụ thuộc vào lưu lượng đáp viên online và mức độ hấp dẫn của thù lao. Khảo sát sẽ hiển thị trên sàn cho đến khi đủ số mẫu hoặc hết số ngày bạn cài đặt tự do ở trên. Tiền cọc các mẫu chưa thu được hoàn trả 100%.
+            ${calc.isDataDriven ? `
+              * <strong>Dữ liệu thực tế</strong>: Thời gian dự kiến được tính toán dựa trên tốc độ hoàn thành thực tế của ${calc.completedSurveysCount} bài khảo sát tương đương trên sàn. Tiền cọc các mẫu chưa thu được hoàn trả 100%.
+            ` : `
+              * <strong>Minh bạch vận hành</strong>: Hệ thống đang tích lũy dữ liệu thực tế (${calc.completedSurveysCount}/${calc.thresholdRequired} bài hoàn thành). Khi có đủ dữ liệu, thời gian dự báo thực tế sẽ tự động được kích hoạt. Tiền cọc các mẫu chưa thu được hoàn trả 100%.
+            `}
           </p>
 
           <!-- Thanh trượt Creator Boost tự do -->
@@ -1267,8 +1291,8 @@ const VibeApp = {
               </div>
             </div>
             
-            <!-- Tỷ lệ phân chia Boost -->
-            <div class="p-2.5 bg-stone-50 dark:bg-stone-900 rounded-xl border border-stone-200/80 dark:border-stone-800 text-[11px] space-y-1.5">
+            <!-- Tỷ lệ phân chia Boost (Đã ẩn hoàn toàn theo yêu cầu người dùng) -->
+            <div id="boost-split-box" class="hidden p-2.5 bg-stone-50 dark:bg-stone-900 rounded-xl border border-stone-200/80 dark:border-stone-800 text-[11px] space-y-1.5">
               <div class="flex items-center justify-between text-stone-600 dark:text-stone-400">
                 <span>Phân chia thưởng Boost (+${Math.max(0, calc.effectivePrice - calc.floorPrice).toLocaleString('vi-VN')}đ):</span>
                 <span id="boost-share-text" class="font-bold text-orange-600 dark:text-orange-400">80% điền / 20% sàn</span>
@@ -6907,6 +6931,9 @@ const VibeApp = {
   },
 
   async renderCreateSurveyView(root) {
+    if (!this.state.velocityBenchmark || this.state.velocityBenchmark.completed_surveys_count === undefined) {
+      await this.fetchVelocityBenchmark();
+    }
     if (!this.state.currentUser) {
       this.renderGuestLockedView(root, 'Tạo Khảo Sát', 'Vui lòng đăng nhập để bắt đầu thiết kế biểu mẫu khảo sát và thu thập dữ liệu từ cộng đồng.');
       return;
@@ -7247,6 +7274,27 @@ const VibeApp = {
     if (window.lucide) window.lucide.createIcons();
   },
 
+  async fetchVelocityBenchmark() {
+    try {
+      const res = await this.api('/surveys/velocity-benchmark');
+      if (res && res.success) {
+        this.state.velocityBenchmark = {
+          has_sufficient_data: res.has_sufficient_data === true,
+          completed_surveys_count: res.completed_surveys_count || 0,
+          threshold_required: res.threshold_required || 30,
+          benchmark: res.benchmark || null
+        };
+      }
+    } catch (e) {
+      // Giữ mặc định Cold Start nếu lỗi mạng
+      this.state.velocityBenchmark = {
+        has_sufficient_data: false,
+        completed_surveys_count: 0,
+        threshold_required: 30
+      };
+    }
+  },
+
   getIncentiveEvaluation(effectivePrice, floorPrice) {
     const delta = Math.max(0, effectivePrice - floorPrice);
     const pct = floorPrice > 0 ? Math.round((delta / floorPrice) * 100) : 0;
@@ -7366,11 +7414,37 @@ const VibeApp = {
     if (demo.occupation && demo.occupation !== 'ALL') targetFiltersCount++;
     if (demo.university && demo.university !== 'ALL') targetFiltersCount++;
 
-    // Đánh giá Lực Hút Thù Lao & Mức Độ Ưu Tiên Phân Phối
+    // Đánh giá Mức Độ Sẵn Sàng Dữ Liệu & Lực Hút Thù Lao (Adaptive SLA Engine)
+    const benchmarkInfo = this.state.velocityBenchmark || { has_sufficient_data: false, completed_surveys_count: 0, threshold_required: 30 };
+    const isDataDriven = benchmarkInfo.has_sufficient_data === true;
+    const completedSurveysCount = benchmarkInfo.completed_surveys_count || 0;
+    const thresholdRequired = benchmarkInfo.threshold_required || 30;
+
     const incentiveFloor = this.getIncentiveEvaluation(slaPrices.FLOOR, floorPrice);
     const incentiveRecommended = this.getIncentiveEvaluation(slaPrices.RECOMMENDED, floorPrice);
     const incentiveRush = this.getIncentiveEvaluation(slaPrices.RUSH, floorPrice);
     const incentiveCurrent = this.getIncentiveEvaluation(effectivePrice, floorPrice);
+
+    // Tính toán thời gian thực tế NẾU đã đủ dữ liệu (isDataDriven = true)
+    let actualEtaFloor = '~2 – 3 ngày';
+    let actualEtaRecommended = '~24 – 36 giờ';
+    let actualEtaRush = '~6 – 12 giờ';
+    let actualEtaCurrent = '~24 – 36 giờ';
+
+    if (isDataDriven && benchmarkInfo.benchmark && benchmarkInfo.benchmark.tierSpeeds) {
+      const speeds = benchmarkInfo.benchmark.tierSpeeds;
+      const hFloor = Math.max(1, Math.round((speeds.FLOOR.avgHoursPer100 * targetN) / 100));
+      const hRec = Math.max(1, Math.round((speeds.RECOMMENDED.avgHoursPer100 * targetN) / 100));
+      const hRush = Math.max(1, Math.round((speeds.RUSH.avgHoursPer100 * targetN) / 100));
+      
+      actualEtaFloor = hFloor >= 24 ? `~${Math.round(hFloor / 24)} ngày` : `~${hFloor} giờ`;
+      actualEtaRecommended = hRec >= 24 ? `~${Math.round(hRec / 24)} ngày` : `~${hRec} giờ`;
+      actualEtaRush = hRush >= 24 ? `~${Math.round(hRush / 24)} ngày` : `~${hRush} giờ`;
+      
+      const curRatio = Math.max(1, effectivePrice / floorPrice);
+      const hCur = Math.max(1, Math.round((speeds.RECOMMENDED.avgHoursPer100 * targetN) / (100 * curRatio)));
+      actualEtaCurrent = hCur >= 24 ? `~${Math.round(hCur / 24)} ngày` : `~${hCur} giờ`;
+    }
 
     let targetingSummaryText = 'Mở toàn quốc (Không lọc)';
     if (hasTargeting) {
@@ -7431,7 +7505,14 @@ const VibeApp = {
       incentiveFloor,
       incentiveRecommended,
       incentiveRush,
-      incentiveCurrent
+      incentiveCurrent,
+      isDataDriven,
+      completedSurveysCount,
+      thresholdRequired,
+      actualEtaFloor,
+      actualEtaRecommended,
+      actualEtaRush,
+      actualEtaCurrent
     };
   },
 
