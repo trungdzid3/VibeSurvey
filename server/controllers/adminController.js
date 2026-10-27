@@ -546,7 +546,7 @@ class AdminController {
           if (args.length < 2) {
             return res.status(400).json({ success: false, message: 'Cú pháp: /naptien <email_hoặc_id> <số_tiền>. Ví dụ: /naptien user@vibesurvey.com 100000' });
           }
-          const user = this._findTargetUser(args[0]);
+          const user = this._findTargetUser(args[0], req.user);
           if (!user) {
             return res.status(404).json({ success: false, message: `Không tìm thấy tài khoản nào khớp với "${args[0]}"` });
           }
@@ -577,7 +577,7 @@ class AdminController {
           if (args.length < 2) {
             return res.status(400).json({ success: false, message: 'Cú pháp: /trutien <email_hoặc_id> <số_tiền>. Ví dụ: /trutien user@vibesurvey.com 50000' });
           }
-          const user = this._findTargetUser(args[0]);
+          const user = this._findTargetUser(args[0], req.user);
           if (!user) {
             return res.status(404).json({ success: false, message: `Không tìm thấy tài khoản nào khớp với "${args[0]}"` });
           }
@@ -603,7 +603,7 @@ class AdminController {
           if (args.length < 2) {
             return res.status(400).json({ success: false, message: 'Cú pháp: /congdiem <email_hoặc_id> <số_điểm>. Ví dụ: /congdiem user@vibesurvey.com 1000' });
           }
-          const user = this._findTargetUser(args[0]);
+          const user = this._findTargetUser(args[0], req.user);
           if (!user) {
             return res.status(404).json({ success: false, message: `Không tìm thấy tài khoản nào khớp với "${args[0]}"` });
           }
@@ -634,7 +634,7 @@ class AdminController {
           if (args.length < 2) {
             return res.status(400).json({ success: false, message: 'Cú pháp: /trudiem <email_hoặc_id> <số_điểm>. Ví dụ: /trudiem user@vibesurvey.com 500' });
           }
-          const user = this._findTargetUser(args[0]);
+          const user = this._findTargetUser(args[0], req.user);
           if (!user) {
             return res.status(404).json({ success: false, message: `Không tìm thấy tài khoản nào khớp với "${args[0]}"` });
           }
@@ -670,7 +670,7 @@ class AdminController {
             });
           }
 
-          const user = this._findTargetUser(args[0]);
+          const user = this._findTargetUser(args[0], req.user);
           if (!user) {
             return res.status(404).json({ success: false, message: `Không tìm thấy tài khoản nào khớp với "${args[0]}"` });
           }
@@ -687,7 +687,7 @@ class AdminController {
           if (args.length < 1) {
             return res.status(400).json({ success: false, message: 'Cú pháp: /resetcredit <email_hoặc_id>. Ví dụ: /resetcredit user@vibesurvey.com' });
           }
-          const user = this._findTargetUser(args[0]);
+          const user = this._findTargetUser(args[0], req.user);
           if (!user) {
             return res.status(404).json({ success: false, message: `Không tìm thấy tài khoản nào khớp với "${args[0]}"` });
           }
@@ -704,7 +704,7 @@ class AdminController {
           if (args.length < 1) {
             return res.status(400).json({ success: false, message: 'Cú pháp: /ban <email_hoặc_id> [lý_do]' });
           }
-          const user = this._findTargetUser(args[0]);
+          const user = this._findTargetUser(args[0], req.user);
           if (!user) {
             return res.status(404).json({ success: false, message: `Không tìm thấy tài khoản nào khớp với "${args[0]}"` });
           }
@@ -725,7 +725,7 @@ class AdminController {
           if (args.length < 1) {
             return res.status(400).json({ success: false, message: 'Cú pháp: /unban <email_hoặc_id>' });
           }
-          const user = this._findTargetUser(args[0]);
+          const user = this._findTargetUser(args[0], req.user);
           if (!user) {
             return res.status(404).json({ success: false, message: `Không tìm thấy tài khoản nào khớp với "${args[0]}"` });
           }
@@ -771,7 +771,7 @@ class AdminController {
           if (args.length < 2) {
             return res.status(400).json({ success: false, message: 'Cú pháp: /setrole <email_hoặc_id> <ADMIN|CREATOR|RESPONDENT>' });
           }
-          const user = this._findTargetUser(args[0]);
+          const user = this._findTargetUser(args[0], req.user);
           if (!user) {
             return res.status(404).json({ success: false, message: `Không tìm thấy tài khoản nào khớp với "${args[0]}"` });
           }
@@ -790,13 +790,14 @@ class AdminController {
 
         case '/settier': {
           if (args.length < 2) {
-            return res.status(400).json({ success: false, message: 'Cú pháp: /settier <email_hoặc_id> <STUDENT|ENTERPRISE_LEVEL_1|ENTERPRISE_LEVEL_2|REGULAR>' });
+            return res.status(400).json({ success: false, message: 'Cú pháp: /settier <email_hoặc_id|me> <STUDENT|PERSONAL|ENTERPRISE>' });
           }
-          const user = this._findTargetUser(args[0]);
+          const user = this._findTargetUser(args[0], req.user);
           if (!user) {
             return res.status(404).json({ success: false, message: `Không tìm thấy tài khoản nào khớp với "${args[0]}"` });
           }
-          const tier = args[1].toUpperCase();
+          let tier = args[1].toUpperCase();
+          if (tier === 'REGULAR') tier = 'PERSONAL';
           db.prepare('UPDATE users SET account_tier = ? WHERE id = ?').run(tier, user.id);
           return res.json({
             success: true,
@@ -810,7 +811,7 @@ class AdminController {
           if (args.length < 2) {
             return res.status(400).json({ success: false, message: 'Cú pháp: /settrust <email_hoặc_id> <số_điểm (0-100)>' });
           }
-          const user = this._findTargetUser(args[0]);
+          const user = this._findTargetUser(args[0], req.user);
           if (!user) {
             return res.status(404).json({ success: false, message: `Không tìm thấy tài khoản nào khớp với "${args[0]}"` });
           }
@@ -828,7 +829,7 @@ class AdminController {
           if (args.length < 1) {
             return res.status(400).json({ success: false, message: 'Cú pháp: /info <email_hoặc_id>' });
           }
-          const user = this._findTargetUser(args[0]);
+          const user = this._findTargetUser(args[0], req.user);
           if (!user) {
             return res.status(404).json({ success: false, message: `Không tìm thấy tài khoản nào khớp với "${args[0]}"` });
           }
@@ -927,17 +928,82 @@ class AdminController {
   }
 
   /**
-   * Tìm người dùng theo Email, ID hoặc một phần tên/email
+   * Chuyển đổi trực tiếp phân hạng gói tài khoản (STUDENT <-> PERSONAL <-> ENTERPRISE) cho Admin
    */
-  _findTargetUser(target) {
+  switchAdminTier(req, res) {
+    try {
+      const { tier } = req.body;
+      let normalized = (tier || '').toUpperCase();
+      if (normalized === 'REGULAR') normalized = 'PERSONAL';
+      const validTiers = ['STUDENT', 'PERSONAL', 'ENTERPRISE'];
+      if (!validTiers.includes(normalized)) {
+        return res.status(400).json({ success: false, message: 'Phân hạng gói không hợp lệ. Hỗ trợ: STUDENT, PERSONAL, ENTERPRISE' });
+      }
+
+      db.prepare('UPDATE users SET account_tier = ? WHERE id = ?').run(normalized, req.user.id);
+      const updatedUser = db.prepare('SELECT id, name, email, role, status, credit_balance, point_balance, account_tier, fast_track_tickets, enterprise_verify_level FROM users WHERE id = ?').get(req.user.id);
+
+      const label = normalized === 'STUDENT' ? 'Sinh Viên (Ưu đãi học thuật)' : (normalized === 'ENTERPRISE' ? 'Doanh Nghiệp' : 'Cá Nhân (Nghiên cứu tiêu chuẩn)');
+
+      return res.json({
+        success: true,
+        message: `Đã chuyển sang gói ${label}`,
+        tier: normalized,
+        user: updatedUser
+      });
+    } catch (err) {
+      console.error('Lỗi switchAdminTier:', err);
+      return res.status(500).json({ success: false, message: 'Lỗi chuyển đổi phân hạng gói tài khoản' });
+    }
+  }
+
+  /**
+   * Tìm người dùng theo Email, ID, hoặc Alias thông minh (acc1, acc2, me, user, creator)
+   */
+  _findTargetUser(target, currentAdminUser = null) {
     if (!target) return null;
     const raw = String(target).trim();
+    const lower = raw.toLowerCase();
+
+    // 0. Hỗ trợ Alias thông minh
+    if (lower === 'me' || lower === 'self' || lower === 'admin') {
+      if (currentAdminUser && currentAdminUser.id) {
+        const u = db.prepare('SELECT id, name, email, role, status, credit_balance, point_balance, trust_score, account_tier FROM users WHERE id = ?').get(currentAdminUser.id);
+        if (u) return u;
+      }
+      const adminU = db.prepare("SELECT id, name, email, role, status, credit_balance, point_balance, trust_score, account_tier FROM users WHERE role = 'ADMIN' LIMIT 1").get();
+      if (adminU) return adminU;
+    }
+
+    if (lower === 'acc1' || lower === 'user' || lower === 'user1' || lower === 'respondent') {
+      let u = db.prepare('SELECT id, name, email, role, status, credit_balance, point_balance, trust_score, account_tier FROM users WHERE LOWER(email) = ?').get('user@vibesurvey.com');
+      if (!u) {
+        u = db.prepare("SELECT id, name, email, role, status, credit_balance, point_balance, trust_score, account_tier FROM users WHERE role = 'RESPONDENT' LIMIT 1").get();
+      }
+      if (u) return u;
+    }
+
+    if (lower === 'acc2' || lower === 'creator' || lower === 'creator1') {
+      let u = db.prepare('SELECT id, name, email, role, status, credit_balance, point_balance, trust_score, account_tier FROM users WHERE LOWER(email) = ?').get('creator@vibesurvey.com');
+      if (!u) {
+        u = db.prepare("SELECT id, name, email, role, status, credit_balance, point_balance, trust_score, account_tier FROM users WHERE role = 'CREATOR' LIMIT 1").get();
+      }
+      if (u) return u;
+    }
+
+    if (lower === 'acc3') {
+      const u = db.prepare('SELECT id, name, email, role, status, credit_balance, point_balance, trust_score, account_tier FROM users WHERE LOWER(email) = ?').get('admin@vibesurvey.com');
+      if (u) return u;
+    }
+
     // 1. Tìm chính xác email
     let user = db.prepare('SELECT id, name, email, role, status, credit_balance, point_balance, trust_score, account_tier FROM users WHERE LOWER(email) = LOWER(?)').get(raw);
     if (user) return user;
+
     // 2. Tìm chính xác ID
     user = db.prepare('SELECT id, name, email, role, status, credit_balance, point_balance, trust_score, account_tier FROM users WHERE id = ?').get(raw);
     if (user) return user;
+
     // 3. Tìm gần đúng
     const matches = db.prepare('SELECT id, name, email, role, status, credit_balance, point_balance, trust_score, account_tier FROM users WHERE LOWER(email) LIKE LOWER(?) OR LOWER(name) LIKE LOWER(?) LIMIT 5').all(`%${raw}%`, `%${raw}%`);
     if (matches.length === 1) return matches[0];

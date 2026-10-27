@@ -111,6 +111,13 @@ Tài liệu tham chiếu duy nhất: [KE_HOACH_TONG_THE.md](file:///c:/Users/Len
   - [x] Tách cột bên phải thành 2 tab/phần con tinh gọn (Phần 1: "Ngân Sách & Bảng Giá", Phần 2: "Bộ Lọc & Cài Đặt") để chiều dài cột vừa vặn, không bị cuộn dài lê thê.
   - [x] Đảm bảo trên Desktop (màn hình lớn), 2 cột luôn hiển thị song song đồng thời; chỉ khi màn hình thực sự thu nhỏ (Mobile / Màn hình hẹp), mới chuyển sang hiển thị 1 cột kèm nút chuyển đổi qua lại mượt mà giữa các bên.
 
+- [x] **Task 4: Admin Fast Command Console Mở Rộng, Sửa Lỗi Thực Thi & Chuyển Đổi Phân Hạng Gói Admin**:
+  - [x] Khắc phục triệt để lỗi Console không dùng được do xung đột DOM ID giữa trang Overview và Modal F2; truyền trực tiếp form context và tự động tìm đúng ô input đang thao tác.
+  - [x] Hỗ trợ cơ chế Alias thông minh: `/naptien acc1 100k`, `/congdiem acc1 500` tự động map sang tài khoản test `user@vibesurvey.com`, `acc2` sang `creator@vibesurvey.com`, `me` / `self` / `admin` sang Admin hiện tại.
+  - [x] Mở rộng kích thước Console to, rộng rãi: Màn hình log trong Overview tăng lên 280px - 420px; Modal CLI F2 nâng lên `max-w-5xl w-[96vw]` với màn hình log 340px - 460px to đẹp chuẩn terminal Linux.
+  - [x] Cho phép Admin chuyển đổi tự do giữa Gói Sinh Viên và Gói Cá Nhân trong User Profile Dropdown, trong Studio Tạo Khảo Sát và qua lệnh CLI `/settier me STUDENT`, `/settier me PERSONAL`.
+  - [x] Tái thiết kế bố cục trang Tổng Quan Kinh Tế Admin theo chuẩn Minimalist Modern Bento Grid Linear/Stripe.
+
 ## Đợt Tinh Chỉnh Quản Trị Hệ Thống, Chuẩn Hóa Dropdown, Phân Trang & Dọn Sạch Dữ Liệu Rác
 - [x] **Task 1: Dọn sạch toàn bộ dữ liệu rác/demo trong SQLite (`vibesurvey.db`)**:
   - [x] Xóa sạch toàn bộ 231 yêu cầu rút tiền rác demo (`@test.local`, `@api-test.com`, `@vibetest.vn`, v.v.).

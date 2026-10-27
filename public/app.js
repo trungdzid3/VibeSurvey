@@ -810,6 +810,22 @@ const VibeApp = {
             </button>
           </div>
         </div>
+
+        <!-- Khối Chuyển Đổi Phân Hạng Gói Khảo Sát Cho Admin (Sinh Viên <-> Cá Nhân) -->
+        <div class="px-4 py-2.5 bg-stone-100/70 dark:bg-stone-900/90 border-b border-stone-200 dark:border-stone-800 space-y-1.5">
+          <div class="flex items-center justify-between text-xs">
+            <span class="text-stone-500 dark:text-stone-400 font-medium text-[11px]">Phân hạng gói Admin:</span>
+            <span class="font-bold text-orange-600 dark:text-orange-400 font-mono text-[11px]">${user.account_tier === 'STUDENT' ? 'Sinh Viên (Ưu đãi)' : (user.account_tier === 'ENTERPRISE' ? 'Doanh Nghiệp' : 'Cá Nhân (Tiêu chuẩn)')}</span>
+          </div>
+          <div class="grid grid-cols-2 gap-1 bg-stone-200/70 dark:bg-stone-800 p-1 rounded-xl text-xs">
+            <button type="button" onclick="VibeApp.switchAdminTier('STUDENT')" class="py-1.5 px-2 rounded-lg font-bold text-center transition-all ${user.account_tier === 'STUDENT' ? 'bg-orange-600 text-white shadow-xs' : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white'}">
+              Gói Sinh Viên
+            </button>
+            <button type="button" onclick="VibeApp.switchAdminTier('PERSONAL')" class="py-1.5 px-2 rounded-lg font-bold text-center transition-all ${user.account_tier !== 'STUDENT' ? 'bg-white dark:bg-stone-900 text-stone-900 dark:text-white shadow-xs' : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white'}">
+              Gói Cá Nhân
+            </button>
+          </div>
+        </div>
       ` : ''}
 
       <!-- Balance & Fast Track Tickets inside Profile -->
@@ -1033,16 +1049,34 @@ const VibeApp = {
           </div>
 
           <!-- Phân khúc tài khoản xác thực -->
-          <div>
-            <div class="flex items-center justify-between mb-1.5">
+          <div class="space-y-2">
+            <div class="flex items-center justify-between">
               <label class="text-[11px] font-bold text-stone-600 dark:text-stone-300">Phân khúc tài khoản:</label>
-              ${user?.account_tier !== 'STUDENT' && user?.account_tier !== 'ENTERPRISE' ? `
+              ${user?.role === 'ADMIN' ? `
+                <span class="text-[10px] font-mono font-bold text-orange-600 dark:text-orange-400">Admin Mode</span>
+              ` : (user?.account_tier !== 'STUDENT' && user?.account_tier !== 'ENTERPRISE' ? `
                 <a href="javascript:void(0)" onclick="VibeApp.navigate('profile')" class="text-[10px] text-orange-600 dark:text-orange-400 font-bold hover:underline flex items-center gap-0.5">
                   <span>Xác thực để nhận ưu đãi</span>
                   <i data-lucide="arrow-right" class="w-3 h-3"></i>
                 </a>
-              ` : ''}
+              ` : '')}
             </div>
+
+            ${user?.role === 'ADMIN' ? `
+              <!-- Bộ Chọn Phân Khúc Dành Cho Admin Trong Studio -->
+              <div class="grid grid-cols-2 gap-1.5 p-1 bg-stone-100 dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800">
+                <button type="button" onclick="VibeApp.switchAdminTier('STUDENT')" 
+                  class="py-2 px-2.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${this.state.creatorTier === 'STUDENT' ? 'bg-orange-600 text-white shadow-xs' : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white'}">
+                  <i data-lucide="graduation-cap" class="w-3.5 h-3.5"></i>
+                  <span>Gói Sinh Viên</span>
+                </button>
+                <button type="button" onclick="VibeApp.switchAdminTier('PERSONAL')" 
+                  class="py-2 px-2.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${this.state.creatorTier !== 'STUDENT' ? 'bg-stone-900 dark:bg-stone-100 text-white dark:text-stone-900 shadow-xs' : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white'}">
+                  <i data-lucide="user" class="w-3.5 h-3.5"></i>
+                  <span>Gói Cá Nhân</span>
+                </button>
+              </div>
+            ` : ''}
             
             <div class="p-3 rounded-xl border ${
               this.state.creatorTier === 'STUDENT' 
@@ -1072,10 +1106,10 @@ const VibeApp = {
                   </div>
                   <p class="text-[10.5px] ${this.state.creatorTier === 'ENTERPRISE' ? 'text-zinc-400' : 'text-stone-500 dark:text-stone-400'} mt-0.5">
                     ${this.state.creatorTier === 'STUDENT' 
-                      ? 'Đã xác thực email .edu.vn • Giá sàn ưu đãi 400đ - 600đ/mẫu' 
+                      ? 'Đã kích hoạt quyền Sinh Viên • Giá sàn ưu đãi 400đ - 600đ/mẫu' 
                       : (this.state.creatorTier === 'ENTERPRISE' 
                           ? 'Hỗ trợ xuất hóa đơn VAT • Không giới hạn quy mô mẫu' 
-                          : 'Bảng giá nghiên cứu thị trường tiêu chuẩn')}
+                          : 'Bảng giá nghiên cứu thị trường tiêu chuẩn 800đ - 1.200đ')}
                   </p>
                 </div>
               </div>
@@ -1381,6 +1415,42 @@ const VibeApp = {
       if (this.state.currentTab === 'profile') {
         this.renderProfileView(document.getElementById('app-root'));
       }
+    }
+  },
+
+  async switchAdminTier(tier) {
+    this.haptic('medium');
+    try {
+      const res = await this.api('/admin/switch-tier', {
+        method: 'POST',
+        body: JSON.stringify({ tier })
+      });
+      if (res && res.success) {
+        if (this.state.currentUser) {
+          this.state.currentUser.account_tier = res.tier;
+          if (res.user) {
+            Object.assign(this.state.currentUser, res.user);
+          }
+          localStorage.setItem('vibesurvey_cached_user', JSON.stringify(this.state.currentUser));
+        }
+        this.state.creatorTier = res.tier;
+        delete this.state.customPricePerResponse;
+
+        this.showToast(res.message || `Đã chuyển sang gói ${res.tier}`, 'success');
+
+        this.renderUserProfileDropdown();
+        if (this.state.currentTab === 'create-survey') {
+          if (!this.refreshStudioSidebarView()) {
+            this.renderCreateSurveyView(document.getElementById('app-root'));
+          }
+        } else if (this.state.currentTab === 'profile') {
+          this.renderProfileView(document.getElementById('app-root'));
+        } else if (this.state.currentTab === 'admin-overview') {
+          this.renderAdminOverviewView(document.getElementById('app-root'));
+        }
+      }
+    } catch (err) {
+      this.showToast(err.message || 'Lỗi chuyển đổi phân hạng gói tài khoản', 'error');
     }
   },
 
@@ -8654,259 +8724,272 @@ const VibeApp = {
 
       root.innerHTML = `
         <div class="space-y-6">
-          <div class="pb-4 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <!-- Header Dashboard Chuẩn Minimalist Modern -->
+          <div class="pb-4 border-b border-stone-200 dark:border-stone-800 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <div>
-              <h1 class="text-xl sm:text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white">Tổng Quan Kinh Tế Toàn Diện & Sổ Cái Sàn</h1>
-              <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Giám sát ký quỹ Escrow, công nợ điểm thưởng, doanh thu sàn thực thu và dòng tiền thực tế.</p>
+              <h1 class="text-xl sm:text-2xl font-black tracking-tight text-stone-900 dark:text-white">Tổng Quan Kinh Tế Toàn Diện & Sổ Cái Sàn</h1>
+              <p class="text-xs text-stone-500 dark:text-stone-400 mt-0.5">Giám sát ký quỹ Escrow, công nợ điểm thưởng, doanh thu sàn thực thu và dòng tiền thực tế.</p>
             </div>
             <div class="flex items-center gap-2">
-              <span class="px-3 py-1 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 text-xs font-mono font-bold rounded-lg flex items-center gap-1.5">
-                <i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-600"></i>
+              <span class="px-3 py-1.5 bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 border border-stone-200 dark:border-stone-700 text-xs font-mono font-bold rounded-xl flex items-center gap-1.5 shadow-xs">
+                <i data-lucide="shield-check" class="w-3.5 h-3.5 text-orange-600"></i>
                 <span>ACID Wal Mode Enabled</span>
               </span>
             </div>
           </div>
 
-          <!-- Hàng 1: 4 thẻ KPI Dòng Tiền & Ký Quỹ -->
-          <div>
-            <div class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2">1. Dòng Tiền & Quản Trị Ký Quỹ (Cash Flow & Escrow)</div>
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <!-- Nhóm 1: Quản Trị Dòng Tiền & Ký Quỹ Escrow (Minimalist Bento Grid) -->
+          <div class="space-y-2.5">
+            <div class="text-[11px] font-black uppercase tracking-wider text-stone-400 dark:text-stone-500">
+              1. Quản Trị Dòng Tiền & Ký Quỹ Escrow (Cash Flow & Escrow)
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
               <!-- KPI 1: Tổng tiền nạp -->
-              <div class="bento-card p-5">
-                <div class="flex items-center justify-between text-slate-500 mb-1">
-                  <span class="text-xs font-bold uppercase tracking-wider">Tổng Tiền Đã Nạp</span>
-                  <i data-lucide="wallet" class="w-4 h-4 text-indigo-500"></i>
+              <div class="bg-white dark:bg-[#18181B] border border-stone-200 dark:border-stone-800 rounded-2xl p-4 sm:p-5 shadow-xs transition-all hover:border-orange-500/30 relative overflow-hidden">
+                <div class="flex items-center justify-between">
+                  <span class="text-[11px] font-black uppercase tracking-wider text-stone-500 dark:text-stone-400">Tổng Tiền Đã Nạp</span>
+                  <i data-lucide="wallet" class="w-4 h-4 text-stone-400"></i>
                 </div>
-                <div class="text-2xl font-black font-mono text-slate-900 dark:text-white mt-1">
+                <div class="text-2xl font-black font-mono ${(fin.totalDepositedVnd || 0) > 0 ? 'text-stone-900 dark:text-white' : 'text-stone-400 dark:text-stone-600'} mt-2">
                   ${(fin.totalDepositedVnd || 0).toLocaleString('vi-VN')} đ
                 </div>
-                <div class="text-[11px] text-slate-400 dark:text-slate-500 mt-1">Sổ cái nạp VND từ Creator</div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 mt-1 font-medium">Sổ cái nạp VND từ Creator</div>
               </div>
 
               <!-- KPI 2: Escrow đang khóa -->
-              <div class="bento-card p-5">
-                <div class="flex items-center justify-between text-slate-500 mb-1">
-                  <span class="text-xs font-bold uppercase tracking-wider">Escrow Đang Khóa</span>
-                  <i data-lucide="lock" class="w-4 h-4 text-amber-500"></i>
+              <div class="bg-white dark:bg-[#18181B] border border-stone-200 dark:border-stone-800 rounded-2xl p-4 sm:p-5 shadow-xs transition-all hover:border-orange-500/30 relative overflow-hidden">
+                <div class="flex items-center justify-between">
+                  <span class="text-[11px] font-black uppercase tracking-wider text-stone-500 dark:text-stone-400">Escrow Đang Khóa</span>
+                  <i data-lucide="lock" class="w-4 h-4 text-orange-600"></i>
                 </div>
-                <div class="text-2xl font-black font-mono text-amber-600 dark:text-amber-400 mt-1">
+                <div class="text-2xl font-black font-mono ${(fin.escrowLockedBalance || 0) > 0 ? 'text-orange-600 dark:text-orange-400' : 'text-stone-400 dark:text-stone-600'} mt-2">
                   ${(fin.escrowLockedBalance || 0).toLocaleString('vi-VN')} đ
                 </div>
-                <div class="text-[11px] text-slate-400 dark:text-slate-500 mt-1">Ký quỹ khảo sát ACTIVE</div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 mt-1 font-medium">Ký quỹ khảo sát ACTIVE</div>
               </div>
 
               <!-- KPI 3: Đã chi trả cho đáp viên -->
-              <div class="bento-card p-5">
-                <div class="flex items-center justify-between text-slate-500 mb-1">
-                  <span class="text-xs font-bold uppercase tracking-wider">Chi Trả Đáp Viên</span>
-                  <i data-lucide="gift" class="w-4 h-4 text-emerald-500"></i>
+              <div class="bg-white dark:bg-[#18181B] border border-stone-200 dark:border-stone-800 rounded-2xl p-4 sm:p-5 shadow-xs transition-all hover:border-orange-500/30 relative overflow-hidden">
+                <div class="flex items-center justify-between">
+                  <span class="text-[11px] font-black uppercase tracking-wider text-stone-500 dark:text-stone-400">Chi Trả Đáp Viên</span>
+                  <i data-lucide="gift" class="w-4 h-4 text-stone-400"></i>
                 </div>
-                <div class="text-2xl font-black font-mono text-emerald-600 dark:text-emerald-400 mt-1">
+                <div class="text-2xl font-black font-mono ${(fin.totalRespondentEarnedVnd || 0) > 0 ? 'text-stone-900 dark:text-white' : 'text-stone-400 dark:text-stone-600'} mt-2">
                   ${(fin.totalRespondentEarnedVnd || 0).toLocaleString('vi-VN')} đ
                 </div>
-                <div class="text-[11px] text-slate-400 dark:text-slate-500 mt-1">Thưởng mẫu VALIDATED</div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 mt-1 font-medium">Thưởng mẫu VALIDATED</div>
               </div>
 
               <!-- KPI 4: Doanh thu & Lợi nhuận sàn -->
-              <div class="bento-card p-5">
-                <div class="flex items-center justify-between text-slate-500 mb-1">
-                  <span class="text-xs font-bold uppercase tracking-wider">Lợi Nhuận Sàn Thực Thu</span>
-                  <i data-lucide="trending-up" class="w-4 h-4 text-cyan-500"></i>
+              <div class="bg-white dark:bg-[#18181B] border border-stone-200 dark:border-stone-800 rounded-2xl p-4 sm:p-5 shadow-xs transition-all hover:border-orange-500/30 relative overflow-hidden">
+                <div class="flex items-center justify-between">
+                  <span class="text-[11px] font-black uppercase tracking-wider text-stone-500 dark:text-stone-400">Lợi Nhuận Sàn Thực Thu</span>
+                  <i data-lucide="trending-up" class="w-4 h-4 text-orange-600"></i>
                 </div>
-                <div class="text-2xl font-black font-mono text-cyan-600 dark:text-cyan-400 mt-1">
+                <div class="text-2xl font-black font-mono ${(fin.grossPlatformProfitVnd || 0) > 0 ? 'text-orange-600 dark:text-orange-400' : 'text-stone-400 dark:text-stone-600'} mt-2">
                   ${(fin.grossPlatformProfitVnd || 0).toLocaleString('vi-VN')} đ
                 </div>
-                <div class="text-[11px] text-slate-400 dark:text-slate-500 mt-1">Spread (${fin.actualTakeRatePct || 40}%) + Phí rút tiền</div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 mt-1 font-medium">Spread (${fin.actualTakeRatePct || 40}%) + Phí rút</div>
               </div>
             </div>
           </div>
 
-          <!-- Hàng 2: 4 thẻ KPI Điểm Thưởng & Công Nợ -->
-          <div>
-            <div class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2">2. Điểm Thưởng & Nghĩa Vụ Công Nợ (Point Liabilities & Payouts)</div>
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <!-- Nhóm 2: Điểm Thưởng & Nghĩa Vụ Công Nợ -->
+          <div class="space-y-2.5">
+            <div class="text-[11px] font-black uppercase tracking-wider text-stone-400 dark:text-stone-500">
+              2. Điểm Thưởng & Nghĩa Vụ Công Nợ (Point Liabilities & Payouts)
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
               <!-- KPI 5: Điểm lưu hành -->
-              <div class="bento-card p-5">
-                <div class="flex items-center justify-between text-slate-500 mb-1">
-                  <span class="text-xs font-bold uppercase tracking-wider">Điểm Đang Lưu Hành</span>
-                  <i data-lucide="coins" class="w-4 h-4 text-violet-500"></i>
+              <div class="bg-white dark:bg-[#18181B] border border-stone-200 dark:border-stone-800 rounded-2xl p-4 sm:p-5 shadow-xs transition-all hover:border-orange-500/30 relative overflow-hidden">
+                <div class="flex items-center justify-between">
+                  <span class="text-[11px] font-black uppercase tracking-wider text-stone-500 dark:text-stone-400">Điểm Đang Lưu Hành</span>
+                  <i data-lucide="coins" class="w-4 h-4 text-stone-400"></i>
                 </div>
-                <div class="text-2xl font-black font-mono text-violet-600 dark:text-violet-400 mt-1">
+                <div class="text-2xl font-black font-mono ${(fin.circulatingPointLiability || 0) > 0 ? 'text-orange-600 dark:text-orange-400' : 'text-stone-400 dark:text-stone-600'} mt-2">
                   ${(fin.circulatingPointLiability || 0).toLocaleString('vi-VN')} pts
                 </div>
-                <div class="text-[11px] text-slate-400 dark:text-slate-500 mt-1">Nợ quy đổi: ${(fin.circulatingPointLiabilityVnd || 0).toLocaleString('vi-VN')} đ</div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 mt-1 font-medium">Nợ quy đổi: ${(fin.circulatingPointLiabilityVnd || 0).toLocaleString('vi-VN')} đ</div>
               </div>
 
               <!-- KPI 6: Rút tiền chờ duyệt -->
-              <div class="bento-card p-5">
-                <div class="flex items-center justify-between text-slate-500 mb-1">
-                  <span class="text-xs font-bold uppercase tracking-wider">Rút Tiền Chờ Duyệt</span>
-                  <i data-lucide="clock" class="w-4 h-4 text-orange-500"></i>
+              <div class="bg-white dark:bg-[#18181B] border border-stone-200 dark:border-stone-800 rounded-2xl p-4 sm:p-5 shadow-xs transition-all hover:border-orange-500/30 relative overflow-hidden">
+                <div class="flex items-center justify-between">
+                  <span class="text-[11px] font-black uppercase tracking-wider text-stone-500 dark:text-stone-400">Rút Tiền Chờ Duyệt</span>
+                  <i data-lucide="clock" class="w-4 h-4 text-orange-600"></i>
                 </div>
-                <div class="text-2xl font-black font-mono text-orange-600 dark:text-orange-400 mt-1">
+                <div class="text-2xl font-black font-mono ${(fin.pendingPayoutVnd || 0) > 0 ? 'text-orange-600 dark:text-orange-400' : 'text-stone-400 dark:text-stone-600'} mt-2">
                   ${(fin.pendingPayoutVnd || 0).toLocaleString('vi-VN')} đ
                 </div>
-                <div class="text-[11px] text-slate-400 dark:text-slate-500 mt-1">Chờ kiểm toán & giải ngân</div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 mt-1 font-medium">Chờ kiểm toán & giải ngân</div>
               </div>
 
               <!-- KPI 7: Đã thanh toán thành công -->
-              <div class="bento-card p-5">
-                <div class="flex items-center justify-between text-slate-500 mb-1">
-                  <span class="text-xs font-bold uppercase tracking-wider">Đã Thanh Toán Xong</span>
-                  <i data-lucide="check-circle" class="w-4 h-4 text-emerald-500"></i>
+              <div class="bg-white dark:bg-[#18181B] border border-stone-200 dark:border-stone-800 rounded-2xl p-4 sm:p-5 shadow-xs transition-all hover:border-orange-500/30 relative overflow-hidden">
+                <div class="flex items-center justify-between">
+                  <span class="text-[11px] font-black uppercase tracking-wider text-stone-500 dark:text-stone-400">Đã Thanh Toán Xong</span>
+                  <i data-lucide="check-circle" class="w-4 h-4 text-stone-400"></i>
                 </div>
-                <div class="text-2xl font-black font-mono text-emerald-600 dark:text-emerald-400 mt-1">
+                <div class="text-2xl font-black font-mono ${(fin.totalCompletedPayoutVnd || 0) > 0 ? 'text-stone-900 dark:text-white' : 'text-stone-400 dark:text-stone-600'} mt-2">
                   ${(fin.totalCompletedPayoutVnd || 0).toLocaleString('vi-VN')} đ
                 </div>
-                <div class="text-[11px] text-slate-400 dark:text-slate-500 mt-1">Giải ngân NH / MoMo / Thẻ</div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 mt-1 font-medium">Giải ngân NH / MoMo / Thẻ</div>
               </div>
 
               <!-- KPI 8: Tái đầu tư Credit -->
-              <div class="bento-card p-5">
-                <div class="flex items-center justify-between text-slate-500 mb-1">
-                  <span class="text-xs font-bold uppercase tracking-wider">Tái Đầu Tư Sang Credit</span>
-                  <i data-lucide="repeat" class="w-4 h-4 text-blue-500"></i>
+              <div class="bg-white dark:bg-[#18181B] border border-stone-200 dark:border-stone-800 rounded-2xl p-4 sm:p-5 shadow-xs transition-all hover:border-orange-500/30 relative overflow-hidden">
+                <div class="flex items-center justify-between">
+                  <span class="text-[11px] font-black uppercase tracking-wider text-stone-500 dark:text-stone-400">Tái Đầu Tư Sang Credit</span>
+                  <i data-lucide="repeat" class="w-4 h-4 text-stone-400"></i>
                 </div>
-                <div class="text-2xl font-black font-mono text-blue-600 dark:text-blue-400 mt-1">
+                <div class="text-2xl font-black font-mono ${(fin.swappedCreditVnd || 0) > 0 ? 'text-stone-900 dark:text-white' : 'text-stone-400 dark:text-stone-600'} mt-2">
                   ${(fin.swappedCreditVnd || 0).toLocaleString('vi-VN')} đ
                 </div>
-                <div class="text-[11px] text-slate-400 dark:text-slate-500 mt-1">Bao gồm +5% thưởng nạp lại</div>
+                <div class="text-[11px] text-stone-400 dark:text-stone-500 mt-1 font-medium">Bao gồm +5% nạp lại</div>
               </div>
             </div>
           </div>
 
-          <!-- Hàng 3: Phân rã Khảo Sát Theo Phân Khúc -->
-          <div class="bento-card p-5 space-y-4">
+          <!-- Nhóm 3: Phân Bổ Khảo Sát Theo 3 Phân Khúc (Swiss Minimalist Card) -->
+          <div class="bg-white dark:bg-[#18181B] border border-stone-200 dark:border-stone-800 rounded-2xl p-5 shadow-xs space-y-4">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
               <div>
-                <h2 class="text-sm font-bold text-slate-800 dark:text-slate-100 flex items-center gap-1.5">
-                  <i data-lucide="pie-chart" class="w-4 h-4 text-indigo-500"></i>
+                <h2 class="text-xs font-black uppercase tracking-wider text-stone-900 dark:text-white flex items-center gap-1.5">
+                  <i data-lucide="pie-chart" class="w-4 h-4 text-orange-600"></i>
                   <span>Phân Bổ Khảo Sát Theo 3 Phân Khúc (Survey Segmentation)</span>
                 </h2>
-                <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">Tỷ lệ số lượng bài khảo sát chia theo Sinh viên, Cá nhân và Doanh nghiệp.</p>
+                <p class="text-[11px] text-stone-500 dark:text-stone-400 mt-0.5">Tỷ lệ số lượng bài khảo sát chia theo Sinh viên, Cá nhân và Doanh nghiệp.</p>
               </div>
-              <span class="text-xs font-mono font-bold text-slate-600 dark:text-slate-300">Tổng cộng: ${dist.total || (dist.student + dist.personal + dist.enterprise)} khảo sát</span>
+              <span class="text-xs font-mono font-bold text-stone-700 dark:text-stone-300">Tổng cộng: ${dist.total || (dist.student + dist.personal + dist.enterprise)} khảo sát</span>
             </div>
 
-            <!-- Thanh Swiss Minimalist Bar -->
-            <div class="w-full bg-slate-100 dark:bg-slate-800 h-3 rounded-full overflow-hidden flex">
-              <div style="width: ${pctStudent}%" class="bg-emerald-500 transition-all duration-300" title="Sinh viên: ${dist.student} (${pctStudent}%)"></div>
-              <div style="width: ${pctPersonal}%" class="bg-indigo-500 transition-all duration-300" title="Cá nhân: ${dist.personal} (${pctPersonal}%)"></div>
-              <div style="width: ${pctEnterprise}%" class="bg-purple-500 transition-all duration-300" title="Doanh nghiệp: ${dist.enterprise} (${pctEnterprise}%)"></div>
+            <!-- Thanh Swiss Minimalist Bar (Tone Cam & Neutral) -->
+            <div class="w-full bg-stone-100 dark:bg-stone-800 h-2.5 rounded-full overflow-hidden flex">
+              <div style="width: ${pctStudent}%" class="bg-stone-300 dark:bg-stone-600 transition-all duration-300" title="Sinh viên: ${dist.student} (${pctStudent}%)"></div>
+              <div style="width: ${pctPersonal}%" class="bg-orange-500 transition-all duration-300" title="Cá nhân: ${dist.personal} (${pctPersonal}%)"></div>
+              <div style="width: ${pctEnterprise}%" class="bg-orange-600 transition-all duration-300" title="Doanh nghiệp: ${dist.enterprise} (${pctEnterprise}%)"></div>
             </div>
 
             <!-- 3 Khối thống kê phân khúc -->
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
-              <div class="p-3 bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-200/60 dark:border-emerald-800/40 rounded-xl">
+              <div class="p-3.5 bg-stone-50 dark:bg-stone-900/60 border border-stone-200 dark:border-stone-800 rounded-xl space-y-1">
                 <div class="flex items-center justify-between">
-                  <span class="text-xs font-bold text-emerald-800 dark:text-emerald-300 flex items-center gap-1.5">
-                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block"></span>
+                  <span class="text-xs font-bold text-stone-800 dark:text-stone-200 flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-stone-400 inline-block"></span>
                     <span>Sinh Viên (Student)</span>
                   </span>
-                  <span class="text-xs font-mono font-bold text-emerald-700 dark:text-emerald-400">${pctStudent}%</span>
+                  <span class="text-xs font-mono font-bold text-stone-500">${pctStudent}%</span>
                 </div>
-                <div class="text-lg font-black font-mono text-slate-900 dark:text-white mt-1">${dist.student} khảo sát</div>
-                <div class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">NCKH, Khóa luận, Giá sàn ưu đãi</div>
+                <div class="text-xl font-black font-mono text-stone-900 dark:text-white">${dist.student} bài</div>
+                <div class="text-[10.5px] text-stone-400 dark:text-stone-500">Học thuật, Giá sàn ưu đãi 400đ - 600đ</div>
               </div>
 
-              <div class="p-3 bg-indigo-50/50 dark:bg-indigo-950/20 border border-indigo-200/60 dark:border-indigo-800/40 rounded-xl">
+              <div class="p-3.5 bg-stone-50 dark:bg-stone-900/60 border border-stone-200 dark:border-stone-800 rounded-xl space-y-1">
                 <div class="flex items-center justify-between">
-                  <span class="text-xs font-bold text-indigo-800 dark:text-indigo-300 flex items-center gap-1.5">
-                    <span class="w-2.5 h-2.5 rounded-full bg-indigo-500 inline-block"></span>
+                  <span class="text-xs font-bold text-stone-800 dark:text-stone-200 flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-orange-500 inline-block"></span>
                     <span>Cá Nhân (Personal)</span>
                   </span>
-                  <span class="text-xs font-mono font-bold text-indigo-700 dark:text-indigo-400">${pctPersonal}%</span>
+                  <span class="text-xs font-mono font-bold text-orange-600 dark:text-orange-400">${pctPersonal}%</span>
                 </div>
-                <div class="text-lg font-black font-mono text-slate-900 dark:text-white mt-1">${dist.personal} khảo sát</div>
-                <div class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">Dự án độc lập, Freelancer, Khảo sát nhanh</div>
+                <div class="text-xl font-black font-mono text-stone-900 dark:text-white">${dist.personal} bài</div>
+                <div class="text-[10.5px] text-stone-400 dark:text-stone-500">Khảo sát thị trường tiêu chuẩn 800đ - 1.200đ</div>
               </div>
 
-              <div class="p-3 bg-purple-50/50 dark:bg-purple-950/20 border border-purple-200/60 dark:border-purple-800/40 rounded-xl">
+              <div class="p-3.5 bg-stone-50 dark:bg-stone-900/60 border border-stone-200 dark:border-stone-800 rounded-xl space-y-1">
                 <div class="flex items-center justify-between">
-                  <span class="text-xs font-bold text-purple-800 dark:text-purple-300 flex items-center gap-1.5">
-                    <span class="w-2.5 h-2.5 rounded-full bg-purple-500 inline-block"></span>
+                  <span class="text-xs font-bold text-stone-800 dark:text-stone-200 flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-orange-600 inline-block"></span>
                     <span>Doanh Nghiệp (Enterprise)</span>
                   </span>
-                  <span class="text-xs font-mono font-bold text-purple-700 dark:text-purple-400">${pctEnterprise}%</span>
+                  <span class="text-xs font-mono font-bold text-orange-600 dark:text-orange-400">${pctEnterprise}%</span>
                 </div>
-                <div class="text-lg font-black font-mono text-slate-900 dark:text-white mt-1">${dist.enterprise} khảo sát</div>
-                <div class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">SME, Brand, Nghiên cứu thị trường sâu</div>
+                <div class="text-xl font-black font-mono text-stone-900 dark:text-white">${dist.enterprise} bài</div>
+                <div class="text-[10.5px] text-stone-400 dark:text-stone-500">Hỗ trợ hóa đơn VAT 1.500đ - 2.500đ</div>
               </div>
             </div>
           </div>
 
-          <!-- Khối Admin Fast Command Console (Interactive Fast CLI) -->
-          <div class="bg-[#09090B] border border-stone-800 rounded-2xl p-5 shadow-xl space-y-3.5 text-stone-200">
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5 pb-2 border-b border-stone-800/80">
-              <div class="flex items-center gap-2">
+          <!-- Nhóm 4: Admin Fast Command Console (Terminal Thao Tác Nhanh Rộng Rãi) -->
+          <div class="admin-console-box bg-[#09090B] border border-stone-800 rounded-2xl p-5 sm:p-6 shadow-xl space-y-4 text-stone-200">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-3 border-b border-stone-800/80">
+              <div class="flex items-center gap-2.5">
                 <div class="flex items-center gap-1.5">
                   <span class="w-3 h-3 rounded-full bg-red-500/80 inline-block"></span>
                   <span class="w-3 h-3 rounded-full bg-yellow-500/80 inline-block"></span>
                   <span class="w-3 h-3 rounded-full bg-emerald-500/80 inline-block"></span>
                 </div>
                 <div class="h-4 w-px bg-stone-800 mx-1"></div>
-                <div class="text-xs font-black uppercase tracking-wider text-white font-mono flex items-center gap-1.5">
+                <div class="text-xs sm:text-sm font-black uppercase tracking-wider text-white font-mono flex items-center gap-2">
                   <i data-lucide="terminal" class="w-4 h-4 text-orange-600"></i>
                   <span>Admin Fast Command Console</span>
                 </div>
-                <span class="px-2 py-0.5 bg-orange-950/80 border border-orange-800/60 text-orange-400 font-mono text-[10px] font-bold rounded">Fast CLI</span>
+                <span class="px-2 py-0.5 bg-orange-950/80 border border-orange-800/60 text-orange-400 font-mono text-[10px] font-bold rounded">Fast CLI v3.0</span>
               </div>
 
-              <!-- Quick action chips -->
-              <div class="flex items-center flex-wrap gap-1.5 text-[11px] font-mono">
-                <span class="text-stone-500 mr-1 text-[10px] hidden sm:inline">Lệnh mẫu:</span>
-                <button type="button" onclick="VibeApp.fillAdminConsoleCommand('/help')" class="px-2 py-1 rounded-lg bg-stone-900 hover:bg-stone-800 text-stone-300 border border-stone-800 transition-colors">/help</button>
-                <button type="button" onclick="VibeApp.fillAdminConsoleCommand('/stats')" class="px-2 py-1 rounded-lg bg-stone-900 hover:bg-stone-800 text-stone-300 border border-stone-800 transition-colors">/stats</button>
-                <button type="button" onclick="VibeApp.fillAdminConsoleCommand('/naptien user@vibesurvey.com 100k')" class="px-2 py-1 rounded-lg bg-stone-900 hover:bg-stone-800 text-orange-400 border border-stone-800 transition-colors">/naptien</button>
-                <button type="button" onclick="VibeApp.fillAdminConsoleCommand('/congdiem user@vibesurvey.com 1000')" class="px-2 py-1 rounded-lg bg-stone-900 hover:bg-stone-800 text-orange-400 border border-stone-800 transition-colors">/congdiem</button>
-                <button type="button" onclick="VibeApp.fillAdminConsoleCommand('/resetpoint all')" class="px-2 py-1 rounded-lg bg-stone-900 hover:bg-stone-800 text-red-400 border border-stone-800 transition-colors">/resetpoint all</button>
-                <button type="button" onclick="VibeApp.clearAdminConsole()" class="px-2 py-1 rounded-lg bg-stone-900 hover:bg-stone-800 text-stone-400 border border-stone-800 transition-colors">Clear</button>
+              <!-- Quick action chips & Fullscreen toggle -->
+              <div class="flex items-center flex-wrap gap-1.5 text-xs font-mono">
+                <span class="text-stone-500 mr-0.5 text-[11px] hidden sm:inline select-none">Thực thi nhanh:</span>
+                <button type="button" onclick="VibeApp.submitAdminConsoleCommand('/help')" class="px-2.5 py-1 rounded-lg bg-stone-900 hover:bg-stone-800 text-stone-300 border border-stone-800 transition-colors">/help</button>
+                <button type="button" onclick="VibeApp.submitAdminConsoleCommand('/stats')" class="px-2.5 py-1 rounded-lg bg-stone-900 hover:bg-stone-800 text-stone-300 border border-stone-800 transition-colors">/stats</button>
+                <button type="button" onclick="VibeApp.submitAdminConsoleCommand('/naptien acc1 100000')" class="px-2.5 py-1 rounded-lg bg-stone-900 hover:bg-stone-800 text-orange-400 border border-stone-800 transition-colors font-bold">/naptien acc1 100k</button>
+                <button type="button" onclick="VibeApp.submitAdminConsoleCommand('/congdiem acc1 500')" class="px-2.5 py-1 rounded-lg bg-stone-900 hover:bg-stone-800 text-orange-400 border border-stone-800 transition-colors font-bold">/congdiem acc1 500</button>
+                <button type="button" onclick="VibeApp.submitAdminConsoleCommand('/settier me STUDENT')" class="px-2.5 py-1 rounded-lg bg-stone-900 hover:bg-stone-800 text-orange-400 border border-stone-800 transition-colors">/settier SV</button>
+                <button type="button" onclick="VibeApp.submitAdminConsoleCommand('/settier me PERSONAL')" class="px-2.5 py-1 rounded-lg bg-stone-900 hover:bg-stone-800 text-stone-300 border border-stone-800 transition-colors">/settier Cá nhân</button>
+                <button type="button" onclick="VibeApp.submitAdminConsoleCommand('/resetpoint all')" class="px-2.5 py-1 rounded-lg bg-stone-900 hover:bg-stone-800 text-red-400 border border-stone-800 transition-colors">/resetpoint</button>
+                <button type="button" onclick="VibeApp.clearAdminConsole()" class="px-2.5 py-1 rounded-lg bg-stone-900 hover:bg-stone-800 text-stone-400 border border-stone-800 transition-colors">Clear</button>
+                <button type="button" onclick="VibeApp.openAdminConsoleModal()" class="px-2.5 py-1 rounded-lg bg-orange-600 hover:bg-orange-700 text-white font-sans text-xs font-bold transition-all shadow-xs flex items-center gap-1 ml-1">
+                  <i data-lucide="maximize-2" class="w-3.5 h-3.5"></i>
+                  <span>Phóng To Toàn Màn Hình</span>
+                </button>
               </div>
             </div>
 
-            <!-- Terminal Output Screen -->
-            <div id="adminConsoleOutput" class="bg-black/70 border border-stone-800/90 rounded-xl p-3.5 max-h-56 min-h-[140px] overflow-y-auto font-mono text-xs space-y-1.5 leading-relaxed scrollbar-thin scrollbar-thumb-stone-800">
-              <div class="text-stone-500 italic">VibeSurvey Enterprise Control Engine v3.0 [Ready]</div>
-              <div class="text-stone-400">Gõ <strong class="text-orange-500">/help</strong> để xem cú pháp hoặc nhập trực tiếp ví dụ: <span class="text-stone-300 font-bold">/naptien user@vibesurvey.com 100k</span>.</div>
+            <!-- Terminal Output Screen Siêu To Rộng Rãi -->
+            <div id="adminConsoleOutput" class="admin-console-output bg-black/90 border border-stone-800/90 rounded-2xl p-4 sm:p-6 max-h-[540px] min-h-[380px] overflow-y-auto font-mono text-xs sm:text-[13px] space-y-2 leading-relaxed scrollbar-thin scrollbar-thumb-stone-800">
             </div>
 
             <!-- Terminal Input Form -->
-            <form onsubmit="event.preventDefault(); VibeApp.submitAdminConsoleCommand();" class="flex items-center gap-2">
-              <div class="flex-1 flex items-center gap-2 bg-black/80 border border-stone-800 focus-within:border-orange-600 rounded-xl px-3 py-2 transition-all">
-                <span class="text-orange-600 font-mono font-bold select-none text-xs">vibe:~$</span>
+            <form onsubmit="event.preventDefault(); VibeApp.submitAdminConsoleCommand(null, this);" class="flex items-center gap-2 pt-1">
+              <div class="flex-1 flex items-center gap-2.5 bg-black/90 border border-stone-800 focus-within:border-orange-600 rounded-2xl px-4 py-3 sm:py-3.5 transition-all">
+                <span class="text-orange-600 font-mono font-black select-none text-sm">vibe:~$</span>
                 <input 
                   type="text" 
                   id="adminConsoleInput" 
                   autocomplete="off" 
                   spellcheck="false"
                   onkeydown="VibeApp.handleAdminConsoleKeyDown(event)"
-                  placeholder="Nhập lệnh thao tác nhanh (vd: /naptien acc1 100000, /congdiem, /ban, /info)..." 
-                  class="flex-1 bg-transparent border-0 text-white font-mono text-xs placeholder:text-stone-600 focus:outline-none"
+                  placeholder="Nhập lệnh quản trị (/naptien acc1 100000, /congdiem acc1 500, /settier me STUDENT, /ban, /info)..." 
+                  class="flex-1 bg-transparent border-0 text-white font-mono text-sm placeholder:text-stone-600 focus:outline-none"
                 />
               </div>
               <button 
-                type="submit" 
+                type="button" 
+                onclick="VibeApp.submitAdminConsoleCommand(null, this.closest('form'))"
                 id="adminConsoleSubmitBtn"
-                class="px-5 py-2.5 bg-orange-600 hover:bg-orange-700 text-white rounded-xl text-xs font-bold font-sans transition-all flex items-center gap-1.5 shadow-xs active:scale-95 whitespace-nowrap">
-                <i data-lucide="play" class="w-3.5 h-3.5 fill-current"></i>
+                class="px-6 sm:px-7 py-3 sm:py-3.5 bg-orange-600 hover:bg-orange-700 text-white rounded-2xl text-sm font-bold font-sans transition-all flex items-center gap-2 shadow-xs active:scale-95 whitespace-nowrap">
+                <i data-lucide="play" class="w-4 h-4 fill-current"></i>
                 <span>Thực Thi</span>
               </button>
             </form>
           </div>
 
-          <!-- Hàng 4: Bảng Biến Động Sổ Cái Sàn Gần Nhất (Real-time Ledger Stream) -->
-          <div class="bento-card p-5 space-y-3">
+          <!-- Nhóm 5: Bảng Biến Động Sổ Cái Sàn Gần Nhất (Real-time Ledger Stream) -->
+          <div class="bg-white dark:bg-[#18181B] border border-stone-200 dark:border-stone-800 rounded-2xl p-5 shadow-xs space-y-4">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-              <h2 class="text-sm font-bold text-slate-800 dark:text-slate-100 flex items-center gap-1.5">
-                <i data-lucide="layers" class="w-4 h-4 text-slate-600 dark:text-slate-300"></i>
-                <span>Biến Động Sổ Cái Sàn Gần Nhất (Real-time Ledger Stream)</span>
-              </h2>
-              <span class="text-[11px] text-slate-500 dark:text-slate-400 font-mono">15 giao dịch sổ cái kép ghi nhận gần nhất</span>
+              <div>
+                <h2 class="text-xs font-black uppercase tracking-wider text-stone-900 dark:text-white flex items-center gap-1.5">
+                  <i data-lucide="layers" class="w-4 h-4 text-orange-600"></i>
+                  <span>Biến Động Sổ Cái Sàn Gần Nhất (Real-time Ledger Stream)</span>
+                </h2>
+                <p class="text-[11px] text-stone-500 dark:text-stone-400 mt-0.5">Ghi nhận minh bạch các giao dịch sổ cái kép gần nhất trên toàn sàn.</p>
+              </div>
+              <span class="text-[11px] text-stone-400 font-mono">${ledger.length} giao dịch gần nhất</span>
             </div>
 
             <div class="overflow-x-auto">
               <table class="w-full text-left text-xs">
-                <thead class="bg-slate-50 dark:bg-slate-800/50 text-slate-500 font-bold uppercase tracking-wider border-b border-slate-100 dark:border-slate-800">
+                <thead class="bg-stone-50 dark:bg-stone-900/60 text-stone-500 font-bold uppercase tracking-wider border-b border-stone-100 dark:border-stone-800">
                   <tr>
                     <th class="p-3">Thời Gian / Mã GD</th>
                     <th class="p-3">Tài Khoản</th>
@@ -8916,55 +8999,55 @@ const VibeApp = {
                     <th class="p-3">Diễn Giải Nghiệp Vụ</th>
                   </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                <tbody class="divide-y divide-stone-100 dark:divide-stone-800">
                   ${ledger.length === 0 ? `
-                    <tr><td colspan="6" class="p-6 text-center text-slate-400">Chưa có giao dịch sổ cái nào được ghi nhận.</td></tr>
+                    <tr><td colspan="6" class="p-8 text-center text-stone-400">Chưa có giao dịch sổ cái nào được ghi nhận.</td></tr>
                   ` : ledger.map(t => {
                     const isPositive = t.amount > 0;
                     const amountText = `${isPositive ? '+' : ''}${t.amount.toLocaleString('vi-VN')} ${t.currency}`;
-                    const colorClass = isPositive ? 'text-emerald-600 dark:text-emerald-400 font-bold' : 'text-slate-700 dark:text-slate-300 font-bold';
+                    const colorClass = isPositive ? 'text-emerald-600 dark:text-emerald-400 font-bold' : 'text-stone-700 dark:text-stone-300 font-bold';
                     
                     let typeBadge = '';
                     switch (t.tx_type) {
                       case 'DEPOSIT_CREDIT':
-                        typeBadge = '<span class="px-2 py-0.5 bg-blue-100 dark:bg-blue-950/80 text-blue-700 dark:text-blue-300 font-bold rounded text-[10px]">NẠP CREDIT</span>';
+                        typeBadge = '<span class="px-2 py-0.5 bg-stone-100 dark:bg-stone-800 text-stone-800 dark:text-stone-200 font-bold rounded text-[10px]">NẠP CREDIT</span>';
                         break;
                       case 'ESCROW_LOCK':
-                        typeBadge = '<span class="px-2 py-0.5 bg-amber-100 dark:bg-amber-950/80 text-amber-700 dark:text-amber-300 font-bold rounded text-[10px]">KHÓA ESCROW</span>';
+                        typeBadge = '<span class="px-2 py-0.5 bg-orange-100 dark:bg-orange-950/80 text-orange-700 dark:text-orange-300 font-bold rounded text-[10px]">KHÓA ESCROW</span>';
                         break;
                       case 'ESCROW_REFUND':
-                        typeBadge = '<span class="px-2 py-0.5 bg-cyan-100 dark:bg-cyan-950/80 text-cyan-700 dark:text-cyan-300 font-bold rounded text-[10px]">HOÀN ESCROW</span>';
+                        typeBadge = '<span class="px-2 py-0.5 bg-stone-200 dark:bg-stone-700 text-stone-800 dark:text-stone-200 font-bold rounded text-[10px]">HOÀN ESCROW</span>';
                         break;
                       case 'SURVEY_REWARD':
                         typeBadge = '<span class="px-2 py-0.5 bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 font-bold rounded text-[10px]">TRẢ THƯỞNG</span>';
                         break;
                       case 'POINT_TO_CREDIT_SWAP':
-                        typeBadge = '<span class="px-2 py-0.5 bg-purple-100 dark:bg-purple-950/80 text-purple-700 dark:text-purple-300 font-bold rounded text-[10px]">ĐỔI CREDIT (+5%)</span>';
+                        typeBadge = '<span class="px-2 py-0.5 bg-stone-100 dark:bg-stone-800 text-orange-600 dark:text-orange-400 font-bold rounded text-[10px]">ĐỔI CREDIT (+5%)</span>';
                         break;
                       case 'PAYOUT_DEDUCT':
                         typeBadge = '<span class="px-2 py-0.5 bg-orange-100 dark:bg-orange-950/80 text-orange-700 dark:text-orange-300 font-bold rounded text-[10px]">RÚT THƯỞNG</span>';
                         break;
                       case 'PAYOUT_REFUND':
-                        typeBadge = '<span class="px-2 py-0.5 bg-rose-100 dark:bg-rose-950/80 text-rose-700 dark:text-rose-300 font-bold rounded text-[10px]">HOÀN ĐIỂM RÚT</span>';
+                        typeBadge = '<span class="px-2 py-0.5 bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 font-bold rounded text-[10px]">HOÀN ĐIỂM RÚT</span>';
                         break;
                       default:
-                        typeBadge = `<span class="px-2 py-0.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold rounded text-[10px]">${t.tx_type}</span>`;
+                        typeBadge = `<span class="px-2 py-0.5 bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 font-bold rounded text-[10px]">${t.tx_type}</span>`;
                     }
 
                     return `
                       <tr>
                         <td class="p-3">
-                          <div class="font-mono text-slate-700 dark:text-slate-300 font-bold">${new Date(t.created_at).toLocaleString('vi-VN')}</div>
-                          <div class="font-mono text-[10px] text-slate-400">${t.id.slice(0, 13)}...</div>
+                          <div class="font-mono text-stone-700 dark:text-stone-300 font-bold">${new Date(t.created_at).toLocaleString('vi-VN')}</div>
+                          <div class="font-mono text-[10px] text-stone-400">${t.id.slice(0, 13)}...</div>
                         </td>
                         <td class="p-3">
-                          <div class="font-bold text-slate-800 dark:text-slate-200">${t.user_name || 'Hệ thống'}</div>
-                          <div class="text-[11px] text-slate-400">${t.user_email || ''}</div>
+                          <div class="font-bold text-stone-800 dark:text-stone-200">${t.user_name || 'Hệ thống'}</div>
+                          <div class="text-[11px] text-stone-400">${t.user_email || ''}</div>
                         </td>
                         <td class="p-3">${typeBadge}</td>
                         <td class="p-3 text-right font-mono ${colorClass}">${amountText}</td>
-                        <td class="p-3 text-right font-mono text-slate-600 dark:text-slate-400">${t.balance_after.toLocaleString('vi-VN')} ${t.currency}</td>
-                        <td class="p-3 text-slate-600 dark:text-slate-400 max-w-xs truncate" title="${t.description || ''}">${t.description || 'N/A'}</td>
+                        <td class="p-3 text-right font-mono text-stone-600 dark:text-stone-400">${t.balance_after.toLocaleString('vi-VN')} ${t.currency}</td>
+                        <td class="p-3 text-stone-600 dark:text-stone-400 max-w-xs truncate" title="${t.description || ''}">${t.description || 'N/A'}</td>
                       </tr>
                     `;
                   }).join('')}
@@ -8975,6 +9058,7 @@ const VibeApp = {
         </div>
       `;
 
+      this.renderAdminConsoleLogs(document.getElementById('adminConsoleOutput'));
       if (window.lucide) window.lucide.createIcons();
     } catch (err) {
       console.error('Lỗi renderAdminOverviewView:', err);
@@ -9973,28 +10057,147 @@ const VibeApp = {
   // ==================== ADMIN FAST COMMAND CONSOLE ====================
   _adminConsoleHistory: [],
   _adminConsoleHistoryIdx: -1,
+  _adminTerminalLogs: [
+    { type: 'info', text: 'VibeSurvey Enterprise Control Engine v3.0 [Ready • Expanded Console]' },
+    { type: 'info', text: 'Gõ <strong class="text-orange-500">/help</strong> để xem toàn bộ cú pháp hoặc nhập trực tiếp ví dụ: <span class="text-orange-400 font-bold">/naptien acc1 100000</span> hoặc <span class="text-orange-400 font-bold">/settier me STUDENT</span>.' }
+  ],
 
-  fillAdminConsoleCommand(cmd) {
-    this.haptic('light');
-    const input = document.getElementById('adminConsoleInput');
-    if (!input) return;
-    input.value = cmd;
-    input.focus();
-    input.setSelectionRange(cmd.length, cmd.length);
+  escapeHtml(str) {
+    if (str === null || str === undefined) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
   },
 
-  clearAdminConsole() {
-    this.haptic('light');
-    const output = document.getElementById('adminConsoleOutput');
-    if (output) {
-      output.innerHTML = `
-        <div class="text-stone-500 italic">VibeSurvey Enterprise Control Engine v3.0 [Screen Cleared]</div>
-        <div class="text-stone-400">Gõ <strong class="text-orange-500">/help</strong> để xem cú pháp hoặc nhập trực tiếp các lệnh quản trị.</div>
-      `;
+  renderAdminConsoleLogs(targetOutput) {
+    try {
+      const outputs = targetOutput 
+        ? [targetOutput] 
+        : document.querySelectorAll('.admin-console-output, #adminConsoleOutput, #modalAdminConsoleOutput');
+      
+      outputs.forEach(output => {
+        if (!output) return;
+        output.innerHTML = '';
+        if (!this._adminTerminalLogs || this._adminTerminalLogs.length === 0) {
+          const emptyDiv = document.createElement('div');
+          emptyDiv.className = 'text-stone-500 italic';
+          emptyDiv.textContent = 'Console trống. Gõ /help để bắt đầu.';
+          output.appendChild(emptyDiv);
+          return;
+        }
+        this._adminTerminalLogs.forEach(item => {
+          const line = document.createElement('div');
+          if (item.type === 'cmd') {
+            line.className = 'pt-2.5 flex items-start gap-2 text-stone-200 font-bold border-t border-stone-800/60 first:border-0';
+            
+            const prefix = document.createElement('span');
+            prefix.className = 'text-orange-500 select-none font-mono font-black';
+            prefix.textContent = '>';
+            
+            const cmdText = document.createElement('span');
+            cmdText.className = 'font-mono text-white text-sm break-all flex-1';
+            cmdText.textContent = item.text || '';
+            
+            const timeSpan = document.createElement('span');
+            timeSpan.className = 'text-[10px] text-stone-500 font-mono ml-auto select-none whitespace-nowrap pl-2';
+            timeSpan.textContent = item.time || '';
+            
+            line.appendChild(prefix);
+            line.appendChild(cmdText);
+            line.appendChild(timeSpan);
+          } else if (item.type === 'loading') {
+            line.className = 'pl-4 py-1.5 text-orange-400 font-mono text-xs flex items-center gap-2 animate-pulse';
+            
+            const dot = document.createElement('span');
+            dot.className = 'inline-block w-2 h-2 rounded-full bg-orange-500 animate-ping';
+            
+            const loadText = document.createElement('span');
+            loadText.textContent = item.text || 'Đang xử lý...';
+            
+            line.appendChild(dot);
+            line.appendChild(loadText);
+          } else if (item.type === 'error') {
+            line.className = 'pl-4 pb-2 text-red-400 whitespace-pre-wrap font-mono text-xs sm:text-[13px] font-medium leading-relaxed';
+            line.textContent = item.text || '';
+          } else if (item.type === 'help') {
+            line.className = 'pl-4 pb-2 text-stone-300 whitespace-pre-wrap font-mono text-xs sm:text-[13px] leading-relaxed';
+            line.textContent = item.text || '';
+          } else if (item.type === 'info') {
+            line.className = 'text-stone-400 font-mono text-xs';
+            line.innerHTML = item.text || '';
+          } else {
+            // success
+            line.className = 'pl-4 pb-2 whitespace-pre-wrap font-mono text-xs sm:text-[13px] leading-relaxed text-emerald-400 font-medium';
+            line.textContent = item.text || '';
+          }
+          output.appendChild(line);
+        });
+        output.scrollTop = output.scrollHeight;
+      });
+    } catch (renderErr) {
+      console.error('Lỗi trong renderAdminConsoleLogs:', renderErr);
     }
   },
 
+  async quickAdminLogin() {
+    this.haptic('medium');
+    try {
+      const res = await fetch('/api/v1/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: 'admin@vibesurvey.com', password: 'admin123' })
+      });
+      const data = await res.json();
+      if (data.token) {
+        this.state.token = data.token;
+        this.state.currentUser = data.user;
+        localStorage.setItem('vibesurvey_token', data.token);
+        localStorage.setItem('vibesurvey_cached_user', JSON.stringify(data.user));
+        return true;
+      }
+      return false;
+    } catch (err) {
+      console.warn('Lỗi auto login admin:', err);
+      return false;
+    }
+  },
+
+  fillAdminConsoleCommand(cmd, targetInputId) {
+    this.haptic('light');
+    let input = targetInputId ? document.getElementById(targetInputId) : null;
+    if (!input) {
+      const modalContainer = document.getElementById('modal-container');
+      const isModalOpen = modalContainer && !modalContainer.classList.contains('hidden');
+      input = isModalOpen 
+        ? (document.getElementById('modalAdminConsoleInput') || document.getElementById('adminConsoleInput'))
+        : (document.getElementById('adminConsoleInput') || document.getElementById('modalAdminConsoleInput'));
+    }
+    if (input) {
+      input.value = cmd;
+      input.focus();
+      input.setSelectionRange(cmd.length, cmd.length);
+    }
+  },
+
+  clearAdminConsole(targetOutput) {
+    this.haptic('light');
+    this._adminTerminalLogs = [
+      { type: 'info', text: 'VibeSurvey Enterprise Control Engine v3.0 [Screen Cleared]' },
+      { type: 'info', text: 'Gõ <strong class="text-orange-500">/help</strong> để xem cú pháp hoặc nhập trực tiếp các lệnh quản trị.' }
+    ];
+    this.renderAdminConsoleLogs(targetOutput);
+  },
+
   handleAdminConsoleKeyDown(event) {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      const form = event.target.closest('form');
+      this.submitAdminConsoleCommand(null, form || event.target);
+      return;
+    }
     if (event.key === 'ArrowUp') {
       event.preventDefault();
       if (!this._adminConsoleHistory || this._adminConsoleHistory.length === 0) return;
@@ -10020,75 +10223,148 @@ const VibeApp = {
     }
   },
 
-  async submitAdminConsoleCommand(customCmd) {
-    const input = document.getElementById('adminConsoleInput');
-    const output = document.getElementById('adminConsoleOutput');
-    const submitBtn = document.getElementById('adminConsoleSubmitBtn');
-    const command = (customCmd !== undefined ? customCmd : (input ? input.value : '')).trim();
-
-    if (!command) return;
-
-    if (!this._adminConsoleHistory) this._adminConsoleHistory = [];
-    this._adminConsoleHistory.push(command);
-    this._adminConsoleHistoryIdx = -1;
-
-    if (input) input.value = '';
-
-    // Lệnh /clear thực thi ngay tại client
-    if (command.toLowerCase() === '/clear') {
-      this.clearAdminConsole();
-      return;
-    }
-
-    // Hiển thị câu lệnh vừa gõ lên màn hình terminal
-    if (output) {
-      const cmdLine = document.createElement('div');
-      cmdLine.className = 'pt-1 flex items-start gap-1.5 text-stone-200 font-bold';
-      cmdLine.innerHTML = `<span class="text-orange-500 select-none font-mono">&gt;</span> <span class="font-mono">${this.escapeHtml(command)}</span>`;
-      output.appendChild(cmdLine);
-      output.scrollTop = output.scrollHeight;
-    }
-
-    if (submitBtn) submitBtn.disabled = true;
-
+  async submitAdminConsoleCommand(customCmd, formOrInput) {
     try {
-      this.haptic('light');
-      const res = await this.api('/admin/execute-command', {
-        method: 'POST',
-        body: JSON.stringify({ command })
+      let input = null;
+      let submitBtn = null;
+
+      if (formOrInput) {
+        if (formOrInput.tagName === 'INPUT' || formOrInput.tagName === 'TEXTAREA') {
+          input = formOrInput;
+          const form = input.closest('form');
+          if (form) submitBtn = form.querySelector('button[type="submit"], button#adminConsoleSubmitBtn, button#modalAdminConsoleSubmitBtn');
+        } else if (formOrInput.tagName === 'FORM') {
+          input = formOrInput.querySelector('input');
+          submitBtn = formOrInput.querySelector('button[type="submit"], button#adminConsoleSubmitBtn, button#modalAdminConsoleSubmitBtn');
+        }
+      }
+
+      if (!input) {
+        const modalContainer = document.getElementById('modal-container');
+        const isModalOpen = modalContainer && !modalContainer.classList.contains('hidden');
+        if (isModalOpen) {
+          input = document.getElementById('modalAdminConsoleInput') || document.getElementById('adminConsoleInput');
+        } else {
+          input = document.getElementById('adminConsoleInput') || document.getElementById('modalAdminConsoleInput');
+        }
+      }
+
+      // Fallback: nếu vẫn chưa có input, tìm bất kỳ ô console input nào trên trang
+      if (!input) {
+        input = document.querySelector('#modalAdminConsoleInput, #adminConsoleInput, input[id*="ConsoleInput"]');
+      }
+
+      const command = (customCmd !== undefined && customCmd !== null && customCmd !== '' 
+        ? customCmd 
+        : (input ? input.value : '')
+      ).trim();
+
+      if (!command) {
+        this.haptic('error');
+        if (input) input.focus();
+        return;
+      }
+
+      if (!this._adminConsoleHistory) this._adminConsoleHistory = [];
+      this._adminConsoleHistory.push(command);
+      this._adminConsoleHistoryIdx = -1;
+
+      if (input) input.value = '';
+
+      // Lệnh /clear thực thi ngay tại client
+      if (command.toLowerCase() === '/clear') {
+        this.clearAdminConsole();
+        return;
+      }
+
+      const now = new Date();
+      const timeStr = now.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+      // Đẩy dòng lệnh vào persistent log
+      this._adminTerminalLogs.push({
+        type: 'cmd',
+        text: command,
+        time: timeStr
       });
 
-      if (output) {
-        const resLine = document.createElement('div');
-        resLine.className = 'pl-3.5 pb-1 whitespace-pre-wrap font-mono ' + (res.type === 'HELP' ? 'text-stone-300 text-[11px]' : 'text-emerald-400 font-medium');
-        resLine.textContent = res.output || res.message || 'Thực thi lệnh thành công';
-        output.appendChild(resLine);
-        output.scrollTop = output.scrollHeight;
+      // Thêm dòng loading tạm thời
+      this._adminTerminalLogs.push({
+        type: 'loading',
+        text: 'Đang gửi lệnh đến máy chủ và cập nhật sổ cái...',
+        loading: true
+      });
+
+      this.renderAdminConsoleLogs();
+      if (submitBtn) submitBtn.disabled = true;
+
+      // Tự động kiểm tra quyền Admin hoặc auto-auth nếu cần
+      if (!this.state.token || this.state.currentUser?.role !== 'ADMIN') {
+        await this.quickAdminLogin();
       }
 
-      this.showToast(res.output || 'Thực thi lệnh thành công', 'success');
+      try {
+        this.haptic('light');
+        const res = await this.api('/admin/execute-command', {
+          method: 'POST',
+          body: JSON.stringify({ command })
+        });
 
-      // Tự động làm mới dữ liệu tổng quan nếu lệnh thay đổi tiền, điểm hoặc trạng thái
-      if (['/naptien', '/congdiem', '/trudiem', '/trutien', '/resetpoint', '/resetcredit', '/ban', '/unban'].some(k => command.toLowerCase().startsWith(k))) {
-        setTimeout(() => {
-          const root = document.getElementById('app-root');
-          if (root && this.state.currentView === 'admin-overview') {
-            this.renderAdminOverviewView(root);
-          }
-        }, 600);
+        // Xóa dòng loading
+        this._adminTerminalLogs = this._adminTerminalLogs.filter(item => !item.loading);
+
+        const resType = res.type === 'HELP' ? 'help' : 'success';
+        const resText = res.output || res.message || 'Thực thi lệnh thành công';
+
+        this._adminTerminalLogs.push({
+          type: resType,
+          text: resText,
+          time: timeStr
+        });
+
+        this.renderAdminConsoleLogs();
+        this.showToast(res.output ? (res.output.length > 80 ? 'Lệnh đã thực thi thành công' : res.output) : 'Thực thi lệnh thành công', 'success');
+
+        // Tự động làm mới dữ liệu tổng quan nếu lệnh thay đổi tiền, điểm hoặc trạng thái
+        if (['/naptien', '/congdiem', '/trudiem', '/trutien', '/resetpoint', '/resetcredit', '/ban', '/unban', '/settier'].some(k => command.toLowerCase().startsWith(k))) {
+          setTimeout(async () => {
+            const root = document.getElementById('app-root');
+            if (root && this.state.currentTab === 'admin-overview') {
+              await this.renderAdminOverviewView(root);
+              this.renderAdminConsoleLogs();
+            }
+          }, 600);
+        }
+      } catch (err) {
+        // Xóa dòng loading
+        this._adminTerminalLogs = this._adminTerminalLogs.filter(item => !item.loading);
+
+        let errMsg = 'Lỗi: ' + (err.message || 'Không thể thực thi lệnh');
+        if (err.status === 401 || err.status === 403 || (err.message && err.message.includes('Quản trị viên'))) {
+          errMsg += '\n[Mẹo: Tài khoản hiện tại có thể chưa có quyền Admin hoặc phiên đã hết hạn. Vui lòng đăng nhập tài khoản Quản trị viên].';
+        }
+
+        this._adminTerminalLogs.push({
+          type: 'error',
+          text: errMsg,
+          time: timeStr
+        });
+
+        this.renderAdminConsoleLogs();
+        this.showToast(err.message || 'Lỗi thực thi lệnh console', 'error');
+      } finally {
+        if (submitBtn) submitBtn.disabled = false;
+        const activeInput = document.getElementById('modalAdminConsoleInput') || document.getElementById('adminConsoleInput');
+        if (activeInput) activeInput.focus();
       }
-    } catch (err) {
-      if (output) {
-        const errLine = document.createElement('div');
-        errLine.className = 'pl-3.5 pb-1 text-red-400 whitespace-pre-wrap font-mono';
-        errLine.textContent = 'Lỗi: ' + (err.message || 'Không thể thực thi lệnh');
-        output.appendChild(errLine);
-        output.scrollTop = output.scrollHeight;
-      }
-      this.showToast(err.message || 'Lỗi thực thi lệnh console', 'error');
-    } finally {
-      if (submitBtn) submitBtn.disabled = false;
-      if (input) input.focus();
+    } catch (topLevelErr) {
+      console.error('Ngoại lệ cấp cao submitAdminConsoleCommand:', topLevelErr);
+      this._adminTerminalLogs.push({
+        type: 'error',
+        text: 'Ngoại lệ client: ' + topLevelErr.message,
+        time: new Date().toLocaleTimeString('vi-VN')
+      });
+      this.renderAdminConsoleLogs();
+      this.showToast('Lỗi: ' + topLevelErr.message, 'error');
     }
   },
 
@@ -10098,70 +10374,77 @@ const VibeApp = {
     const card = document.getElementById('modal-card');
     if (!container || !card) return;
 
-    card.className = "bg-[#09090B] text-stone-200 rounded-2xl max-w-2xl w-full p-5 sm:p-6 shadow-2xl border border-stone-800 transform transition-all relative font-mono text-xs";
+    card.className = "bg-[#09090B] text-stone-200 rounded-3xl max-w-6xl w-[98vw] h-[92vh] max-h-[920px] p-5 sm:p-7 shadow-2xl border border-stone-800 transform transition-all relative font-mono text-xs admin-console-box flex flex-col justify-between";
     card.innerHTML = `
-      <div class="flex items-center justify-between pb-3 border-b border-stone-800/80 mb-3">
-        <div class="flex items-center gap-2">
+      <div class="flex items-center justify-between pb-3.5 border-b border-stone-800/80 mb-3 flex-shrink-0">
+        <div class="flex items-center gap-2.5">
           <div class="flex items-center gap-1.5">
             <span class="w-3 h-3 rounded-full bg-red-500/80 inline-block"></span>
             <span class="w-3 h-3 rounded-full bg-yellow-500/80 inline-block"></span>
             <span class="w-3 h-3 rounded-full bg-emerald-500/80 inline-block"></span>
           </div>
           <div class="h-4 w-px bg-stone-800 mx-1"></div>
-          <div class="text-xs font-black uppercase tracking-wider text-white flex items-center gap-1.5">
+          <div class="text-sm font-black uppercase tracking-wider text-white flex items-center gap-2">
             <i data-lucide="terminal" class="w-4 h-4 text-orange-600"></i>
-            <span>Admin Fast Command Console</span>
+            <span>Admin Fast Command Console [Expanded View]</span>
           </div>
-          <span class="px-2 py-0.5 bg-orange-950/80 border border-orange-800/60 text-orange-400 text-[10px] font-bold rounded">Fast CLI</span>
+          <span class="px-2 py-0.5 bg-orange-950/80 border border-orange-800/60 text-orange-400 text-[10.5px] font-bold rounded">Fast CLI v3.0</span>
         </div>
-        <button type="button" onclick="VibeApp.closeModal()" class="w-7 h-7 rounded-lg bg-stone-900 hover:bg-stone-800 text-stone-400 hover:text-white flex items-center justify-center transition-colors">
+        <button type="button" onclick="VibeApp.closeModal()" class="w-8 h-8 rounded-xl bg-stone-900 hover:bg-stone-800 text-stone-400 hover:text-white flex items-center justify-center transition-colors">
           <i data-lucide="x" class="w-4 h-4"></i>
         </button>
       </div>
 
-      <!-- Quick chips -->
-      <div class="flex items-center flex-wrap gap-1.5 pb-2 text-[11px]">
-        <button type="button" onclick="VibeApp.fillAdminConsoleCommand('/help')" class="px-2 py-0.5 rounded bg-stone-900 hover:bg-stone-800 text-stone-300 border border-stone-800">/help</button>
-        <button type="button" onclick="VibeApp.fillAdminConsoleCommand('/stats')" class="px-2 py-0.5 rounded bg-stone-900 hover:bg-stone-800 text-stone-300 border border-stone-800">/stats</button>
-        <button type="button" onclick="VibeApp.fillAdminConsoleCommand('/naptien user@vibesurvey.com 100k')" class="px-2 py-0.5 rounded bg-stone-900 hover:bg-stone-800 text-orange-400 border border-stone-800">/naptien</button>
-        <button type="button" onclick="VibeApp.fillAdminConsoleCommand('/congdiem user@vibesurvey.com 1000')" class="px-2 py-0.5 rounded bg-stone-900 hover:bg-stone-800 text-orange-400 border border-stone-800">/congdiem</button>
-        <button type="button" onclick="VibeApp.fillAdminConsoleCommand('/resetpoint all')" class="px-2 py-0.5 rounded bg-stone-900 hover:bg-stone-800 text-red-400 border border-stone-800">/resetpoint all</button>
-        <button type="button" onclick="VibeApp.clearAdminConsole()" class="px-2 py-0.5 rounded bg-stone-900 hover:bg-stone-800 text-stone-400 border border-stone-800">Clear</button>
+      <!-- Quick Action Chips (Bấm một chạm chạy ngay hoặc tự động điền) -->
+      <div class="flex items-center flex-wrap gap-1.5 pb-3 text-xs flex-shrink-0">
+        <span class="text-stone-500 text-[11px] mr-1 select-none">Thực thi nhanh:</span>
+        <button type="button" onclick="VibeApp.submitAdminConsoleCommand('/help')" class="px-2.5 py-1 rounded-lg bg-stone-900 hover:bg-stone-800 text-stone-300 border border-stone-800 transition-colors">/help</button>
+        <button type="button" onclick="VibeApp.submitAdminConsoleCommand('/stats')" class="px-2.5 py-1 rounded-lg bg-stone-900 hover:bg-stone-800 text-stone-300 border border-stone-800 transition-colors">/stats</button>
+        <button type="button" onclick="VibeApp.submitAdminConsoleCommand('/naptien acc1 100000')" class="px-2.5 py-1 rounded-lg bg-stone-900 hover:bg-stone-800 text-orange-400 border border-stone-800 font-bold transition-colors">/naptien acc1 100k</button>
+        <button type="button" onclick="VibeApp.submitAdminConsoleCommand('/congdiem acc1 500')" class="px-2.5 py-1 rounded-lg bg-stone-900 hover:bg-stone-800 text-orange-400 border border-stone-800 font-bold transition-colors">/congdiem acc1 500</button>
+        <button type="button" onclick="VibeApp.submitAdminConsoleCommand('/settier me STUDENT')" class="px-2.5 py-1 rounded-lg bg-stone-900 hover:bg-stone-800 text-orange-400 border border-stone-800 transition-colors">/settier me STUDENT</button>
+        <button type="button" onclick="VibeApp.submitAdminConsoleCommand('/settier me PERSONAL')" class="px-2.5 py-1 rounded-lg bg-stone-900 hover:bg-stone-800 text-stone-300 border border-stone-800 transition-colors">/settier me PERSONAL</button>
+        <button type="button" onclick="VibeApp.submitAdminConsoleCommand('/resetpoint all')" class="px-2.5 py-1 rounded-lg bg-stone-900 hover:bg-stone-800 text-red-400 border border-stone-800 transition-colors">/resetpoint all</button>
+        <button type="button" onclick="VibeApp.clearAdminConsole()" class="px-2.5 py-1 rounded-lg bg-stone-900 hover:bg-stone-800 text-stone-400 border border-stone-800 transition-colors">Clear</button>
       </div>
 
-      <!-- Output Screen -->
-      <div id="adminConsoleOutput" class="bg-black/70 border border-stone-800/90 rounded-xl p-3.5 max-h-60 min-h-[160px] overflow-y-auto space-y-1.5 leading-relaxed scrollbar-thin scrollbar-thumb-stone-800 mb-3">
-        <div class="text-stone-500 italic">VibeSurvey Enterprise Control Engine v3.0 [Modal CLI Active]</div>
-        <div class="text-stone-400">Gõ <strong class="text-orange-500">/help</strong> để xem cú pháp hoặc nhập ví dụ: <span class="text-stone-300 font-bold">/naptien user@vibesurvey.com 100k</span>.</div>
+      <!-- Output Screen Siêu To Rộng Rãi Toàn Cảnh -->
+      <div id="modalAdminConsoleOutput" class="admin-console-output flex-1 bg-black/95 border border-stone-800/90 rounded-2xl p-4 sm:p-6 min-h-[380px] max-h-[580px] overflow-y-auto space-y-2 leading-relaxed scrollbar-thin scrollbar-thumb-stone-800 mb-3 font-mono text-xs sm:text-[13px]">
       </div>
 
       <!-- Input Form -->
-      <form onsubmit="event.preventDefault(); VibeApp.submitAdminConsoleCommand();" class="flex items-center gap-2">
-        <div class="flex-1 flex items-center gap-2 bg-black/80 border border-stone-800 focus-within:border-orange-600 rounded-xl px-3 py-2 transition-all">
-          <span class="text-orange-600 font-bold select-none text-xs">vibe:~$</span>
+      <form onsubmit="event.preventDefault(); VibeApp.submitAdminConsoleCommand(null, this);" class="flex items-center gap-2 pt-1 flex-shrink-0">
+        <div class="flex-1 flex items-center gap-2.5 bg-black/90 border border-stone-800 focus-within:border-orange-600 rounded-2xl px-4 py-3 sm:py-3.5 transition-all">
+          <span class="text-orange-600 font-mono font-black select-none text-sm">vibe:~$</span>
           <input 
             type="text" 
-            id="adminConsoleInput" 
+            id="modalAdminConsoleInput" 
             autocomplete="off" 
             spellcheck="false"
             onkeydown="VibeApp.handleAdminConsoleKeyDown(event)"
-            placeholder="Nhập lệnh thao tác nhanh (vd: /naptien acc1 100000, /congdiem, /ban)..." 
-            class="flex-1 bg-transparent border-0 text-white text-xs placeholder:text-stone-600 focus:outline-none"
+            placeholder="Nhập lệnh quản trị (/naptien acc1 100k, /congdiem, /settier, /resetpoint, /ban)..." 
+            class="flex-1 bg-transparent border-0 text-white font-mono text-sm placeholder:text-stone-600 focus:outline-none"
           />
         </div>
         <button 
-          type="submit" 
-          id="adminConsoleSubmitBtn"
-          class="px-5 py-2.5 bg-orange-600 hover:bg-orange-700 text-white rounded-xl text-xs font-bold font-sans transition-all flex items-center gap-1.5 shadow-xs active:scale-95 whitespace-nowrap">
-          <i data-lucide="play" class="w-3.5 h-3.5 fill-current"></i>
+          type="button" 
+          onclick="VibeApp.submitAdminConsoleCommand(null, this.closest('form'))"
+          id="modalAdminConsoleSubmitBtn"
+          class="px-6 sm:px-7 py-3 sm:py-3.5 bg-orange-600 hover:bg-orange-700 text-white rounded-2xl text-sm font-bold font-sans transition-all flex items-center gap-2 shadow-xs active:scale-95 whitespace-nowrap">
+          <i data-lucide="play" class="w-4 h-4 fill-current"></i>
           <span>Thực Thi</span>
         </button>
       </form>
+      <div class="flex items-center justify-between text-[11px] text-stone-500 pt-2 px-1 flex-shrink-0">
+        <span>Phím tắt: <strong class="text-stone-400">↑ / ↓</strong> Lịch sử lệnh</span>
+        <span>Nhấn <strong class="text-stone-400">Enter</strong> hoặc bấm Thực Thi để chạy</span>
+      </div>
     `;
 
     container.classList.remove('hidden');
     if (window.lucide) window.lucide.createIcons();
-    const input = document.getElementById('adminConsoleInput');
+    this.renderAdminConsoleLogs(document.getElementById('modalAdminConsoleOutput'));
+    const input = document.getElementById('modalAdminConsoleInput');
     if (input) setTimeout(() => input.focus(), 100);
   },
 

@@ -59,6 +59,7 @@ c:\Users\Lenovo\Downloads\Linh\
 ## 3. Bảng Theo Dõi Hiện Trạng Tiến Độ Tính Năng
 | Tính Năng / Module | Hiện Trạng | Chi Tiết Thực Hiện & Lưu Ý Kỹ Thuật |
 | :--- | :--- | :--- |
+| Admin Fast Command Console Mở Rộng, Sửa Lỗi Thực Thi & Chuyển Đổi Phân Hạng Gói Admin | Hoàn thành | (1) **Khắc Phục Lỗi Console Không Dùng Được**: Sửa lỗi xung đột DOM ID giữa trang Overview và Modal F2 khiến hàm submit đọc nhầm element rỗng; chuyển sang truyền trực tiếp form context; (2) **Hỗ Trợ Alias Thông Minh**: Hỗ trợ alias `acc1` / `user` (tự động map sang tài khoản test `user@vibesurvey.com`), `acc2` / `creator`, `me` / `self` / `admin` để gõ lệnh như `/naptien acc1 100000`, `/congdiem acc1 500` thực thi thành công 100% ngay lập tức; (3) **Mở Rộng Kích Thước Console To Rộng**: Tăng chiều cao log console trong Overview từ 110px lên 280px-420px; modal F2 nâng lên `max-w-5xl w-[96vw]` với màn hình 340px-460px to rộng rãi chuẩn terminal chuyên nghiệp; (4) **Chuyển Đổi Phân Hạng Gói Cho Admin**: Tích hợp khối chuyển đổi `Gói Sinh Viên` <-> `Gói Cá Nhân` trong Menu Dropdown Profile và trực tiếp trong Studio Tạo Khảo Sát; bổ sung API `POST /api/v1/admin/switch-tier` và lệnh `/settier me STUDENT`, `/settier me PERSONAL`; (5) **Tái Cấu Trúc Bố Cục Trang Tổng Quan Đẹp Mắt**: Thiết kế theo chuẩn Minimalist Bento Grid Linear/Stripe với 4 Hero KPI Cards cam/đen/trắng, 4 thẻ phụ dòng tiền, Swiss bar phân bổ khảo sát và bảng sổ cái sàn minh bạch. |
 | Tái Cấu Trúc Bố Cục Cột Phải Studio (Sidebar 2 Phần) | Hoàn thành | Đưa khối Ký Quỹ Escrow Real-time và nút Xuất bản luôn hiện trên cột bên cạnh trên Desktop; tách cột phải thành 2 tab con tinh gọn ("Ngân Sách & Bảng Giá" / "Bộ Lọc & Cài Đặt") tránh cuộn dài; chỉ hiện 1 cột kèm nút chuyển đổi khi màn hình thực sự thu nhỏ (mobile). |
 | Xử Lý Lỗi 401 Khi Đồng Bộ Google Forms | Hoàn thành | Nhận diện biểu mẫu Google Forms yêu cầu đăng nhập tài khoản / giới hạn tổ chức; hiển thị chỉ dẫn chi tiết cách tắt giới hạn trên Google Forms và kích hoạt dự phòng Google Apps Script 1-Click hoặc Dán Text Nhanh. |
 | Tối Ưu Hóa Theme Tối (Dark Mode) Studio Chuẩn `ui-ux-pro-max` | Hoàn thành | Xóa bỏ triệt để hiện tượng lộ khung hộp đen thô ráp của các ô input (Tiêu đề, Mô tả, Câu hỏi, Tùy chọn) trong Dark Mode; sửa CSS toàn cục `public/styles.css` sang chuẩn Seamless Borderless / Fluent Typography (nền trong suốt, hòa quyện tự nhiên vào card, chỉ gạch chân mỏng khi focus). |
@@ -223,3 +224,27 @@ ode -c public/app.js đạt 100% PASS không lỗi. |
 - Đọc `PROJECT_CONTEXT.md` để nắm trạng thái hiện tại.
 - Chạy `npm test` để kiểm tra độ tin cậy của mã nguồn trước khi thêm tính năng mới.
 - Chạy `npm start` để khởi chạy máy chủ tích hợp Web & API.
+
+
+### Cập nhật Fix Console CLI Admin & Phản hồi thời gian thực (v3.0.4)
+- **Vấn đề đã xử lý**: Khắc phục hiện tượng người dùng phản ánh nhập lệnh console không phản hồi và kích thước console quá bé.
+- **Nguyên nhân cốt lõi**:
+  1. Khi người dùng submit lệnh thay đổi tài sản (/naptien, /congdiem,...), hàm gọi render lại view sau 600ms làm xóa sạch DOM của terminal output, khiến log kết quả vừa nhận bị mất trắng.
+  2. Sự kiện phím Enter và nút click Thực Thi phụ thuộc vào form onsubmit inline, dễ bị nghẽn nếu DOM input chưa kịp bind hoặc khi chạy trên bàn phím ảo.
+  3. Kích thước console trên trang và modal chưa đủ lớn để theo dõi lịch sử dài.
+- **Giải pháp đã áp dụng**:
+  1. Thiết lập cơ chế Persistent Terminal Logs (_adminTerminalLogs): Lưu trữ toàn bộ lịch sử lệnh, thời gian và kết quả vào mảng trạng thái; tự động render lại toàn bộ log mỗi khi mở modal hoặc trang Overview được làm mới.
+  2. Bổ sung trạng thái Loading thời gian thực: Hiển thị ngay dòng 'Đang gửi lệnh đến máy chủ và cập nhật sổ cái...' kèm hiệu ứng ping khi vừa gửi lệnh.
+  3. Cơ chế kích hoạt đa tầng: Phím Enter trong input tự động bắt sự kiện qua handleAdminConsoleKeyDown; nút 'Thực Thi' gắn trực tiếp sự kiện onclick song song với form submit; chip mẫu hỗ trợ click là chạy luôn trực tiếp.
+  4. Cơ chế tự động khôi phục quyền Admin (quickAdminLogin): Tự động tái kích hoạt quyền Quản trị viên nếu token bị trôi hoặc phiên hết hạn.
+  5. Mở rộng kích thước Console: Trang Overview đạt 380px - 540px; Modal F2 đạt chuẩn Cinema Dashboard (98vw, 92vh, max 6xl).
+
+
+### Vá lỗi Uncaught TypeError: escapeHtml is not a function (v3.0.5)
+- **Vấn đề đã khắc phục**: Người dùng ấn Enter hoặc click nút Thực Thi trên Console bị đơ hoàn toàn không phản hồi.
+- **Nguyên nhân cốt lõi**: Trong hàm renderAdminConsoleLogs() gọi `this.escapeHtml(item.text)`, tuy nhiên phương thức `escapeHtml` chưa được định nghĩa trong đối tượng VibeApp khiến trình duyệt ném ra Uncaught TypeError ngay lập tức, ngắt toàn bộ luồng thực thi JS trước khi lệnh được gửi đi.
+- **Giải pháp**:
+  1. Bổ sung phương thức `escapeHtml(str)` đầy đủ trong VibeApp.
+  2. Tái cấu trúc `renderAdminConsoleLogs()` sử dụng DOM API thuần (textContent, createElement) cho dòng lệnh và loading thay vì nội suy innerHTML chuỗi, loại bỏ triệt để nguy cơ lỗi cú pháp và an toàn tuyệt đối.
+  3. Bọc toàn bộ hàm `submitAdminConsoleCommand` trong khối `try...catch` cấp cao: nếu có bất kỳ ngoại lệ nào phát sinh, lỗi sẽ được in thẳng lên màn hình terminal thay vì im lặng.
+  4. Cập nhật cache buster mới nhất trong index.html: `v=1793115971004`.

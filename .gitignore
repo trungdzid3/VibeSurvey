@@ -37,3 +37,5 @@ android/local.properties
 .DS_Store
 Thumbs.db
 Desktop.ini
+
+scratch_*.js
