@@ -1268,40 +1268,50 @@ const VibeApp = {
           </p>
 
           <!-- Thanh trượt Creator Boost tự do -->
-          <div class="pt-3 border-t border-stone-100 dark:border-stone-800 space-y-2.5">
+          <div class="pt-3 border-t border-stone-100 dark:border-stone-800 space-y-2.5 relative">
             <div class="flex items-center justify-between text-xs gap-2">
               <span class="font-bold text-stone-700 dark:text-stone-300 inline-flex items-center flex-wrap gap-1 leading-normal">
                 <span>Tăng Thưởng Tự Do</span>
                 <span class="inline-flex items-center gap-1 whitespace-nowrap">
                   <span>(Creator Boost)</span>
-                  <!-- Tooltip Dấu ? Đặt sát ngay sau Boost) -->
-                  <span class="relative group/boost-tip inline-flex items-center">
-                    <button type="button" class="w-3.5 h-3.5 rounded-full bg-stone-200/80 hover:bg-orange-100 dark:bg-stone-800 dark:hover:bg-stone-700 text-stone-600 hover:text-orange-600 dark:text-stone-300 dark:hover:text-orange-400 border border-stone-300/80 dark:border-stone-700 text-[9.5px] font-bold font-mono inline-flex items-center justify-center transition-colors focus:outline-none" aria-label="Giải thích cơ chế tiền thêm">
-                      ?
-                    </button>
-                    <!-- Popover chuẩn theme sáng/tối, bóng mờ thanh lịch, căn lề vào trong không bao giờ lệch mép -->
-                    <span class="absolute right-[-80px] sm:right-[-40px] bottom-full mb-2 hidden group-hover/boost-tip:block z-50 w-72 p-3.5 bg-white dark:bg-[#18181B] text-stone-700 dark:text-stone-300 rounded-xl shadow-xl border border-stone-200 dark:border-stone-800 text-[11px] leading-relaxed pointer-events-none transition-all">
-                      <span class="block font-bold text-orange-600 dark:text-orange-400 mb-1.5">
-                        Cơ chế phân bổ ngân sách tăng thêm
-                      </span>
-                      <span class="block space-y-1.5 text-stone-600 dark:text-stone-300">
-                        <span class="flex items-start gap-1.5">
-                          <span class="text-orange-600 font-bold shrink-0">•</span>
-                          <span><strong class="text-stone-900 dark:text-white">80% tiền thêm</strong>: Chuyển đổi trực tiếp thành Điểm thưởng thực nhận cho đáp viên, tạo lực hút thù lao vượt trội để người điền ưu tiên làm bài của bạn trước.</span>
-                        </span>
-                        <span class="flex items-start gap-1.5">
-                          <span class="text-orange-600 font-bold shrink-0">•</span>
-                          <span><strong class="text-stone-900 dark:text-white">20% còn lại</strong>: Phí vận hành hạ tầng tăng tốc của sàn (kích hoạt luồng thông báo ưu tiên và kiểm duyệt dữ liệu hỏa tốc).</span>
-                        </span>
-                      </span>
-                      <span class="block mt-2 pt-1.5 border-t border-stone-100 dark:border-stone-800 text-[10px] text-stone-400 dark:text-stone-500">
-                        Đảm bảo khảo sát hoàn thành nhanh nhất với chất lượng phản hồi cao nhất.
-                      </span>
-                    </span>
-                  </span>
+                  <!-- Dấu ? Nằm dính liền ngay sau Boost) -->
+                  <button type="button" 
+                          onmouseenter="VibeApp.toggleBoostExplainModal(true)"
+                          onmouseleave="VibeApp.toggleBoostExplainModal(false)"
+                          onclick="VibeApp.toggleBoostExplainModal()"
+                          class="w-3.5 h-3.5 rounded-full bg-stone-200/80 hover:bg-orange-100 dark:bg-stone-800 dark:hover:bg-stone-700 text-stone-600 hover:text-orange-600 dark:text-stone-300 dark:hover:text-orange-400 border border-stone-300/80 dark:border-stone-700 text-[9.5px] font-bold font-mono inline-flex items-center justify-center transition-colors focus:outline-none" aria-label="Giải thích cơ chế tiền thêm">
+                    ?
+                  </button>
                 </span>
               </span>
               <span id="boost-price-display" class="font-mono font-bold text-orange-600 dark:text-orange-400 shrink-0 whitespace-nowrap">${calc.effectivePrice.toLocaleString('vi-VN')} VNĐ / mẫu</span>
+            </div>
+
+            <!-- Popover vừa vặn 100% chiều ngang card Studio, không bao giờ bị cắt bên trái hay tràn bên phải -->
+            <div id="boost-explain-popover" 
+                 onmouseenter="VibeApp.toggleBoostExplainModal(true)"
+                 onmouseleave="VibeApp.toggleBoostExplainModal(false)"
+                 class="hidden absolute left-0 right-0 bottom-full mb-2 z-50 p-3.5 bg-white dark:bg-[#18181B] text-stone-700 dark:text-stone-300 rounded-2xl shadow-2xl border border-stone-200/90 dark:border-stone-800 text-[11px] leading-relaxed transition-all">
+              <div class="flex items-center justify-between font-bold text-orange-600 dark:text-orange-400 mb-1.5 pb-1 border-b border-stone-100 dark:border-stone-800">
+                <span class="flex items-center gap-1">
+                  <i data-lucide="info" class="w-3.5 h-3.5"></i>
+                  <span>Cơ chế phân bổ ngân sách tăng thêm</span>
+                </span>
+                <button type="button" onclick="VibeApp.toggleBoostExplainModal(false)" class="text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 text-xs px-1 font-bold">✕</button>
+              </div>
+              <div class="space-y-1.5 text-stone-600 dark:text-stone-300">
+                <div class="flex items-start gap-1.5">
+                  <span class="text-orange-600 font-bold shrink-0">•</span>
+                  <span><strong class="text-stone-900 dark:text-white">80% tiền thêm</strong>: Chuyển đổi trực tiếp thành Điểm thưởng thực nhận cho đáp viên, tạo lực hút thù lao vượt trội để người điền ưu tiên làm bài của bạn trước.</span>
+                </div>
+                <div class="flex items-start gap-1.5">
+                  <span class="text-orange-600 font-bold shrink-0">•</span>
+                  <span><strong class="text-stone-900 dark:text-white">20% còn lại</strong>: Phí vận hành hạ tầng tăng tốc của sàn (kích hoạt luồng thông báo ưu tiên và kiểm duyệt dữ liệu hỏa tốc).</span>
+                </div>
+              </div>
+              <div class="mt-2 pt-1.5 border-t border-stone-100 dark:border-stone-800 text-[10px] text-stone-400 dark:text-stone-500">
+                Đảm bảo khảo sát hoàn thành nhanh nhất với chất lượng phản hồi cao nhất.
+              </div>
             </div>
             <input type="range" min="${calc.floorPrice}" max="${calc.floorPrice * 3}" step="50" value="${calc.effectivePrice}" oninput="VibeApp.updateStudioBoostRealtime(this.value)"
                    class="w-full accent-orange-600 cursor-pointer">
@@ -6275,6 +6285,17 @@ const VibeApp = {
     if (this.state.builderQuestions && this.state.builderQuestions[qIdx]) {
       this.state.builderQuestions[qIdx].image_url = null;
       this.renderCreateSurveyView(document.getElementById('app-root'));
+    }
+  },
+
+  toggleBoostExplainModal(forceState) {
+    const el = document.getElementById('boost-explain-popover');
+    if (!el) return;
+    if (typeof forceState === 'boolean') {
+      if (forceState) el.classList.remove('hidden');
+      else el.classList.add('hidden');
+    } else {
+      el.classList.toggle('hidden');
     }
   },
 

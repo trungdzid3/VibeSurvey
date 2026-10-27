@@ -223,3 +223,11 @@ c:\Users\Lenovo\Downloads\Linh\
   1. Bọc cụm `(Creator Boost)` và nút `?` trong cùng một thẻ inline `whitespace-nowrap`, bảo đảm dấu `?` luôn gắn liền ngay sau dấu đóng ngoặc `Boost)`.
   2. Tái cấu trúc popover theo chuẩn DESIGN.md: nền trắng sáng ở Light Mode (`bg-white`), nền xám than ở Dark Mode (`dark:bg-[#18181B]`), viền `border-stone-200 dark:border-stone-800`, bóng đổ mờ `shadow-xl`, căn lề thông minh vào trong để không bao giờ bị tràn mép màn hình.
   3. Bổ sung `overflow-x-hidden !important;` cho container `#studio-canvas-scroll` và grid wrapper, loại bỏ vĩnh viễn thanh cuộn ngang thừa thãi.
+
+
+### Khắc Phục Triệt Để Căn Lề Popover Giải Thích Tiền Thêm (v3.1.6)
+- **Vấn đề đã xử lý**: Popover trước đó bị lệch sang bên trái, bị mép trái của card Studio cắt mất chữ.
+- **Giải pháp dứt điểm**:
+  1. Neo popover trực tiếp vào khung container cha của Creator Boost với `position: absolute; left: 0; right: 0; bottom: calc(100% + 8px);`.
+  2. Popover nay tự động co giãn vừa khít 100% chiều ngang của card Studio, mép trái và mép phải căn đều tăm tắp, loại bỏ triệt để hiện tượng bị xén chữ hoặc tràn màn hình.
+  3. Bổ sung hỗ trợ tương tác đa kênh: Rê chuột (hover) để xem nhanh, click để giữ mở/đóng, và nút `✕` tiện lợi.
