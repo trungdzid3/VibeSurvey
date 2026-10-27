@@ -164,3 +164,33 @@ c:\Users\Lenovo\Downloads\Linh\
 - **Yêu cầu**: Ẩn khối hiển thị `Phân chia thưởng Boost (+375đ): 80% điền / 20% sàn | Đáp viên nhận: ... | Sàn thu: ...` trên sidebar Studio Tạo Khảo Sát.
 - **Lý do**: Đây là thông số cơ chế biên lợi nhuận / take rate nội bộ của nền tảng, việc hiển thị trực diện trên form tạo khảo sát gây rối rắm và tạo cảm giác tính phí hoa hồng lộ liễu cho Creator.
 - **Thực hiện**: Đã ẩn hoàn toàn khối này (`id="boost-split-box" class="hidden"`) khỏi giao diện Studio, giữ logic tính toán ngầm nguyên vẹn không ảnh hưởng đến hệ thống.
+
+
+### Cơ Chế Chuyển Đổi Thích Ứng Theo Dữ Liệu Thực Tế (Data-Driven Adaptive SLA Engine) (v3.1.7)
+- **Yêu cầu & Đóng góp từ người dùng**:
+  - Khi chưa đủ dữ liệu thực tế: Tuyệt đối không bịa số ngày/giờ cụ thể, giữ cơ chế hiển thị mức độ ưu tiên phân phối & lực hút thù lao minh bạch.
+  - Khi đã tích lũy đủ dữ liệu thực tế từ cộng đồng: Tự động chuyển đổi sang hiển thị con số thời gian dự kiến được tính toán từ dữ liệu thống kê lịch sử thật.
+- **Giải pháp triển khai**:
+  1. **Backend Velocity Benchmark Endpoint (`GET /api/v1/surveys/velocity-benchmark`)**:
+     - Kiểm tra trực tiếp trong CSDL số lượng bài khảo sát đã hoàn thành thu thập mẫu:
+       * Ngưỡng tối thiểu (Threshold): 30 bài khảo sát hoàn thành thật.
+       * Nếu `< 30` bài: `has_sufficient_data = false`, trả về số lượng hiện tại (`0/30`).
+       * Nếu $\ge 30$ bài: `has_sufficient_data = true`, tự động tính toán thời gian hoàn thành thực tế trung vị (P50) và phân phối tốc độ theo từng nấc giá và độ dài câu hỏi từ bảng `responses` và `surveys`.
+  2. **Frontend Adaptive UI Rendering (`public/app.js`)**:
+     - `fetchVelocityBenchmark()` nạp trạng thái dữ liệu từ API.
+     - **Chế độ 1 (Hiện tại - Thiếu data)**:
+       * Nấc 1: `Phân phối: Hàng chờ tiêu chuẩn`
+       * Nấc 2: `Phân phối: Ưu tiên hiển thị nổi bật (+25%)`
+       * Nấc 3: `Phân phối: Gắn nhãn [Thưởng Cao] (+60%)`
+       * Ghi chú minh bạch: `* Minh bạch vận hành: Hệ thống đang tích lũy dữ liệu thực tế (0/30 bài hoàn thành). Khi có đủ dữ liệu, thời gian dự báo thực tế sẽ tự động được kích hoạt.`
+     - **Chế độ 2 (Tự động kích hoạt khi $\ge 30$ bài)**:
+       * Tự động chuyển sang hiển thị: `Dự kiến thực tế: ~X – Y giờ/ngày (Dựa trên N bài thực tế)`.
+  3. Cập nhật cache buster mới nhất trong `public/index.html`: `v=1793124053408`.
+
+
+### Tích Hợp Tooltip Dấu ? Giải Thích Cơ Chế Tiền Thêm (v3.1.4)
+- **Tính năng**: Bổ sung icon dấu hỏi tròn `?` cạnh tiêu đề "Tăng Thưởng Tự Do (Creator Boost)" trong sidebar Studio Tạo Khảo Sát.
+- **Nội dung giải thích**:
+  1. 80% ngân sách tăng thêm: Chuyển đổi trực tiếp thành Điểm thưởng thực nhận cho đáp viên, tạo lực hút thù lao vượt trội để người điền ưu tiên làm bài trước.
+  2. 20% còn lại: Phí vận hành hạ tầng tăng tốc của sàn (kích hoạt luồng thông báo ưu tiên và kiểm duyệt dữ liệu hỏa tốc).
+- **Trải nghiệm**: Tooltip hiển thị khi rê chuột (hover), giao diện tối giản, phong cách Linear/SaaS hiện đại, hoàn toàn không chiếm diện tích cố định của trang.
