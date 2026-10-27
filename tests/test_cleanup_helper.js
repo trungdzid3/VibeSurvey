@@ -84,32 +84,51 @@ function cleanAllTestData(options = {}) {
     // 3. Xóa dữ liệu khảo sát test
     if (testSurveyIds.length > 0) {
       const sPlaceholders = testSurveyIds.map(() => '?').join(',');
-      db.prepare(`DELETE FROM voucher_codes WHERE survey_id IN (${sPlaceholders}) OR claimed_response_id IN (SELECT id FROM responses WHERE survey_id IN (${sPlaceholders}))`).run(...testSurveyIds, ...testSurveyIds);
-      db.prepare(`DELETE FROM voucher_campaigns WHERE survey_id IN (${sPlaceholders})`).run(...testSurveyIds);
-      db.prepare(`DELETE FROM warranty_claims WHERE survey_id IN (${sPlaceholders})`).run(...testSurveyIds);
-      db.prepare(`DELETE FROM fraud_logs WHERE survey_id IN (${sPlaceholders})`).run(...testSurveyIds);
-      db.prepare(`DELETE FROM notifications WHERE survey_id IN (${sPlaceholders})`).run(...testSurveyIds);
-      db.prepare(`DELETE FROM email_notifications_log WHERE survey_id IN (${sPlaceholders})`).run(...testSurveyIds);
-      db.prepare(`DELETE FROM responses WHERE survey_id IN (${sPlaceholders})`).run(...testSurveyIds);
-      db.prepare(`DELETE FROM questions WHERE survey_id IN (${sPlaceholders})`).run(...testSurveyIds);
-      db.prepare(`DELETE FROM point_transactions WHERE reference_id IN (${sPlaceholders})`).run(...testSurveyIds);
-      db.prepare(`DELETE FROM surveys WHERE id IN (${sPlaceholders})`).run(...testSurveyIds);
+      const safeRun = (sql, params) => {
+        try {
+          db.prepare(sql).run(...params);
+        } catch (e) {
+          if (verbose) console.warn('[TEST CLEANUP WARN] Bỏ qua câu lệnh lỗi:', e.message);
+        }
+      };
+
+      // Xóa voucher codes liên kết với survey hoặc với responses của survey
+      safeRun(`DELETE FROM voucher_codes WHERE survey_id IN (${sPlaceholders}) OR claimed_response_id IN (SELECT id FROM responses WHERE survey_id IN (${sPlaceholders}))`, [...testSurveyIds, ...testSurveyIds]);
+      // Xóa voucher campaigns được tài trợ bởi các khảo sát test (nếu có)
+      safeRun(`DELETE FROM voucher_campaigns WHERE id IN (SELECT sponsor_campaign_id FROM surveys WHERE id IN (${sPlaceholders}) AND sponsor_campaign_id IS NOT NULL)`, testSurveyIds);
+      safeRun(`DELETE FROM warranty_claims WHERE survey_id IN (${sPlaceholders})`, testSurveyIds);
+      safeRun(`DELETE FROM fraud_logs WHERE survey_id IN (${sPlaceholders})`, testSurveyIds);
+      safeRun(`DELETE FROM notifications WHERE survey_id IN (${sPlaceholders})`, testSurveyIds);
+      safeRun(`DELETE FROM email_notifications_log WHERE survey_id IN (${sPlaceholders})`, testSurveyIds);
+      safeRun(`DELETE FROM responses WHERE survey_id IN (${sPlaceholders})`, testSurveyIds);
+      safeRun(`DELETE FROM questions WHERE survey_id IN (${sPlaceholders})`, testSurveyIds);
+      safeRun(`DELETE FROM point_transactions WHERE reference_id IN (${sPlaceholders})`, testSurveyIds);
+      safeRun(`DELETE FROM surveys WHERE id IN (${sPlaceholders})`, testSurveyIds);
     }
 
     // 4. Xóa dữ liệu người dùng test
     if (testUserIds.length > 0) {
       const uPlaceholders = testUserIds.map(() => '?').join(',');
-      db.prepare(`DELETE FROM voucher_codes WHERE claimed_by_user_id IN (${uPlaceholders})`).run(...testUserIds);
-      db.prepare(`DELETE FROM warranty_claims WHERE creator_id IN (${uPlaceholders})`).run(...testUserIds);
-      db.prepare(`DELETE FROM fraud_logs WHERE user_id IN (${uPlaceholders})`).run(...testUserIds);
-      db.prepare(`DELETE FROM notifications WHERE user_id IN (${uPlaceholders})`).run(...testUserIds);
-      db.prepare(`DELETE FROM email_notifications_log WHERE user_id IN (${uPlaceholders})`).run(...testUserIds);
-      db.prepare(`DELETE FROM vat_invoices WHERE user_id IN (${uPlaceholders})`).run(...testUserIds);
-      db.prepare(`DELETE FROM payout_requests WHERE user_id IN (${uPlaceholders})`).run(...testUserIds);
-      db.prepare(`DELETE FROM responses WHERE respondent_id IN (${uPlaceholders})`).run(...testUserIds);
-      db.prepare(`DELETE FROM point_transactions WHERE user_id IN (${uPlaceholders})`).run(...testUserIds);
-      db.prepare(`DELETE FROM device_ip_logs WHERE user_id IN (${uPlaceholders})`).run(...testUserIds);
-      db.prepare(`DELETE FROM users WHERE id IN (${uPlaceholders})`).run(...testUserIds);
+      const safeRunUser = (sql, params) => {
+        try {
+          db.prepare(sql).run(...params);
+        } catch (e) {
+          if (verbose) console.warn('[TEST CLEANUP WARN] Bỏ qua câu lệnh lỗi:', e.message);
+        }
+      };
+
+      safeRunUser(`DELETE FROM voucher_codes WHERE claimed_by_user_id IN (${uPlaceholders})`, testUserIds);
+      safeRunUser(`DELETE FROM voucher_campaigns WHERE issuer_id IN (${uPlaceholders})`, testUserIds);
+      safeRunUser(`DELETE FROM warranty_claims WHERE creator_id IN (${uPlaceholders})`, testUserIds);
+      safeRunUser(`DELETE FROM fraud_logs WHERE user_id IN (${uPlaceholders})`, testUserIds);
+      safeRunUser(`DELETE FROM notifications WHERE user_id IN (${uPlaceholders})`, testUserIds);
+      safeRunUser(`DELETE FROM email_notifications_log WHERE user_id IN (${uPlaceholders})`, testUserIds);
+      safeRunUser(`DELETE FROM vat_invoices WHERE user_id IN (${uPlaceholders})`, testUserIds);
+      safeRunUser(`DELETE FROM payout_requests WHERE user_id IN (${uPlaceholders})`, testUserIds);
+      safeRunUser(`DELETE FROM responses WHERE respondent_id IN (${uPlaceholders})`, testUserIds);
+      safeRunUser(`DELETE FROM point_transactions WHERE user_id IN (${uPlaceholders})`, testUserIds);
+      safeRunUser(`DELETE FROM device_ip_logs WHERE user_id IN (${uPlaceholders})`, testUserIds);
+      safeRunUser(`DELETE FROM users WHERE id IN (${uPlaceholders})`, testUserIds);
     }
 
     // 5. Dọn dẹp Sổ cái Ledger Stream: Xóa các giao dịch kiểm thử và giao dịch mồ côi

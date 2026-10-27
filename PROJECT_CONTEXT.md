@@ -231,3 +231,15 @@ c:\Users\Lenovo\Downloads\Linh\
   1. Neo popover trực tiếp vào khung container cha của Creator Boost với `position: absolute; left: 0; right: 0; bottom: calc(100% + 8px);`.
   2. Popover nay tự động co giãn vừa khít 100% chiều ngang của card Studio, mép trái và mép phải căn đều tăm tắp, loại bỏ triệt để hiện tượng bị xén chữ hoặc tràn màn hình.
   3. Bổ sung hỗ trợ tương tác đa kênh: Rê chuột (hover) để xem nhanh, click để giữ mở/đóng, và nút `✕` tiện lợi.
+
+
+### Khắc Phục Lỗi Dọn Dẹp Data Test: no such column: survey_id (v3.1.7)
+- **Nguyên nhân cốt lõi**:
+  - Bảng `voucher_campaigns` trong SQLite có cấu trúc cột: `id, issuer_id, voucher_type, brand_name, brand_logo, title, face_value_vnd, points_cost, total_quantity, remaining_quantity, expiry_date, instructions, created_at, website_domain`.
+  - Bảng này KHÔNG có cột `survey_id` (mà liên kết tới khảo sát thông qua cột `surveys.sponsor_campaign_id`).
+  - Trong `tests/test_cleanup_helper.js`, câu lệnh cũ thực thi `DELETE FROM voucher_campaigns WHERE survey_id IN (...)` dẫn tới lỗi SQLite: `no such column: survey_id`, khiến lệnh `/cleantest` trên Admin Console và nút dọn dẹp bị ném exception HTTP 500.
+- **Giải pháp dứt điểm**:
+  1. Điều chỉnh câu lệnh xóa `voucher_campaigns` của survey test thành: `DELETE FROM voucher_campaigns WHERE id IN (SELECT sponsor_campaign_id FROM surveys WHERE id IN (...) AND sponsor_campaign_id IS NOT NULL)`.
+  2. Thêm câu lệnh dọn dẹp campaign do user test phát hành: `DELETE FROM voucher_campaigns WHERE issuer_id IN (...)`.
+  3. Xây dựng hàm bọc `safeRun` bao bọc từng thao tác xóa bảng trong `try...catch` an toàn, ngăn chặn hoàn toàn việc một lỗi bảng đơn lẻ làm sập toàn bộ chu trình thanh lọc CSDL.
+  4. Khởi động lại server backend Node.js để nạp bản vá; kiểm thử xác nhận dọn dẹp thành công 100% không còn bất kỳ lỗi nào.
