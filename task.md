@@ -131,3 +131,9 @@ Tài liệu tham chiếu duy nhất: [KE_HOACH_TONG_THE.md](file:///c:/Users/Len
   - [x] Bỏ viền gạch chân cam dài ngoằng thô ráp dưới ô mô tả, đổi nút "+ Thêm ảnh bìa" thành Ghost Button tối giản chuẩn Notion.
   - [x] Khắc phục triệt để lỗi click mất focus trên câu hỏi: Bọc `event.stopPropagation()` trên toàn bộ input/textarea, chặn re-render khi card đã active, cập nhật realtime ma trận Lưới (`CHOICE_GRID`, `CHECKBOX_GRID`) không phá vỡ con trỏ nhập liệu.
   - [x] Tối ưu nút chuyển tab Cột Phải ("Ngân Sách & Bảng Giá" và "Bộ Lọc & Cài Đặt"): Cập nhật cục bộ vùng chứa `#studio-sidebar-root`, không giật lag và bảo toàn 100% Canvas câu hỏi bên trái.
+- [x] **Task 6: Dọn Sạch Triệt Để Toàn Bộ Dữ Liệu Demo / Test / Ban Ảo**:
+  - [x] Xóa sạch 100% khảo sát demo (`surveys`: 0), câu hỏi demo (`questions`: 0), phản hồi demo (`responses`: 0).
+  - [x] Xóa sạch 758 tài khoản test ảo (`users` giảm từ 765 xuống đúng 7 tài khoản thật).
+  - [x] Triệt tiêu toàn bộ 282 tài khoản bị ban test trên trang Giám Sát Gian Lận (`banned users`: 0).
+  - [x] Xóa sạch 100% hóa đơn VAT demo (67 hóa đơn), mã voucher demo (160 mã), chiến dịch voucher (8 chiến dịch), OTP đăng ký rác.
+  - [x] Thực thi lệnh VACUUM nén SQLite database xuống kích thước tối thiểu sạch sẽ.
