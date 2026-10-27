@@ -110,3 +110,24 @@ Tài liệu tham chiếu duy nhất: [KE_HOACH_TONG_THE.md](file:///c:/Users/Len
   - [x] Khắc phục triệt để tình trạng khối Ký Quỹ Escrow Real-time và Nút Xuất Bản bị dồn trôi xuống đáy: Đưa phần Ký Quỹ Escrow và Nút Xuất Bản luôn nằm trong tầm quan sát trực tiếp ở cột bên phải trên Desktop.
   - [x] Tách cột bên phải thành 2 tab/phần con tinh gọn (Phần 1: "Ngân Sách & Bảng Giá", Phần 2: "Bộ Lọc & Cài Đặt") để chiều dài cột vừa vặn, không bị cuộn dài lê thê.
   - [x] Đảm bảo trên Desktop (màn hình lớn), 2 cột luôn hiển thị song song đồng thời; chỉ khi màn hình thực sự thu nhỏ (Mobile / Màn hình hẹp), mới chuyển sang hiển thị 1 cột kèm nút chuyển đổi qua lại mượt mà giữa các bên.
+
+## Đợt Tinh Chỉnh Quản Trị Hệ Thống, Chuẩn Hóa Dropdown, Phân Trang & Dọn Sạch Dữ Liệu Rác
+- [x] **Task 1: Dọn sạch toàn bộ dữ liệu rác/demo trong SQLite (`vibesurvey.db`)**:
+  - [x] Xóa sạch toàn bộ 231 yêu cầu rút tiền rác demo (`@test.local`, `@api-test.com`, `@vibetest.vn`, v.v.).
+  - [x] Dọn dẹp tài khoản ảo (2.500 users ảo) và nhật ký gian lận rác (227 fraud logs) phát sinh từ các đợt test tự động trước đó.
+  - [x] Bảo tồn tuyệt đối 100% tài khoản thật (`trungdzid3@gmail.com`, `linharmykxbnvn@gmail.com`), tài khoản demo chuẩn (`admin@vibesurvey.com`, `creator@vibesurvey.com`, `user@vibesurvey.com`) và toàn bộ khảo sát thật.
+  - [x] Tối ưu hóa VACUUM database giảm dung lượng từ 67.2 MB xuống 16.1 MB.
+- [x] **Task 2: Sửa triệt để lỗi không chuyển trang được (Pagination) trên Trang Duyệt Tiền (`admin-payouts`)**:
+  - [x] Thay thế `document.getElementById('app')` thành `document.getElementById('app-root')` trong toàn bộ các hàm xử lý phân trang và lọc (`setAdminPayoutPage`, `setAdminPayoutFilter`, `handleAdminPayout`).
+  - [x] Đồng bộ logic giới hạn trang và tổng số trang (`totalPages`), bấm chuyển trang và đổi bộ lọc render lại ngay lập tức.
+- [x] **Task 3: Chuẩn hóa Custom Dropdown tiêu chuẩn trên Trang Duyệt Tiền (`admin-payouts`)**:
+  - [x] Thay thế toàn bộ 3 thẻ `<select>` native thô xám bằng Custom Dropdown tiêu chuẩn VibeSurvey (Phương thức nhận, Trạng thái duyệt, Số dòng/trang).
+  - [x] Tích hợp cấu trúc `custom-dropdown-trigger`, `custom-dropdown-menu`, `VibeApp.toggleCustomDropdown(...)` hỗ trợ tự đóng khi click ra ngoài.
+- [x] **Task 4: Thu gọn và Phân trang cho "Nhật Ký Cảnh Báo Khả Nghi & Gian Lận Gần Nhất" (`admin-fraud`)**:
+  - [x] Giới hạn hiển thị 10 bản ghi gần nhất trên mỗi trang, chấm dứt tình trạng cuộn trang kéo dài.
+  - [x] Bổ sung thanh phân trang tinh gọn bên dưới bảng kèm nút `< Trang Trước`, `Trang Sau >` và bộ đếm trang (`fraudLogPage`).
+- [x] **Task 5: Tối Ưu Hóa Tương Tác & Thẩm Mỹ Studio Tạo Khảo Sát**:
+  - [x] Triệt tiêu lỗi Autofill trắng xóa chữ đen của Chrome/Edge bằng `autocomplete="off"`, `spellcheck="false"` và quy tắc CSS `-webkit-autofill` trong suốt trong Dark Mode.
+  - [x] Bỏ viền gạch chân cam dài ngoằng thô ráp dưới ô mô tả, đổi nút "+ Thêm ảnh bìa" thành Ghost Button tối giản chuẩn Notion.
+  - [x] Khắc phục triệt để lỗi click mất focus trên câu hỏi: Bọc `event.stopPropagation()` trên toàn bộ input/textarea, chặn re-render khi card đã active, cập nhật realtime ma trận Lưới (`CHOICE_GRID`, `CHECKBOX_GRID`) không phá vỡ con trỏ nhập liệu.
+  - [x] Tối ưu nút chuyển tab Cột Phải ("Ngân Sách & Bảng Giá" và "Bộ Lọc & Cài Đặt"): Cập nhật cục bộ vùng chứa `#studio-sidebar-root`, không giật lag và bảo toàn 100% Canvas câu hỏi bên trái.

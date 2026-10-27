@@ -319,6 +319,8 @@ function initSchema() {
     'ALTER TABLE users ADD COLUMN major TEXT;',
     'ALTER TABLE users ADD COLUMN graduation_year INTEGER;',
     'ALTER TABLE users ADD COLUMN monthly_income TEXT;',
+    'ALTER TABLE users ADD COLUMN ban_reason TEXT;',
+    'ALTER TABLE users ADD COLUMN banned_at TEXT;',
     'ALTER TABLE questions ADD COLUMN is_required INTEGER DEFAULT 1;',
     'ALTER TABLE questions ADD COLUMN rows_json TEXT;',
     'ALTER TABLE questions ADD COLUMN columns_json TEXT;',

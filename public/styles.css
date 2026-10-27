@@ -1149,3 +1149,28 @@ html.dark .custom-select:focus {
   border-color: #F97316 !important;
   box-shadow: 0 0 0 2px rgba(249, 115, 22, 0.25) !important;
 }
+
+/* =========================================================
+   AUTOFILL OVERRIDE (ANTI-SLOP & DARK MODE COMPATIBILITY)
+   Triệt tiêu triệt để nền trắng chữ đen autofill của WebKit
+   ========================================================= */
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus {
+  -webkit-text-fill-color: currentColor !important;
+  -webkit-box-shadow: 0 0 0px 1000px transparent inset !important;
+  box-shadow: 0 0 0px 1000px transparent inset !important;
+  transition: background-color 50000s ease-in-out 0s !important;
+  background-color: transparent !important;
+}
+
+.dark input:-webkit-autofill,
+.dark textarea:-webkit-autofill,
+html.dark input:-webkit-autofill,
+html.dark textarea:-webkit-autofill {
+  -webkit-text-fill-color: #f8fafc !important;
+}
+
