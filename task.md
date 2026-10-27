@@ -137,3 +137,15 @@ Tài liệu tham chiếu duy nhất: [KE_HOACH_TONG_THE.md](file:///c:/Users/Len
   - [x] Triệt tiêu toàn bộ 282 tài khoản bị ban test trên trang Giám Sát Gian Lận (`banned users`: 0).
   - [x] Xóa sạch 100% hóa đơn VAT demo (67 hóa đơn), mã voucher demo (160 mã), chiến dịch voucher (8 chiến dịch), OTP đăng ký rác.
   - [x] Thực thi lệnh VACUUM nén SQLite database xuống kích thước tối thiểu sạch sẽ.
+- [x] **Task 7: Tách Biệt Tài Sản Admin Khỏi Thị Trường (Kinh Tế Học Sàn)**:
+  - [x] Cập nhật `server/controllers/adminController.js`: Số dư tĩnh trong ví Admin (Credit 100M, Point) không tính vào `total_deposited_vnd`, `circulatingPointLiability` hay `swappedCreditVnd`.
+  - [x] Đảm bảo tính toán thị trường chuẩn xác: Khi Admin tiêu vào thị trường (tạo khảo sát ký quỹ `escrow_locked_balance` hoặc trả thưởng cho đáp viên), dòng tiền tự động được tính đầy đủ vào quy mô thị trường và ví đáp viên.
+- [x] **Task 8: Reset Sổ Cái & Thẻ Tái Đầu Tư Sang Credit**:
+  - [x] Dọn sạch toàn bộ 7 giao dịch trong bảng `point_transactions`, đưa số dư point Admin về 0.
+  - [x] Thẻ "TÁI ĐẦU TƯ SANG CREDIT" trên trang Tổng Quan Kinh Tế trở về 0 đ sạch bóng, luồng sổ cái trống trải sẵn sàng cho dữ liệu thực.
+- [x] **Task 9: Tái Thiết Kế UI/UX Trang Kiểm Soát Gian Lận (`admin-fraud`) Chuẩn `DESIGN.md` & `ui-ux-pro-max`**:
+  - [x] Loại bỏ toàn bộ màu tím (`indigo`) và viền cầu vồng lòe loẹt, đưa về 3 màu cốt lõi chuẩn DESIGN.md: CAM VIBE `#EA580C`, TRẮNG và ĐEN (`#09090B` / `#18181B`).
+  - [x] Thiết kế lại 5 thẻ bẫy gian lận thành Minimalist Bento Grid chuẩn Linear/Stripe, font mono số liệu hiện đại.
+  - [x] Làm phẳng ô tìm kiếm và chuyển nút "Tra Cứu" sang màu Cam Vibe `#EA580C`.
+  - [x] Nâng cấp Khối 3 (Danh sách IP bị khóa) và Khối 4 (Nhật ký cảnh báo gian lận) sang thẻ card phẳng đồng bộ `border-stone-200 dark:border-stone-800 rounded-2xl`.
+  - [x] Tích hợp Custom Dropdown tiêu chuẩn chọn số dòng/trang (5 dòng gọn, 10 dòng chuẩn, 20 dòng đầy đủ) và dropdown nhảy trang trực tiếp, khắc phục triệt để lỗi không chuyển trang được.

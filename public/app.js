@@ -9334,8 +9334,8 @@ const VibeApp = {
       // Kiểm tra xem có kết quả tìm kiếm user đang được lưu tạm không
       const searchResults = this._adminSearchedUsers || null;
 
-      // Phân trang cho bảng Nhật ký cảnh báo khả nghi & gian lận (10 dòng/trang)
-      const fraudLimit = 10;
+      // Phân trang cho bảng Nhật ký cảnh báo khả nghi & gian lận (Mặc định 5 dòng/trang theo chuẩn tối giản)
+      const fraudLimit = Number(this.state.fraudLogLimit) || 5;
       const totalFraudLogs = logs.length;
       const totalFraudPages = Math.max(1, Math.ceil(totalFraudLogs / fraudLimit));
       if (!this.state.fraudLogPage || this.state.fraudLogPage < 1) {
@@ -9350,77 +9350,105 @@ const VibeApp = {
 
       root.innerHTML = `
         <div class="space-y-6">
-          <div class="pb-4 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div class="pb-4 border-b border-stone-200 dark:border-stone-800 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <div>
-              <h1 class="text-xl sm:text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white">Kiểm Soát Gian Lận & An Ninh Đa Tầng</h1>
-              <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Giám sát 5 loại bẫy kỹ thuật, điều tra tài khoản người dùng và quản trị danh sách IP bị cấm.</p>
+              <h1 class="text-xl sm:text-2xl font-black tracking-tight text-slate-900 dark:text-white">Kiểm Soát Gian Lận & An Ninh Đa Tầng</h1>
+              <p class="text-xs text-stone-500 dark:text-stone-400 mt-0.5">Giám sát 5 loại bẫy kỹ thuật, điều tra tài khoản người dùng và quản trị an ninh hệ thống.</p>
             </div>
             <div class="flex items-center gap-2">
-              <span class="px-3 py-1 bg-red-100 dark:bg-red-950/80 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-800 text-xs font-bold rounded-lg flex items-center gap-1.5">
-                <i data-lucide="shield-alert" class="w-3.5 h-3.5"></i>
+              <span class="px-3 py-1.5 ${bannedIps.length > 0 ? 'bg-red-50 dark:bg-red-950/50 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800/60' : 'bg-stone-100 dark:bg-stone-800/80 text-stone-600 dark:text-stone-400 border border-stone-200 dark:border-stone-700'} text-xs font-bold rounded-xl flex items-center gap-1.5 shadow-xs">
+                <i data-lucide="shield-alert" class="w-3.5 h-3.5 ${bannedIps.length > 0 ? 'text-red-600' : 'text-stone-400'}"></i>
                 <span>${bannedIps.length} IP Đang Bị Cấm</span>
               </span>
-              <span class="px-3 py-1 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 text-xs font-mono font-bold rounded-lg">
-                ${stats.bannedUsersCount || 0} User Bị Khóa
+              <span class="px-3 py-1.5 bg-stone-100 dark:bg-stone-800/80 text-stone-700 dark:text-stone-300 border border-stone-200 dark:border-stone-700 text-xs font-mono font-bold rounded-xl shadow-xs flex items-center gap-1.5">
+                <i data-lucide="user-x" class="w-3.5 h-3.5 text-orange-600"></i>
+                <span>${stats.bannedUsersCount || 0} User Bị Khóa</span>
               </span>
             </div>
           </div>
 
-          <!-- Khối 1: Thống kê số lượng vi phạm theo 5 loại bẫy gian lận -->
+          <!-- Khối 1: Thống kê số lượng vi phạm theo 5 loại bẫy kỹ thuật (Bento Grid chuẩn DESIGN.MD) -->
           <div>
-            <div class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2">Thống Kê Vi Phạm Theo 5 Loại Bẫy Kỹ Thuật (Anti-Fraud Traps Breakdown)</div>
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+            <div class="text-[11px] font-black text-stone-500 dark:text-stone-400 uppercase tracking-wider mb-2.5">
+              Thống Kê Vi Phạm Theo 5 Loại Bẫy Kỹ Thuật (Anti-Fraud Traps Breakdown)
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5">
               <!-- Bẫy 1: Speed Trap -->
-              <div class="bento-card p-4 border-l-4 border-l-red-500">
-                <div class="text-xs font-bold text-slate-500 uppercase tracking-wider">1. Bẫy Tốc Độ</div>
-                <div class="text-xs text-slate-400 mt-0.5">(Speed Trap)</div>
-                <div class="text-2xl font-black font-mono text-red-600 dark:text-red-400 mt-2">${traps.speedTrap || 0}</div>
-                <div class="text-[11px] text-slate-500 mt-1">&lt; 35% thời lượng đọc chuẩn</div>
+              <div class="bg-white dark:bg-[#18181B] border border-stone-200 dark:border-stone-800 rounded-2xl p-4 shadow-xs relative overflow-hidden transition-all hover:border-orange-500/30">
+                <div class="flex items-center justify-between">
+                  <span class="text-[11px] font-black text-stone-600 dark:text-stone-300 uppercase tracking-wider">1. Bẫy Tốc Độ</span>
+                  <i data-lucide="gauge" class="w-3.5 h-3.5 text-stone-400"></i>
+                </div>
+                <div class="text-[10px] text-stone-400 font-mono mt-0.5">Speed Trap</div>
+                <div class="text-2xl font-black font-mono ${traps.speedTrap > 0 ? 'text-orange-600 dark:text-orange-400' : 'text-stone-400 dark:text-stone-600'} mt-2">
+                  ${traps.speedTrap || 0}
+                </div>
+                <div class="text-[11px] text-stone-500 dark:text-stone-400 mt-1 font-medium">&lt; 35% thời lượng đọc chuẩn</div>
               </div>
 
               <!-- Bẫy 2: Attention Check -->
-              <div class="bento-card p-4 border-l-4 border-l-orange-500">
-                <div class="text-xs font-bold text-slate-500 uppercase tracking-wider">2. Bẫy Tập Trung</div>
-                <div class="text-xs text-slate-400 mt-0.5">(Attention Check)</div>
-                <div class="text-2xl font-black font-mono text-orange-600 dark:text-orange-400 mt-2">${traps.attentionCheck || 0}</div>
-                <div class="text-[11px] text-slate-500 mt-1">Sai câu bẫy chú ý 2 lần</div>
+              <div class="bg-white dark:bg-[#18181B] border border-stone-200 dark:border-stone-800 rounded-2xl p-4 shadow-xs relative overflow-hidden transition-all hover:border-orange-500/30">
+                <div class="flex items-center justify-between">
+                  <span class="text-[11px] font-black text-stone-600 dark:text-stone-300 uppercase tracking-wider">2. Bẫy Tập Trung</span>
+                  <i data-lucide="eye" class="w-3.5 h-3.5 text-stone-400"></i>
+                </div>
+                <div class="text-[10px] text-stone-400 font-mono mt-0.5">Attention Check</div>
+                <div class="text-2xl font-black font-mono ${traps.attentionCheck > 0 ? 'text-orange-600 dark:text-orange-400' : 'text-stone-400 dark:text-stone-600'} mt-2">
+                  ${traps.attentionCheck || 0}
+                </div>
+                <div class="text-[11px] text-stone-500 dark:text-stone-400 mt-1 font-medium">Sai câu bẫy chú ý 2 lần</div>
               </div>
 
               <!-- Bẫy 3: Straight-lining -->
-              <div class="bento-card p-4 border-l-4 border-l-amber-500">
-                <div class="text-xs font-bold text-slate-500 uppercase tracking-wider">3. Thẳng Hàng</div>
-                <div class="text-xs text-slate-400 mt-0.5">(Straight-lining)</div>
-                <div class="text-2xl font-black font-mono text-amber-600 dark:text-amber-400 mt-2">${traps.straightLining || 0}</div>
-                <div class="text-[11px] text-slate-500 mt-1">Phương sai sigma^2 = 0</div>
+              <div class="bg-white dark:bg-[#18181B] border border-stone-200 dark:border-stone-800 rounded-2xl p-4 shadow-xs relative overflow-hidden transition-all hover:border-orange-500/30">
+                <div class="flex items-center justify-between">
+                  <span class="text-[11px] font-black text-stone-600 dark:text-stone-300 uppercase tracking-wider">3. Thẳng Hàng</span>
+                  <i data-lucide="align-justify" class="w-3.5 h-3.5 text-stone-400"></i>
+                </div>
+                <div class="text-[10px] text-stone-400 font-mono mt-0.5">Straight-lining</div>
+                <div class="text-2xl font-black font-mono ${traps.straightLining > 0 ? 'text-orange-600 dark:text-orange-400' : 'text-stone-400 dark:text-stone-600'} mt-2">
+                  ${traps.straightLining || 0}
+                </div>
+                <div class="text-[11px] text-stone-500 dark:text-stone-400 mt-1 font-medium">Phương sai sigma^2 = 0</div>
               </div>
 
               <!-- Bẫy 4: Open-Text Filter -->
-              <div class="bento-card p-4 border-l-4 border-l-blue-500">
-                <div class="text-xs font-bold text-slate-500 uppercase tracking-wider">4. Tự Luận Rác</div>
-                <div class="text-xs text-slate-400 mt-0.5">(Open-Text Filter)</div>
-                <div class="text-2xl font-black font-mono text-blue-600 dark:text-blue-400 mt-2">${traps.openTextFilter || 0}</div>
-                <div class="text-[11px] text-slate-500 mt-1">Spam phím, entropy thấp</div>
+              <div class="bg-white dark:bg-[#18181B] border border-stone-200 dark:border-stone-800 rounded-2xl p-4 shadow-xs relative overflow-hidden transition-all hover:border-orange-500/30">
+                <div class="flex items-center justify-between">
+                  <span class="text-[11px] font-black text-stone-600 dark:text-stone-300 uppercase tracking-wider">4. Tự Luận Rác</span>
+                  <i data-lucide="file-text" class="w-3.5 h-3.5 text-stone-400"></i>
+                </div>
+                <div class="text-[10px] text-stone-400 font-mono mt-0.5">Open-Text Filter</div>
+                <div class="text-2xl font-black font-mono ${traps.openTextFilter > 0 ? 'text-orange-600 dark:text-orange-400' : 'text-stone-400 dark:text-stone-600'} mt-2">
+                  ${traps.openTextFilter || 0}
+                </div>
+                <div class="text-[11px] text-stone-500 dark:text-stone-400 mt-1 font-medium">Spam phím, entropy thấp</div>
               </div>
 
               <!-- Bẫy 5: Duplicate Fingerprint -->
-              <div class="bento-card p-4 border-l-4 border-l-purple-500">
-                <div class="text-xs font-bold text-slate-500 uppercase tracking-wider">5. Trùng Thiết Bị</div>
-                <div class="text-xs text-slate-400 mt-0.5">(Multi-Account/IP)</div>
-                <div class="text-2xl font-black font-mono text-purple-600 dark:text-purple-400 mt-2">${traps.duplicateFingerprint || 0}</div>
-                <div class="text-[11px] text-slate-500 mt-1">&gt;= 3 tài khoản / thiết bị</div>
+              <div class="bg-white dark:bg-[#18181B] border border-stone-200 dark:border-stone-800 rounded-2xl p-4 shadow-xs relative overflow-hidden transition-all hover:border-orange-500/30">
+                <div class="flex items-center justify-between">
+                  <span class="text-[11px] font-black text-stone-600 dark:text-stone-300 uppercase tracking-wider">5. Trùng Thiết Bị</span>
+                  <i data-lucide="smartphone" class="w-3.5 h-3.5 text-stone-400"></i>
+                </div>
+                <div class="text-[10px] text-stone-400 font-mono mt-0.5">Multi-Account/IP</div>
+                <div class="text-2xl font-black font-mono ${traps.duplicateFingerprint > 0 ? 'text-orange-600 dark:text-orange-400' : 'text-stone-400 dark:text-stone-600'} mt-2">
+                  ${traps.duplicateFingerprint || 0}
+                </div>
+                <div class="text-[11px] text-stone-500 dark:text-stone-400 mt-1 font-medium">&gt;= 3 tài khoản / thiết bị</div>
               </div>
             </div>
           </div>
 
           <!-- Khối 2: Tra cứu tài khoản & Mở khóa (Unban) -->
-          <div class="bento-card p-5 space-y-4">
+          <div class="bg-white dark:bg-[#18181B] border border-stone-200 dark:border-stone-800 rounded-2xl p-5 shadow-xs space-y-4">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
               <div>
-                <h2 class="text-sm font-bold text-slate-800 dark:text-slate-100 flex items-center gap-1.5">
-                  <i data-lucide="search" class="w-4 h-4 text-indigo-500"></i>
+                <h2 class="text-xs font-black uppercase tracking-wider text-stone-900 dark:text-white flex items-center gap-1.5">
+                  <i data-lucide="search" class="w-4 h-4 text-orange-600"></i>
                   <span>Tra Cứu Tài Khoản, Lịch Sử Khảo Sát & Mở Khóa (Unban)</span>
                 </h2>
-                <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">Tìm kiếm theo Email hoặc Google ID để kiểm tra điểm uy tín, lịch sử làm bài và gỡ cấm tài khoản.</p>
+                <p class="text-[11px] text-stone-500 dark:text-stone-400 mt-0.5">Tìm kiếm theo Email hoặc Google ID để kiểm tra điểm uy tín, lịch sử làm bài và gỡ cấm tài khoản.</p>
               </div>
             </div>
 
@@ -9432,21 +9460,21 @@ const VibeApp = {
                   id="adminUserSearchInput"
                   value="${this._adminFraudSearchQuery || ''}"
                   placeholder="Nhập Email hoặc Google ID cần tra cứu (ví dụ: user@vibesurvey.com)..."
-                  class="w-full px-3 py-2 pl-9 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-mono text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  class="w-full px-3 py-2.5 pl-9 bg-stone-50 dark:bg-stone-900/60 border border-stone-200 dark:border-stone-700 rounded-xl text-xs font-mono text-stone-900 dark:text-white focus:outline-none focus:border-orange-600 focus:ring-1 focus:ring-orange-600"
                 />
-                <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-2.5"></i>
+                <i data-lucide="search" class="w-4 h-4 text-stone-400 absolute left-3 top-3"></i>
               </div>
               <button 
                 type="submit" 
-                class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold transition-all flex items-center gap-1.5">
-                <i data-lucide="search" class="w-3.5 h-3.5"></i>
+                class="px-5 py-2.5 bg-orange-600 hover:bg-orange-700 text-white rounded-xl text-xs font-black transition-all flex items-center gap-1.5 shadow-xs active:scale-95">
+                <i data-lucide="search" class="w-3.5 h-3.5 stroke-[2.2]"></i>
                 <span>Tra Cứu</span>
               </button>
               ${searchResults ? `
                 <button 
                   type="button"
                   onclick="VibeApp.clearAdminFraudSearch()" 
-                  class="px-3 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-xl text-xs font-bold transition-all">
+                  class="px-4 py-2.5 bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-300 rounded-xl text-xs font-bold transition-all">
                   Đóng
                 </button>
               ` : ''}
@@ -9607,23 +9635,23 @@ const VibeApp = {
           </div>
 
           <!-- Khối 3: Danh sách IP bị Khóa tự động -->
-          <div class="bento-card p-5 space-y-3">
+          <div class="bg-white dark:bg-[#18181B] border border-stone-200 dark:border-stone-800 rounded-2xl p-5 shadow-xs space-y-4">
             <div class="flex items-center justify-between">
-              <h2 class="text-sm font-bold text-slate-800 dark:text-slate-100 flex items-center gap-1.5">
-                <i data-lucide="ban" class="w-4 h-4 text-red-600"></i>
+              <h2 class="text-xs font-black uppercase tracking-wider text-stone-900 dark:text-white flex items-center gap-1.5">
+                <i data-lucide="ban" class="w-4 h-4 text-orange-600"></i>
                 <span>Danh Sách IP Bị Khóa Tự Động (Auto-Banned IPs)</span>
               </h2>
-              <span class="text-[11px] text-slate-500 font-mono">Tự động ban khi có &gt;= 5 tài khoản/thiết bị</span>
+              <span class="text-[11px] text-stone-400 font-mono">Tự động ban khi có &gt;= 5 tài khoản/thiết bị</span>
             </div>
 
             ${bannedIps.length === 0 ? `
-              <div class="p-6 text-center text-xs text-slate-400 border border-dashed border-slate-200 dark:border-slate-800 rounded-xl">
+              <div class="p-6 text-center text-xs text-stone-400 dark:text-stone-500 border border-dashed border-stone-200 dark:border-stone-800 rounded-xl">
                 Hiện tại không có địa chỉ IP nào bị khóa.
               </div>
             ` : `
               <div class="overflow-x-auto">
                 <table class="w-full text-left text-xs">
-                  <thead class="bg-slate-50 dark:bg-slate-800/50 text-slate-500 font-bold uppercase tracking-wider border-b border-slate-100 dark:border-slate-800">
+                  <thead class="bg-stone-50 dark:bg-stone-900/60 text-stone-500 font-bold uppercase tracking-wider border-b border-stone-100 dark:border-stone-800">
                     <tr>
                       <th class="p-3">Địa Chỉ IP</th>
                       <th class="p-3">Lý Do Khóa</th>
@@ -9631,14 +9659,14 @@ const VibeApp = {
                       <th class="p-3 text-right">Thao Tác</th>
                     </tr>
                   </thead>
-                  <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                  <tbody class="divide-y divide-stone-100 dark:divide-stone-800">
                     ${bannedIps.map(b => `
                       <tr>
-                        <td class="p-3 font-mono font-bold text-red-600 dark:text-red-400">${b.ip_address}</td>
-                        <td class="p-3 text-slate-700 dark:text-slate-300">${b.reason}</td>
-                        <td class="p-3 font-mono text-slate-400">${new Date(b.banned_at).toLocaleString('vi-VN')}</td>
+                        <td class="p-3 font-mono font-bold text-orange-600 dark:text-orange-400">${b.ip_address}</td>
+                        <td class="p-3 text-stone-700 dark:text-stone-300 font-medium">${b.reason}</td>
+                        <td class="p-3 font-mono text-stone-400">${new Date(b.banned_at).toLocaleString('vi-VN')}</td>
                         <td class="p-3 text-right">
-                          <button onclick="VibeApp.unbanIpAddress('${b.ip_address}')" class="px-2.5 py-1 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-lg text-xs font-bold transition-all">
+                          <button onclick="VibeApp.unbanIpAddress('${b.ip_address}')" class="px-3 py-1.5 bg-stone-100 dark:bg-stone-800 hover:bg-orange-600 hover:text-white text-stone-700 dark:text-stone-200 rounded-xl text-xs font-bold transition-all shadow-xs active:scale-95">
                             Gỡ Cấm IP
                           </button>
                         </td>
@@ -9651,48 +9679,119 @@ const VibeApp = {
           </div>
 
           <!-- Khối 4: Lịch sử Nhật Ký Gian Lận & Cảnh Báo Khả Nghi -->
-          <div class="bento-card p-5 space-y-3">
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-              <h2 class="text-sm font-bold text-slate-800 dark:text-slate-100 flex items-center gap-1.5">
-                <i data-lucide="activity" class="w-4 h-4 text-amber-500"></i>
-                <span>Nhật Ký Cảnh Báo Khả Nghi & Gian Lận Gần Nhất</span>
-              </h2>
-              <span class="text-xs text-slate-500 font-mono">
-                Tổng cộng ${totalFraudLogs} sự kiện được ghi nhận
-              </span>
+          <div class="bg-white dark:bg-[#18181B] border border-stone-200 dark:border-stone-800 rounded-2xl p-5 shadow-xs space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <div>
+                <h2 class="text-xs font-black uppercase tracking-wider text-stone-900 dark:text-white flex items-center gap-1.5">
+                  <i data-lucide="activity" class="w-4 h-4 text-orange-600"></i>
+                  <span>Nhật Ký Cảnh Báo Khả Nghi & Gian Lận Gần Nhất</span>
+                </h2>
+                <div class="text-[11px] text-stone-400 font-mono mt-0.5">
+                  Tổng cộng ${totalFraudLogs} sự kiện được ghi nhận trên toàn hệ thống
+                </div>
+              </div>
+
+              <!-- Thanh công cụ phân trang chuẩn: Dropdown Dòng/trang + Chuyển trang -->
+              <div class="flex items-center flex-wrap gap-2">
+                <!-- Dropdown tiêu chuẩn: Số dòng / trang -->
+                <div class="relative">
+                  <button 
+                    type="button" 
+                    onclick="event.stopPropagation(); VibeApp.toggleCustomDropdown('admin-fraud-limit-menu', event)" 
+                    class="custom-dropdown-trigger flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-stone-50 dark:bg-stone-800/80 hover:bg-stone-100 dark:hover:bg-stone-700/80 border border-stone-200 dark:border-stone-700 text-xs font-semibold text-stone-700 dark:text-stone-200 transition-all shadow-xs">
+                    <span class="text-stone-400 dark:text-stone-500 font-normal">Hiển thị:</span>
+                    <span class="font-bold text-stone-900 dark:text-white">${fraudLimit} dòng</span>
+                    <i data-lucide="chevron-down" class="dropdown-trigger-icon w-3.5 h-3.5 stroke-[2] transition-transform duration-200 pointer-events-none text-stone-400"></i>
+                  </button>
+                  <div id="admin-fraud-limit-menu" class="custom-dropdown-menu hidden absolute right-0 z-50 mt-1.5 min-w-[150px] p-1.5 rounded-xl bg-white dark:bg-[#18181B] border border-stone-200 dark:border-stone-700 shadow-xl space-y-0.5">
+                    <div onclick="event.stopPropagation(); VibeApp.setAdminFraudLogLimit(5)" class="flex items-center justify-between px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-colors hover:bg-stone-100 dark:hover:bg-stone-800 ${fraudLimit === 5 ? 'text-orange-600 dark:text-orange-400 font-bold bg-orange-50 dark:bg-stone-800' : 'text-stone-700 dark:text-stone-200'}">
+                      <span>5 dòng (Ngắn gọn)</span>
+                      ${fraudLimit === 5 ? '<i data-lucide="check" class="w-3.5 h-3.5 text-orange-600"></i>' : ''}
+                    </div>
+                    <div onclick="event.stopPropagation(); VibeApp.setAdminFraudLogLimit(10)" class="flex items-center justify-between px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-colors hover:bg-stone-100 dark:hover:bg-stone-800 ${fraudLimit === 10 ? 'text-orange-600 dark:text-orange-400 font-bold bg-orange-50 dark:bg-stone-800' : 'text-stone-700 dark:text-stone-200'}">
+                      <span>10 dòng (Tiêu chuẩn)</span>
+                      ${fraudLimit === 10 ? '<i data-lucide="check" class="w-3.5 h-3.5 text-orange-600"></i>' : ''}
+                    </div>
+                    <div onclick="event.stopPropagation(); VibeApp.setAdminFraudLogLimit(20)" class="flex items-center justify-between px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-colors hover:bg-stone-100 dark:hover:bg-stone-800 ${fraudLimit === 20 ? 'text-orange-600 dark:text-orange-400 font-bold bg-orange-50 dark:bg-stone-800' : 'text-stone-700 dark:text-stone-200'}">
+                      <span>20 dòng (Đầy đủ)</span>
+                      ${fraudLimit === 20 ? '<i data-lucide="check" class="w-3.5 h-3.5 text-orange-600"></i>' : ''}
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Dropdown chọn trang trực tiếp (nếu có > 1 trang) -->
+                ${totalFraudPages > 1 ? `
+                  <div class="relative">
+                    <button 
+                      type="button" 
+                      onclick="event.stopPropagation(); VibeApp.toggleCustomDropdown('admin-fraud-page-menu', event)" 
+                      class="custom-dropdown-trigger flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-stone-50 dark:bg-stone-800/80 hover:bg-stone-100 dark:hover:bg-stone-700/80 border border-stone-200 dark:border-stone-700 text-xs font-semibold text-stone-700 dark:text-stone-200 transition-all shadow-xs">
+                      <span class="text-stone-400 dark:text-stone-500 font-normal">Trang:</span>
+                      <span class="font-bold text-stone-900 dark:text-white">${this.state.fraudLogPage} / ${totalFraudPages}</span>
+                      <i data-lucide="chevron-down" class="dropdown-trigger-icon w-3.5 h-3.5 stroke-[2] transition-transform duration-200 pointer-events-none text-stone-400"></i>
+                    </button>
+                    <div id="admin-fraud-page-menu" class="custom-dropdown-menu hidden absolute right-0 z-50 mt-1.5 min-w-[130px] max-h-56 overflow-y-auto p-1.5 rounded-xl bg-white dark:bg-[#18181B] border border-stone-200 dark:border-stone-700 shadow-xl space-y-0.5">
+                      ${Array.from({ length: totalFraudPages }, (_, i) => i + 1).map(p => `
+                        <div onclick="event.stopPropagation(); VibeApp.setAdminFraudLogPage(${p}, true)" class="flex items-center justify-between px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-colors hover:bg-stone-100 dark:hover:bg-stone-800 ${p === this.state.fraudLogPage ? 'text-orange-600 dark:text-orange-400 font-bold bg-orange-50 dark:bg-stone-800' : 'text-stone-700 dark:text-stone-200'}">
+                          <span>Trang ${p}</span>
+                          ${p === this.state.fraudLogPage ? '<i data-lucide="check" class="w-3.5 h-3.5 text-orange-600"></i>' : ''}
+                        </div>
+                      `).join('')}
+                    </div>
+                  </div>
+                ` : ''}
+
+                <!-- Các nút điều hướng Trước / Sau -->
+                <div class="flex items-center gap-1.5">
+                  <button 
+                    type="button"
+                    onclick="VibeApp.setAdminFraudLogPage(-1)" 
+                    ${this.state.fraudLogPage <= 1 ? 'disabled class="px-3 py-1.5 bg-stone-100 dark:bg-stone-800/60 text-stone-400 rounded-xl cursor-not-allowed text-xs font-bold"' : 'class="px-3 py-1.5 bg-stone-100 dark:bg-stone-800 hover:bg-orange-600 hover:text-white text-stone-700 dark:text-stone-200 rounded-xl text-xs font-bold transition-all shadow-xs active:scale-95"'}>
+                    &lt; Trước
+                  </button>
+                  <button 
+                    type="button"
+                    onclick="VibeApp.setAdminFraudLogPage(1)" 
+                    ${this.state.fraudLogPage >= totalFraudPages ? 'disabled class="px-3 py-1.5 bg-stone-100 dark:bg-stone-800/60 text-stone-400 rounded-xl cursor-not-allowed text-xs font-bold"' : 'class="px-3 py-1.5 bg-stone-100 dark:bg-stone-800 hover:bg-orange-600 hover:text-white text-stone-700 dark:text-stone-200 rounded-xl text-xs font-bold transition-all shadow-xs active:scale-95"'}>
+                    Sau &gt;
+                  </button>
+                </div>
+              </div>
             </div>
+
+            <!-- Bảng danh sách nhật ký -->
             <div class="overflow-x-auto">
               <table class="w-full text-left text-xs">
-                <thead class="bg-slate-50 dark:bg-slate-800/50 text-slate-500 font-bold uppercase tracking-wider border-b border-slate-100 dark:border-slate-800">
+                <thead class="bg-stone-50 dark:bg-stone-900/60 text-stone-500 font-bold uppercase tracking-wider border-b border-stone-100 dark:border-stone-800">
                   <tr>
                     <th class="p-3">Thời Gian</th>
                     <th class="p-3">Tài Khoản</th>
-                    <th class="p-3">Sự Kiện & Lý Do Chi Tiết</th>
+                    <th class="p-3">Sự Kiện & Phân Loại</th>
                     <th class="p-3">IP / Thiết Bị</th>
                   </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                <tbody class="divide-y divide-stone-100 dark:divide-stone-800">
                   ${pagedLogs.length === 0 ? `
-                    <tr><td colspan="4" class="p-8 text-center text-slate-400">Không có nhật ký cảnh báo gian lận nào được ghi nhận.</td></tr>
+                    <tr><td colspan="4" class="p-8 text-center text-stone-400">Không có nhật ký cảnh báo gian lận nào được ghi nhận.</td></tr>
                   ` : pagedLogs.map(l => {
                     const isMultiAccAlert = l.reason === 'CANH_BAO_KHA_NGHI_MULTI_ACCOUNT';
                     const isAutoBan = l.reason === 'AUTO_BAN_IP_MULTI_ACCOUNT_BREACH' || l.reason === 'AUTO_BAN_DEVICE_MULTI_ACCOUNT_BREACH';
                     return `
-                      <tr class="${isAutoBan ? 'bg-red-50/50 dark:bg-red-950/20' : (isMultiAccAlert ? 'bg-amber-50/50 dark:bg-amber-950/20' : '')}">
-                        <td class="p-3 font-mono text-slate-500">${new Date(l.created_at).toLocaleString('vi-VN')}</td>
-                        <td class="p-3 font-bold">${l.user_name || 'Khách/Ẩn danh'}</td>
+                      <tr class="${isAutoBan ? 'bg-red-50/50 dark:bg-red-950/20' : (isMultiAccAlert ? 'bg-orange-50/40 dark:bg-orange-950/20' : '')}">
+                        <td class="p-3 font-mono text-stone-400">${new Date(l.created_at).toLocaleString('vi-VN')}</td>
+                        <td class="p-3 font-bold text-stone-800 dark:text-stone-200">${l.user_name || 'Khách/Ẩn danh'}</td>
                         <td class="p-3">
                           ${isAutoBan ? `
-                            <span class="px-2 py-0.5 bg-red-600 text-white font-bold rounded-md text-[10px]">AUTO-BAN</span>
+                            <span class="px-2 py-0.5 bg-red-600 text-white font-bold rounded text-[10px]">AUTO-BAN</span>
                             <span class="text-red-700 dark:text-red-400 font-bold ml-1">${l.reason}</span>
                           ` : (isMultiAccAlert ? `
-                            <span class="px-2 py-0.5 bg-amber-500 text-white font-bold rounded-md text-[10px]">CẢNH BÁO</span>
+                            <span class="px-2 py-0.5 bg-orange-600 text-white font-bold rounded text-[10px]">CẢNH BÁO</span>
                             <span class="text-orange-600 dark:text-orange-400 font-bold ml-1">Phát hiện &gt;= 3 tài khoản trên 1 thiết bị</span>
                           ` : `
-                            <span class="text-slate-800 dark:text-slate-200">${l.reason}</span>
+                            <span class="text-stone-700 dark:text-stone-300 font-medium">${l.reason}</span>
                           `)}
                         </td>
-                        <td class="p-3 font-mono text-slate-500">${l.ip_address || '127.0.0.1'}</td>
+                        <td class="p-3 font-mono text-stone-400">${l.ip_address || '127.0.0.1'}</td>
                       </tr>
                     `;
                   }).join('')}
@@ -9700,25 +9799,13 @@ const VibeApp = {
               </table>
             </div>
 
-            <!-- Phân trang tinh gọn cho bảng nhật ký -->
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pt-2 border-t border-slate-100 dark:border-slate-800 text-xs">
-              <span class="text-slate-500 font-medium">
-                Hiển thị dòng <strong>${totalFraudLogs === 0 ? 0 : startFraudIdx + 1} - ${Math.min(startFraudIdx + fraudLimit, totalFraudLogs)}</strong> trên tổng số <strong>${totalFraudLogs}</strong> sự kiện cảnh báo
+            <!-- Footer phân trang tinh gọn -->
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pt-2 border-t border-stone-100 dark:border-stone-800 text-xs">
+              <span class="text-stone-400 dark:text-stone-500 font-medium">
+                Hiển thị dòng <strong>${totalFraudLogs === 0 ? 0 : startFraudIdx + 1} - ${Math.min(startFraudIdx + fraudLimit, totalFraudLogs)}</strong> trên tổng số <strong>${totalFraudLogs}</strong> sự kiện
               </span>
-              <div class="flex items-center gap-2 font-mono">
-                <span class="text-slate-500 font-bold mr-1">Trang ${this.state.fraudLogPage} / ${totalFraudPages}</span>
-                <button 
-                  type="button"
-                  onclick="VibeApp.setAdminFraudLogPage(-1)" 
-                  ${this.state.fraudLogPage <= 1 ? 'disabled class="px-2.5 py-1.5 bg-slate-100 dark:bg-slate-800 text-slate-400 rounded-lg cursor-not-allowed text-xs font-bold"' : 'class="px-2.5 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-lg text-xs font-bold transition-all shadow-xs"'}>
-                  &lt; Trang Trước
-                </button>
-                <button 
-                  type="button"
-                  onclick="VibeApp.setAdminFraudLogPage(1)" 
-                  ${this.state.fraudLogPage >= totalFraudPages ? 'disabled class="px-2.5 py-1.5 bg-slate-100 dark:bg-slate-800 text-slate-400 rounded-lg cursor-not-allowed text-xs font-bold"' : 'class="px-2.5 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-lg text-xs font-bold transition-all shadow-xs"'}>
-                  Trang Sau &gt;
-                </button>
+              <div class="text-stone-400 font-mono text-[11px]">
+                Trang <strong>${this.state.fraudLogPage}</strong> / <strong>${totalFraudPages}</strong> (${fraudLimit} dòng/trang)
               </div>
             </div>
           </div>
@@ -9732,14 +9819,27 @@ const VibeApp = {
     }
   },
 
-  setAdminFraudLogPage(delta) {
+  setAdminFraudLogLimit(limit) {
     this.haptic('light');
-    if (!this.state.fraudLogPage) this.state.fraudLogPage = 1;
-    const totalLogs = this._lastFraudLogsCount || 1;
-    const pageSize = 10;
-    const totalPages = Math.ceil(totalLogs / pageSize) || 1;
-    const targetPage = Math.min(totalPages, Math.max(1, this.state.fraudLogPage + delta));
-    if (targetPage === this.state.fraudLogPage) return;
+    this.state.fraudLogLimit = Number(limit) || 5;
+    this.state.fraudLogPage = 1;
+    const root = document.getElementById('app-root');
+    if (root) this.renderAdminFraudView(root);
+  },
+
+  setAdminFraudLogPage(pageOrDelta, isAbsolute = false) {
+    this.haptic('light');
+    const totalLogs = this._lastFraudLogsCount || 0;
+    const limit = Number(this.state.fraudLogLimit) || 5;
+    const totalPages = Math.max(1, Math.ceil(totalLogs / limit));
+    let targetPage = this.state.fraudLogPage || 1;
+    if (isAbsolute) {
+      targetPage = Number(pageOrDelta) || 1;
+    } else {
+      targetPage += Number(pageOrDelta) || 0;
+    }
+    targetPage = Math.min(totalPages, Math.max(1, targetPage));
+    if (targetPage === this.state.fraudLogPage && !isAbsolute) return;
     this.state.fraudLogPage = targetPage;
     const root = document.getElementById('app-root');
     if (root) this.renderAdminFraudView(root);

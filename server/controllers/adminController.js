@@ -9,14 +9,14 @@ class AdminController {
    */
   getOverview(req, res) {
     try {
-      // 1. Số liệu người dùng
+      // 1. Số liệu người dùng (Loại trừ số dư tĩnh trong ví Admin khỏi thị trường)
       const userStats = db.prepare(`
         SELECT 
           COUNT(*) AS total_users,
           SUM(CASE WHEN role = 'RESPONDENT' THEN 1 ELSE 0 END) AS total_respondents,
           SUM(CASE WHEN role = 'CREATOR' THEN 1 ELSE 0 END) AS total_creators,
-          SUM(credit_balance) AS total_creator_credit_balance,
-          SUM(point_balance) AS total_active_points
+          SUM(CASE WHEN role != 'ADMIN' THEN credit_balance ELSE 0 END) AS total_creator_credit_balance,
+          SUM(CASE WHEN role != 'ADMIN' THEN point_balance ELSE 0 END) AS total_active_points
         FROM users
       `).get();
 
@@ -42,11 +42,12 @@ class AdminController {
       `).get();
 
       // 4. Các chỉ số kinh tế hệ thống chi tiết
-      // a. Tổng tiền đã nạp qua sổ cái (VND)
+      // a. Tổng tiền đã nạp qua sổ cái (VND) - Loại trừ nạp ảo nội bộ của Admin
       const depositRow = db.prepare(`
-        SELECT COALESCE(SUM(amount), 0) AS total_deposited_vnd
-        FROM point_transactions
-        WHERE tx_type = 'DEPOSIT_CREDIT' AND currency = 'VND'
+        SELECT COALESCE(SUM(t.amount), 0) AS total_deposited_vnd
+        FROM point_transactions t
+        LEFT JOIN users u ON t.user_id = u.id
+        WHERE t.tx_type = 'DEPOSIT_CREDIT' AND t.currency = 'VND' AND (u.role IS NULL OR u.role != 'ADMIN')
       `).get();
       const totalDepositedVnd = depositRow.total_deposited_vnd || 0;
 
@@ -83,9 +84,11 @@ class AdminController {
       const grossPlatformProfitVnd = grossSurveySpreadProfitVnd + payoutFeesEarnedVnd;
 
       // e. Tổng số Point đang lưu hành trong ví người dùng (Circulating Point Liability)
+      // TÀI SẢN TĨNH CỦA ADMIN KHÔNG TÍNH VÀO CÔNG NỢ THỊ TRƯỜNG
       const pointLiabilityRow = db.prepare(`
         SELECT COALESCE(SUM(point_balance), 0) AS circulating_point_liability
         FROM users
+        WHERE role != 'ADMIN'
       `).get();
       const circulatingPointLiability = pointLiabilityRow.circulating_point_liability || 0;
       const circulatingPointLiabilityVnd = circulatingPointLiability * (config.ECONOMICS.POINT_TO_VND_RATE || 10);
@@ -96,11 +99,12 @@ class AdminController {
       // g. Tổng số tiền rút đã chi trả thành công (Completed Payouts VND)
       const totalCompletedPayoutVnd = payoutStats.total_fiat_paid_vnd || 0;
 
-      // h. Tổng điểm đã đổi sang Credit (+5% thưởng tái đầu tư)
+      // h. Tổng điểm đã đổi sang Credit (+5% thưởng tái đầu tư) - Loại trừ Admin đổi test
       const swapRow = db.prepare(`
-        SELECT COALESCE(SUM(amount), 0) AS swapped_credit_vnd
-        FROM point_transactions
-        WHERE tx_type = 'POINT_TO_CREDIT_SWAP' AND currency = 'VND'
+        SELECT COALESCE(SUM(t.amount), 0) AS swapped_credit_vnd
+        FROM point_transactions t
+        LEFT JOIN users u ON t.user_id = u.id
+        WHERE t.tx_type = 'POINT_TO_CREDIT_SWAP' AND t.currency = 'VND' AND (u.role IS NULL OR u.role != 'ADMIN')
       `).get();
       const swappedCreditVnd = swapRow.swapped_credit_vnd || 0;
 
