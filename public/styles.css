@@ -1174,3 +1174,13 @@ html.dark textarea:-webkit-autofill {
   -webkit-text-fill-color: #f8fafc !important;
 }
 
+/* =========================================================
+   STUDIO CANVAS ANTI-HORIZONTAL-SCROLL
+   Triệt tiêu triệt để thanh cuộn ngang thừa thãi trên Studio
+   ========================================================= */
+#studio-canvas-scroll,
+.studio-canvas-scroll {
+  overflow-x: hidden !important;
+  max-width: 100% !important;
+}
+

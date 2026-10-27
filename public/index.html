@@ -236,7 +236,11 @@
 
   <!-- ==================== IMAGE PICKER & WEBP COMPRESSION MODAL ==================== -->
   <div id="image-picker-modal" class="hidden fixed inset-0 z-50 overflow-y-auto modal-backdrop flex items-center justify-center p-3 sm:p-4">
-    <!-- Rendered dynamically via VibeApp.renderImagePickerModal() -->
+  </div>
+
+  <!-- ==================== TERMS & PLATFORM RULES MODAL ==================== -->
+  <div id="terms-modal" class="hidden fixed inset-0 z-[70] overflow-y-auto modal-backdrop flex items-center justify-center p-3 sm:p-4">
+    <!-- Rendered dynamically via VibeApp.openTermsModal() -->
   </div>
 
   <!-- ==================== GOOGLE OAUTH CONSENT DIALOG (CHUẨN GOOGLE ACCOUNT) ==================== -->
@@ -385,14 +389,14 @@
         </div>
         <div class="flex items-center gap-6">
           <a href="javascript:void(0)" class="hover:text-white">Trợ giúp</a>
-          <a href="javascript:void(0)" class="hover:text-white">Quyền riêng tư</a>
-          <a href="javascript:void(0)" class="hover:text-white">Điều khoản</a>
+          <a href="javascript:void(0)" onclick="VibeApp.openTermsModal(event)" class="hover:text-white">Quyền riêng tư</a>
+          <a href="javascript:void(0)" onclick="VibeApp.openTermsModal(event)" class="hover:text-white">Điều khoản</a>
         </div>
       </div>
     </div>
   </div>
 
   <!-- Application Script -->
-  <script src="/app.js?v=1793124568720"></script>
+  <script src="/app.js?v=1793124905886"></script>
 </body>
 </html>

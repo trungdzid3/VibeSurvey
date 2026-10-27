@@ -194,3 +194,32 @@ c:\Users\Lenovo\Downloads\Linh\
   1. 80% ngân sách tăng thêm: Chuyển đổi trực tiếp thành Điểm thưởng thực nhận cho đáp viên, tạo lực hút thù lao vượt trội để người điền ưu tiên làm bài trước.
   2. 20% còn lại: Phí vận hành hạ tầng tăng tốc của sàn (kích hoạt luồng thông báo ưu tiên và kiểm duyệt dữ liệu hỏa tốc).
 - **Trải nghiệm**: Tooltip hiển thị khi rê chuột (hover), giao diện tối giản, phong cách Linear/SaaS hiện đại, hoàn toàn không chiếm diện tích cố định của trang.
+
+
+### Bộ Điều Khoản Dịch Vụ & Quy Tắc Nền Tảng Bắt Buộc Tích Chọn Khi Đăng Ký (v3.2.0)
+- **Mục tiêu**: Soạn thảo bộ điều khoản dịch vụ và quy tắc hoạt động nền tảng VibeSurvey chính thức, đồng thời tích hợp ô checkbox bắt buộc người dùng phải đọc và tích chọn đồng ý mới được đăng ký tài khoản.
+- **Giải pháp triển khai toàn diện**:
+  1. **Văn bản pháp lý & Quy tắc chuẩn mực (`DIEU_KHOAN_VA_QUY_TAC_NEN_TANG.md`)**:
+     - Chương I: Nguyên tắc 1 cá nhân - 1 tài khoản chính chủ, định giá 1:1 VNĐ (`1 Point = 1 VNĐ`, `1 Credit = 1 VNĐ`).
+     - Chương II: Tiêu chuẩn người trả lời (Respondent) và 5 chốt chặn chống gian lận (Speed Trap, Attention Check, Straight-lining, lọc rác tự luận, Trust Score khởi tạo 85.0, cấm bot/multi-account).
+     - Chương III: Tiêu chuẩn người tạo khảo sát (Creator), Ký quỹ Escrow an toàn, hoàn tiền 100% khi đóng sớm, cấm nội dung độc hại/lừa đảo/nhạy cảm, bảo hành mẫu Doanh nghiệp 1 đổi 1 trong 7 ngày.
+     - Chương IV: Chính sách đổi thẻ cào từ 10.000đ (miễn phí), rút ngân hàng/MoMo từ 50.000đ, nạp Creator từ 20.000đ.
+     - Chương V: Bảo vệ dữ liệu cá nhân theo Nghị định 13/2023/NĐ-CP, ẩn danh hóa 100% dữ liệu khảo sát.
+     - Chương VI: Sổ cái Double-entry Ledger và Audit Log làm căn cứ tối cao xử lý tranh chấp.
+  2. **Giao diện & Kiểm soát tương tác (`public/app.js` & `public/index.html`)**:
+     - Checkbox `#auth-reg-terms` được tích hợp ngay trên nút "Tạo Tài Khoản & Bắt Đầu".
+     - Modal chuyên biệt `#terms-modal` (layer z-[70]) cho phép người dùng click xem toàn văn bộ điều khoản mọi lúc mà không làm mất dữ liệu đã điền trong form đăng ký.
+     - Nút "Tôi Đồng Ý Điều Khoản" trong modal tự động tích chọn checkbox và hiển thị toast xác nhận.
+     - Client validation chặn đứng hành vi submit khi chưa tích checkbox: rung cảnh báo, đổi viền đỏ và hiển thị thông báo lỗi rõ ràng.
+     - Kết nối toàn bộ các liên kết Điều khoản / Quyền riêng tư ở Footer trang chủ vào modal điều khoản.
+
+
+### Căn Chỉnh Vị Trí Dấu ? Tiền Thêm & Gỡ Bỏ Thanh Cuộn Ngang Studio (v3.1.5)
+- **Vấn đề đã xử lý**:
+  1. Vị trí dấu `?` trước đó bị ngắt dòng và nằm lơ lửng bên phải cạnh số tiền thay vì nằm cạnh chữ `Boost)`.
+  2. Màu sắc popover trước đó dùng `bg-stone-900` (đen kịt) gây lệch tông nghiêm trọng trong giao diện Light Mode, và bị căn lề lệch tràn ra mép ngoài màn hình.
+  3. Xuất hiện thanh cuộn ngang (`horizontal scrollbar`) thừa thãi và vô dụng dưới đáy canvas soạn thảo câu hỏi.
+- **Giải pháp dứt điểm**:
+  1. Bọc cụm `(Creator Boost)` và nút `?` trong cùng một thẻ inline `whitespace-nowrap`, bảo đảm dấu `?` luôn gắn liền ngay sau dấu đóng ngoặc `Boost)`.
+  2. Tái cấu trúc popover theo chuẩn DESIGN.md: nền trắng sáng ở Light Mode (`bg-white`), nền xám than ở Dark Mode (`dark:bg-[#18181B]`), viền `border-stone-200 dark:border-stone-800`, bóng đổ mờ `shadow-xl`, căn lề thông minh vào trong để không bao giờ bị tràn mép màn hình.
+  3. Bổ sung `overflow-x-hidden !important;` cho container `#studio-canvas-scroll` và grid wrapper, loại bỏ vĩnh viễn thanh cuộn ngang thừa thãi.

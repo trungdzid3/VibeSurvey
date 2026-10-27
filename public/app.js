@@ -1269,35 +1269,39 @@ const VibeApp = {
 
           <!-- Thanh trượt Creator Boost tự do -->
           <div class="pt-3 border-t border-stone-100 dark:border-stone-800 space-y-2.5">
-            <div class="flex items-center justify-between text-xs">
-              <div class="flex items-center gap-1.5">
-                <span class="font-bold text-stone-700 dark:text-stone-300">Tăng Thưởng Tự Do (Creator Boost)</span>
-                <!-- Tooltip Dấu ? Giải thích cơ chế tiền thêm -->
-                <div class="relative group/boost-tip inline-flex items-center">
-                  <button type="button" class="w-4 h-4 rounded-full bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-700 text-stone-500 hover:text-stone-900 dark:text-stone-400 dark:hover:text-white flex items-center justify-center text-[10px] font-bold font-mono transition-colors focus:outline-none" aria-label="Giải thích cơ chế tiền thêm">
-                    ?
-                  </button>
-                  <div class="absolute left-0 bottom-full mb-2 hidden group-hover/boost-tip:block z-50 w-72 sm:w-80 p-3 bg-stone-900 text-white rounded-xl shadow-xl border border-stone-800 text-[11px] leading-relaxed pointer-events-none transition-all">
-                    <div class="font-bold text-orange-400 mb-1.5 flex items-center gap-1">
-                      <span>Cơ chế phân bổ ngân sách tăng thêm (Creator Boost)</span>
-                    </div>
-                    <ul class="space-y-1.5 text-stone-300">
-                      <li class="flex items-start gap-1.5">
-                        <span class="text-orange-400 font-bold shrink-0">•</span>
-                        <span><strong class="text-white">80% tiền thêm</strong>: Chuyển đổi trực tiếp thành Điểm thưởng thực nhận cho đáp viên, tạo lực hút thù lao vượt trội để người điền ưu tiên làm bài của bạn trước.</span>
-                      </li>
-                      <li class="flex items-start gap-1.5">
-                        <span class="text-orange-400 font-bold shrink-0">•</span>
-                        <span><strong class="text-white">20% còn lại</strong>: Phí vận hành hạ tầng tăng tốc của sàn (kích hoạt luồng thông báo ưu tiên và kiểm duyệt dữ liệu hỏa tốc).</span>
-                      </li>
-                    </ul>
-                    <div class="mt-2 pt-1.5 border-t border-stone-800 text-[10px] text-stone-400">
-                      Đảm bảo khảo sát hoàn thành nhanh nhất với chất lượng phản hồi cao nhất.
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <span id="boost-price-display" class="font-mono font-bold text-orange-600 dark:text-orange-400">${calc.effectivePrice.toLocaleString('vi-VN')} VNĐ / mẫu</span>
+            <div class="flex items-center justify-between text-xs gap-2">
+              <span class="font-bold text-stone-700 dark:text-stone-300 inline-flex items-center flex-wrap gap-1 leading-normal">
+                <span>Tăng Thưởng Tự Do</span>
+                <span class="inline-flex items-center gap-1 whitespace-nowrap">
+                  <span>(Creator Boost)</span>
+                  <!-- Tooltip Dấu ? Đặt sát ngay sau Boost) -->
+                  <span class="relative group/boost-tip inline-flex items-center">
+                    <button type="button" class="w-3.5 h-3.5 rounded-full bg-stone-200/80 hover:bg-orange-100 dark:bg-stone-800 dark:hover:bg-stone-700 text-stone-600 hover:text-orange-600 dark:text-stone-300 dark:hover:text-orange-400 border border-stone-300/80 dark:border-stone-700 text-[9.5px] font-bold font-mono inline-flex items-center justify-center transition-colors focus:outline-none" aria-label="Giải thích cơ chế tiền thêm">
+                      ?
+                    </button>
+                    <!-- Popover chuẩn theme sáng/tối, bóng mờ thanh lịch, căn lề vào trong không bao giờ lệch mép -->
+                    <span class="absolute right-[-80px] sm:right-[-40px] bottom-full mb-2 hidden group-hover/boost-tip:block z-50 w-72 p-3.5 bg-white dark:bg-[#18181B] text-stone-700 dark:text-stone-300 rounded-xl shadow-xl border border-stone-200 dark:border-stone-800 text-[11px] leading-relaxed pointer-events-none transition-all">
+                      <span class="block font-bold text-orange-600 dark:text-orange-400 mb-1.5">
+                        Cơ chế phân bổ ngân sách tăng thêm
+                      </span>
+                      <span class="block space-y-1.5 text-stone-600 dark:text-stone-300">
+                        <span class="flex items-start gap-1.5">
+                          <span class="text-orange-600 font-bold shrink-0">•</span>
+                          <span><strong class="text-stone-900 dark:text-white">80% tiền thêm</strong>: Chuyển đổi trực tiếp thành Điểm thưởng thực nhận cho đáp viên, tạo lực hút thù lao vượt trội để người điền ưu tiên làm bài của bạn trước.</span>
+                        </span>
+                        <span class="flex items-start gap-1.5">
+                          <span class="text-orange-600 font-bold shrink-0">•</span>
+                          <span><strong class="text-stone-900 dark:text-white">20% còn lại</strong>: Phí vận hành hạ tầng tăng tốc của sàn (kích hoạt luồng thông báo ưu tiên và kiểm duyệt dữ liệu hỏa tốc).</span>
+                        </span>
+                      </span>
+                      <span class="block mt-2 pt-1.5 border-t border-stone-100 dark:border-stone-800 text-[10px] text-stone-400 dark:text-stone-500">
+                        Đảm bảo khảo sát hoàn thành nhanh nhất với chất lượng phản hồi cao nhất.
+                      </span>
+                    </span>
+                  </span>
+                </span>
+              </span>
+              <span id="boost-price-display" class="font-mono font-bold text-orange-600 dark:text-orange-400 shrink-0 whitespace-nowrap">${calc.effectivePrice.toLocaleString('vi-VN')} VNĐ / mẫu</span>
             </div>
             <input type="range" min="${calc.floorPrice}" max="${calc.floorPrice * 3}" step="50" value="${calc.effectivePrice}" oninput="VibeApp.updateStudioBoostRealtime(this.value)"
                    class="w-full accent-orange-600 cursor-pointer">
@@ -1804,6 +1808,19 @@ const VibeApp = {
             </div>
           </div>
 
+          <!-- Quy tắc & Điều khoản bắt buộc tích mới được đăng ký -->
+          <div class="p-2.5 rounded-xl border border-stone-200 dark:border-stone-800 bg-stone-50/70 dark:bg-stone-900/60 transition-all" id="auth-reg-terms-wrapper">
+            <label class="flex items-start gap-2.5 cursor-pointer select-none group">
+              <input type="checkbox" id="auth-reg-terms" required class="mt-0.5 w-4 h-4 rounded border-stone-300 dark:border-stone-600 text-orange-600 focus:ring-orange-500 cursor-pointer accent-orange-600" onchange="VibeApp.handleTermsCheckboxChange(this.checked)">
+              <span class="text-[11px] leading-snug text-stone-600 dark:text-stone-300 group-hover:text-stone-900 dark:group-hover:text-white transition-colors">
+                Tôi đã đọc, hiểu rõ và đồng ý với 
+                <a href="javascript:void(0)" onclick="VibeApp.openTermsModal(event)" class="font-bold text-orange-600 dark:text-orange-500 hover:underline">
+                  Điều khoản dịch vụ & Quy tắc nền tảng VibeSurvey
+                </a>.
+              </span>
+            </label>
+          </div>
+
           <button type="submit" id="auth-submit-btn" class="w-full py-2.5 bg-orange-600 hover:bg-orange-700 text-white rounded-xl text-xs font-bold shadow-sm transition-all active:scale-95 flex items-center justify-center gap-2">
             <i data-lucide="user-plus" class="w-4 h-4"></i>
             Tạo Tài Khoản & Bắt Đầu
@@ -2037,6 +2054,23 @@ const VibeApp = {
         otpInput.classList.add('ring-2', 'ring-red-500', 'border-red-500');
         setTimeout(() => otpInput.classList.remove('ring-2', 'ring-red-500', 'border-red-500'), 3000);
       }
+      return;
+    }
+
+    const termsCheckbox = document.getElementById('auth-reg-terms');
+    if (termsCheckbox && !termsCheckbox.checked) {
+      if (errorAlert && errorText) {
+        errorText.textContent = 'Vui lòng đọc và tích chọn đồng ý với Điều khoản dịch vụ & Quy tắc nền tảng VibeSurvey để tạo tài khoản';
+        errorAlert.classList.remove('hidden');
+      }
+      const termsWrapper = document.getElementById('auth-reg-terms-wrapper');
+      if (termsWrapper) {
+        termsWrapper.classList.add('border-red-500', 'bg-red-50/70', 'dark:bg-red-950/40');
+        setTimeout(() => {
+          if (termsWrapper) termsWrapper.classList.remove('border-red-500', 'bg-red-50/70', 'dark:bg-red-950/40');
+        }, 3000);
+      }
+      termsCheckbox.focus();
       return;
     }
 
@@ -2293,6 +2327,193 @@ const VibeApp = {
         submitBtn.disabled = false;
         submitBtn.innerHTML = '<span>Tiếp tục</span>';
       }
+    }
+  },
+
+  handleTermsCheckboxChange(checked) {
+    this.haptic('light');
+    const errorAlert = document.getElementById('auth-error-alert');
+    const errorText = document.getElementById('auth-error-text');
+    if (checked && errorAlert && errorText && errorText.textContent.includes('Điều khoản')) {
+      errorAlert.classList.add('hidden');
+    }
+    const termsWrapper = document.getElementById('auth-reg-terms-wrapper');
+    if (termsWrapper) {
+      if (checked) {
+        termsWrapper.classList.add('border-orange-500/40', 'bg-orange-50/40', 'dark:bg-stone-900/80');
+      } else {
+        termsWrapper.classList.remove('border-orange-500/40', 'bg-orange-50/40', 'dark:bg-stone-900/80');
+      }
+    }
+  },
+
+  openTermsModal(event) {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+    this.haptic('light');
+
+    const modal = document.getElementById('terms-modal');
+    if (!modal) return;
+
+    modal.innerHTML = `
+      <div class="bg-white dark:bg-[#18181B] text-slate-900 dark:text-stone-100 rounded-3xl max-w-3xl w-full p-6 sm:p-8 shadow-2xl border border-stone-200 dark:border-stone-800 transform transition-all relative flex flex-col max-h-[92vh]">
+        
+        <!-- Header -->
+        <div class="flex items-start justify-between pb-4 border-b border-stone-200 dark:border-stone-800 flex-shrink-0">
+          <div class="space-y-1">
+            <div class="flex items-center gap-2">
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-orange-100 dark:bg-orange-950/70 text-orange-700 dark:text-orange-400">
+                <i data-lucide="shield-check" class="w-3 h-3"></i>
+                Chính Sách Nền Tảng
+              </span>
+              <span class="text-[10px] font-mono font-medium text-stone-400 dark:text-stone-500">v3.2.0</span>
+            </div>
+            <h3 class="text-base sm:text-lg font-black text-slate-900 dark:text-white tracking-tight">
+              Điều Khoản Dịch Vụ & Quy Tắc Nền Tảng VibeSurvey
+            </h3>
+            <p class="text-xs text-stone-500 dark:text-stone-400">
+              Quy chuẩn minh bạch cho Người làm bài (Respondent) và Người tạo khảo sát (Creator)
+            </p>
+          </div>
+          <button onclick="VibeApp.closeTermsModal()" class="p-2 rounded-xl text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors -mr-1 -mt-1">
+            <i data-lucide="x" class="w-5 h-5 stroke-[2.2]"></i>
+          </button>
+        </div>
+
+        <!-- Scrollable Body Content -->
+        <div class="flex-1 overflow-y-auto pr-2 py-4 space-y-4 text-xs text-stone-600 dark:text-stone-300 leading-relaxed font-sans">
+          
+          <!-- Box 1: Quy định tài khoản & Tỷ giá -->
+          <div class="p-4 rounded-2xl bg-stone-50 dark:bg-stone-900/60 border border-stone-200 dark:border-stone-800 space-y-2">
+            <div class="flex items-center gap-2 text-stone-900 dark:text-white font-extrabold text-xs uppercase tracking-wide">
+              <i data-lucide="user-check" class="w-4 h-4 text-orange-600"></i>
+              <span>1. Quy Định Sở Hữu Tài Khoản & Định Giá 1:1 VNĐ</span>
+            </div>
+            <ul class="list-disc list-inside space-y-1 pl-1 text-[11px] text-stone-600 dark:text-stone-400">
+              <li><strong>Nguyên tắc 1 tài khoản chính chủ:</strong> Mỗi cá nhân chỉ được sử dụng duy nhất 01 tài khoản gắn liền với 01 email và số điện thoại xác thực. Nghiêm cấm tạo nhiều tài khoản (multi-account) trên cùng 1 thiết bị để trục lợi quà tặng tân thủ hay lượt làm bài.</li>
+              <li><strong>Tỷ giá minh bạch:</strong> Điểm thưởng khảo sát <code>1 Point = 1 VNĐ</code>. Số dư nạp ví Creator <code>1 Credit = 1 VNĐ</code>. Hệ thống không sử dụng token ảo hoặc đơn vị quy đổi khó hiểu.</li>
+            </ul>
+          </div>
+
+          <!-- Box 2: Quy chuẩn Người làm khảo sát (Respondent & Anti-Fraud) -->
+          <div class="p-4 rounded-2xl bg-stone-50 dark:bg-stone-900/60 border border-stone-200 dark:border-stone-800 space-y-2">
+            <div class="flex items-center gap-2 text-stone-900 dark:text-white font-extrabold text-xs uppercase tracking-wide">
+              <i data-lucide="shield-alert" class="w-4 h-4 text-orange-600"></i>
+              <span>2. Tiêu Chuẩn Trả Lời & Hệ Thống Chống Gian Lận (Anti-Fraud)</span>
+            </div>
+            <p class="text-[11px] text-stone-600 dark:text-stone-400">
+              VibeSurvey tích hợp công nghệ chống gian lận đa tầng tự động. Đáp viên đồng ý tuân thủ và chịu chế tài kiểm duyệt:
+            </p>
+            <ul class="list-disc list-inside space-y-1.5 pl-1 text-[11px] text-stone-600 dark:text-stone-400">
+              <li><strong>Bẫy thời gian (Speed Trap):</strong> Bắt buộc dành thời gian tối thiểu hợp lý để đọc hiểu câu hỏi. Các bài làm bấm chọn siêu tốc trong vài giây sẽ bị từ chối công nhận.</li>
+              <li><strong>Bẫy chú ý (Attention Check):</strong> Phải chú ý các câu hỏi kiểm tra ngẫu nhiên (ví dụ: "Hãy chọn đáp án thứ ba"). Trả lời sai sẽ bị hủy kết quả bài làm.</li>
+              <li><strong>Bẫy chọn thẳng hàng (Straight-lining):</strong> Nghiêm cấm chọn một đường liên tục trên các thang đo ma trận mà không phân biệt câu hỏi.</li>
+              <li><strong>Cấm spam tự luận & sử dụng bot:</strong> Nghiêm cấm gõ ký tự rác, sao chép văn bản lặp lại, hoặc sử dụng tiện ích extension, bot script, AI can thiệp tự động làm bài.</li>
+              <li><strong>Điểm uy tín (Trust Score):</strong> Tài khoản khởi điểm 85.0 điểm. Gian lận bị trừ điểm; dưới 60.0 điểm bị tạm dừng đổi thưởng; dưới 40.0 điểm bị khóa tài khoản vĩnh viễn và tịch thu số dư vi phạm.</li>
+            </ul>
+          </div>
+
+          <!-- Box 3: Quy chuẩn Người tạo khảo sát (Creator & Escrow) -->
+          <div class="p-4 rounded-2xl bg-stone-50 dark:bg-stone-900/60 border border-stone-200 dark:border-stone-800 space-y-2">
+            <div class="flex items-center gap-2 text-stone-900 dark:text-white font-extrabold text-xs uppercase tracking-wide">
+              <i data-lucide="layers" class="w-4 h-4 text-orange-600"></i>
+              <span>3. Quy Chuẩn Người Tạo Khảo Sát & Ký Quỹ Escrow An Toàn</span>
+            </div>
+            <ul class="list-disc list-inside space-y-1.5 pl-1 text-[11px] text-stone-600 dark:text-stone-400">
+              <li><strong>Ký quỹ Escrow minh bạch:</strong> Khi xuất bản bài khảo sát, ngân sách được khóa an toàn trong quỹ Escrow và chỉ giải ngân cho đáp viên khi câu trả lời vượt qua toàn bộ kiểm duyệt chất lượng.</li>
+              <li><strong>Hoàn tiền 100% khi đóng khảo sát:</strong> Khi bài khảo sát kết thúc hoặc đóng sớm, toàn bộ số tiền mẫu chưa thu thập được sẽ được hoàn lại 100% vào ví Credit của Creator.</li>
+              <li><strong>Nghiêm cấm nội dung độc hại:</strong> Tuyệt đối cấm tạo khảo sát vi phạm pháp luật Việt Nam, đồi trụy, cờ bạc, lừa đảo đa cấp, hoặc thu thập trái phép mật khẩu ngân hàng, mã OTP, số CCCD. Vi phạm sẽ bị gỡ bài và khóa tài khoản không hoàn tiền.</li>
+              <li><strong>Bảo hành mẫu doanh nghiệp:</strong> Doanh nghiệp (Enterprise) được cam kết bảo hành 1 đổi 1 trong vòng 7 ngày cho các mẫu không đúng phân khúc mục tiêu.</li>
+            </ul>
+          </div>
+
+          <!-- Box 4: Chính sách Đổi thưởng & Nạp rút -->
+          <div class="p-4 rounded-2xl bg-stone-50 dark:bg-stone-900/60 border border-stone-200 dark:border-stone-800 space-y-2">
+            <div class="flex items-center gap-2 text-stone-900 dark:text-white font-extrabold text-xs uppercase tracking-wide">
+              <i data-lucide="wallet" class="w-4 h-4 text-orange-600"></i>
+              <span>4. Chính Sách Đổi Thưởng, Nạp Tiền & Lệ Phí Xử Lý</span>
+            </div>
+            <ul class="list-disc list-inside space-y-1 pl-1 text-[11px] text-stone-600 dark:text-stone-400">
+              <li><strong>Đổi thẻ cào điện thoại:</strong> Tối thiểu từ 10.000 VNĐ (Viettel, VinaPhone, MobiFone), phí xử lý 0 VNĐ.</li>
+              <li><strong>Rút tiền ngân hàng / Ví MoMo:</strong> Tối thiểu từ 50.000 VNĐ (phí 2.000 VNĐ); từ 100.000 VNĐ trở lên miễn phí 100%.</li>
+              <li><strong>Nạp tiền Creator:</strong> Tối thiểu 20.000 VNĐ qua VietQR tự động cộng số dư trong vòng 30 giây.</li>
+              <li><strong>Thời gian giải ngân đổi thưởng:</strong> Kiểm duyệt và chuyển thưởng tự động trong vòng 24 - 48 giờ làm việc.</li>
+            </ul>
+          </div>
+
+          <!-- Box 5: Bảo mật thông tin Nghị định 13 -->
+          <div class="p-4 rounded-2xl bg-stone-50 dark:bg-stone-900/60 border border-stone-200 dark:border-stone-800 space-y-2">
+            <div class="flex items-center gap-2 text-stone-900 dark:text-white font-extrabold text-xs uppercase tracking-wide">
+              <i data-lucide="lock" class="w-4 h-4 text-orange-600"></i>
+              <span>5. Bảo Vệ Dữ Liệu Cá Nhân (Nghị Định 13/2023/NĐ-CP)</span>
+            </div>
+            <p class="text-[11px] text-stone-600 dark:text-stone-400">
+              Toàn bộ dữ liệu phản hồi khảo sát được chuyển giao cho Creator dưới dạng báo cáo thống kê ẩn danh. Creator không thể xem được họ tên, email, số điện thoại hay tài khoản thanh toán của bạn. VibeSurvey cam kết không bao giờ bán dữ liệu cá nhân cho bên thứ ba vì bất kỳ mục đích thương mại nào.
+            </p>
+          </div>
+
+          <!-- Box 6: Trọng tài giải quyết khiếu nại -->
+          <div class="p-4 rounded-2xl bg-stone-50 dark:bg-stone-900/60 border border-stone-200 dark:border-stone-800 space-y-2">
+            <div class="flex items-center gap-2 text-stone-900 dark:text-white font-extrabold text-xs uppercase tracking-wide">
+              <i data-lucide="scale" class="w-4 h-4 text-orange-600"></i>
+              <span>6. Sổ Cái Giao Dịch & Trọng Tài Giải Quyết Khiếu Nại</span>
+            </div>
+            <p class="text-[11px] text-stone-600 dark:text-stone-400">
+              Hệ thống Sổ cái đối soát giao dịch kép (Double-entry Ledger) và Audit Log máy chủ là căn cứ xác minh tối cao. Mọi khiếu nại được tiếp nhận qua kênh hỗ trợ trực tuyến và xử lý dứt điểm trong vòng 03 ngày làm việc.
+            </p>
+          </div>
+
+        </div>
+
+        <!-- Footer Actions -->
+        <div class="pt-4 border-t border-stone-200 dark:border-stone-800 flex flex-col sm:flex-row items-center justify-between gap-3 flex-shrink-0">
+          <p class="text-[11px] text-stone-500 dark:text-stone-400 text-center sm:text-left">
+            Bằng việc bấm xác nhận, bạn cam kết tuân thủ đầy đủ các quy định trên.
+          </p>
+          <div class="flex items-center gap-2.5 w-full sm:w-auto">
+            <button type="button" onclick="VibeApp.closeTermsModal()" class="flex-1 sm:flex-initial px-4 py-2.5 rounded-xl border border-stone-200 dark:border-stone-700 hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-700 dark:text-stone-300 text-xs font-bold transition-all active:scale-95">
+              Đóng
+            </button>
+            <button type="button" onclick="VibeApp.acceptTermsFromModal()" class="flex-1 sm:flex-initial px-5 py-2.5 rounded-xl bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold shadow-sm transition-all active:scale-95 flex items-center justify-center gap-1.5">
+              <i data-lucide="check" class="w-4 h-4 stroke-[2.5]"></i>
+              <span>Tôi Đồng Ý Điều Khoản</span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+    `;
+
+    modal.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+    if (window.lucide) window.lucide.createIcons();
+  },
+
+  closeTermsModal() {
+    this.haptic('light');
+    const modal = document.getElementById('terms-modal');
+    if (modal) modal.classList.add('hidden');
+    const modalContainer = document.getElementById('modal-container');
+    const googleModal = document.getElementById('google-oauth-modal');
+    const hasOtherModal = (modalContainer && !modalContainer.classList.contains('hidden')) || 
+                          (googleModal && !googleModal.classList.contains('hidden'));
+    if (!hasOtherModal) {
+      document.body.style.overflow = '';
+    }
+  },
+
+  acceptTermsFromModal() {
+    this.haptic('success');
+    this.closeTermsModal();
+    const termsCheckbox = document.getElementById('auth-reg-terms');
+    if (termsCheckbox) {
+      termsCheckbox.checked = true;
+      this.handleTermsCheckboxChange(true);
+      this.showToast('Đã xác nhận đồng ý với Điều khoản dịch vụ & Quy tắc nền tảng!', 'success');
+    } else {
+      this.showToast('Đã ghi nhận bạn đồng ý với Điều khoản & Quy tắc nền tảng VibeSurvey!', 'success');
     }
   },
 
@@ -7083,10 +7304,10 @@ const VibeApp = {
         </div>
 
         <!-- TWO-COLUMN STUDIO GRID (2 CỘT CUỘN ĐỘC LẬP RIÊNG BIỆT) -->
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start overflow-x-hidden w-full">
           
           <!-- CỘT TRÁI (~65% Canvas Soạn Thảo - Khung Cuộn Độc Lập): lg:col-span-8 -->
-          <div id="studio-canvas-scroll" class="${(this.state.mobileStudioActiveTab || 'CANVAS') === 'CANVAS' ? 'block' : 'hidden'} lg:block lg:col-span-8 space-y-5 lg:border-r lg:border-stone-200 dark:lg:border-stone-800 lg:pr-14 lg:h-[calc(100vh-175px)] lg:overflow-y-auto overscroll-contain pb-28">
+          <div id="studio-canvas-scroll" class="${(this.state.mobileStudioActiveTab || 'CANVAS') === 'CANVAS' ? 'block' : 'hidden'} lg:block lg:col-span-8 space-y-5 lg:border-r lg:border-stone-200 dark:lg:border-stone-800 lg:pr-8 xl:pr-12 lg:h-[calc(100vh-175px)] overflow-x-hidden overflow-y-auto overscroll-contain pb-28">
             
             <!-- THẺ TIÊU ĐỀ BIỂU MẪU (FORM HEADER CARD CHUẨN GOOGLE FORMS) -->
             <div class="bg-white dark:bg-[#18181B] border border-stone-200 dark:border-stone-800 rounded-2xl shadow-sm relative overflow-visible">
