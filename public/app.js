@@ -109,6 +109,17 @@ const VibeApp = {
     fraudLogPage: 1,
     adminViewMode: localStorage.getItem('vibesurvey_admin_view_mode') || 'ADMIN', // 'ADMIN' | 'RESPONDENT' | 'CREATOR'
     adminMode: localStorage.getItem('vibesurvey_admin_view_mode') || 'ADMIN',
+    imagePicker: {
+      isOpen: false,
+      target: 'cover',
+      targetQuestionIdx: null,
+      activeTab: 'upload',
+      selectedFile: null,
+      compressedResult: null,
+      isCompressing: false,
+      isUploading: false,
+      urlInput: ''
+    },
   },
 
   // ==================== HTTP CLIENT ====================
@@ -583,7 +594,6 @@ const VibeApp = {
                       }
                     }
                   }, 1000);
-                  this.showToast('Đang tiếp tục bài khảo sát của bạn...', 'info');
                   await this.navigate('take-survey', { surveyId: restoredSession.surveyId });
                   return;
                 }
@@ -1096,16 +1106,32 @@ const VibeApp = {
             <input type="number" id="fast-target-count" value="${this.state.targetResponses}" min="10" step="5" oninput="VibeApp.setStudioTargetResponses(this.value)" autocomplete="off" spellcheck="false"
                    class="w-full p-2.5 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 text-sm font-mono font-bold text-slate-900 dark:text-white focus:outline-none focus:border-orange-500">
           </div>
+
+          <!-- Thời hạn treo khảo sát trên sàn (Tự do chỉnh số ngày) -->
+          <div class="space-y-1.5 pt-2.5 border-t border-stone-100 dark:border-stone-800">
+            <div class="flex items-center justify-between text-xs font-bold text-stone-700 dark:text-stone-200">
+              <label for="fast-survey-duration" class="cursor-pointer">Thời Hạn Treo Trên Sàn (Tự Do):</label>
+              <div class="flex items-center gap-1.5 font-mono">
+                <input type="number" id="fast-survey-duration" value="${this.state.surveyDurationDays || 14}" min="1" max="90" step="1" 
+                       oninput="VibeApp.setStudioDuration(this.value, true)" autocomplete="off" spellcheck="false"
+                       class="w-16 py-1 px-2 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 text-xs font-extrabold text-orange-600 dark:text-orange-400 focus:outline-none focus:border-orange-500 text-center">
+                <span class="text-xs text-stone-600 dark:text-stone-400 font-bold">ngày</span>
+              </div>
+            </div>
+            <p class="text-[10.5px] text-stone-500 dark:text-stone-400 leading-tight">
+              Tự do chỉnh từ 1 – 90 ngày. Khảo sát dừng khi đủ mẫu hoặc hết thời hạn. Tiền mẫu chưa thu được hoàn 100%.
+            </p>
+          </div>
         </div>
 
-        <!-- CARD 2: BẢNG GIÁ 3 NẤC SLA & CREATOR BOOST -->
+        <!-- CARD 2: BẢNG GIÁ & TỐC ĐỘ GOM MẪU & CREATOR BOOST -->
         <div class="bg-white dark:bg-[#18181B] border border-stone-200 dark:border-stone-800 rounded-2xl p-5 shadow-sm space-y-4">
           <div class="flex items-center justify-between pb-2 border-b border-stone-100 dark:border-stone-800">
-            <span class="text-xs font-black uppercase tracking-wider text-stone-900 dark:text-white">2. Bảng Giá & Nấc SLA</span>
-            <span class="text-[11px] font-bold text-stone-500">Gom Mẫu Nhanh</span>
+            <span class="text-xs font-black uppercase tracking-wider text-stone-900 dark:text-white">2. Mức Thưởng Điền & Tốc Độ Gom Mẫu</span>
+            <span class="text-[11px] font-bold text-stone-500">Tốc Độ Ước Tính</span>
           </div>
 
-          <!-- 3 Nấc Lựa Chọn SLA -->
+          <!-- 3 Nấc Lựa Chọn Tốc Độ Gom Mẫu -->
           <div class="space-y-2">
             <!-- Nấc 1: Sàn Tiết kiệm -->
             <div onclick="VibeApp.setStudioSlaTier('FLOOR')" 
@@ -1120,7 +1146,7 @@ const VibeApp = {
                 <span class="font-mono text-xs font-extrabold text-stone-900 dark:text-white">${calc.slaPrices.FLOOR.toLocaleString('vi-VN')}đ</span>
               </div>
               <div class="text-[11px] text-stone-500 dark:text-stone-400 mt-1 pl-5.5 flex items-center justify-between">
-                <span>SLA: 3 – 5 ngày</span>
+                <span>Tốc độ gom mẫu dự kiến: ~3 – 5 ngày</span>
                 <span class="text-stone-400">Tối ưu chi phí</span>
               </div>
             </div>
@@ -1139,7 +1165,7 @@ const VibeApp = {
                 <span class="font-mono text-xs font-extrabold text-orange-600 dark:text-orange-400">${calc.slaPrices.RECOMMENDED.toLocaleString('vi-VN')}đ</span>
               </div>
               <div class="text-[11px] text-stone-500 dark:text-stone-400 mt-1 pl-5.5 flex items-center justify-between">
-                <span>SLA: 24 – 48 giờ (+25%)</span>
+                <span>Tốc độ gom mẫu dự kiến: ~24 – 48 giờ (+25%)</span>
                 <span class="text-orange-600 dark:text-orange-400 font-semibold">Tốc độ chuẩn</span>
               </div>
             </div>
@@ -1158,16 +1184,19 @@ const VibeApp = {
                 <span class="font-mono text-xs font-extrabold text-amber-600 dark:text-amber-400">${calc.slaPrices.RUSH.toLocaleString('vi-VN')}đ</span>
               </div>
               <div class="text-[11px] text-stone-500 dark:text-stone-400 mt-1 pl-5.5 flex items-center justify-between">
-                <span>SLA: 2 – 6 giờ (+60%)</span>
+                <span>Tốc độ gom mẫu dự kiến: ~2 – 6 giờ (+60%)</span>
                 <span class="text-amber-600 dark:text-amber-400 font-semibold">Lấy số liệu gấp</span>
               </div>
             </div>
           </div>
+          <p class="text-[10.5px] text-stone-500 dark:text-stone-400 italic leading-relaxed pt-1">
+            Lưu ý: Tốc độ trên là thời gian hoàn thành mục tiêu N mẫu dự kiến khi đáp viên thấy mức thưởng cao, không phải thời hạn bài bị đóng. Khảo sát sẽ hiển thị trên sàn theo số ngày bạn cài đặt tự do ở trên.
+          </p>
 
           <!-- Thanh trượt Creator Boost tự do -->
           <div class="pt-3 border-t border-stone-100 dark:border-stone-800 space-y-2">
             <div class="flex items-center justify-between text-xs">
-              <span class="font-bold text-stone-700 dark:text-stone-300">Tăng Thưởng (Creator Boost):</span>
+              <span class="font-bold text-stone-700 dark:text-stone-300">Tăng Thưởng Tự Do (Creator Boost):</span>
               <span id="boost-price-display" class="font-mono font-bold text-orange-600 dark:text-orange-400">${calc.effectivePrice.toLocaleString('vi-VN')} VNĐ / mẫu</span>
             </div>
             <input type="range" min="${calc.floorPrice}" max="${calc.floorPrice * 3}" step="50" value="${calc.effectivePrice}" oninput="VibeApp.updateStudioBoostRealtime(this.value)"
@@ -1281,20 +1310,20 @@ const VibeApp = {
             <span class="text-[11px] font-bold text-stone-500">Thời hạn & Ghim VIP</span>
           </div>
 
-          <!-- Thời hạn treo -->
-          <div class="flex items-center justify-between text-xs">
-            <span class="font-bold text-stone-700 dark:text-stone-300">Thời hạn thu mẫu:</span>
-            <div class="relative">
-              <button type="button" onclick="VibeApp.toggleCustomDropdown('studio-duration-menu', event)" class="custom-dropdown-trigger py-1.5 px-3 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 font-bold text-xs flex items-center gap-1.5 shadow-xs text-slate-800 dark:text-slate-200">
-                <span>${this.state.surveyDurationDays === 7 ? '7 ngày' : (this.state.surveyDurationDays === 30 ? '30 ngày' : '14 ngày (Chuẩn)')}</span>
-                <i data-lucide="chevron-down" class="dropdown-trigger-icon w-3 h-3 text-stone-400 transition-transform duration-200"></i>
-              </button>
-              <div id="studio-duration-menu" class="custom-dropdown-menu hidden absolute right-0 top-full mt-1 bg-white dark:bg-[#18181B] border border-stone-200 dark:border-stone-700 rounded-xl shadow-xl z-30 p-1 space-y-0.5 w-36 text-xs">
-                <div onclick="VibeApp.setStudioDuration(7); document.getElementById('studio-duration-menu').classList.add('hidden')" class="p-2 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 cursor-pointer font-bold ${this.state.surveyDurationDays === 7 ? 'text-orange-600 bg-orange-50 dark:bg-stone-800' : ''}">7 ngày</div>
-                <div onclick="VibeApp.setStudioDuration(14); document.getElementById('studio-duration-menu').classList.add('hidden')" class="p-2 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 cursor-pointer font-bold ${(this.state.surveyDurationDays === 14 || !this.state.surveyDurationDays) ? 'text-orange-600 bg-orange-50 dark:bg-stone-800' : ''}">14 ngày (Chuẩn)</div>
-                <div onclick="VibeApp.setStudioDuration(30); document.getElementById('studio-duration-menu').classList.add('hidden')" class="p-2 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 cursor-pointer font-bold ${this.state.surveyDurationDays === 30 ? 'text-orange-600 bg-orange-50 dark:bg-stone-800' : ''}">30 ngày</div>
+          <!-- Thời hạn treo khảo sát trên sàn (Tự do chỉnh số ngày) -->
+          <div class="space-y-1.5">
+            <div class="flex items-center justify-between text-xs font-bold text-stone-700 dark:text-stone-200">
+              <label for="tab2-survey-duration" class="cursor-pointer">Thời Hạn Treo Trên Sàn (Tự Do):</label>
+              <div class="flex items-center gap-1.5 font-mono">
+                <input type="number" id="tab2-survey-duration" value="${this.state.surveyDurationDays || 14}" min="1" max="90" step="1" 
+                       oninput="VibeApp.setStudioDuration(this.value, true)" autocomplete="off" spellcheck="false"
+                       class="w-16 py-1 px-2 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 text-xs font-extrabold text-orange-600 dark:text-orange-400 focus:outline-none focus:border-orange-500 text-center">
+                <span class="text-xs text-stone-600 dark:text-stone-400 font-bold">ngày</span>
               </div>
             </div>
+            <p class="text-[10.5px] text-stone-500 dark:text-stone-400 leading-tight">
+              Tự do chỉnh từ 1 – 90 ngày. Khảo sát dừng khi đủ mẫu hoặc hết thời hạn. Tiền mẫu chưa thu được hoàn 100%.
+            </p>
           </div>
 
           <!-- Ghim VIP nổi bật -->
@@ -1435,7 +1464,6 @@ const VibeApp = {
     if (dropdown) dropdown.classList.add('hidden');
 
     this.applyGuestInterface();
-    this.showToast('Bạn đã đăng xuất tài khoản an toàn.', 'info');
   },
 
   // ==================== AUTHENTICATION MODAL ====================
@@ -1818,7 +1846,6 @@ const VibeApp = {
 
     if (btn) btn.disabled = true;
     if (btnText) btnText.textContent = 'Đang gửi mã...';
-    this.showToast('Đang gửi mã xác thực đến email của bạn...', 'info');
 
     try {
       const res = await this.api('/auth/send-registration-otp', {
@@ -2160,8 +2187,6 @@ const VibeApp = {
       this.openAuthModal('login');
       return;
     }
-
-    this.showToast('Đang gửi mã xác thực đến email của bạn...', 'info');
 
     try {
       const res = await this.api('/auth/send-verification-otp', { method: 'POST' });
@@ -6095,25 +6120,463 @@ const VibeApp = {
   },
 
   
-  promptStudioCoverImage() {
-    const cur = this.state.draftCoverImageUrl || '';
-    const url = prompt('Nhập hoặc dán liên kết URL ảnh bìa biểu mẫu (JPG, PNG, WebP):', cur);
-    if (url !== null) {
-      this.state.draftCoverImageUrl = url.trim();
-      this.renderCreateSurveyView(document.getElementById('app-root'));
-      if (url.trim()) this.showToast('Đã cập nhật ảnh bìa biểu mẫu!', 'success');
+  // ==================== IMAGE PICKER & WEBP COMPRESSION ====================
+  _formatFileSize(bytes) {
+    if (!bytes || bytes <= 0) return '0 B';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+  },
+
+  /**
+   * Nén ảnh trực tiếp trên trình duyệt sử dụng HTML5 Canvas
+   * Giảm 95-98% dung lượng trước khi tải lên máy chủ
+   * Tối đa 1200px đối với ảnh bìa (cover), 800px đối với ảnh câu hỏi (question)
+   */
+  async compressImageFile(file, options = {}) {
+    const maxWidth = options.maxWidth || 1200;
+    const maxHeight = options.maxHeight || 1200;
+    const quality = options.quality !== undefined ? options.quality : 0.82;
+
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          let width = img.naturalWidth || img.width;
+          let height = img.naturalHeight || img.height;
+
+          // Tính toán tỷ lệ co giãn giữ nguyên tỷ lệ khung hình
+          if (width > maxWidth || height > maxHeight) {
+            const ratio = Math.min(maxWidth / width, maxHeight / height);
+            width = Math.round(width * ratio);
+            height = Math.round(height * ratio);
+          }
+
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          
+          ctx.imageSmoothingEnabled = true;
+          ctx.imageSmoothingQuality = 'high';
+          ctx.drawImage(img, 0, 0, width, height);
+
+          // Thử xuất WebP trước (định dạng nén hiện đại nhất)
+          let webpData = canvas.toDataURL('image/webp', quality);
+          if (!webpData.startsWith('data:image/webp')) {
+            webpData = canvas.toDataURL('image/jpeg', quality);
+          }
+
+          const base64Str = webpData.split(',')[1] || '';
+          const compressedBytes = Math.round((base64Str.length * 3) / 4);
+
+          resolve({
+            dataUrl: webpData,
+            width,
+            height,
+            originalSize: file.size,
+            compressedSize: compressedBytes,
+            savedPercent: Math.max(0, Math.round(((file.size - compressedBytes) / file.size) * 100))
+          });
+        };
+        img.onerror = () => reject(new Error('Không thể đọc dữ liệu file ảnh'));
+        img.src = e.target.result;
+      };
+      reader.onerror = () => reject(new Error('Lỗi khi đọc tệp từ thiết bị'));
+      reader.readAsDataURL(file);
+    });
+  },
+
+  openImagePickerModal(target = 'cover', qIdx = null) {
+    if (!this.state.imagePicker) {
+      this.state.imagePicker = {};
+    }
+    const currentUrl = target === 'cover' 
+      ? (this.state.draftCoverImageUrl || '')
+      : (this.state.builderQuestions && this.state.builderQuestions[qIdx] ? (this.state.builderQuestions[qIdx].image_url || '') : '');
+
+    this.state.imagePicker = {
+      isOpen: true,
+      target, // 'cover' | 'question'
+      targetQuestionIdx: qIdx,
+      activeTab: 'upload', // 'upload' | 'url'
+      selectedFile: null,
+      compressedResult: null,
+      isCompressing: false,
+      isUploading: false,
+      urlInput: currentUrl
+    };
+
+    this.renderImagePickerModal();
+    const modalEl = document.getElementById('image-picker-modal');
+    if (modalEl) modalEl.classList.remove('hidden');
+    if (window.lucide) window.lucide.createIcons();
+  },
+
+  closeImagePickerModal() {
+    if (this.state.imagePicker) {
+      this.state.imagePicker.isOpen = false;
+    }
+    const modalEl = document.getElementById('image-picker-modal');
+    if (modalEl) modalEl.classList.add('hidden');
+  },
+
+  switchImagePickerTab(tab) {
+    if (!this.state.imagePicker) return;
+    this.state.imagePicker.activeTab = tab;
+    this.renderImagePickerModal();
+    if (window.lucide) window.lucide.createIcons();
+  },
+
+  async handleImagePickerFileChange(fileInput) {
+    const file = fileInput.files && fileInput.files[0];
+    if (!file) return;
+    await this.processImagePickerFile(file);
+  },
+
+  async handleImagePickerDrop(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    const dropzone = document.getElementById('image-picker-dropzone');
+    if (dropzone) dropzone.classList.remove('border-orange-500', 'bg-orange-50/20');
+    
+    const files = event.dataTransfer && event.dataTransfer.files;
+    if (files && files.length > 0) {
+      await this.processImagePickerFile(files[0]);
     }
   },
 
-  promptStudioQuestionImage(qIdx) {
-    if (!this.state.builderQuestions || !this.state.builderQuestions[qIdx]) return;
-    const cur = this.state.builderQuestions[qIdx].image_url || '';
-    const url = prompt('Nhập hoặc dán liên kết URL ảnh minh họa cho câu hỏi (JPG, PNG, WebP):', cur);
-    if (url !== null) {
-      this.state.builderQuestions[qIdx].image_url = url.trim() || null;
-      this.renderCreateSurveyView(document.getElementById('app-root'));
-      if (url.trim()) this.showToast('Đã thêm ảnh vào câu hỏi!', 'success');
+  handleImagePickerDragOver(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    const dropzone = document.getElementById('image-picker-dropzone');
+    if (dropzone) dropzone.classList.add('border-orange-500', 'bg-orange-50/20');
+  },
+
+  handleImagePickerDragLeave(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    const dropzone = document.getElementById('image-picker-dropzone');
+    if (dropzone) dropzone.classList.remove('border-orange-500', 'bg-orange-50/20');
+  },
+
+  async processImagePickerFile(file) {
+    if (!file.type.startsWith('image/')) {
+      this.showToast('Vui lòng chọn tệp định dạng hình ảnh (JPG, PNG, WebP)', 'warning');
+      return;
     }
+
+    const target = this.state.imagePicker.target;
+    const maxDimension = target === 'cover' ? 1200 : 800;
+
+    this.state.imagePicker.selectedFile = file;
+    this.state.imagePicker.isCompressing = true;
+    this.renderImagePickerModal();
+    if (window.lucide) window.lucide.createIcons();
+
+    try {
+      const result = await this.compressImageFile(file, {
+        maxWidth: maxDimension,
+        maxHeight: maxDimension,
+        quality: 0.82
+      });
+      this.state.imagePicker.compressedResult = result;
+      this.state.imagePicker.isCompressing = false;
+      this.renderImagePickerModal();
+      if (window.lucide) window.lucide.createIcons();
+    } catch (err) {
+      console.error('Lỗi khi nén ảnh:', err);
+      this.state.imagePicker.isCompressing = false;
+      this.showToast('Không thể xử lý ảnh: ' + err.message, 'error');
+      this.renderImagePickerModal();
+      if (window.lucide) window.lucide.createIcons();
+    }
+  },
+
+  handleImagePickerUrlInput(val) {
+    if (!this.state.imagePicker) return;
+    this.state.imagePicker.urlInput = val;
+    const previewEl = document.getElementById('image-picker-url-preview');
+    const imgEl = document.getElementById('image-picker-url-img');
+    const cleanVal = val.trim();
+    if (previewEl && imgEl) {
+      if (cleanVal) {
+        imgEl.src = cleanVal;
+        previewEl.classList.remove('hidden');
+      } else {
+        previewEl.classList.add('hidden');
+      }
+    }
+  },
+
+  async applyImagePickerUpload() {
+    const picker = this.state.imagePicker;
+    if (!picker || !picker.compressedResult || !picker.compressedResult.dataUrl) {
+      this.showToast('Vui lòng chọn ảnh trước khi tải lên', 'warning');
+      return;
+    }
+
+    picker.isUploading = true;
+    this.renderImagePickerModal();
+    if (window.lucide) window.lucide.createIcons();
+
+    try {
+      const payload = {
+        image_data: picker.compressedResult.dataUrl,
+        type: picker.target
+      };
+
+      const res = await this.api('/upload/image', {
+        method: 'POST',
+        body: JSON.stringify(payload)
+      });
+
+      if (!res.success || !res.url) {
+        throw new Error(res.message || 'Lỗi khi lưu trữ ảnh');
+      }
+
+      const uploadedUrl = res.url;
+      if (picker.target === 'cover') {
+        this.state.draftCoverImageUrl = uploadedUrl;
+        this.showToast('Đã tải lên và áp dụng ảnh bìa thành công!', 'success');
+      } else if (picker.target === 'question' && picker.targetQuestionIdx !== null) {
+        const qIdx = picker.targetQuestionIdx;
+        if (this.state.builderQuestions && this.state.builderQuestions[qIdx]) {
+          this.state.builderQuestions[qIdx].image_url = uploadedUrl;
+          this.showToast('Đã thêm ảnh minh họa vào câu hỏi thành công!', 'success');
+        }
+      }
+
+      this.closeImagePickerModal();
+      this.renderCreateSurveyView(document.getElementById('app-root'));
+    } catch (err) {
+      console.error('Lỗi khi tải ảnh:', err);
+      picker.isUploading = false;
+      this.showToast('Tải ảnh thất bại: ' + (err.message || 'Vui lòng thử lại'), 'error');
+      this.renderImagePickerModal();
+      if (window.lucide) window.lucide.createIcons();
+    }
+  },
+
+  applyImagePickerUrl() {
+    const picker = this.state.imagePicker;
+    if (!picker) return;
+    const url = (picker.urlInput || '').trim();
+
+    if (picker.target === 'cover') {
+      this.state.draftCoverImageUrl = url;
+      if (url) this.showToast('Đã áp dụng liên kết ảnh bìa!', 'success');
+      else this.showToast('Đã xóa ảnh bìa', 'info');
+    } else if (picker.target === 'question' && picker.targetQuestionIdx !== null) {
+      const qIdx = picker.targetQuestionIdx;
+      if (this.state.builderQuestions && this.state.builderQuestions[qIdx]) {
+        this.state.builderQuestions[qIdx].image_url = url || null;
+        if (url) this.showToast('Đã thêm ảnh vào câu hỏi!', 'success');
+        else this.showToast('Đã gỡ ảnh câu hỏi', 'info');
+      }
+    }
+
+    this.closeImagePickerModal();
+    this.renderCreateSurveyView(document.getElementById('app-root'));
+  },
+
+  renderImagePickerModal() {
+    const modalEl = document.getElementById('image-picker-modal');
+    if (!modalEl) return;
+
+    const picker = this.state.imagePicker || {};
+    const isCover = picker.target === 'cover';
+    const targetTitle = isCover ? 'Ảnh Bìa Biểu Mẫu' : ('Ảnh Minh Họa Câu Hỏi #' + ((picker.targetQuestionIdx || 0) + 1));
+    const activeTab = picker.activeTab || 'upload';
+    const compressed = picker.compressedResult;
+
+    modalEl.innerHTML = `
+      <div class="bg-white dark:bg-[#18181B] text-slate-800 dark:text-stone-100 rounded-2xl max-w-xl w-full p-5 sm:p-6 shadow-2xl border border-stone-200 dark:border-stone-800 transform transition-all relative">
+        
+        <!-- Header -->
+        <div class="flex items-center justify-between pb-3.5 border-b border-stone-100 dark:border-stone-800">
+          <div class="flex items-center gap-2.5">
+            <div class="w-8 h-8 rounded-xl bg-orange-100 dark:bg-orange-950/50 text-orange-600 dark:text-orange-400 flex items-center justify-center">
+              <i data-lucide="image" class="w-4 h-4"></i>
+            </div>
+            <div>
+              <h3 class="text-sm sm:text-base font-extrabold text-slate-900 dark:text-white">${targetTitle}</h3>
+              <p class="text-[11px] text-stone-500">Tải ảnh từ máy tính hoặc dán liên kết ảnh trực tiếp</p>
+            </div>
+          </div>
+          <button type="button" onclick="VibeApp.closeImagePickerModal()" class="w-8 h-8 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 flex items-center justify-center transition-colors">
+            <i data-lucide="x" class="w-4 h-4"></i>
+          </button>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="flex items-center gap-2 mt-4 p-1 bg-stone-100 dark:bg-stone-900 rounded-xl">
+          <button type="button" onclick="VibeApp.switchImagePickerTab('upload')" class="flex-1 py-2 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${activeTab === 'upload' ? 'bg-white dark:bg-stone-800 text-orange-600 dark:text-orange-400 shadow-xs' : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200'}">
+            <i data-lucide="upload-cloud" class="w-3.5 h-3.5"></i>
+            <span>Tải Lên Từ Máy (Nén WebP Siêu Nhẹ)</span>
+          </button>
+          <button type="button" onclick="VibeApp.switchImagePickerTab('url')" class="flex-1 py-2 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${activeTab === 'url' ? 'bg-white dark:bg-stone-800 text-orange-600 dark:text-orange-400 shadow-xs' : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200'}">
+            <i data-lucide="link-2" class="w-3.5 h-3.5"></i>
+            <span>Dán Link URL (0 Byte Máy Chủ)</span>
+          </button>
+        </div>
+
+        <!-- Tab Body -->
+        <div class="mt-4">
+          ${activeTab === 'upload' ? `
+            <!-- TAB 1: UPLOAD TỪ MÁY VỚI NÉN CLIENT CANVAS WEBP -->
+            <div class="space-y-3.5">
+              
+              ${picker.isCompressing ? `
+                <div class="py-12 flex flex-col items-center justify-center gap-3 border-2 border-dashed border-stone-200 dark:border-stone-800 rounded-2xl bg-stone-50/50 dark:bg-stone-900/30">
+                  <div class="animate-spin rounded-full h-8 w-8 border-2 border-orange-600 border-t-transparent"></div>
+                  <span class="text-xs font-bold text-stone-600 dark:text-stone-300">Đang tối ưu & nén sang định dạng WebP...</span>
+                </div>
+              ` : (compressed ? `
+                <!-- Preview ảnh và thẻ thống kê nén -->
+                <div class="space-y-3">
+                  <div class="relative rounded-xl overflow-hidden border border-stone-200 dark:border-stone-800 bg-stone-950 flex items-center justify-center max-h-56">
+                    <img src="${compressed.dataUrl}" alt="Xem trước ảnh" class="max-h-56 w-auto object-contain mx-auto">
+                    <div class="absolute bottom-2 right-2 px-2.5 py-1 bg-black/75 backdrop-blur-sm rounded-lg text-[10px] text-white font-mono font-bold">
+                      ${compressed.width} x ${compressed.height} px
+                    </div>
+                  </div>
+
+                  <!-- Thẻ số liệu tối ưu dung lượng -->
+                  <div class="p-3 bg-emerald-50/70 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/40 rounded-xl">
+                    <div class="flex items-center justify-between text-xs mb-1.5">
+                      <span class="font-bold text-emerald-800 dark:text-emerald-300 flex items-center gap-1">
+                        <i data-lucide="check-circle" class="w-3.5 h-3.5 text-emerald-600"></i>
+                        Đã tối ưu hóa siêu nhẹ bằng WebP
+                      </span>
+                      <span class="font-mono font-black text-emerald-600 dark:text-emerald-400">
+                        Giảm ${compressed.savedPercent}%
+                      </span>
+                    </div>
+                    <div class="grid grid-cols-3 gap-2 text-center pt-2 border-t border-emerald-200/60 dark:border-emerald-800/30">
+                      <div>
+                        <div class="text-[10px] text-stone-500">Kích thước gốc</div>
+                        <div class="font-mono text-xs font-bold text-stone-700 dark:text-stone-300">${this._formatFileSize(compressed.originalSize)}</div>
+                      </div>
+                      <div>
+                        <div class="text-[10px] text-stone-500">Sau nén WebP</div>
+                        <div class="font-mono text-xs font-bold text-emerald-700 dark:text-emerald-300">${this._formatFileSize(compressed.compressedSize)}</div>
+                      </div>
+                      <div>
+                        <div class="text-[10px] text-stone-500">Định dạng</div>
+                        <div class="font-mono text-xs font-bold text-stone-700 dark:text-stone-300">image/webp</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="flex items-center justify-between pt-1">
+                    <button type="button" onclick="document.getElementById('image-picker-file-input').click()" class="text-xs text-stone-500 hover:text-stone-800 dark:hover:text-stone-200 font-bold underline transition-colors">
+                      Chọn ảnh khác từ máy
+                    </button>
+                    <input type="file" id="image-picker-file-input" accept="image/*" class="hidden" onchange="VibeApp.handleImagePickerFileChange(this)">
+                  </div>
+                </div>
+              ` : `
+                <!-- Dropzone kéo thả -->
+                <div id="image-picker-dropzone" 
+                     onclick="document.getElementById('image-picker-file-input').click()"
+                     ondragover="VibeApp.handleImagePickerDragOver(event)"
+                     ondragleave="VibeApp.handleImagePickerDragLeave(event)"
+                     ondrop="VibeApp.handleImagePickerDrop(event)"
+                     class="py-10 px-4 border-2 border-dashed border-stone-200 dark:border-stone-800 hover:border-orange-500 dark:hover:border-orange-500 rounded-2xl bg-stone-50/50 dark:bg-stone-900/30 text-center cursor-pointer transition-all flex flex-col items-center justify-center gap-2 group">
+                  <div class="w-12 h-12 rounded-2xl bg-stone-100 dark:bg-stone-800 text-stone-400 group-hover:text-orange-600 group-hover:scale-105 transition-all flex items-center justify-center">
+                    <i data-lucide="upload-cloud" class="w-6 h-6 stroke-[1.8]"></i>
+                  </div>
+                  <div>
+                    <div class="text-xs sm:text-sm font-bold text-slate-900 dark:text-white">Nhấp để chọn ảnh từ máy hoặc kéo thả vào đây</div>
+                    <div class="text-[11px] text-stone-500 mt-0.5">Hỗ trợ JPG, PNG, WEBP, GIF. Giới hạn gốc 15MB.</div>
+                  </div>
+                  <span class="inline-block mt-1 px-3 py-1 rounded-full bg-orange-50 dark:bg-stone-800 text-orange-600 dark:text-orange-400 font-bold text-[10px]">
+                    Tự động nén WebP giảm 95%–98% trước khi lưu
+                  </span>
+                  <input type="file" id="image-picker-file-input" accept="image/*" class="hidden" onchange="VibeApp.handleImagePickerFileChange(this)">
+                </div>
+              `)}
+
+              <!-- Actions tab upload -->
+              <div class="flex items-center justify-end gap-2.5 pt-3 border-t border-stone-100 dark:border-stone-800">
+                <button type="button" onclick="VibeApp.closeImagePickerModal()" class="px-4 py-2 rounded-xl border border-stone-200 dark:border-stone-700 text-xs font-bold hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-600 dark:text-stone-300 transition-colors">
+                  Hủy
+                </button>
+                <button type="button" 
+                        onclick="VibeApp.applyImagePickerUpload()" 
+                        ${!compressed || picker.isUploading ? 'disabled' : ''}
+                        class="px-5 py-2 rounded-xl bg-orange-600 hover:bg-orange-700 disabled:opacity-40 disabled:cursor-not-allowed text-white text-xs font-bold transition-all shadow-md active:scale-95 flex items-center gap-1.5">
+                  ${picker.isUploading ? `
+                    <div class="animate-spin rounded-full h-3.5 w-3.5 border-2 border-white border-t-transparent"></div>
+                    <span>Đang tải lên...</span>
+                  ` : `
+                    <i data-lucide="check" class="w-3.5 h-3.5"></i>
+                    <span>Tải Lên & Áp Dụng</span>
+                  `}
+                </button>
+              </div>
+
+            </div>
+          ` : `
+            <!-- TAB 2: DÁN LIÊN KẾT URL (0 BYTE MÁY CHỦ) -->
+            <div class="space-y-3.5">
+              <div>
+                <label class="block text-xs font-bold text-stone-700 dark:text-stone-300 mb-1">Đường dẫn ảnh (URL):</label>
+                <input type="url" 
+                       value="${(picker.urlInput || '').replace(/"/g, '&quot;')}"
+                       oninput="VibeApp.handleImagePickerUrlInput(this.value)"
+                       placeholder="https://images.unsplash.com/... hoặc link ảnh bất kỳ"
+                       class="w-full p-2.5 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 text-xs text-stone-800 dark:text-stone-200 focus:border-orange-600 focus:outline-none">
+                <p class="text-[11px] text-stone-400 mt-1">Dán liên kết từ Unsplash, Imgur, Cloudinary hoặc máy chủ riêng. Hệ thống không tốn dung lượng lưu trữ.</p>
+              </div>
+
+              <!-- Preview khi nhập link -->
+              <div id="image-picker-url-preview" class="${picker.urlInput ? '' : 'hidden'} rounded-xl overflow-hidden border border-stone-200 dark:border-stone-800 bg-stone-900 max-h-48 flex items-center justify-center">
+                <img id="image-picker-url-img" src="${picker.urlInput || ''}" alt="Xem trước" class="max-h-48 w-auto object-contain mx-auto" onerror="this.onerror=null; this.alt='Không thể tải ảnh từ link này';">
+              </div>
+
+              <!-- Actions tab url -->
+              <div class="flex items-center justify-end gap-2.5 pt-3 border-t border-stone-100 dark:border-stone-800">
+                <button type="button" onclick="VibeApp.closeImagePickerModal()" class="px-4 py-2 rounded-xl border border-stone-200 dark:border-stone-700 text-xs font-bold hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-600 dark:text-stone-300 transition-colors">
+                  Hủy
+                </button>
+                <button type="button" onclick="VibeApp.applyImagePickerUrl()" class="px-5 py-2 rounded-xl bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold transition-all shadow-md active:scale-95 flex items-center gap-1.5">
+                  <i data-lucide="check" class="w-3.5 h-3.5"></i>
+                  <span>Áp Dụng Liên Kết</span>
+                </button>
+              </div>
+            </div>
+          `}
+        </div>
+
+        <!-- Technical Storage Architecture Guide Box -->
+        <div class="mt-4 p-3 bg-stone-50 dark:bg-stone-900/60 rounded-xl border border-stone-200/80 dark:border-stone-800 text-[11px] text-stone-500 space-y-1">
+          <div class="font-bold text-stone-700 dark:text-stone-300 flex items-center gap-1.5">
+            <i data-lucide="shield-check" class="w-3.5 h-3.5 text-orange-600"></i>
+            <span>Cơ chế lưu trữ ảnh siêu nhẹ của hệ thống</span>
+          </div>
+          <p class="leading-relaxed">1. <strong>Nén Client-side WebP:</strong> Ảnh 5MB–10MB từ máy được Canvas chuyển đổi trực tiếp thành WebP (~35KB–65KB), giảm 95%–98% băng thông.</p>
+          <p class="leading-relaxed">2. <strong>Tách biệt File tĩnh & CSDL:</strong> Tệp ảnh được lưu vào thư mục tĩnh, SQLite chỉ lưu chuỗi đường dẫn text ngắn gọn (~35 ký tự), giữ database luôn nhẹ dưới vài MB.</p>
+          <p class="leading-relaxed">3. <strong>Tùy chọn 0 Byte máy chủ:</strong> Sử dụng tab "Dán Link URL" để tiêu tốn 0 byte lưu trữ máy chủ.</p>
+        </div>
+
+      </div>
+    `;
+  },
+
+  promptStudioCoverImage() {
+    this.openImagePickerModal('cover');
+  },
+
+  promptStudioQuestionImage(qIdx) {
+    this.openImagePickerModal('question', qIdx);
+  },
+
+  openQuestionImagePrompt(qIdx) {
+    this.openImagePickerModal('question', qIdx);
   },
 
   setStudioCategory(cat) {
@@ -6748,10 +7211,10 @@ const VibeApp = {
       effectivePrice = this.state.customPricePerResponse;
     }
 
-    // Delta P & Creator Boost Share
+    // Delta P & Creator Boost Share (Chuẩn 80% điền / 20% sàn)
     const deltaP = Math.max(0, effectivePrice - floorPrice);
-    const alpha = tier === 'STUDENT' ? 0.85 : 0.80;
-    const boostShareText = tier === 'STUDENT' ? '85% điền / 15% sàn' : '80% điền / 20% sàn';
+    const alpha = 0.80;
+    const boostShareText = '80% điền / 20% sàn';
     const boostRespondent = Math.floor(alpha * deltaP);
     const boostPlatform = deltaP - boostRespondent;
 
@@ -6878,8 +7341,22 @@ const VibeApp = {
     }
   },
 
-  setStudioDuration(days) {
-    this.state.surveyDurationDays = parseInt(days, 10) || 14;
+  setStudioDuration(days, preserveFocus = false) {
+    const val = parseInt(days, 10);
+    this.state.surveyDurationDays = (isNaN(val) || val <= 0) ? 14 : Math.min(90, Math.max(1, val));
+    
+    if (preserveFocus) {
+      const input1 = document.getElementById('fast-survey-duration');
+      if (input1 && parseInt(input1.value, 10) !== this.state.surveyDurationDays) {
+        input1.value = this.state.surveyDurationDays;
+      }
+      const input2 = document.getElementById('tab2-survey-duration');
+      if (input2 && parseInt(input2.value, 10) !== this.state.surveyDurationDays) {
+        input2.value = this.state.surveyDurationDays;
+      }
+      return;
+    }
+
     if (!this.refreshStudioSidebarView()) {
       this.renderCreateSurveyView(document.getElementById('app-root'));
     }
@@ -6952,7 +7429,7 @@ const VibeApp = {
             </button>
 
             <!-- 4. Thêm hình ảnh -->
-            <button type="button" onclick="event.stopPropagation(); VibeApp.openQuestionImagePrompt(${qIdx})" 
+            <button type="button" onclick="event.stopPropagation(); VibeApp.openImagePickerModal('question', ${qIdx})" 
                     class="p-2 rounded-xl text-stone-600 dark:text-stone-300 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-orange-50 dark:hover:bg-stone-800 transition-colors relative group" 
                     title="Thêm hình ảnh">
               <i data-lucide="image" class="w-5 h-5 stroke-[2]"></i>
@@ -7079,6 +7556,24 @@ const VibeApp = {
             </div>
           </div>
         </div>
+
+        <!-- Question Image Preview in Studio -->
+        ${q.image_url ? `
+          <div class="relative group my-3 rounded-2xl overflow-hidden border border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-900 shadow-xs" onclick="event.stopPropagation()">
+            <img src="${q.image_url}" alt="Ảnh minh họa câu hỏi" class="w-full max-h-72 object-contain bg-black/5 dark:bg-black/40 mx-auto" onerror="this.onerror=null; this.src=''; this.parentElement.classList.add('border-red-300');">
+            <div class="p-2 bg-white/95 dark:bg-stone-900/95 backdrop-blur-sm border-t border-stone-200 dark:border-stone-800 flex items-center justify-between text-xs">
+              <span class="text-[11px] text-stone-500 font-mono truncate max-w-[200px] sm:max-w-[320px]">${q.image_url}</span>
+              <div class="flex items-center gap-1.5 shrink-0">
+                <button type="button" onclick="event.stopPropagation(); VibeApp.openImagePickerModal('question', ${qIdx})" class="px-2.5 py-1 rounded-lg bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-300 text-[11px] font-bold transition-colors">
+                  Đổi ảnh
+                </button>
+                <button type="button" onclick="event.stopPropagation(); VibeApp.removeStudioQuestionImage(${qIdx})" class="px-2.5 py-1 rounded-lg bg-red-50 hover:bg-red-100 dark:bg-red-950/40 text-red-600 dark:text-red-400 text-[11px] font-bold transition-colors">
+                  Gỡ ảnh
+                </button>
+              </div>
+            </div>
+          </div>
+        ` : ''}
 
         <!-- Question Body Content Editor -->
         <div class="pt-2" onclick="event.stopPropagation()">
@@ -7937,6 +8432,7 @@ const VibeApp = {
           reward_mode: 'POINTS_ONLY',
           reward_points_per_response: calc.respondentReward,
           is_pinned: this.state.isPinnedSurvey === true,
+          duration_days: parseInt(this.state.surveyDurationDays, 10) || 14,
           allow_edit_response: this.state.allowEditResponse ? 1 : 0,
           allow_view_response: this.state.allowViewResponse !== false ? 1 : 0,
           target_demographics: targetDemographics,
@@ -8491,7 +8987,6 @@ const VibeApp = {
     }
 
     try {
-      this.showToast('Đang cập nhật hồ sơ...', 'info');
       const res = await this.api('/auth/profile/demographics', {
         method: 'POST',
         body: JSON.stringify({
@@ -8548,7 +9043,6 @@ const VibeApp = {
     }
 
     try {
-      this.showToast('Đang gửi mã xác thực OTP về email...', 'info');
       const res = await this.api('/auth/student/send-otp', {
         method: 'POST',
         body: JSON.stringify({ student_email: email })
@@ -8621,7 +9115,6 @@ const VibeApp = {
     }
 
     try {
-      this.showToast('Đang xác nhận mã OTP...', 'info');
       const res = await this.api('/auth/student/verify-otp', {
         method: 'POST',
         body: JSON.stringify({ otp })
@@ -8665,7 +9158,6 @@ const VibeApp = {
     }
 
     try {
-      this.showToast('Đang đăng ký hồ sơ doanh nghiệp...', 'info');
       const res = await this.api('/auth/enterprise/profile', {
         method: 'POST',
         body: JSON.stringify(payload)
@@ -9114,6 +9606,7 @@ const VibeApp = {
                   <button type="button" onclick="VibeApp.submitAdminConsoleCommand('/settier me STUDENT')" class="px-2 py-0.5 rounded bg-stone-900 hover:bg-stone-800 text-stone-300 border border-stone-800 transition-colors">SV</button>
                   <button type="button" onclick="VibeApp.submitAdminConsoleCommand('/settier me PERSONAL')" class="px-2 py-0.5 rounded bg-stone-900 hover:bg-stone-800 text-stone-300 border border-stone-800 transition-colors">Cá nhân</button>
                   <button type="button" onclick="VibeApp.submitAdminConsoleCommand('/resetpoint all')" class="px-2 py-0.5 rounded bg-stone-900 hover:bg-stone-800 text-red-400 border border-stone-800 transition-colors">Reset</button>
+                  <button type="button" onclick="VibeApp.submitAdminConsoleCommand('/cleantest')" class="px-2 py-0.5 rounded bg-stone-900 hover:bg-stone-800 text-amber-400 border border-stone-800 transition-colors font-bold">Xóa Test</button>
                 </div>
 
                 <!-- Màn hình Terminal Output Tự Động Co Giãn Ngang Bằng Cột Trái -->
@@ -10500,6 +10993,7 @@ const VibeApp = {
         <button type="button" onclick="VibeApp.submitAdminConsoleCommand('/settier me STUDENT')" class="px-2.5 py-1 rounded-lg bg-stone-900 hover:bg-stone-800 text-orange-400 border border-stone-800 transition-colors">/settier me STUDENT</button>
         <button type="button" onclick="VibeApp.submitAdminConsoleCommand('/settier me PERSONAL')" class="px-2.5 py-1 rounded-lg bg-stone-900 hover:bg-stone-800 text-stone-300 border border-stone-800 transition-colors">/settier me PERSONAL</button>
         <button type="button" onclick="VibeApp.submitAdminConsoleCommand('/resetpoint all')" class="px-2.5 py-1 rounded-lg bg-stone-900 hover:bg-stone-800 text-red-400 border border-stone-800 transition-colors">/resetpoint all</button>
+        <button type="button" onclick="VibeApp.submitAdminConsoleCommand('/cleantest')" class="px-2.5 py-1 rounded-lg bg-stone-900 hover:bg-stone-800 text-amber-400 border border-stone-800 font-bold transition-colors">/cleantest</button>
         <button type="button" onclick="VibeApp.clearAdminConsole()" class="px-2.5 py-1 rounded-lg bg-stone-900 hover:bg-stone-800 text-stone-400 border border-stone-800 transition-colors">Clear</button>
       </div>
 
@@ -10572,11 +11066,11 @@ const VibeApp = {
         type = 'warning';
         title = 'Số Dư Chưa Đủ Ký Quỹ';
         description = msg;
-      } else if (msg.includes('Chào mừng') || msg.includes('thành công') || msg.includes('Thành công')) {
-        type = type === 'info' ? 'success' : type;
-        title = type === 'success' ? 'Thao Tác Thành Công' : 'Thông Báo';
+      } else if (type === 'success' || msg.includes('Chào mừng') || msg.includes('thành công') || msg.includes('Thành công')) {
+        type = 'success';
+        title = 'Thao Tác Thành Công';
         description = msg;
-      } else if (msg.includes('Vui lòng') || msg.includes('cảnh báo') || msg.includes('chú ý')) {
+      } else if (type === 'info' && (msg.includes('Vui lòng') || msg.includes('cảnh báo') || msg.includes('chú ý'))) {
         type = 'warning';
         title = 'Lưu Ý Thao Tác';
         description = msg;
@@ -10586,6 +11080,21 @@ const VibeApp = {
                 type === 'warning' ? 'Thông Báo Cần Lưu Ý' : 'Thông Tin';
         description = msg;
       }
+    }
+
+    // Chống lặp thông báo giống nhau liên tiếp trong vòng 2.5 giây
+    const toastKey = `${type}:${description}`;
+    const now = Date.now();
+    if (this._lastToastKey === toastKey && now - (this._lastToastTime || 0) < 2500) {
+      return;
+    }
+    this._lastToastKey = toastKey;
+    this._lastToastTime = now;
+
+    // Giữ tối đa 2 toast hiển thị đồng thời ở góc dưới để tránh choán màn hình
+    while (container.children.length >= 2) {
+      const oldest = container.firstElementChild;
+      if (oldest) oldest.remove();
     }
 
     // Cấu hình theme màu & Icon SVG Lucide cao cấp
@@ -10617,7 +11126,7 @@ const VibeApp = {
     };
 
     const cfg = themeConfig[type] || themeConfig.info;
-    const durationMs = 3800;
+    const durationMs = 2800;
 
     const toast = document.createElement('div');
     toast.className = `toast-pro-card ${cfg.accentBorder}`;
@@ -10641,7 +11150,7 @@ const VibeApp = {
     const closeBtn = toast.querySelector('.toast-close-btn');
     const dismiss = () => {
       toast.style.opacity = '0';
-      toast.style.transform = 'translateY(-10px) scale(0.95)';
+      toast.style.transform = 'translateY(12px) scale(0.95)';
       toast.style.transition = 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)';
       setTimeout(() => toast.remove(), 200);
     };
@@ -10650,7 +11159,7 @@ const VibeApp = {
 
     let dismissTimer = setTimeout(dismiss, durationMs);
     toast.onmouseenter = () => clearTimeout(dismissTimer);
-    toast.onmouseleave = () => { dismissTimer = setTimeout(dismiss, 1800); };
+    toast.onmouseleave = () => { dismissTimer = setTimeout(dismiss, 1400); };
 
     container.appendChild(toast);
     if (window.lucide) window.lucide.createIcons();

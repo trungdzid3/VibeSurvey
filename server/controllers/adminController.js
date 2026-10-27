@@ -608,6 +608,7 @@ class AdminController {
             '  /settrust <email|id> <điểm>      : Cập nhật điểm uy tín (từ 0 đến 100)',
             '  /info <email|id>                 : Xem chi tiết thông số hồ sơ người dùng',
             '  /stats                           : Xem tóm tắt nhanh hiện trạng tài chính & người dùng',
+            '  /cleantest                       : Dọn dẹp xóa sạch toàn bộ data test, tài khoản test và khảo sát test',
             '  /clear                           : Xóa sạch màn hình console'
           ].join('\n');
           return res.json({ success: true, command: rawCommand, output: helpText, type: 'HELP' });
@@ -942,6 +943,23 @@ class AdminController {
             `  Thị trường: ${(uStats.circulating_points || 0).toLocaleString('vi-VN')} PTS điểm lưu hành`
           ].join('\n');
           return res.json({ success: true, command: rawCommand, output: statsText, type: 'INFO' });
+        }
+
+        case '/cleantest':
+        case '/xoadatatest':
+        case '/clean-test-data': {
+          const { cleanAllTestData } = require('../../tests/test_cleanup_helper');
+          const resCleanup = cleanAllTestData({ verbose: false });
+          if (resCleanup.error) {
+            return res.status(500).json({ success: false, message: `Lỗi khi dọn dẹp data test: ${resCleanup.error}` });
+          }
+          const outText = [
+            'DỌN DẸP DỮ LIỆU KIỂM THỬ THÀNH CÔNG:',
+            `  Đã xóa sạch: ${resCleanup.cleanedUsers} tài khoản test`,
+            `  Đã xóa sạch: ${resCleanup.cleanedSurveys} khảo sát test`,
+            '  Cơ sở dữ liệu đã được thanh lọc tinh khiết 100%!'
+          ].join('\n');
+          return res.json({ success: true, command: rawCommand, output: outText, type: 'CLEANUP' });
         }
 
         default:

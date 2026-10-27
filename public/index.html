@@ -62,7 +62,7 @@
   <script src="https://unpkg.com/lucide@latest"></script>
 
   <!-- Custom Stylesheet -->
-  <link rel="stylesheet" href="/styles.css?v=3.6.3">
+  <link rel="stylesheet" href="/styles.css?v=3.6.4">
 </head>
 <body class="bg-[#F8F9FA] dark:bg-[#09090B] text-slate-800 dark:text-stone-100 min-h-screen flex flex-col font-sans selection:bg-orange-500 selection:text-white antialiased safe-bottom">
 
@@ -234,6 +234,11 @@
     </div>
   </div>
 
+  <!-- ==================== IMAGE PICKER & WEBP COMPRESSION MODAL ==================== -->
+  <div id="image-picker-modal" class="hidden fixed inset-0 z-50 overflow-y-auto modal-backdrop flex items-center justify-center p-3 sm:p-4">
+    <!-- Rendered dynamically via VibeApp.renderImagePickerModal() -->
+  </div>
+
   <!-- ==================== GOOGLE OAUTH CONSENT DIALOG (CHUẨN GOOGLE ACCOUNT) ==================== -->
   <div id="google-oauth-modal" class="hidden fixed inset-0 z-[100] overflow-y-auto bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 transition-all duration-200">
     <div class="max-w-4xl w-full">
@@ -388,6 +393,6 @@
   </div>
 
   <!-- Application Script -->
-  <script src="/app.js?v=1793120299793"></script>
+  <script src="/app.js?v=1793121917145"></script>
 </body>
 </html>
