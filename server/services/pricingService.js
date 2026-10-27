@@ -83,8 +83,7 @@ class PricingService {
    * 2. Mức Đề Xuất Tiêu Chuẩn (Recommended) = P_sàn * 1.25 (24-48 giờ)
    * 3. Mức Gom Hỏa Tốc (Rush / Custom Boost) = P_sàn * 1.60 (2-6 giờ)
    * Kèm phân chia phần tiền tăng thêm Delta P (Creator Boost):
-   * - Sinh viên: 85% cho người điền / 15% cho sàn
-   * - Cá nhân & Doanh nghiệp: 80% cho người điền / 20% cho sàn
+   * - Creator Boost: 80% cho người điền / 20% cho sàn (tất cả các gói)
    * 
    * @param {string} tier 'STUDENT' | 'PERSONAL' | 'ENTERPRISE'
    * @param {string|number} lengthInput 'SHORT' | 'MEDIUM' | 'LONG' hoặc số lượng câu
@@ -92,7 +91,7 @@ class PricingService {
    */
   getSlaPricingTiers(tier = 'PERSONAL', lengthInput = 'SHORT') {
     const floor = this.getFloorPrice(tier, lengthInput);
-    const alpha = config.ECONOMICS.BOOST_REWARD_SHARE?.[floor.tier] || (floor.tier === 'STUDENT' ? 0.85 : 0.80);
+    const alpha = config.ECONOMICS.BOOST_REWARD_SHARE?.[floor.tier] || 0.80;
     const slaConfig = config.ECONOMICS.SLA_TIERS || {
       FLOOR: { multiplier: 1.0, label: 'Mức Sàn Tiết Kiệm', badge: 'Tiết kiệm', slaHours: '72-120h', slaText: '3 – 5 ngày' },
       RECOMMENDED: { multiplier: 1.25, label: 'Mức Đề Xuất Tiêu Chuẩn', badge: '[Đề Xuất]', slaHours: '24-48h', slaText: '24 – 48 giờ' },
@@ -140,7 +139,70 @@ class PricingService {
   }
 
   /**
-   * Ước tính thời lượng phỏng vấn (LOI - Length of Interview) theo danh sách câu hỏi
+   * Mô hình Dự Báo Tốc Độ Gom Mẫu & Thời Gian Hoàn Thành Động (Dynamic Velocity Engine)
+   * Thay thế hoàn toàn việc ghi chết ngày/giờ tĩnh cứng
+   * @param {Object} params { targetResponses, questionCount, hasTargeting, targetFiltersCount, effectivePrice, floorPrice }
+   * @returns {Object} { speedPerHour, hours, text, factors }
+   */
+  estimateDynamicVelocity(params = {}) {
+    const targetN = Math.max(1, parseInt(params.targetResponses, 10) || 100);
+    const qCount = Math.max(1, parseInt(params.questionCount, 10) || 5);
+    const hasTargeting = Boolean(params.hasTargeting);
+    const targetFiltersCount = parseInt(params.targetFiltersCount, 10) || 0;
+    const floorPrice = Math.max(100, parseFloat(params.floorPrice) || 800);
+    const effectivePrice = Math.max(floorPrice, parseFloat(params.effectivePrice) || floorPrice);
+
+    let kLoi = 1.0;
+    if (qCount <= 5) kLoi = 0.70;
+    else if (qCount <= 12) kLoi = 1.00;
+    else if (qCount <= 25) kLoi = 1.35;
+    else kLoi = 1.80;
+
+    let kTarget = 1.0;
+    if (hasTargeting) {
+      if (targetFiltersCount >= 3) kTarget = 2.20;
+      else if (targetFiltersCount === 2) kTarget = 1.60;
+      else kTarget = 1.25;
+    }
+
+    const baseSpeedPerHour = 3.5;
+    const priceRatio = Math.max(1.0, effectivePrice / floorPrice);
+    const vBoost = 1.0 + 5.5 * Math.pow(priceRatio - 1.0, 1.15);
+
+    const speedPerHour = Math.max(0.2, (baseSpeedPerHour * vBoost) / (kLoi * kTarget));
+    const hours = Math.max(0.25, targetN / speedPerHour);
+
+    function formatEtaText(h) {
+      if (h <= 0.75) return '~30 – 45 phút';
+      if (h <= 1.5) return '~1 – 2 giờ';
+      if (h <= 3.5) return '~2 – 4 giờ';
+      if (h <= 7) return '~4 – 7 giờ';
+      if (h <= 12) return '~8 – 12 giờ';
+      if (h <= 18) return '~14 – 18 giờ';
+      if (h <= 28) return '~20 – 28 giờ (khoảng 1 ngày)';
+      if (h <= 48) return '~1.5 – 2 ngày';
+      if (h <= 72) return '~2 – 3 ngày';
+      if (h <= 120) return '~3 – 5 ngày';
+      const days = Math.round(h / 24);
+      return '~' + days + ' – ' + (days + 2) + ' ngày';
+    }
+
+    return {
+      speedPerHour: parseFloat(speedPerHour.toFixed(1)),
+      hours: parseFloat(hours.toFixed(1)),
+      text: formatEtaText(hours),
+      factors: {
+        targetN,
+        qCount,
+        kLoi,
+        kTarget,
+        priceRatio: parseFloat(priceRatio.toFixed(2))
+      }
+    };
+  }
+
+  /**
+   * Ước tính thời lượng phỏng vấn (LOI - Length of Interview) theo danh sách câu hỏi theo danh sách câu hỏi
    * @param {Array} questions Danh sách câu hỏi
    * @returns {Object} { loiSeconds, loiMinutes }
    */
@@ -240,7 +302,7 @@ class PricingService {
 
     // 2. Tính toán phần tiền tăng thêm Delta P (Creator Boost)
     const deltaP = Math.max(0, basePrice - floorPrice);
-    const alpha = config.ECONOMICS.BOOST_REWARD_SHARE?.[tier] || (tier === 'STUDENT' ? 0.85 : 0.80);
+    const alpha = config.ECONOMICS.BOOST_REWARD_SHARE?.[tier] || 0.80;
     const boostRespondent = Math.floor(alpha * deltaP);
     const boostPlatform = deltaP - boostRespondent;
 

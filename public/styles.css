@@ -536,19 +536,19 @@ html.dark .likert-clean-btn.selected {
 /* ==================== TOAST NOTIFICATION SYSTEM (UI-UX-PRO-MAX) ==================== */
 #toast-container {
   position: fixed;
-  top: 20px;
-  right: 20px;
+  bottom: 24px;
+  right: 24px;
   z-index: 99999;
   display: flex;
   flex-direction: column;
   gap: 10px;
   pointer-events: none;
-  max-width: 420px;
+  max-width: 380px;
   width: calc(100% - 32px);
 }
 @media (max-width: 640px) {
   #toast-container {
-    top: 14px;
+    bottom: 84px;
     left: 16px;
     right: 16px;
     width: auto;
@@ -581,7 +581,7 @@ html.dark .toast-pro-card {
 @keyframes toastSlideIn {
   from {
     opacity: 0;
-    transform: translateY(-14px) scale(0.96);
+    transform: translateY(16px) scale(0.96);
   }
   to {
     opacity: 1;

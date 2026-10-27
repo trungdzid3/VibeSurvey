@@ -88,4 +88,7 @@ router.post('/admin/users/:id/unban', authenticateToken, requireRole(['ADMIN']),
 router.post('/admin/execute-command', authenticateToken, requireRole(['ADMIN']), (req, res) => adminController.executeCommand(req, res));
 router.post('/admin/switch-tier', authenticateToken, requireRole(['ADMIN']), (req, res) => adminController.switchAdminTier(req, res));
 
+// === 6. Tuyến Đường Tải Ảnh Siêu Nhẹ (Lightweight Image Upload) ===
+router.post('/upload/image', optionalAuthenticateToken, (req, res) => surveyController.uploadImage(req, res));
+
 module.exports = router;

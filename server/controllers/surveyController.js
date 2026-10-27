@@ -1,4 +1,6 @@
 const crypto = require('crypto');
+const fs = require('fs');
+const path = require('path');
 const db = require('../db/database');
 const pricingService = require('../services/pricingService');
 const antiFraudService = require('../services/antiFraudService');
@@ -597,8 +599,11 @@ class SurveyController {
         package_type = 'PERSONAL',
         pricing_tier = 'STANDARD',
         allow_edit_response = 0,
-        allow_view_response = 1
+        allow_view_response = 1,
+        duration_days = 14
       } = req.body;
+
+      const validDurationDays = Math.min(90, Math.max(1, parseInt(duration_days, 10) || 14));
 
       // Kiểm định đầu vào chặt chẽ (Input Validation & XSS Defense)
       if (!title || typeof title !== 'string' || title.trim().length < 3 || title.trim().length > 255) {
@@ -700,8 +705,8 @@ class SurveyController {
             cost_per_response, reward_points_per_response, escrow_locked_balance, min_completion_time_sec, 
             status, survey_source, external_form_url, normalized_form_url, google_sheets_webhook_url, sponsor_campaign_id, reward_mode,
             academic_tags_json, target_demographics_json, package_type, pricing_tier,
-            allow_edit_response, allow_view_response
-          ) VALUES (?, ?, ?, ?, ?, ?, 0, ?, ?, 0.0, ?, 'DRAFT', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            allow_edit_response, allow_view_response, duration_days, expires_at
+          ) VALUES (?, ?, ?, ?, ?, ?, 0, ?, ?, 0.0, ?, 'DRAFT', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now', '+' || ? || ' days'))
         `).run(
           surveyId,
           user.id,
@@ -723,7 +728,9 @@ class SurveyController {
           package_type,
           pricing_tier,
           allow_edit_response ? 1 : 0,
-          allow_view_response !== undefined && (allow_view_response === 0 || allow_view_response === false) ? 0 : 1
+          allow_view_response !== undefined && (allow_view_response === 0 || allow_view_response === false) ? 0 : 1,
+          validDurationDays,
+          validDurationDays
         );
 
         const insertQ = db.prepare(`
@@ -1936,6 +1943,58 @@ class SurveyController {
     }
   }
 
+  /**
+   * POST /api/v1/upload/image
+   * Lưu trữ tệp ảnh tĩnh siêu nhẹ (WebP / JPG / PNG) nén từ client
+   */
+  uploadImage(req, res) {
+    try {
+      const { image_data, type = 'cover' } = req.body;
+      if (!image_data || typeof image_data !== 'string') {
+        return res.status(400).json({ success: false, message: 'Vui lòng cung cấp dữ liệu hình ảnh (Base64)' });
+      }
+
+      // Kiểm tra định dạng Data URI
+      const matches = image_data.match(/^data:image\/([a-zA-Z0-9+]+);base64,(.+)$/);
+      if (!matches) {
+        return res.status(400).json({ success: false, message: 'Dữ liệu ảnh không đúng định dạng Base64 hợp lệ' });
+      }
+
+      let ext = matches[1].toLowerCase();
+      if (ext === 'jpeg') ext = 'jpg';
+      const base64Content = matches[2];
+      const buffer = Buffer.from(base64Content, 'base64');
+
+      // Giới hạn dung lượng tối đa 3MB (ảnh WebP từ client sau khi nén thường chỉ 30KB - 80KB)
+      if (buffer.length > 3 * 1024 * 1024) {
+        return res.status(400).json({ success: false, message: 'Dung lượng tệp sau khi nén vượt quá 3MB' });
+      }
+
+      // Đảm bảo thư mục public/uploads tồn tại
+      const uploadDir = path.join(__dirname, '../../public/uploads');
+      if (!fs.existsSync(uploadDir)) {
+        fs.mkdirSync(uploadDir, { recursive: true });
+      }
+
+      const prefix = type === 'question' ? 'q' : 'cover';
+      const filename = `${prefix}_${Date.now()}_${crypto.randomBytes(4).toString('hex')}.${ext}`;
+      const filePath = path.join(uploadDir, filename);
+
+      fs.writeFileSync(filePath, buffer);
+
+      const publicUrl = `/uploads/${filename}`;
+      return res.status(201).json({
+        success: true,
+        url: publicUrl,
+        filename,
+        size: buffer.length,
+        message: 'Tải và tối ưu hóa ảnh thành công'
+      });
+    } catch (err) {
+      console.error('Lỗi uploadImage:', err);
+      return res.status(500).json({ success: false, message: 'Lỗi máy chủ khi xử lý lưu ảnh: ' + err.message });
+    }
+  }
 
   /**
    * POST /api/v1/surveys/parse-external

@@ -89,7 +89,7 @@ module.exports = {
 
     // Tỷ lệ chia sẻ phần tiền tăng thêm Delta P (Creator Boost)
     BOOST_REWARD_SHARE: {
-      STUDENT: 0.85,    // 85% cho người điền / 15% cho sàn
+      STUDENT: 0.80,    // 80% cho người điền / 20% cho sàn
       PERSONAL: 0.80,   // 80% cho người điền / 20% cho sàn
       ENTERPRISE: 0.80  // 80% cho người điền / 20% cho sàn
     },

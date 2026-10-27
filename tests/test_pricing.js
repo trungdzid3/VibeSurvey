@@ -40,7 +40,7 @@ async function runPricingTests() {
   await runTest('1. Cau hinh tien te 1:1 VND, moc nap tu 20k va doi Point sang Credit +5%', async () => {
     assert.strictEqual(config.ECONOMICS.POINT_TO_VND_RATE, 1, '1 Point phai bang 1 VND');
     assert.strictEqual(config.ECONOMICS.SWAP_BONUS_RATE, 1.05, 'Doi Point sang Credit thuong +5%');
-    assert.strictEqual(config.ECONOMICS.MIN_SWAP_POINTS, 5000, 'Doi toi thieu 5.000 Point');
+    assert.strictEqual(config.ECONOMICS.MIN_SWAP_POINTS, 1000, 'Doi toi thieu 1.000 Point');
 
     // Kiem tra bang moc nap
     const depositTiers = config.ECONOMICS.DEPOSIT_TIERS;
@@ -128,12 +128,12 @@ async function runPricingTests() {
     assert.strictEqual(rushTier.respondentReward, 750 + 480); // 1230d
     assert.strictEqual(rushTier.platformProfit, 250 + 120);  // 370d
 
-    // Form Vua Sinh vien (P_san = 500d, chia 85/15)
+    // Form Vua Sinh vien (P_san = 500d, chia 80/20)
     const svSla = pricingService.getSlaPricingTiers('STUDENT', 'MEDIUM');
     const svRec = svSla.tiers.RECOMMENDED; // 500 * 1.25 = 625d (Delta P = 125d)
     assert.strictEqual(svRec.pricePerResponse, 625);
-    const expectedSvBoost = Math.floor(125 * 0.85); // 106d
-    assert.strictEqual(svRec.respondentReward, 450 + expectedSvBoost); // 556d
+    const expectedSvBoost = Math.floor(125 * 0.80); // 100d
+    assert.strictEqual(svRec.respondentReward, 450 + expectedSvBoost); // 550d
   });
 
   // 5. Kiem tra Goi Sinh Vien voi luot mien phi thang (chong lo san 10%)

@@ -1030,20 +1030,70 @@ const VibeApp = {
               </div>
             </div>
 
-            <!-- 3. Khu vực / Địa lý -->
+            <!-- 3. Khu vực / 34 Tỉnh Thành Mới -->
             <div>
-              <label class="block text-[11px] font-bold text-stone-600 dark:text-stone-300 mb-1.5">Khu vực sinh sống:</label>
+              <label class="block text-[11px] font-bold text-stone-600 dark:text-stone-300 mb-1.5">Khu vực sinh sống (34 tỉnh thành mới):</label>
               <div class="relative">
-                <button type="button" onclick="VibeApp.toggleCustomDropdown('studio-region-menu', event)" 
+                <button type="button" onclick="VibeApp.toggleCustomDropdown('studio-region-menu', event); VibeApp.filterStudioRegions('');" 
                         class="w-full p-2.5 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center justify-between shadow-xs">
-                  <span>${targetDemo.region === 'ALL' || !targetDemo.region ? 'Toàn quốc (63 tỉnh thành)' : targetDemo.region}</span>
-                  <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-stone-400"></i>
+                  <span class="truncate">${targetDemo.region === 'ALL' || !targetDemo.region ? 'Toàn quốc (Tất cả 34 tỉnh thành mới)' : targetDemo.region}</span>
+                  <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-stone-400 shrink-0 ml-1"></i>
                 </button>
-                <div id="studio-region-menu" class="custom-dropdown-menu hidden absolute left-0 right-0 top-full mt-1 bg-white dark:bg-[#18181B] border border-stone-200 dark:border-stone-700 rounded-xl shadow-xl z-30 p-2 space-y-1 max-h-48 overflow-y-auto text-xs">
-                  <div onclick="VibeApp.setStudioTargetRegion('ALL')" class="p-2 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 cursor-pointer font-bold ${targetDemo.region === 'ALL' || !targetDemo.region ? 'text-orange-600' : ''}">Toàn quốc</div>
-                  <div onclick="VibeApp.setStudioTargetRegion('Miền Bắc')" class="p-2 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 cursor-pointer font-medium ${targetDemo.region === 'Miền Bắc' ? 'text-orange-600' : ''}">Miền Bắc (Hà Nội & lân cận)</div>
-                  <div onclick="VibeApp.setStudioTargetRegion('Miền Trung')" class="p-2 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 cursor-pointer font-medium ${targetDemo.region === 'Miền Trung' ? 'text-orange-600' : ''}">Miền Trung (Đà Nẵng & lân cận)</div>
-                  <div onclick="VibeApp.setStudioTargetRegion('Miền Nam')" class="p-2 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 cursor-pointer font-medium ${targetDemo.region === 'Miền Nam' ? 'text-orange-600' : ''}">Miền Nam (TP.HCM & lân cận)</div>
+                <div id="studio-region-menu" class="custom-dropdown-menu hidden absolute left-0 right-0 top-full mt-1 bg-white dark:bg-[#18181B] border border-stone-200 dark:border-stone-700 rounded-xl shadow-xl z-40 p-2 space-y-1.5 text-xs">
+                  <div class="relative">
+                    <input type="text" placeholder="Tìm kiếm trong 34 tỉnh thành..." 
+                           oninput="VibeApp.filterStudioRegions(this.value)"
+                           onclick="event.stopPropagation()"
+                           class="w-full p-2 pl-7 rounded-lg border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 text-xs focus:border-orange-600 focus:outline-none">
+                    <i data-lucide="search" class="w-3.5 h-3.5 text-stone-400 absolute left-2 top-2.5"></i>
+                  </div>
+                  <div id="studio-region-dropdown-list" class="max-h-48 overflow-y-auto space-y-1 pr-1">
+                    <!-- Nạp động qua filterStudioRegions() -->
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 4. Lĩnh vực / Nghề nghiệp mục tiêu -->
+            <div>
+              <label class="block text-[11px] font-bold text-stone-600 dark:text-stone-300 mb-1.5">Lĩnh vực / Nghề nghiệp:</label>
+              <div class="relative">
+                <button type="button" onclick="VibeApp.toggleCustomDropdown('studio-occ-menu', event)" 
+                        class="w-full p-2.5 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center justify-between shadow-xs">
+                  <span class="truncate">${targetDemo.occupation === 'ALL' || !targetDemo.occupation ? 'Tất cả ngành nghề / lĩnh vực' : targetDemo.occupation}</span>
+                  <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-stone-400 shrink-0 ml-1"></i>
+                </button>
+                <div id="studio-occ-menu" class="custom-dropdown-menu hidden absolute left-0 right-0 top-full mt-1 bg-white dark:bg-[#18181B] border border-stone-200 dark:border-stone-700 rounded-xl shadow-xl z-40 p-2 space-y-1 max-h-48 overflow-y-auto text-xs">
+                  ${(window.VIBE_OCCUPATIONS || []).map(o => `
+                    <div onclick="VibeApp.setStudioTargetOccupation('${o.name.replace(/'/g, "\\'")}')" 
+                         class="p-2 rounded-lg hover:bg-orange-50 dark:hover:bg-stone-800 cursor-pointer font-medium ${(targetDemo.occupation === o.name || (o.code === 'ALL' && (!targetDemo.occupation || targetDemo.occupation === 'ALL'))) ? 'text-orange-600 font-bold bg-orange-50 dark:bg-stone-800' : 'text-stone-800 dark:text-stone-200'}">
+                      ${o.name}
+                    </div>
+                  `).join('')}
+                </div>
+              </div>
+            </div>
+
+            <!-- 5. Trường Đại học / Cao đẳng mục tiêu -->
+            <div>
+              <label class="block text-[11px] font-bold text-stone-600 dark:text-stone-300 mb-1.5">Trường Đại học / Học viện mục tiêu:</label>
+              <div class="relative">
+                <button type="button" onclick="VibeApp.toggleCustomDropdown('studio-uni-popover', event); VibeApp.filterStudioUniversities('');" 
+                        class="w-full p-2.5 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center justify-between shadow-xs">
+                  <span class="truncate">${targetDemo.university === 'ALL' || !targetDemo.university ? 'Tất cả trường ĐH / Học viện (293 trường)' : targetDemo.university}</span>
+                  <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-stone-400 shrink-0 ml-1"></i>
+                </button>
+                <div id="studio-uni-popover" class="custom-dropdown-menu hidden absolute left-0 right-0 top-full mt-1 bg-white dark:bg-[#18181B] border border-stone-200 dark:border-stone-700 rounded-xl shadow-xl z-40 p-2 space-y-1.5 text-xs">
+                  <div class="relative">
+                    <input type="text" placeholder="Gõ tên trường hoặc viết tắt (Bách khoa, NEU, UEH...)..." 
+                           oninput="VibeApp.filterStudioUniversities(this.value)"
+                           onclick="event.stopPropagation()"
+                           class="w-full p-2 pl-7 rounded-lg border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 text-xs focus:border-orange-600 focus:outline-none">
+                    <i data-lucide="search" class="w-3.5 h-3.5 text-stone-400 absolute left-2 top-2.5"></i>
+                  </div>
+                  <div id="studio-uni-dropdown-list" class="max-h-48 overflow-y-auto space-y-1 pr-1">
+                    <!-- Nạp động qua filterStudioUniversities() -->
+                  </div>
                 </div>
               </div>
             </div>
@@ -1131,7 +1181,7 @@ const VibeApp = {
             <span class="text-[11px] font-bold text-stone-500">Tốc Độ Ước Tính</span>
           </div>
 
-          <!-- 3 Nấc Lựa Chọn Tốc Độ Gom Mẫu -->
+          <!-- 3 Nấc Lựa Chọn Mức Thưởng & Độ Ưu Tiên Phân Phối -->
           <div class="space-y-2">
             <!-- Nấc 1: Sàn Tiết kiệm -->
             <div onclick="VibeApp.setStudioSlaTier('FLOOR')" 
@@ -1146,7 +1196,7 @@ const VibeApp = {
                 <span class="font-mono text-xs font-extrabold text-stone-900 dark:text-white">${calc.slaPrices.FLOOR.toLocaleString('vi-VN')}đ</span>
               </div>
               <div class="text-[11px] text-stone-500 dark:text-stone-400 mt-1 pl-5.5 flex items-center justify-between">
-                <span>Tốc độ gom mẫu dự kiến: ~3 – 5 ngày</span>
+                <span>Phân phối: <strong class="text-stone-700 dark:text-stone-300 font-medium">Hàng chờ tiêu chuẩn</strong></span>
                 <span class="text-stone-400">Tối ưu chi phí</span>
               </div>
             </div>
@@ -1165,8 +1215,8 @@ const VibeApp = {
                 <span class="font-mono text-xs font-extrabold text-orange-600 dark:text-orange-400">${calc.slaPrices.RECOMMENDED.toLocaleString('vi-VN')}đ</span>
               </div>
               <div class="text-[11px] text-stone-500 dark:text-stone-400 mt-1 pl-5.5 flex items-center justify-between">
-                <span>Tốc độ gom mẫu dự kiến: ~24 – 48 giờ (+25%)</span>
-                <span class="text-orange-600 dark:text-orange-400 font-semibold">Tốc độ chuẩn</span>
+                <span>Phân phối: <strong class="text-orange-600 dark:text-orange-400 font-bold">Ưu tiên hiển thị nổi bật (+25%)</strong></span>
+                <span class="text-orange-600 dark:text-orange-400 font-semibold">Thu hút đáp viên</span>
               </div>
             </div>
 
@@ -1184,33 +1234,48 @@ const VibeApp = {
                 <span class="font-mono text-xs font-extrabold text-amber-600 dark:text-amber-400">${calc.slaPrices.RUSH.toLocaleString('vi-VN')}đ</span>
               </div>
               <div class="text-[11px] text-stone-500 dark:text-stone-400 mt-1 pl-5.5 flex items-center justify-between">
-                <span>Tốc độ gom mẫu dự kiến: ~2 – 6 giờ (+60%)</span>
-                <span class="text-amber-600 dark:text-amber-400 font-semibold">Lấy số liệu gấp</span>
+                <span>Phân phối: <strong class="text-amber-600 dark:text-amber-400 font-bold">Gắn nhãn [Thưởng Cao] (+60%)</strong></span>
+                <span class="text-amber-600 dark:text-amber-400 font-semibold">Ưu tiên tối đa</span>
               </div>
             </div>
           </div>
-          <p class="text-[10.5px] text-stone-500 dark:text-stone-400 italic leading-relaxed pt-1">
-            Lưu ý: Tốc độ trên là thời gian hoàn thành mục tiêu N mẫu dự kiến khi đáp viên thấy mức thưởng cao, không phải thời hạn bài bị đóng. Khảo sát sẽ hiển thị trên sàn theo số ngày bạn cài đặt tự do ở trên.
+          <p class="text-[10.5px] text-stone-500 dark:text-stone-400 leading-relaxed pt-1">
+            * <strong>Minh bạch vận hành</strong>: Thời gian hoàn thành thực tế phụ thuộc vào lưu lượng đáp viên online và mức độ hấp dẫn của thù lao. Khảo sát sẽ hiển thị trên sàn cho đến khi đủ số mẫu hoặc hết số ngày bạn cài đặt tự do ở trên. Tiền cọc các mẫu chưa thu được hoàn trả 100%.
           </p>
 
           <!-- Thanh trượt Creator Boost tự do -->
-          <div class="pt-3 border-t border-stone-100 dark:border-stone-800 space-y-2">
+          <div class="pt-3 border-t border-stone-100 dark:border-stone-800 space-y-2.5">
             <div class="flex items-center justify-between text-xs">
               <span class="font-bold text-stone-700 dark:text-stone-300">Tăng Thưởng Tự Do (Creator Boost):</span>
               <span id="boost-price-display" class="font-mono font-bold text-orange-600 dark:text-orange-400">${calc.effectivePrice.toLocaleString('vi-VN')} VNĐ / mẫu</span>
             </div>
             <input type="range" min="${calc.floorPrice}" max="${calc.floorPrice * 3}" step="50" value="${calc.effectivePrice}" oninput="VibeApp.updateStudioBoostRealtime(this.value)"
                    class="w-full accent-orange-600 cursor-pointer">
+
+            <!-- Thẻ đánh giá lực hút thù lao thực tế -->
+            <div class="p-2.5 bg-stone-50 dark:bg-stone-900 rounded-xl border border-stone-200/80 dark:border-stone-800 text-[11px] space-y-1">
+              <div class="flex items-center justify-between">
+                <span class="text-stone-600 dark:text-stone-400 flex items-center gap-1 font-medium">
+                  <i data-lucide="zap" class="w-3.5 h-3.5 text-orange-600"></i>
+                  Lực hút thù lao so với giá sàn:
+                </span>
+                <span id="boost-incentive-diff" class="font-bold text-orange-600 dark:text-orange-400 font-mono">+${calc.incentiveCurrent.delta.toLocaleString('vi-VN')}đ (+${calc.incentiveCurrent.pct}%)</span>
+              </div>
+              <div class="text-[10.5px] text-stone-500 pt-1 border-t border-stone-200/60 dark:border-stone-800 flex items-center justify-between">
+                <span>Ưu tiên phân phối: <strong id="boost-incentive-priority" class="${calc.incentiveCurrent.badgeClass}">${calc.incentiveCurrent.queuePriority}</strong></span>
+                <span class="text-stone-400 truncate max-w-[180px]">${calc.targetingSummaryText}</span>
+              </div>
+            </div>
             
             <!-- Tỷ lệ phân chia Boost -->
-            <div class="p-2.5 bg-stone-50 dark:bg-stone-900 rounded-xl border border-stone-200/80 dark:border-stone-800 text-[11px] space-y-1">
+            <div class="p-2.5 bg-stone-50 dark:bg-stone-900 rounded-xl border border-stone-200/80 dark:border-stone-800 text-[11px] space-y-1.5">
               <div class="flex items-center justify-between text-stone-600 dark:text-stone-400">
-                <span>Tỷ lệ phân chia Boost:</span>
-                <span id="boost-share-text" class="font-bold text-orange-600 dark:text-orange-400">${calc.boostShareText}</span>
+                <span>Phân chia thưởng Boost (+${Math.max(0, calc.effectivePrice - calc.floorPrice).toLocaleString('vi-VN')}đ):</span>
+                <span id="boost-share-text" class="font-bold text-orange-600 dark:text-orange-400">80% điền / 20% sàn</span>
               </div>
               <div class="flex items-center justify-between pt-1 border-t border-stone-200/60 dark:border-stone-800 font-semibold">
-                <span>Đáp viên nhận: <strong id="boost-respondent-reward" class="text-stone-900 dark:text-white font-mono">${calc.respondentReward.toLocaleString('vi-VN')} Point</strong></span>
-                <span>Sàn thu: <strong id="boost-platform-fee" class="text-stone-900 dark:text-white font-mono">${calc.platformFee.toLocaleString('vi-VN')} Credit</strong></span>
+                <span>Đáp viên nhận: <strong id="boost-respondent-reward" class="text-stone-900 dark:text-white font-mono">${calc.respondentReward.toLocaleString('vi-VN')} Point</strong> <span id="boost-resp-pct" class="text-[10px] text-stone-400 font-normal">(${calc.effectivePrice > 0 ? ((calc.respondentReward / calc.effectivePrice) * 100).toFixed(1) : 0}%)</span></span>
+                <span>Sàn thu: <strong id="boost-platform-fee" class="text-stone-900 dark:text-white font-mono">${calc.platformFee.toLocaleString('vi-VN')} Credit</strong> <span id="boost-plat-pct" class="text-[10px] text-stone-400 font-normal">(${calc.effectivePrice > 0 ? ((calc.platformFee / calc.effectivePrice) * 100).toFixed(1) : 0}%)</span></span>
               </div>
             </div>
           </div>
@@ -5961,6 +6026,23 @@ const VibeApp = {
     const boostPlatEl = document.getElementById('boost-platform-fee');
     if (boostPlatEl) boostPlatEl.innerText = `${calc.platformFee.toLocaleString('vi-VN')} Credit`;
 
+    const boostRespPctEl = document.getElementById('boost-resp-pct');
+    if (boostRespPctEl) boostRespPctEl.innerText = `(${calc.effectivePrice > 0 ? ((calc.respondentReward / calc.effectivePrice) * 100).toFixed(1) : 0}%)`;
+
+    const boostPlatPctEl = document.getElementById('boost-plat-pct');
+    if (boostPlatPctEl) boostPlatPctEl.innerText = `(${calc.effectivePrice > 0 ? ((calc.platformFee / calc.effectivePrice) * 100).toFixed(1) : 0}%)`;
+
+    const boostDiffEl = document.getElementById('boost-incentive-diff');
+    if (boostDiffEl && calc.incentiveCurrent) {
+      boostDiffEl.innerText = `+${calc.incentiveCurrent.delta.toLocaleString('vi-VN')}đ (+${calc.incentiveCurrent.pct}%)`;
+    }
+
+    const boostPrioEl = document.getElementById('boost-incentive-priority');
+    if (boostPrioEl && calc.incentiveCurrent) {
+      boostPrioEl.innerText = calc.incentiveCurrent.queuePriority;
+      boostPrioEl.className = calc.incentiveCurrent.badgeClass;
+    }
+
     const sidebarPriceEl = document.getElementById('sidebar-effective-price');
     if (sidebarPriceEl) sidebarPriceEl.innerText = `${calc.effectivePrice.toLocaleString('vi-VN')} Credit/mẫu`;
 
@@ -6947,11 +7029,11 @@ const VibeApp = {
           </button>
         </div>
 
-        <!-- TWO-COLUMN STUDIO GRID -->
+        <!-- TWO-COLUMN STUDIO GRID (2 CỘT CUỘN ĐỘC LẬP RIÊNG BIỆT) -->
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           
-          <!-- CỘT TRÁI (~65% Canvas Cuộn Tự Do): lg:col-span-8 -->
-          <div class="${(this.state.mobileStudioActiveTab || 'CANVAS') === 'CANVAS' ? 'block' : 'hidden'} lg:block lg:col-span-8 space-y-5 lg:border-r lg:border-stone-200 dark:lg:border-stone-800 lg:pr-6">
+          <!-- CỘT TRÁI (~65% Canvas Soạn Thảo - Khung Cuộn Độc Lập): lg:col-span-8 -->
+          <div id="studio-canvas-scroll" class="${(this.state.mobileStudioActiveTab || 'CANVAS') === 'CANVAS' ? 'block' : 'hidden'} lg:block lg:col-span-8 space-y-5 lg:border-r lg:border-stone-200 dark:lg:border-stone-800 lg:pr-14 lg:h-[calc(100vh-175px)] lg:overflow-y-auto overscroll-contain pb-28">
             
             <!-- THẺ TIÊU ĐỀ BIỂU MẪU (FORM HEADER CARD CHUẨN GOOGLE FORMS) -->
             <div class="bg-white dark:bg-[#18181B] border border-stone-200 dark:border-stone-800 rounded-2xl shadow-sm relative overflow-visible">
@@ -7152,8 +7234,8 @@ const VibeApp = {
 
           </div>
 
-          <!-- CỘT PHẢI (~35% STICKY SIDEBAR GHIM CỐ ĐỊNH KHI CUỘN): lg:col-span-4 -->
-          <div id="studio-sidebar-root" class="${this.state.mobileStudioActiveTab === 'SIDEBAR' ? 'block' : 'hidden'} lg:block lg:col-span-4 space-y-4 lg:pl-1 lg:sticky lg:top-20">
+          <!-- CỘT PHẢI (~35% Cài Đặt & Ngân Sách - Khung Cuộn Độc Lập): lg:col-span-4 -->
+          <div id="studio-sidebar-root" class="${this.state.mobileStudioActiveTab === 'SIDEBAR' ? 'block' : 'hidden'} lg:block lg:col-span-4 space-y-4 lg:pl-2 lg:h-[calc(100vh-175px)] lg:overflow-y-auto overscroll-contain pb-28">
             ${this.renderStudioSidebarHtml()}
           </div>
 
@@ -7163,6 +7245,41 @@ const VibeApp = {
     `;
 
     if (window.lucide) window.lucide.createIcons();
+  },
+
+  getIncentiveEvaluation(effectivePrice, floorPrice) {
+    const delta = Math.max(0, effectivePrice - floorPrice);
+    const pct = floorPrice > 0 ? Math.round((delta / floorPrice) * 100) : 0;
+    
+    let levelText = 'Mức thù lao cơ bản theo quy định sàn';
+    let badgeClass = 'text-stone-500 dark:text-stone-400';
+    let queuePriority = 'Hàng chờ tiêu chuẩn';
+
+    if (pct === 0) {
+      levelText = 'Mức thù lao tiêu chuẩn (Phân phối theo thứ tự tự nhiên)';
+      badgeClass = 'text-stone-500 dark:text-stone-400';
+      queuePriority = 'Hàng chờ tiêu chuẩn';
+    } else if (pct <= 30) {
+      levelText = 'Mức thù lao tốt (Ưu tiên hiển thị nổi bật trên danh sách)';
+      badgeClass = 'text-orange-600 dark:text-orange-400';
+      queuePriority = 'Ưu tiên hiển thị nổi bật';
+    } else if (pct <= 70) {
+      levelText = 'Mức thù lao cao (Gắn huy hiệu [Thưởng Cao], đáp viên làm trước)';
+      badgeClass = 'text-amber-600 dark:text-amber-400';
+      queuePriority = 'Đẩy luồng ưu tiên cao';
+    } else {
+      levelText = 'Mức thù lao vượt trội (Đẩy luồng tối đa, kích thích gom mẫu tức thì)';
+      badgeClass = 'text-emerald-600 dark:text-emerald-400 font-bold';
+      queuePriority = 'Ưu tiên tối đa toàn sàn';
+    }
+
+    return {
+      delta,
+      pct,
+      levelText,
+      badgeClass,
+      queuePriority
+    };
   },
 
   calculateStudioEscrow() {
@@ -7240,6 +7357,27 @@ const VibeApp = {
 
     const targetN = parseInt(this.state.targetResponses, 10) || 100;
 
+    // Đếm số tiêu chí lọc đang kích hoạt
+    const demo = this.state.targetDemographics || {};
+    let targetFiltersCount = 0;
+    if (demo.gender && demo.gender !== 'ALL') targetFiltersCount++;
+    if (demo.age_group && demo.age_group !== 'ALL') targetFiltersCount++;
+    if (demo.region && demo.region !== 'ALL') targetFiltersCount++;
+    if (demo.occupation && demo.occupation !== 'ALL') targetFiltersCount++;
+    if (demo.university && demo.university !== 'ALL') targetFiltersCount++;
+
+    // Đánh giá Lực Hút Thù Lao & Mức Độ Ưu Tiên Phân Phối
+    const incentiveFloor = this.getIncentiveEvaluation(slaPrices.FLOOR, floorPrice);
+    const incentiveRecommended = this.getIncentiveEvaluation(slaPrices.RECOMMENDED, floorPrice);
+    const incentiveRush = this.getIncentiveEvaluation(slaPrices.RUSH, floorPrice);
+    const incentiveCurrent = this.getIncentiveEvaluation(effectivePrice, floorPrice);
+
+    let targetingSummaryText = 'Mở toàn quốc (Không lọc)';
+    if (hasTargeting) {
+      if (targetFiltersCount === 0) targetingSummaryText = 'Đang bật bộ lọc (Chưa chọn tiêu chí)';
+      else targetingSummaryText = `Đang lọc ${targetFiltersCount} tiêu chí nhân khẩu học`;
+    }
+
     // Pin fee
     let pinFeeVnd = 0;
     if (this.state.isPinnedSurvey) {
@@ -7286,7 +7424,14 @@ const VibeApp = {
       freeDeductionSamples,
       freeDeductionVnd,
       finalEscrowCredit,
-      isZeroCost
+      isZeroCost,
+      targetN,
+      targetFiltersCount,
+      targetingSummaryText,
+      incentiveFloor,
+      incentiveRecommended,
+      incentiveRush,
+      incentiveCurrent
     };
   },
 
