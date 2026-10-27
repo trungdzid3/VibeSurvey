@@ -537,34 +537,38 @@ const VibeApp = {
         if (meRes.success && meRes.user) {
           this.state.currentUser = meRes.user;
           localStorage.setItem('vibesurvey_cached_user', JSON.stringify(meRes.user));
-          // Kiểm tra xem có phiên làm bài khảo sát dở dang cần khôi phục không
+          // Kiểm tra xem có phiên làm bài khảo sát dở dang cần khôi phục khi người dùng đang làm mà F5
           const cachedSessionJson = localStorage.getItem('vibesurvey_active_session');
           if (cachedSessionJson) {
             try {
               const restoredSession = JSON.parse(cachedSessionJson);
               if (restoredSession && restoredSession.surveyId && restoredSession.questions?.length > 0) {
                 this.state.activeSession = restoredSession;
-                this.state.currentTab = 'take-survey';
-                this.applyUserInterface(true); // silent = true để không kích hoạt navigate(savedTab) ghi đè giao diện!
 
-                // Khởi động lại timer
-                if (this.state.activeSession.timerId) clearInterval(this.state.activeSession.timerId);
-                this.state.activeSession.timerId = setInterval(() => {
-                  if (this.state.activeSession) {
-                    this.state.activeSession.durationSec = (this.state.activeSession.durationSec || 0) + 1;
-                    this._saveActiveSessionToStorage();
-                    const timerEl = document.getElementById('session-timer-text');
-                    if (timerEl) {
-                      const sec = this.state.activeSession.durationSec;
-                      const mins = Math.floor(sec / 60);
-                      const remSec = sec % 60;
-                      timerEl.textContent = `${mins.toString().padStart(2, '0')}:${remSec.toString().padStart(2, '0')}`;
+                // Chỉ tự động mở lại bài khảo sát nếu tab trước đó thực sự là 'take-survey' (người dùng đang làm mà F5 trang)
+                if (savedTab === 'take-survey') {
+                  this.state.currentTab = 'take-survey';
+                  this.applyUserInterface(true); // silent = true để không kích hoạt navigate(savedTab) ghi đè giao diện!
+
+                  // Khởi động lại timer
+                  if (this.state.activeSession.timerId) clearInterval(this.state.activeSession.timerId);
+                  this.state.activeSession.timerId = setInterval(() => {
+                    if (this.state.activeSession) {
+                      this.state.activeSession.durationSec = (this.state.activeSession.durationSec || 0) + 1;
+                      this._saveActiveSessionToStorage();
+                      const timerEl = document.getElementById('session-timer-text');
+                      if (timerEl) {
+                        const sec = this.state.activeSession.durationSec;
+                        const mins = Math.floor(sec / 60);
+                        const remSec = sec % 60;
+                        timerEl.textContent = `${mins.toString().padStart(2, '0')}:${remSec.toString().padStart(2, '0')}`;
+                      }
                     }
-                  }
-                }, 1000);
-                this.showToast('Đang tiếp tục bài khảo sát của bạn...', 'info');
-                await this.navigate('take-survey', { surveyId: restoredSession.surveyId });
-                return;
+                  }, 1000);
+                  this.showToast('Đang tiếp tục bài khảo sát của bạn...', 'info');
+                  await this.navigate('take-survey', { surveyId: restoredSession.surveyId });
+                  return;
+                }
               }
             } catch (err) {
               localStorage.removeItem('vibesurvey_active_session');
@@ -5765,7 +5769,7 @@ const VibeApp = {
                       : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200'
                   }">
             <i data-lucide="sliders-horizontal" class="w-4 h-4"></i>
-            <span>Cài Đặt & Ngân Sách (${calc.totalEscrowVnd.toLocaleString('vi-VN')}đ)</span>
+            <span>Cài Đặt & Ngân Sách (${calc?.isZeroCost ? '0đ' : `${(calc?.finalEscrowCredit || 0).toLocaleString('vi-VN')}đ`})</span>
           </button>
         </div>
 
