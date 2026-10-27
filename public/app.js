@@ -811,21 +811,26 @@ const VibeApp = {
           </div>
         </div>
 
-        <!-- Khối Chuyển Đổi Phân Hạng Gói Khảo Sát Cho Admin (Sinh Viên <-> Cá Nhân) -->
+        <!-- Khối Chuyển Đổi Phân Hạng Gói Khảo Sát Cho Admin (Chỉ hiển thị khi ở chế độ Doanh Nghiệp hoặc Quản Trị) -->
+        ${adminMode !== 'RESPONDENT' ? `
         <div class="px-4 py-2.5 bg-stone-100/70 dark:bg-stone-900/90 border-b border-stone-200 dark:border-stone-800 space-y-1.5">
           <div class="flex items-center justify-between text-xs">
-            <span class="text-stone-500 dark:text-stone-400 font-medium text-[11px]">Phân hạng gói Admin:</span>
-            <span class="font-bold text-orange-600 dark:text-orange-400 font-mono text-[11px]">${user.account_tier === 'STUDENT' ? 'Sinh Viên (Ưu đãi)' : (user.account_tier === 'ENTERPRISE' ? 'Doanh Nghiệp' : 'Cá Nhân (Tiêu chuẩn)')}</span>
+            <span class="text-stone-500 dark:text-stone-400 font-medium text-[11px]">Phân hạng gói Người Tạo:</span>
+            <span class="font-bold text-orange-600 dark:text-orange-400 font-mono text-[11px]">${user.account_tier === 'STUDENT' ? 'Sinh Viên (Ưu đãi)' : (user.account_tier === 'ENTERPRISE' ? 'Doanh Nghiệp (B2B)' : 'Cá Nhân (Tiêu chuẩn)')}</span>
           </div>
-          <div class="grid grid-cols-2 gap-1 bg-stone-200/70 dark:bg-stone-800 p-1 rounded-xl text-xs">
-            <button type="button" onclick="VibeApp.switchAdminTier('STUDENT')" class="py-1.5 px-2 rounded-lg font-bold text-center transition-all ${user.account_tier === 'STUDENT' ? 'bg-orange-600 text-white shadow-xs' : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white'}">
-              Gói Sinh Viên
+          <div class="grid grid-cols-3 gap-1 bg-stone-200/70 dark:bg-stone-800 p-1 rounded-xl text-xs">
+            <button type="button" onclick="VibeApp.switchAdminTier('STUDENT')" class="py-1.5 px-1 rounded-lg font-bold text-center transition-all ${user.account_tier === 'STUDENT' ? 'bg-orange-600 text-white shadow-xs' : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white'}">
+              Sinh Viên
             </button>
-            <button type="button" onclick="VibeApp.switchAdminTier('PERSONAL')" class="py-1.5 px-2 rounded-lg font-bold text-center transition-all ${user.account_tier !== 'STUDENT' ? 'bg-white dark:bg-stone-900 text-stone-900 dark:text-white shadow-xs' : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white'}">
-              Gói Cá Nhân
+            <button type="button" onclick="VibeApp.switchAdminTier('PERSONAL')" class="py-1.5 px-1 rounded-lg font-bold text-center transition-all ${user.account_tier === 'PERSONAL' || (!user.account_tier || (user.account_tier !== 'STUDENT' && user.account_tier !== 'ENTERPRISE')) ? 'bg-white dark:bg-stone-900 text-stone-900 dark:text-white shadow-xs' : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white'}">
+              Cá Nhân
+            </button>
+            <button type="button" onclick="VibeApp.switchAdminTier('ENTERPRISE')" class="py-1.5 px-1 rounded-lg font-bold text-center transition-all ${user.account_tier === 'ENTERPRISE' ? 'bg-amber-600 text-white shadow-xs' : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white'}">
+              Doanh Nghiệp
             </button>
           </div>
         </div>
+        ` : ''}
       ` : ''}
 
       <!-- Balance & Fast Track Tickets inside Profile -->
@@ -1063,17 +1068,22 @@ const VibeApp = {
             </div>
 
             ${user?.role === 'ADMIN' ? `
-              <!-- Bộ Chọn Phân Khúc Dành Cho Admin Trong Studio -->
-              <div class="grid grid-cols-2 gap-1.5 p-1 bg-stone-100 dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800">
+              <!-- Bộ Chọn Phân Khúc Dành Cho Admin Trong Studio (Sinh Viên - Cá Nhân - Doanh Nghiệp) -->
+              <div class="grid grid-cols-3 gap-1.5 p-1 bg-stone-100 dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800">
                 <button type="button" onclick="VibeApp.switchAdminTier('STUDENT')" 
-                  class="py-2 px-2.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${this.state.creatorTier === 'STUDENT' ? 'bg-orange-600 text-white shadow-xs' : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white'}">
+                  class="py-2 px-1 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1 ${this.state.creatorTier === 'STUDENT' ? 'bg-orange-600 text-white shadow-xs' : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white'}">
                   <i data-lucide="graduation-cap" class="w-3.5 h-3.5"></i>
-                  <span>Gói Sinh Viên</span>
+                  <span>Sinh Viên</span>
                 </button>
                 <button type="button" onclick="VibeApp.switchAdminTier('PERSONAL')" 
-                  class="py-2 px-2.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${this.state.creatorTier !== 'STUDENT' ? 'bg-stone-900 dark:bg-stone-100 text-white dark:text-stone-900 shadow-xs' : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white'}">
+                  class="py-2 px-1 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1 ${this.state.creatorTier === 'PERSONAL' || (!this.state.creatorTier || (this.state.creatorTier !== 'STUDENT' && this.state.creatorTier !== 'ENTERPRISE')) ? 'bg-stone-900 dark:bg-stone-100 text-white dark:text-stone-900 shadow-xs' : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white'}">
                   <i data-lucide="user" class="w-3.5 h-3.5"></i>
-                  <span>Gói Cá Nhân</span>
+                  <span>Cá Nhân</span>
+                </button>
+                <button type="button" onclick="VibeApp.switchAdminTier('ENTERPRISE')" 
+                  class="py-2 px-1 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1 ${this.state.creatorTier === 'ENTERPRISE' ? 'bg-amber-600 text-white shadow-xs' : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white'}">
+                  <i data-lucide="building-2" class="w-3.5 h-3.5"></i>
+                  <span>Doanh Nghiệp</span>
                 </button>
               </div>
             ` : ''}
@@ -1404,6 +1414,8 @@ const VibeApp = {
       }
     } else if (mode === 'CREATOR') {
       this.showToast('Đã chuyển sang góc nhìn Doanh Nghiệp (Creator)', 'info');
+      // Tự động chuyển gói tài khoản sang Doanh Nghiệp (ENTERPRISE)
+      this.switchAdminTier('ENTERPRISE');
       if (['admin-overview', 'admin-payouts', 'admin-fraud', 'voucher-market'].includes(this.state.currentTab)) {
         this.navigate('creator-surveys');
       } else if (this.state.currentTab === 'profile') {
@@ -8723,336 +8735,354 @@ const VibeApp = {
       const pctEnterprise = Math.max(0, 100 - pctStudent - pctPersonal);
 
       root.innerHTML = `
-        <div class="space-y-6">
-          <!-- Header Dashboard Chuẩn Minimalist Modern -->
-          <div class="pb-4 border-b border-stone-200 dark:border-stone-800 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div class="space-y-5">
+          <!-- 1. Header Dashboard Tinh Gọn -->
+          <div class="pb-3 border-b border-stone-200 dark:border-stone-800 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <div>
-              <h1 class="text-xl sm:text-2xl font-black tracking-tight text-stone-900 dark:text-white">Tổng Quan Kinh Tế Toàn Diện & Sổ Cái Sàn</h1>
-              <p class="text-xs text-stone-500 dark:text-stone-400 mt-0.5">Giám sát ký quỹ Escrow, công nợ điểm thưởng, doanh thu sàn thực thu và dòng tiền thực tế.</p>
+              <div class="flex items-center gap-2">
+                <h1 class="text-xl sm:text-2xl font-black tracking-tight text-stone-900 dark:text-white">Tổng Quan Kinh Tế & Vận Hành Sàn</h1>
+                <span class="px-2 py-0.5 bg-orange-100 dark:bg-orange-950/80 text-orange-700 dark:text-orange-400 border border-orange-200 dark:border-orange-800/60 text-[10px] font-mono font-bold rounded-md">LIVE</span>
+              </div>
+              <p class="text-xs text-stone-500 dark:text-stone-400 mt-0.5">Giám sát ký quỹ Escrow, công nợ điểm, biến động sổ cái kép và điều hành sàn.</p>
             </div>
-            <div class="flex items-center gap-2">
-              <span class="px-3 py-1.5 bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 border border-stone-200 dark:border-stone-700 text-xs font-mono font-bold rounded-xl flex items-center gap-1.5 shadow-xs">
+            <div class="flex items-center gap-2 flex-wrap">
+              <button type="button" onclick="VibeApp.openAdminConsoleModal()" class="px-3 py-1.5 bg-stone-900 hover:bg-black dark:bg-stone-800 dark:hover:bg-stone-700 text-white text-xs font-mono font-bold rounded-xl flex items-center gap-1.5 transition-all shadow-xs border border-stone-800">
+                <i data-lucide="terminal" class="w-3.5 h-3.5 text-orange-500"></i>
+                <span>Terminal (F2)</span>
+              </button>
+              <button type="button" onclick="VibeApp.renderAdminOverviewView(document.getElementById('app-root'))" class="px-3 py-1.5 bg-white dark:bg-[#18181B] hover:bg-stone-50 dark:hover:bg-stone-800 text-stone-700 dark:text-stone-300 border border-stone-200 dark:border-stone-700 text-xs font-bold rounded-xl flex items-center gap-1.5 transition-all shadow-xs" title="Làm mới số liệu">
+                <i data-lucide="refresh-cw" class="w-3.5 h-3.5 text-stone-500"></i>
+                <span class="hidden sm:inline">Làm Mới</span>
+              </button>
+              <span class="px-2.5 py-1.5 bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300 border border-stone-200 dark:border-stone-700 text-[11px] font-mono font-bold rounded-xl flex items-center gap-1.5">
                 <i data-lucide="shield-check" class="w-3.5 h-3.5 text-orange-600"></i>
-                <span>ACID Wal Mode Enabled</span>
+                <span class="hidden md:inline">ACID WAL</span>
               </span>
             </div>
           </div>
 
-          <!-- Nhóm 1: Quản Trị Dòng Tiền & Ký Quỹ Escrow (Minimalist Bento Grid) -->
-          <div class="space-y-2.5">
-            <div class="text-[11px] font-black uppercase tracking-wider text-stone-400 dark:text-stone-500">
-              1. Quản Trị Dòng Tiền & Ký Quỹ Escrow (Cash Flow & Escrow)
+          <!-- 2. Lưới 8 Chỉ Số KPI Bento Gọn Gàng (Financial & Operational Metrics) -->
+          <div class="space-y-2">
+            <div class="flex items-center justify-between text-[11px] font-black uppercase tracking-wider text-stone-400 dark:text-stone-500">
+              <span>Chỉ Số Kinh Tế & Nghĩa Vụ Tài Chính Sàn</span>
+              <span class="font-mono text-[10px] text-stone-400 font-normal">Tỷ giá 1:1 VNĐ</span>
             </div>
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
               <!-- KPI 1: Tổng tiền nạp -->
-              <div class="bg-white dark:bg-[#18181B] border border-stone-200 dark:border-stone-800 rounded-2xl p-4 sm:p-5 shadow-xs transition-all hover:border-orange-500/30 relative overflow-hidden">
+              <div class="bg-white dark:bg-[#18181B] border border-stone-200 dark:border-stone-800 rounded-xl p-3.5 sm:p-4 shadow-xs transition-all hover:border-orange-500/30">
                 <div class="flex items-center justify-between">
-                  <span class="text-[11px] font-black uppercase tracking-wider text-stone-500 dark:text-stone-400">Tổng Tiền Đã Nạp</span>
+                  <span class="text-[10.5px] font-black uppercase tracking-wider text-stone-500 dark:text-stone-400">Tổng Tiền Nạp</span>
                   <i data-lucide="wallet" class="w-4 h-4 text-stone-400"></i>
                 </div>
-                <div class="text-2xl font-black font-mono ${(fin.totalDepositedVnd || 0) > 0 ? 'text-stone-900 dark:text-white' : 'text-stone-400 dark:text-stone-600'} mt-2">
+                <div class="text-lg sm:text-xl font-black font-mono ${(fin.totalDepositedVnd || 0) > 0 ? 'text-stone-900 dark:text-white' : 'text-stone-400 dark:text-stone-600'} mt-1.5">
                   ${(fin.totalDepositedVnd || 0).toLocaleString('vi-VN')} đ
                 </div>
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 mt-1 font-medium">Sổ cái nạp VND từ Creator</div>
+                <div class="text-[10.5px] text-stone-400 dark:text-stone-500 mt-0.5 truncate">Sổ cái nạp từ Creator</div>
               </div>
 
               <!-- KPI 2: Escrow đang khóa -->
-              <div class="bg-white dark:bg-[#18181B] border border-stone-200 dark:border-stone-800 rounded-2xl p-4 sm:p-5 shadow-xs transition-all hover:border-orange-500/30 relative overflow-hidden">
+              <div class="bg-white dark:bg-[#18181B] border border-stone-200 dark:border-stone-800 rounded-xl p-3.5 sm:p-4 shadow-xs transition-all hover:border-orange-500/30">
                 <div class="flex items-center justify-between">
-                  <span class="text-[11px] font-black uppercase tracking-wider text-stone-500 dark:text-stone-400">Escrow Đang Khóa</span>
+                  <span class="text-[10.5px] font-black uppercase tracking-wider text-stone-500 dark:text-stone-400">Escrow Đang Khóa</span>
                   <i data-lucide="lock" class="w-4 h-4 text-orange-600"></i>
                 </div>
-                <div class="text-2xl font-black font-mono ${(fin.escrowLockedBalance || 0) > 0 ? 'text-orange-600 dark:text-orange-400' : 'text-stone-400 dark:text-stone-600'} mt-2">
+                <div class="text-lg sm:text-xl font-black font-mono ${(fin.escrowLockedBalance || 0) > 0 ? 'text-orange-600 dark:text-orange-400' : 'text-stone-400 dark:text-stone-600'} mt-1.5">
                   ${(fin.escrowLockedBalance || 0).toLocaleString('vi-VN')} đ
                 </div>
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 mt-1 font-medium">Ký quỹ khảo sát ACTIVE</div>
+                <div class="text-[10.5px] text-stone-400 dark:text-stone-500 mt-0.5 truncate">Khảo sát ACTIVE</div>
               </div>
 
               <!-- KPI 3: Đã chi trả cho đáp viên -->
-              <div class="bg-white dark:bg-[#18181B] border border-stone-200 dark:border-stone-800 rounded-2xl p-4 sm:p-5 shadow-xs transition-all hover:border-orange-500/30 relative overflow-hidden">
+              <div class="bg-white dark:bg-[#18181B] border border-stone-200 dark:border-stone-800 rounded-xl p-3.5 sm:p-4 shadow-xs transition-all hover:border-orange-500/30">
                 <div class="flex items-center justify-between">
-                  <span class="text-[11px] font-black uppercase tracking-wider text-stone-500 dark:text-stone-400">Chi Trả Đáp Viên</span>
+                  <span class="text-[10.5px] font-black uppercase tracking-wider text-stone-500 dark:text-stone-400">Chi Trả Đáp Viên</span>
                   <i data-lucide="gift" class="w-4 h-4 text-stone-400"></i>
                 </div>
-                <div class="text-2xl font-black font-mono ${(fin.totalRespondentEarnedVnd || 0) > 0 ? 'text-stone-900 dark:text-white' : 'text-stone-400 dark:text-stone-600'} mt-2">
+                <div class="text-lg sm:text-xl font-black font-mono ${(fin.totalRespondentEarnedVnd || 0) > 0 ? 'text-stone-900 dark:text-white' : 'text-stone-400 dark:text-stone-600'} mt-1.5">
                   ${(fin.totalRespondentEarnedVnd || 0).toLocaleString('vi-VN')} đ
                 </div>
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 mt-1 font-medium">Thưởng mẫu VALIDATED</div>
+                <div class="text-[10.5px] text-stone-400 dark:text-stone-500 mt-0.5 truncate">Thưởng mẫu VALIDATED</div>
               </div>
 
               <!-- KPI 4: Doanh thu & Lợi nhuận sàn -->
-              <div class="bg-white dark:bg-[#18181B] border border-stone-200 dark:border-stone-800 rounded-2xl p-4 sm:p-5 shadow-xs transition-all hover:border-orange-500/30 relative overflow-hidden">
+              <div class="bg-white dark:bg-[#18181B] border border-stone-200 dark:border-stone-800 rounded-xl p-3.5 sm:p-4 shadow-xs transition-all hover:border-orange-500/30">
                 <div class="flex items-center justify-between">
-                  <span class="text-[11px] font-black uppercase tracking-wider text-stone-500 dark:text-stone-400">Lợi Nhuận Sàn Thực Thu</span>
+                  <span class="text-[10.5px] font-black uppercase tracking-wider text-stone-500 dark:text-stone-400">Lợi Nhuận Thực Thu</span>
                   <i data-lucide="trending-up" class="w-4 h-4 text-orange-600"></i>
                 </div>
-                <div class="text-2xl font-black font-mono ${(fin.grossPlatformProfitVnd || 0) > 0 ? 'text-orange-600 dark:text-orange-400' : 'text-stone-400 dark:text-stone-600'} mt-2">
+                <div class="text-lg sm:text-xl font-black font-mono ${(fin.grossPlatformProfitVnd || 0) > 0 ? 'text-orange-600 dark:text-orange-400' : 'text-stone-400 dark:text-stone-600'} mt-1.5">
                   ${(fin.grossPlatformProfitVnd || 0).toLocaleString('vi-VN')} đ
                 </div>
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 mt-1 font-medium">Spread (${fin.actualTakeRatePct || 40}%) + Phí rút</div>
+                <div class="text-[10.5px] text-stone-400 dark:text-stone-500 mt-0.5 truncate">Spread (${fin.actualTakeRatePct || 40}%) + Phí rút</div>
               </div>
-            </div>
-          </div>
 
-          <!-- Nhóm 2: Điểm Thưởng & Nghĩa Vụ Công Nợ -->
-          <div class="space-y-2.5">
-            <div class="text-[11px] font-black uppercase tracking-wider text-stone-400 dark:text-stone-500">
-              2. Điểm Thưởng & Nghĩa Vụ Công Nợ (Point Liabilities & Payouts)
-            </div>
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
               <!-- KPI 5: Điểm lưu hành -->
-              <div class="bg-white dark:bg-[#18181B] border border-stone-200 dark:border-stone-800 rounded-2xl p-4 sm:p-5 shadow-xs transition-all hover:border-orange-500/30 relative overflow-hidden">
+              <div class="bg-white dark:bg-[#18181B] border border-stone-200 dark:border-stone-800 rounded-xl p-3.5 sm:p-4 shadow-xs transition-all hover:border-orange-500/30">
                 <div class="flex items-center justify-between">
-                  <span class="text-[11px] font-black uppercase tracking-wider text-stone-500 dark:text-stone-400">Điểm Đang Lưu Hành</span>
+                  <span class="text-[10.5px] font-black uppercase tracking-wider text-stone-500 dark:text-stone-400">Điểm Lưu Hành</span>
                   <i data-lucide="coins" class="w-4 h-4 text-stone-400"></i>
                 </div>
-                <div class="text-2xl font-black font-mono ${(fin.circulatingPointLiability || 0) > 0 ? 'text-orange-600 dark:text-orange-400' : 'text-stone-400 dark:text-stone-600'} mt-2">
+                <div class="text-lg sm:text-xl font-black font-mono ${(fin.circulatingPointLiability || 0) > 0 ? 'text-orange-600 dark:text-orange-400' : 'text-stone-400 dark:text-stone-600'} mt-1.5">
                   ${(fin.circulatingPointLiability || 0).toLocaleString('vi-VN')} pts
                 </div>
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 mt-1 font-medium">Nợ quy đổi: ${(fin.circulatingPointLiabilityVnd || 0).toLocaleString('vi-VN')} đ</div>
+                <div class="text-[10.5px] text-stone-400 dark:text-stone-500 mt-0.5 truncate">Nợ: ${(fin.circulatingPointLiabilityVnd || 0).toLocaleString('vi-VN')} đ</div>
               </div>
 
               <!-- KPI 6: Rút tiền chờ duyệt -->
-              <div class="bg-white dark:bg-[#18181B] border border-stone-200 dark:border-stone-800 rounded-2xl p-4 sm:p-5 shadow-xs transition-all hover:border-orange-500/30 relative overflow-hidden">
+              <div onclick="VibeApp.navigate('admin-payouts')" class="cursor-pointer bg-white dark:bg-[#18181B] border border-stone-200 dark:border-stone-800 hover:border-orange-500/50 rounded-xl p-3.5 sm:p-4 shadow-xs transition-all">
                 <div class="flex items-center justify-between">
-                  <span class="text-[11px] font-black uppercase tracking-wider text-stone-500 dark:text-stone-400">Rút Tiền Chờ Duyệt</span>
+                  <span class="text-[10.5px] font-black uppercase tracking-wider text-stone-500 dark:text-stone-400">Rút Chờ Duyệt</span>
                   <i data-lucide="clock" class="w-4 h-4 text-orange-600"></i>
                 </div>
-                <div class="text-2xl font-black font-mono ${(fin.pendingPayoutVnd || 0) > 0 ? 'text-orange-600 dark:text-orange-400' : 'text-stone-400 dark:text-stone-600'} mt-2">
+                <div class="text-lg sm:text-xl font-black font-mono ${(fin.pendingPayoutVnd || 0) > 0 ? 'text-orange-600 dark:text-orange-400' : 'text-stone-400 dark:text-stone-600'} mt-1.5">
                   ${(fin.pendingPayoutVnd || 0).toLocaleString('vi-VN')} đ
                 </div>
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 mt-1 font-medium">Chờ kiểm toán & giải ngân</div>
+                <div class="text-[10.5px] text-orange-600 dark:text-orange-400 mt-0.5 font-bold flex items-center gap-1">
+                  <span>Xem duyệt ngay</span>
+                  <i data-lucide="chevron-right" class="w-3 h-3"></i>
+                </div>
               </div>
 
               <!-- KPI 7: Đã thanh toán thành công -->
-              <div class="bg-white dark:bg-[#18181B] border border-stone-200 dark:border-stone-800 rounded-2xl p-4 sm:p-5 shadow-xs transition-all hover:border-orange-500/30 relative overflow-hidden">
+              <div class="bg-white dark:bg-[#18181B] border border-stone-200 dark:border-stone-800 rounded-xl p-3.5 sm:p-4 shadow-xs transition-all hover:border-orange-500/30">
                 <div class="flex items-center justify-between">
-                  <span class="text-[11px] font-black uppercase tracking-wider text-stone-500 dark:text-stone-400">Đã Thanh Toán Xong</span>
+                  <span class="text-[10.5px] font-black uppercase tracking-wider text-stone-500 dark:text-stone-400">Đã Thanh Toán</span>
                   <i data-lucide="check-circle" class="w-4 h-4 text-stone-400"></i>
                 </div>
-                <div class="text-2xl font-black font-mono ${(fin.totalCompletedPayoutVnd || 0) > 0 ? 'text-stone-900 dark:text-white' : 'text-stone-400 dark:text-stone-600'} mt-2">
+                <div class="text-lg sm:text-xl font-black font-mono ${(fin.totalCompletedPayoutVnd || 0) > 0 ? 'text-stone-900 dark:text-white' : 'text-stone-400 dark:text-stone-600'} mt-1.5">
                   ${(fin.totalCompletedPayoutVnd || 0).toLocaleString('vi-VN')} đ
                 </div>
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 mt-1 font-medium">Giải ngân NH / MoMo / Thẻ</div>
+                <div class="text-[10.5px] text-stone-400 dark:text-stone-500 mt-0.5 truncate">Giải ngân hoàn tất</div>
               </div>
 
               <!-- KPI 8: Tái đầu tư Credit -->
-              <div class="bg-white dark:bg-[#18181B] border border-stone-200 dark:border-stone-800 rounded-2xl p-4 sm:p-5 shadow-xs transition-all hover:border-orange-500/30 relative overflow-hidden">
+              <div class="bg-white dark:bg-[#18181B] border border-stone-200 dark:border-stone-800 rounded-xl p-3.5 sm:p-4 shadow-xs transition-all hover:border-orange-500/30">
                 <div class="flex items-center justify-between">
-                  <span class="text-[11px] font-black uppercase tracking-wider text-stone-500 dark:text-stone-400">Tái Đầu Tư Sang Credit</span>
+                  <span class="text-[10.5px] font-black uppercase tracking-wider text-stone-500 dark:text-stone-400">Tái Đầu Tư Credit</span>
                   <i data-lucide="repeat" class="w-4 h-4 text-stone-400"></i>
                 </div>
-                <div class="text-2xl font-black font-mono ${(fin.swappedCreditVnd || 0) > 0 ? 'text-stone-900 dark:text-white' : 'text-stone-400 dark:text-stone-600'} mt-2">
+                <div class="text-lg sm:text-xl font-black font-mono ${(fin.swappedCreditVnd || 0) > 0 ? 'text-stone-900 dark:text-white' : 'text-stone-400 dark:text-stone-600'} mt-1.5">
                   ${(fin.swappedCreditVnd || 0).toLocaleString('vi-VN')} đ
                 </div>
-                <div class="text-[11px] text-stone-400 dark:text-stone-500 mt-1 font-medium">Bao gồm +5% nạp lại</div>
+                <div class="text-[10.5px] text-stone-400 dark:text-stone-500 mt-0.5 truncate">Thưởng nạp +5%</div>
               </div>
             </div>
           </div>
 
-          <!-- Nhóm 3: Phân Bổ Khảo Sát Theo 3 Phân Khúc (Swiss Minimalist Card) -->
-          <div class="bg-white dark:bg-[#18181B] border border-stone-200 dark:border-stone-800 rounded-2xl p-5 shadow-xs space-y-4">
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-              <div>
-                <h2 class="text-xs font-black uppercase tracking-wider text-stone-900 dark:text-white flex items-center gap-1.5">
-                  <i data-lucide="pie-chart" class="w-4 h-4 text-orange-600"></i>
-                  <span>Phân Bổ Khảo Sát Theo 3 Phân Khúc (Survey Segmentation)</span>
-                </h2>
-                <p class="text-[11px] text-stone-500 dark:text-stone-400 mt-0.5">Tỷ lệ số lượng bài khảo sát chia theo Sinh viên, Cá nhân và Doanh nghiệp.</p>
-              </div>
-              <span class="text-xs font-mono font-bold text-stone-700 dark:text-stone-300">Tổng cộng: ${dist.total || (dist.student + dist.personal + dist.enterprise)} khảo sát</span>
-            </div>
-
-            <!-- Thanh Swiss Minimalist Bar (Tone Cam & Neutral) -->
-            <div class="w-full bg-stone-100 dark:bg-stone-800 h-2.5 rounded-full overflow-hidden flex">
-              <div style="width: ${pctStudent}%" class="bg-stone-300 dark:bg-stone-600 transition-all duration-300" title="Sinh viên: ${dist.student} (${pctStudent}%)"></div>
-              <div style="width: ${pctPersonal}%" class="bg-orange-500 transition-all duration-300" title="Cá nhân: ${dist.personal} (${pctPersonal}%)"></div>
-              <div style="width: ${pctEnterprise}%" class="bg-orange-600 transition-all duration-300" title="Doanh nghiệp: ${dist.enterprise} (${pctEnterprise}%)"></div>
-            </div>
-
-            <!-- 3 Khối thống kê phân khúc -->
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
-              <div class="p-3.5 bg-stone-50 dark:bg-stone-900/60 border border-stone-200 dark:border-stone-800 rounded-xl space-y-1">
+          <!-- 3. Khu Vực Vận Hành 2 Cột Đối Xứng (Split Grid Layout) -->
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+            <!-- Cột Trái: Phân Bổ Khảo Sát & Sổ Cái Sàn (lg:col-span-7) -->
+            <div class="lg:col-span-7 space-y-4">
+              <!-- Khối Phân Bổ Khảo Sát Theo Phân Khúc -->
+              <div class="bg-white dark:bg-[#18181B] border border-stone-200 dark:border-stone-800 rounded-2xl p-4 sm:p-5 shadow-xs space-y-3">
                 <div class="flex items-center justify-between">
-                  <span class="text-xs font-bold text-stone-800 dark:text-stone-200 flex items-center gap-1.5">
-                    <span class="w-2 h-2 rounded-full bg-stone-400 inline-block"></span>
-                    <span>Sinh Viên (Student)</span>
-                  </span>
-                  <span class="text-xs font-mono font-bold text-stone-500">${pctStudent}%</span>
+                  <div>
+                    <h2 class="text-xs font-black uppercase tracking-wider text-stone-900 dark:text-white flex items-center gap-1.5">
+                      <i data-lucide="pie-chart" class="w-4 h-4 text-orange-600"></i>
+                      <span>Phân Bổ Khảo Sát (3 Phân Khúc)</span>
+                    </h2>
+                  </div>
+                  <span class="text-xs font-mono font-bold text-stone-700 dark:text-stone-300">Tổng: ${dist.total || (dist.student + dist.personal + dist.enterprise)} bài</span>
                 </div>
-                <div class="text-xl font-black font-mono text-stone-900 dark:text-white">${dist.student} bài</div>
-                <div class="text-[10.5px] text-stone-400 dark:text-stone-500">Học thuật, Giá sàn ưu đãi 400đ - 600đ</div>
+
+                <!-- Thanh Swiss Bar -->
+                <div class="w-full bg-stone-100 dark:bg-stone-800 h-2 rounded-full overflow-hidden flex">
+                  <div style="width: ${pctStudent}%" class="bg-stone-400 dark:bg-stone-600 transition-all duration-300" title="Sinh viên: ${dist.student} (${pctStudent}%)"></div>
+                  <div style="width: ${pctPersonal}%" class="bg-orange-500 transition-all duration-300" title="Cá nhân: ${dist.personal} (${pctPersonal}%)"></div>
+                  <div style="width: ${pctEnterprise}%" class="bg-orange-600 transition-all duration-300" title="Doanh nghiệp: ${dist.enterprise} (${pctEnterprise}%)"></div>
+                </div>
+
+                <!-- 3 Thẻ Phân Khúc Gọn Gàng -->
+                <div class="grid grid-cols-3 gap-2 pt-0.5">
+                  <div class="p-2.5 bg-stone-50 dark:bg-stone-900/60 border border-stone-200 dark:border-stone-800 rounded-xl space-y-0.5">
+                    <div class="flex items-center justify-between">
+                      <span class="text-[11px] font-bold text-stone-700 dark:text-stone-300 flex items-center gap-1">
+                        <span class="w-1.5 h-1.5 rounded-full bg-stone-400 inline-block"></span>
+                        <span class="truncate">Sinh Viên</span>
+                      </span>
+                      <span class="text-[10px] font-mono font-bold text-stone-500">${pctStudent}%</span>
+                    </div>
+                    <div class="text-sm font-black font-mono text-stone-900 dark:text-white">${dist.student} bài</div>
+                    <div class="text-[9.5px] text-stone-400 truncate">400đ - 600đ</div>
+                  </div>
+
+                  <div class="p-2.5 bg-stone-50 dark:bg-stone-900/60 border border-stone-200 dark:border-stone-800 rounded-xl space-y-0.5">
+                    <div class="flex items-center justify-between">
+                      <span class="text-[11px] font-bold text-stone-700 dark:text-stone-300 flex items-center gap-1">
+                        <span class="w-1.5 h-1.5 rounded-full bg-orange-500 inline-block"></span>
+                        <span class="truncate">Cá Nhân</span>
+                      </span>
+                      <span class="text-[10px] font-mono font-bold text-orange-600">${pctPersonal}%</span>
+                    </div>
+                    <div class="text-sm font-black font-mono text-stone-900 dark:text-white">${dist.personal} bài</div>
+                    <div class="text-[9.5px] text-stone-400 truncate">800đ - 1.200đ</div>
+                  </div>
+
+                  <div class="p-2.5 bg-stone-50 dark:bg-stone-900/60 border border-stone-200 dark:border-stone-800 rounded-xl space-y-0.5">
+                    <div class="flex items-center justify-between">
+                      <span class="text-[11px] font-bold text-stone-700 dark:text-stone-300 flex items-center gap-1">
+                        <span class="w-1.5 h-1.5 rounded-full bg-orange-600 inline-block"></span>
+                        <span class="truncate">Doanh Nghiệp</span>
+                      </span>
+                      <span class="text-[10px] font-mono font-bold text-orange-600">${pctEnterprise}%</span>
+                    </div>
+                    <div class="text-sm font-black font-mono text-stone-900 dark:text-white">${dist.enterprise} bài</div>
+                    <div class="text-[9.5px] text-stone-400 truncate">1.500đ - 2.500đ</div>
+                  </div>
+                </div>
               </div>
 
-              <div class="p-3.5 bg-stone-50 dark:bg-stone-900/60 border border-stone-200 dark:border-stone-800 rounded-xl space-y-1">
+              <!-- Khối Bảng Biến Động Sổ Cái Sàn Gần Nhất -->
+              <div class="bg-white dark:bg-[#18181B] border border-stone-200 dark:border-stone-800 rounded-2xl p-4 sm:p-5 shadow-xs space-y-3">
                 <div class="flex items-center justify-between">
-                  <span class="text-xs font-bold text-stone-800 dark:text-stone-200 flex items-center gap-1.5">
-                    <span class="w-2 h-2 rounded-full bg-orange-500 inline-block"></span>
-                    <span>Cá Nhân (Personal)</span>
-                  </span>
-                  <span class="text-xs font-mono font-bold text-orange-600 dark:text-orange-400">${pctPersonal}%</span>
+                  <div>
+                    <h2 class="text-xs font-black uppercase tracking-wider text-stone-900 dark:text-white flex items-center gap-1.5">
+                      <i data-lucide="layers" class="w-4 h-4 text-orange-600"></i>
+                      <span>Sổ Cái Sàn Gần Nhất (Ledger Stream)</span>
+                    </h2>
+                  </div>
+                  <span class="text-[11px] text-stone-400 font-mono">${ledger.length} giao dịch gần nhất</span>
                 </div>
-                <div class="text-xl font-black font-mono text-stone-900 dark:text-white">${dist.personal} bài</div>
-                <div class="text-[10.5px] text-stone-400 dark:text-stone-500">Khảo sát thị trường tiêu chuẩn 800đ - 1.200đ</div>
-              </div>
 
-              <div class="p-3.5 bg-stone-50 dark:bg-stone-900/60 border border-stone-200 dark:border-stone-800 rounded-xl space-y-1">
-                <div class="flex items-center justify-between">
-                  <span class="text-xs font-bold text-stone-800 dark:text-stone-200 flex items-center gap-1.5">
-                    <span class="w-2 h-2 rounded-full bg-orange-600 inline-block"></span>
-                    <span>Doanh Nghiệp (Enterprise)</span>
-                  </span>
-                  <span class="text-xs font-mono font-bold text-orange-600 dark:text-orange-400">${pctEnterprise}%</span>
-                </div>
-                <div class="text-xl font-black font-mono text-stone-900 dark:text-white">${dist.enterprise} bài</div>
-                <div class="text-[10.5px] text-stone-400 dark:text-stone-500">Hỗ trợ hóa đơn VAT 1.500đ - 2.500đ</div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Nhóm 4: Admin Fast Command Console (Terminal Thao Tác Nhanh Rộng Rãi) -->
-          <div class="admin-console-box bg-[#09090B] border border-stone-800 rounded-2xl p-5 sm:p-6 shadow-xl space-y-4 text-stone-200">
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-3 border-b border-stone-800/80">
-              <div class="flex items-center gap-2.5">
-                <div class="flex items-center gap-1.5">
-                  <span class="w-3 h-3 rounded-full bg-red-500/80 inline-block"></span>
-                  <span class="w-3 h-3 rounded-full bg-yellow-500/80 inline-block"></span>
-                  <span class="w-3 h-3 rounded-full bg-emerald-500/80 inline-block"></span>
-                </div>
-                <div class="h-4 w-px bg-stone-800 mx-1"></div>
-                <div class="text-xs sm:text-sm font-black uppercase tracking-wider text-white font-mono flex items-center gap-2">
-                  <i data-lucide="terminal" class="w-4 h-4 text-orange-600"></i>
-                  <span>Admin Fast Command Console</span>
-                </div>
-                <span class="px-2 py-0.5 bg-orange-950/80 border border-orange-800/60 text-orange-400 font-mono text-[10px] font-bold rounded">Fast CLI v3.0</span>
-              </div>
-
-              <!-- Quick action chips & Fullscreen toggle -->
-              <div class="flex items-center flex-wrap gap-1.5 text-xs font-mono">
-                <span class="text-stone-500 mr-0.5 text-[11px] hidden sm:inline select-none">Thực thi nhanh:</span>
-                <button type="button" onclick="VibeApp.submitAdminConsoleCommand('/help')" class="px-2.5 py-1 rounded-lg bg-stone-900 hover:bg-stone-800 text-stone-300 border border-stone-800 transition-colors">/help</button>
-                <button type="button" onclick="VibeApp.submitAdminConsoleCommand('/stats')" class="px-2.5 py-1 rounded-lg bg-stone-900 hover:bg-stone-800 text-stone-300 border border-stone-800 transition-colors">/stats</button>
-                <button type="button" onclick="VibeApp.submitAdminConsoleCommand('/naptien acc1 100000')" class="px-2.5 py-1 rounded-lg bg-stone-900 hover:bg-stone-800 text-orange-400 border border-stone-800 transition-colors font-bold">/naptien acc1 100k</button>
-                <button type="button" onclick="VibeApp.submitAdminConsoleCommand('/congdiem acc1 500')" class="px-2.5 py-1 rounded-lg bg-stone-900 hover:bg-stone-800 text-orange-400 border border-stone-800 transition-colors font-bold">/congdiem acc1 500</button>
-                <button type="button" onclick="VibeApp.submitAdminConsoleCommand('/settier me STUDENT')" class="px-2.5 py-1 rounded-lg bg-stone-900 hover:bg-stone-800 text-orange-400 border border-stone-800 transition-colors">/settier SV</button>
-                <button type="button" onclick="VibeApp.submitAdminConsoleCommand('/settier me PERSONAL')" class="px-2.5 py-1 rounded-lg bg-stone-900 hover:bg-stone-800 text-stone-300 border border-stone-800 transition-colors">/settier Cá nhân</button>
-                <button type="button" onclick="VibeApp.submitAdminConsoleCommand('/resetpoint all')" class="px-2.5 py-1 rounded-lg bg-stone-900 hover:bg-stone-800 text-red-400 border border-stone-800 transition-colors">/resetpoint</button>
-                <button type="button" onclick="VibeApp.clearAdminConsole()" class="px-2.5 py-1 rounded-lg bg-stone-900 hover:bg-stone-800 text-stone-400 border border-stone-800 transition-colors">Clear</button>
-                <button type="button" onclick="VibeApp.openAdminConsoleModal()" class="px-2.5 py-1 rounded-lg bg-orange-600 hover:bg-orange-700 text-white font-sans text-xs font-bold transition-all shadow-xs flex items-center gap-1 ml-1">
-                  <i data-lucide="maximize-2" class="w-3.5 h-3.5"></i>
-                  <span>Phóng To Toàn Màn Hình</span>
-                </button>
-              </div>
-            </div>
-
-            <!-- Terminal Output Screen Siêu To Rộng Rãi -->
-            <div id="adminConsoleOutput" class="admin-console-output bg-black/90 border border-stone-800/90 rounded-2xl p-4 sm:p-6 max-h-[540px] min-h-[380px] overflow-y-auto font-mono text-xs sm:text-[13px] space-y-2 leading-relaxed scrollbar-thin scrollbar-thumb-stone-800">
-            </div>
-
-            <!-- Terminal Input Form -->
-            <form onsubmit="event.preventDefault(); VibeApp.submitAdminConsoleCommand(null, this);" class="flex items-center gap-2 pt-1">
-              <div class="flex-1 flex items-center gap-2.5 bg-black/90 border border-stone-800 focus-within:border-orange-600 rounded-2xl px-4 py-3 sm:py-3.5 transition-all">
-                <span class="text-orange-600 font-mono font-black select-none text-sm">vibe:~$</span>
-                <input 
-                  type="text" 
-                  id="adminConsoleInput" 
-                  autocomplete="off" 
-                  spellcheck="false"
-                  onkeydown="VibeApp.handleAdminConsoleKeyDown(event)"
-                  placeholder="Nhập lệnh quản trị (/naptien acc1 100000, /congdiem acc1 500, /settier me STUDENT, /ban, /info)..." 
-                  class="flex-1 bg-transparent border-0 text-white font-mono text-sm placeholder:text-stone-600 focus:outline-none"
-                />
-              </div>
-              <button 
-                type="button" 
-                onclick="VibeApp.submitAdminConsoleCommand(null, this.closest('form'))"
-                id="adminConsoleSubmitBtn"
-                class="px-6 sm:px-7 py-3 sm:py-3.5 bg-orange-600 hover:bg-orange-700 text-white rounded-2xl text-sm font-bold font-sans transition-all flex items-center gap-2 shadow-xs active:scale-95 whitespace-nowrap">
-                <i data-lucide="play" class="w-4 h-4 fill-current"></i>
-                <span>Thực Thi</span>
-              </button>
-            </form>
-          </div>
-
-          <!-- Nhóm 5: Bảng Biến Động Sổ Cái Sàn Gần Nhất (Real-time Ledger Stream) -->
-          <div class="bg-white dark:bg-[#18181B] border border-stone-200 dark:border-stone-800 rounded-2xl p-5 shadow-xs space-y-4">
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-              <div>
-                <h2 class="text-xs font-black uppercase tracking-wider text-stone-900 dark:text-white flex items-center gap-1.5">
-                  <i data-lucide="layers" class="w-4 h-4 text-orange-600"></i>
-                  <span>Biến Động Sổ Cái Sàn Gần Nhất (Real-time Ledger Stream)</span>
-                </h2>
-                <p class="text-[11px] text-stone-500 dark:text-stone-400 mt-0.5">Ghi nhận minh bạch các giao dịch sổ cái kép gần nhất trên toàn sàn.</p>
-              </div>
-              <span class="text-[11px] text-stone-400 font-mono">${ledger.length} giao dịch gần nhất</span>
-            </div>
-
-            <div class="overflow-x-auto">
-              <table class="w-full text-left text-xs">
-                <thead class="bg-stone-50 dark:bg-stone-900/60 text-stone-500 font-bold uppercase tracking-wider border-b border-stone-100 dark:border-stone-800">
-                  <tr>
-                    <th class="p-3">Thời Gian / Mã GD</th>
-                    <th class="p-3">Tài Khoản</th>
-                    <th class="p-3">Loại Nghiệp Vụ</th>
-                    <th class="p-3 text-right">Biến Động</th>
-                    <th class="p-3 text-right">Số Dư Sau</th>
-                    <th class="p-3">Diễn Giải Nghiệp Vụ</th>
-                  </tr>
-                </thead>
-                <tbody class="divide-y divide-stone-100 dark:divide-stone-800">
-                  ${ledger.length === 0 ? `
-                    <tr><td colspan="6" class="p-8 text-center text-stone-400">Chưa có giao dịch sổ cái nào được ghi nhận.</td></tr>
-                  ` : ledger.map(t => {
-                    const isPositive = t.amount > 0;
-                    const amountText = `${isPositive ? '+' : ''}${t.amount.toLocaleString('vi-VN')} ${t.currency}`;
-                    const colorClass = isPositive ? 'text-emerald-600 dark:text-emerald-400 font-bold' : 'text-stone-700 dark:text-stone-300 font-bold';
-                    
-                    let typeBadge = '';
-                    switch (t.tx_type) {
-                      case 'DEPOSIT_CREDIT':
-                        typeBadge = '<span class="px-2 py-0.5 bg-stone-100 dark:bg-stone-800 text-stone-800 dark:text-stone-200 font-bold rounded text-[10px]">NẠP CREDIT</span>';
-                        break;
-                      case 'ESCROW_LOCK':
-                        typeBadge = '<span class="px-2 py-0.5 bg-orange-100 dark:bg-orange-950/80 text-orange-700 dark:text-orange-300 font-bold rounded text-[10px]">KHÓA ESCROW</span>';
-                        break;
-                      case 'ESCROW_REFUND':
-                        typeBadge = '<span class="px-2 py-0.5 bg-stone-200 dark:bg-stone-700 text-stone-800 dark:text-stone-200 font-bold rounded text-[10px]">HOÀN ESCROW</span>';
-                        break;
-                      case 'SURVEY_REWARD':
-                        typeBadge = '<span class="px-2 py-0.5 bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 font-bold rounded text-[10px]">TRẢ THƯỞNG</span>';
-                        break;
-                      case 'POINT_TO_CREDIT_SWAP':
-                        typeBadge = '<span class="px-2 py-0.5 bg-stone-100 dark:bg-stone-800 text-orange-600 dark:text-orange-400 font-bold rounded text-[10px]">ĐỔI CREDIT (+5%)</span>';
-                        break;
-                      case 'PAYOUT_DEDUCT':
-                        typeBadge = '<span class="px-2 py-0.5 bg-orange-100 dark:bg-orange-950/80 text-orange-700 dark:text-orange-300 font-bold rounded text-[10px]">RÚT THƯỞNG</span>';
-                        break;
-                      case 'PAYOUT_REFUND':
-                        typeBadge = '<span class="px-2 py-0.5 bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 font-bold rounded text-[10px]">HOÀN ĐIỂM RÚT</span>';
-                        break;
-                      default:
-                        typeBadge = `<span class="px-2 py-0.5 bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 font-bold rounded text-[10px]">${t.tx_type}</span>`;
-                    }
-
-                    return `
+                <div class="overflow-x-auto rounded-xl border border-stone-100 dark:border-stone-800 max-h-[380px] overflow-y-auto scrollbar-thin">
+                  <table class="w-full text-left text-xs">
+                    <thead class="bg-stone-50 dark:bg-stone-900/80 text-stone-500 font-bold uppercase tracking-wider border-b border-stone-100 dark:border-stone-800 sticky top-0 z-10 backdrop-blur-xs">
                       <tr>
-                        <td class="p-3">
-                          <div class="font-mono text-stone-700 dark:text-stone-300 font-bold">${new Date(t.created_at).toLocaleString('vi-VN')}</div>
-                          <div class="font-mono text-[10px] text-stone-400">${t.id.slice(0, 13)}...</div>
-                        </td>
-                        <td class="p-3">
-                          <div class="font-bold text-stone-800 dark:text-stone-200">${t.user_name || 'Hệ thống'}</div>
-                          <div class="text-[11px] text-stone-400">${t.user_email || ''}</div>
-                        </td>
-                        <td class="p-3">${typeBadge}</td>
-                        <td class="p-3 text-right font-mono ${colorClass}">${amountText}</td>
-                        <td class="p-3 text-right font-mono text-stone-600 dark:text-stone-400">${t.balance_after.toLocaleString('vi-VN')} ${t.currency}</td>
-                        <td class="p-3 text-stone-600 dark:text-stone-400 max-w-xs truncate" title="${t.description || ''}">${t.description || 'N/A'}</td>
+                        <th class="p-2.5">Thời Gian</th>
+                        <th class="p-2.5">Tài Khoản</th>
+                        <th class="p-2.5">Nghiệp Vụ</th>
+                        <th class="p-2.5 text-right">Biến Động</th>
+                        <th class="p-2.5 text-right">Số Dư Sau</th>
+                        <th class="p-2.5">Diễn Giải</th>
                       </tr>
-                    `;
-                  }).join('')}
-                </tbody>
-              </table>
+                    </thead>
+                    <tbody class="divide-y divide-stone-100 dark:divide-stone-800 font-normal">
+                      ${ledger.length === 0 ? `
+                        <tr><td colspan="6" class="p-6 text-center text-stone-400">Chưa có giao dịch sổ cái nào được ghi nhận.</td></tr>
+                      ` : ledger.map(t => {
+                        const isPositive = t.amount > 0;
+                        const amountText = `${isPositive ? '+' : ''}${t.amount.toLocaleString('vi-VN')} ${t.currency}`;
+                        const colorClass = isPositive ? 'text-emerald-600 dark:text-emerald-400 font-bold' : 'text-stone-700 dark:text-stone-300 font-bold';
+                        
+                        let typeBadge = '';
+                        switch (t.tx_type) {
+                          case 'DEPOSIT_CREDIT':
+                            typeBadge = '<span class="px-1.5 py-0.5 bg-stone-100 dark:bg-stone-800 text-stone-800 dark:text-stone-200 font-bold rounded text-[9.5px]">NẠP CREDIT</span>';
+                            break;
+                          case 'ESCROW_LOCK':
+                            typeBadge = '<span class="px-1.5 py-0.5 bg-orange-100 dark:bg-orange-950/80 text-orange-700 dark:text-orange-300 font-bold rounded text-[9.5px]">KHÓA ESCROW</span>';
+                            break;
+                          case 'ESCROW_REFUND':
+                            typeBadge = '<span class="px-1.5 py-0.5 bg-stone-200 dark:bg-stone-700 text-stone-800 dark:text-stone-200 font-bold rounded text-[9.5px]">HOÀN ESCROW</span>';
+                            break;
+                          case 'SURVEY_REWARD':
+                            typeBadge = '<span class="px-1.5 py-0.5 bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 font-bold rounded text-[9.5px]">TRẢ THƯỞNG</span>';
+                            break;
+                          case 'POINT_TO_CREDIT_SWAP':
+                            typeBadge = '<span class="px-1.5 py-0.5 bg-stone-100 dark:bg-stone-800 text-orange-600 dark:text-orange-400 font-bold rounded text-[9.5px]">ĐỔI CREDIT</span>';
+                            break;
+                          case 'PAYOUT_DEDUCT':
+                            typeBadge = '<span class="px-1.5 py-0.5 bg-orange-100 dark:bg-orange-950/80 text-orange-700 dark:text-orange-300 font-bold rounded text-[9.5px]">RÚT THƯỞNG</span>';
+                            break;
+                          case 'PAYOUT_REFUND':
+                            typeBadge = '<span class="px-1.5 py-0.5 bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 font-bold rounded text-[9.5px]">HOÀN ĐIỂM</span>';
+                            break;
+                          default:
+                            typeBadge = `<span class="px-1.5 py-0.5 bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 font-bold rounded text-[9.5px]">${t.tx_type}</span>`;
+                        }
+
+                        return `
+                          <tr class="hover:bg-stone-50/50 dark:hover:bg-stone-900/40 transition-colors">
+                            <td class="p-2.5 whitespace-nowrap">
+                              <div class="font-mono text-stone-700 dark:text-stone-300 font-bold text-[11px]">${new Date(t.created_at).toLocaleTimeString('vi-VN')}</div>
+                              <div class="font-mono text-[9px] text-stone-400">${new Date(t.created_at).toLocaleDateString('vi-VN')}</div>
+                            </td>
+                            <td class="p-2.5">
+                              <div class="font-bold text-stone-800 dark:text-stone-200 truncate max-w-[110px]">${t.user_name || 'Hệ thống'}</div>
+                              <div class="text-[10px] text-stone-400 truncate max-w-[110px]">${t.user_email || ''}</div>
+                            </td>
+                            <td class="p-2.5 whitespace-nowrap">${typeBadge}</td>
+                            <td class="p-2.5 text-right font-mono text-[11px] whitespace-nowrap ${colorClass}">${amountText}</td>
+                            <td class="p-2.5 text-right font-mono text-[10.5px] text-stone-600 dark:text-stone-400 whitespace-nowrap">${t.balance_after.toLocaleString('vi-VN')}</td>
+                            <td class="p-2.5 text-stone-600 dark:text-stone-400 max-w-[140px] truncate text-[11px]" title="${t.description || ''}">${t.description || 'N/A'}</td>
+                          </tr>
+                        `;
+                      }).join('')}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <!-- Cột Phải: Admin Fast Command Console Gọn Gàng (lg:col-span-5) -->
+            <div class="lg:col-span-5 space-y-4">
+              <div class="admin-console-box bg-[#09090B] border border-stone-800 rounded-2xl p-4 sm:p-5 shadow-xl space-y-3 text-stone-200">
+                <!-- Header Console -->
+                <div class="flex items-center justify-between pb-2.5 border-b border-stone-800/80">
+                  <div class="flex items-center gap-2">
+                    <div class="flex items-center gap-1.5">
+                      <span class="w-2.5 h-2.5 rounded-full bg-red-500/80 inline-block"></span>
+                      <span class="w-2.5 h-2.5 rounded-full bg-yellow-500/80 inline-block"></span>
+                      <span class="w-2.5 h-2.5 rounded-full bg-emerald-500/80 inline-block"></span>
+                    </div>
+                    <div class="h-3.5 w-px bg-stone-800 mx-0.5"></div>
+                    <div class="text-xs font-black uppercase tracking-wider text-white font-mono flex items-center gap-1.5">
+                      <i data-lucide="terminal" class="w-3.5 h-3.5 text-orange-500"></i>
+                      <span>Fast CLI v3.0</span>
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-1">
+                    <button type="button" onclick="VibeApp.clearAdminConsole()" class="px-2 py-0.5 rounded bg-stone-900 hover:bg-stone-800 text-stone-400 hover:text-stone-200 font-mono text-[10.5px] border border-stone-800 transition-colors">Clear</button>
+                    <button type="button" onclick="VibeApp.openAdminConsoleModal()" class="px-2 py-0.5 rounded bg-orange-600 hover:bg-orange-700 text-white font-mono text-[10.5px] font-bold transition-all shadow-xs flex items-center gap-1" title="Phóng to toàn màn hình">
+                      <i data-lucide="maximize-2" class="w-3 h-3"></i>
+                      <span>F2</span>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Dải nút lệnh tắt 1 chạm -->
+                <div class="flex items-center flex-wrap gap-1 text-[11px] font-mono">
+                  <button type="button" onclick="VibeApp.submitAdminConsoleCommand('/help')" class="px-2 py-0.5 rounded bg-stone-900 hover:bg-stone-800 text-stone-300 border border-stone-800 transition-colors">/help</button>
+                  <button type="button" onclick="VibeApp.submitAdminConsoleCommand('/stats')" class="px-2 py-0.5 rounded bg-stone-900 hover:bg-stone-800 text-stone-300 border border-stone-800 transition-colors">/stats</button>
+                  <button type="button" onclick="VibeApp.submitAdminConsoleCommand('/naptien acc1 100000')" class="px-2 py-0.5 rounded bg-stone-900 hover:bg-stone-800 text-orange-400 border border-stone-800 transition-colors font-bold">+100k</button>
+                  <button type="button" onclick="VibeApp.submitAdminConsoleCommand('/congdiem acc1 500')" class="px-2 py-0.5 rounded bg-stone-900 hover:bg-stone-800 text-orange-400 border border-stone-800 transition-colors font-bold">+500pts</button>
+                  <button type="button" onclick="VibeApp.submitAdminConsoleCommand('/settier me STUDENT')" class="px-2 py-0.5 rounded bg-stone-900 hover:bg-stone-800 text-stone-300 border border-stone-800 transition-colors">SV</button>
+                  <button type="button" onclick="VibeApp.submitAdminConsoleCommand('/settier me PERSONAL')" class="px-2 py-0.5 rounded bg-stone-900 hover:bg-stone-800 text-stone-300 border border-stone-800 transition-colors">Cá nhân</button>
+                  <button type="button" onclick="VibeApp.submitAdminConsoleCommand('/resetpoint all')" class="px-2 py-0.5 rounded bg-stone-900 hover:bg-stone-800 text-red-400 border border-stone-800 transition-colors">Reset</button>
+                </div>
+
+                <!-- Màn hình Terminal Output Gọn Gàng Vừa Vặn -->
+                <div id="adminConsoleOutput" class="admin-console-output bg-black/90 border border-stone-800/90 rounded-xl p-3 sm:p-4 h-[300px] min-h-[240px] max-h-[340px] overflow-y-auto font-mono text-xs space-y-1.5 leading-relaxed scrollbar-thin scrollbar-thumb-stone-800">
+                </div>
+
+                <!-- Input Form Nhập Lệnh -->
+                <form onsubmit="event.preventDefault(); VibeApp.submitAdminConsoleCommand(null, this);" class="flex items-center gap-1.5 pt-0.5">
+                  <div class="flex-1 flex items-center gap-2 bg-black/90 border border-stone-800 focus-within:border-orange-600 rounded-xl px-3 py-2 sm:py-2.5 transition-all">
+                    <span class="text-orange-500 font-mono font-black select-none text-xs">vibe:~$</span>
+                    <input 
+                      type="text" 
+                      id="adminConsoleInput" 
+                      autocomplete="off" 
+                      spellcheck="false"
+                      onkeydown="VibeApp.handleAdminConsoleKeyDown(event)"
+                      placeholder="Lệnh (/naptien, /congdiem, /settier, /ban)..." 
+                      class="flex-1 bg-transparent border-0 text-white font-mono text-xs placeholder:text-stone-600 focus:outline-none"
+                    />
+                  </div>
+                  <button 
+                    type="button" 
+                    onclick="VibeApp.submitAdminConsoleCommand(null, this.closest('form'))"
+                    id="adminConsoleSubmitBtn"
+                    class="px-3.5 sm:px-4 py-2 sm:py-2.5 bg-orange-600 hover:bg-orange-700 text-white rounded-xl text-xs font-bold font-sans transition-all flex items-center gap-1 shadow-xs active:scale-95 whitespace-nowrap">
+                    <i data-lucide="play" class="w-3.5 h-3.5 fill-current"></i>
+                    <span>Chạy</span>
+                  </button>
+                </form>
+                <div class="flex items-center justify-between text-[10px] text-stone-500 font-mono px-0.5">
+                  <span>Phím tắt: Enter chạy | ↑/↓ lịch sử</span>
+                  <span>Nhấn F2 để phóng to</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
