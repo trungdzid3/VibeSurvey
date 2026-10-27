@@ -811,47 +811,47 @@ const VibeApp = {
           </div>
         </div>
 
-        <!-- Khối Phân Hạng Tài Khoản (Được phân định rạch ròi theo đúng vai trò) -->
+        <!-- Khối Phân Hạng Tài Khoản (Được thiết kế tinh tế, tiệp màu nền sạch sẽ) -->
         ${adminMode === 'RESPONDENT' ? `
-        <!-- Góc nhìn Người Điền: Ban đầu là Người Điền Thường (Cam), xác minh sinh viên là Sinh Viên (Trắng Ngọc Trai). TUYỆT ĐỐI KHÔNG CÓ DOANH NGHIỆP -->
-        <div class="px-4 py-2.5 bg-stone-100/70 dark:bg-stone-900/90 border-b border-stone-200 dark:border-stone-800 space-y-1.5">
+        <!-- Góc nhìn Người Điền -->
+        <div class="px-4 py-2.5 bg-stone-50 dark:bg-stone-900/60 border-b border-stone-100 dark:border-stone-800 space-y-1.5">
           <div class="flex items-center justify-between text-xs">
             <span class="text-stone-500 dark:text-stone-400 font-medium text-[11px]">Phân khúc Người Điền:</span>
-            <span class="font-bold ${user.account_tier === 'STUDENT' ? 'text-stone-800 dark:text-stone-200' : 'text-orange-600'} font-mono text-[11px]">${user.account_tier === 'STUDENT' ? 'Sinh Viên (Ngọc Trai)' : 'Người Điền Thường (Cam)'}</span>
+            <span class="font-bold text-orange-600 dark:text-orange-400 font-mono text-[11px]">${user.account_tier === 'STUDENT' ? 'Sinh Viên' : 'Người Điền Thường'}</span>
           </div>
-          <div class="grid grid-cols-2 gap-1 bg-stone-200/70 dark:bg-stone-800 p-1 rounded-xl text-xs">
-            <button type="button" onclick="VibeApp.switchAdminTier('PERSONAL')" class="py-1.5 px-2 rounded-lg font-bold text-center transition-all ${user.account_tier !== 'STUDENT' ? 'bg-orange-600 text-white shadow-xs' : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white'}">
-              Người Điền Thường (Cam)
+          <div class="grid grid-cols-2 gap-1 bg-stone-200/60 dark:bg-stone-800 p-1 rounded-xl text-xs">
+            <button type="button" onclick="VibeApp.switchAdminTier('PERSONAL')" class="py-1 px-2 rounded-lg font-bold text-center transition-all ${user.account_tier !== 'STUDENT' ? 'bg-white dark:bg-stone-900 text-orange-600 dark:text-orange-400 shadow-2xs' : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white'}">
+              Người Điền Thường
             </button>
-            <button type="button" onclick="VibeApp.switchAdminTier('STUDENT')" class="py-1.5 px-2 rounded-lg font-bold text-center transition-all ${user.account_tier === 'STUDENT' ? 'bg-white dark:bg-stone-700 text-stone-900 dark:text-white border border-stone-300 dark:border-stone-600 shadow-xs' : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white'}">
-              Sinh Viên (Ngọc Trai)
+            <button type="button" onclick="VibeApp.switchAdminTier('STUDENT')" class="py-1 px-2 rounded-lg font-bold text-center transition-all ${user.account_tier === 'STUDENT' ? 'bg-white dark:bg-stone-900 text-stone-900 dark:text-white shadow-2xs' : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white'}">
+              Sinh Viên
             </button>
           </div>
         </div>
         ` : (adminMode === 'CREATOR' ? `
-        <!-- Góc nhìn Doanh Nghiệp: Phân khúc duy nhất là Doanh Nghiệp (Màu Đen Obsidian B2B) -->
-        <div class="px-4 py-2.5 bg-stone-900 text-white border-b border-stone-800 space-y-1">
-          <div class="flex items-center justify-between text-xs">
-            <span class="text-stone-400 font-medium text-[11px]">Phân khúc tài khoản:</span>
-            <span class="font-bold text-amber-300 font-mono text-[11px]">Doanh Nghiệp (Enterprise B2B)</span>
-          </div>
-          <p class="text-[10.5px] text-stone-400 leading-tight">Tài khoản doanh nghiệp tạo khảo sát, đầy đủ pháp nhân VAT.</p>
+        <!-- Góc nhìn Doanh Nghiệp: Thanh lịch, tinh tế, tiệp màu với dropdown -->
+        <div class="px-4 py-2.5 bg-stone-50 dark:bg-stone-900/60 border-b border-stone-100 dark:border-stone-800 flex items-center justify-between text-xs">
+          <span class="text-stone-500 dark:text-stone-400 font-medium text-[11px]">Phân khúc tài khoản:</span>
+          <span class="inline-flex items-center gap-1.5 font-bold text-stone-900 dark:text-white text-[11px]">
+            <i data-lucide="building-2" class="w-3.5 h-3.5 text-orange-600"></i>
+            <span>Doanh Nghiệp (Enterprise)</span>
+          </span>
         </div>
         ` : `
-        <!-- Góc nhìn Quản Trị: Toàn quyền chuyển đổi 3 phân khúc -->
-        <div class="px-4 py-2.5 bg-stone-100/70 dark:bg-stone-900/90 border-b border-stone-200 dark:border-stone-800 space-y-1.5">
+        <!-- Góc nhìn Quản Trị -->
+        <div class="px-4 py-2.5 bg-stone-50 dark:bg-stone-900/60 border-b border-stone-100 dark:border-stone-800 space-y-1.5">
           <div class="flex items-center justify-between text-xs">
             <span class="text-stone-500 dark:text-stone-400 font-medium text-[11px]">Phân hạng Admin:</span>
-            <span class="font-bold text-orange-600 dark:text-orange-400 font-mono text-[11px]">${user.account_tier === 'STUDENT' ? 'Sinh Viên (Ngọc Trai)' : (user.account_tier === 'ENTERPRISE' ? 'Doanh Nghiệp (Obsidian)' : 'Người Thường (Cam)')}</span>
+            <span class="font-bold text-orange-600 dark:text-orange-400 font-mono text-[11px]">${user.account_tier === 'STUDENT' ? 'Sinh Viên' : (user.account_tier === 'ENTERPRISE' ? 'Doanh Nghiệp' : 'Cá Nhân')}</span>
           </div>
-          <div class="grid grid-cols-3 gap-1 bg-stone-200/70 dark:bg-stone-800 p-1 rounded-xl text-xs">
-            <button type="button" onclick="VibeApp.switchAdminTier('PERSONAL')" class="py-1.5 px-1 rounded-lg font-bold text-center transition-all ${user.account_tier === 'PERSONAL' || (!user.account_tier || (user.account_tier !== 'STUDENT' && user.account_tier !== 'ENTERPRISE')) ? 'bg-orange-600 text-white shadow-xs' : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white'}">
-              Thường (Cam)
+          <div class="grid grid-cols-3 gap-1 bg-stone-200/60 dark:bg-stone-800 p-1 rounded-xl text-xs">
+            <button type="button" onclick="VibeApp.switchAdminTier('PERSONAL')" class="py-1 px-1 rounded-lg font-bold text-center transition-all ${user.account_tier === 'PERSONAL' || (!user.account_tier || (user.account_tier !== 'STUDENT' && user.account_tier !== 'ENTERPRISE')) ? 'bg-white dark:bg-stone-900 text-orange-600 dark:text-orange-400 shadow-2xs' : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white'}">
+              Thường
             </button>
-            <button type="button" onclick="VibeApp.switchAdminTier('STUDENT')" class="py-1.5 px-1 rounded-lg font-bold text-center transition-all ${user.account_tier === 'STUDENT' ? 'bg-white dark:bg-stone-700 text-stone-900 dark:text-white border border-stone-300 shadow-xs' : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white'}">
+            <button type="button" onclick="VibeApp.switchAdminTier('STUDENT')" class="py-1 px-1 rounded-lg font-bold text-center transition-all ${user.account_tier === 'STUDENT' ? 'bg-white dark:bg-stone-900 text-stone-900 dark:text-white shadow-2xs' : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white'}">
               Sinh Viên
             </button>
-            <button type="button" onclick="VibeApp.switchAdminTier('ENTERPRISE')" class="py-1.5 px-1 rounded-lg font-bold text-center transition-all ${user.account_tier === 'ENTERPRISE' ? 'bg-stone-900 text-amber-300 border border-amber-500/40 shadow-xs' : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white'}">
+            <button type="button" onclick="VibeApp.switchAdminTier('ENTERPRISE')" class="py-1 px-1 rounded-lg font-bold text-center transition-all ${user.account_tier === 'ENTERPRISE' ? 'bg-white dark:bg-stone-900 text-stone-900 dark:text-white shadow-2xs' : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white'}">
               Doanh Nghiệp
             </button>
           </div>
@@ -1091,40 +1091,38 @@ const VibeApp = {
               ` : ''}
             </div>
             
-            <div class="p-3 rounded-xl border ${
-              this.state.creatorTier === 'STUDENT' 
-                ? 'bg-white dark:bg-stone-900 border-stone-200 dark:border-stone-800 shadow-xs' 
-                : (this.state.creatorTier === 'ENTERPRISE' 
-                    ? 'bg-[#09090B] text-white border-zinc-800 shadow-md' 
-                    : 'bg-orange-50/70 dark:bg-orange-950/30 border-orange-200 dark:border-orange-800/60 shadow-xs')
-            } flex items-center justify-between">
-              <div class="flex items-center gap-2.5">
-                <div class="w-8 h-8 rounded-lg flex items-center justify-center font-bold text-sm ${
-                  this.state.creatorTier === 'STUDENT'
-                    ? 'bg-stone-100 dark:bg-stone-800 text-stone-800 dark:text-stone-200 border border-stone-200 dark:border-stone-700'
-                    : (this.state.creatorTier === 'ENTERPRISE' ? 'bg-zinc-800 text-amber-400 border border-zinc-700' : 'bg-orange-600 text-white shadow-xs')
-                }">
-                  <i data-lucide="${this.state.creatorTier === 'STUDENT' ? 'graduation-cap' : (this.state.creatorTier === 'ENTERPRISE' ? 'building-2' : 'user')}" class="w-4 h-4"></i>
-                </div>
-                <div>
-                  <div class="text-xs font-black flex items-center gap-1.5 ${this.state.creatorTier === 'ENTERPRISE' ? 'text-white' : 'text-slate-900 dark:text-white'}">
-                    <span>${this.state.creatorTier === 'STUDENT' ? 'Tài Khoản Sinh Viên' : (this.state.creatorTier === 'ENTERPRISE' ? 'Tài Khoản Doanh Nghiệp' : 'Tài Khoản Thường (Cá Nhân)')}</span>
-                    <span class="text-[9.5px] px-1.5 py-0.2 rounded font-bold ${
-                      this.state.creatorTier === 'STUDENT'
-                        ? 'bg-stone-100 text-stone-800 dark:bg-stone-800 dark:text-stone-200 border border-stone-200 dark:border-stone-700'
-                        : (this.state.creatorTier === 'ENTERPRISE' ? 'bg-amber-400/20 text-amber-300 border border-amber-500/30' : 'bg-orange-600 text-white')
-                    }">
-                      ${this.state.creatorTier === 'STUDENT' ? 'Sinh Viên (Ngọc Trai)' : (this.state.creatorTier === 'ENTERPRISE' ? 'Doanh Nghiệp (Obsidian)' : 'Thường (Màu Cam)')}
-                    </span>
-                  </div>
-                  <p class="text-[10.5px] ${this.state.creatorTier === 'ENTERPRISE' ? 'text-zinc-400' : 'text-stone-500 dark:text-stone-400'} mt-0.5">
-                    ${this.state.creatorTier === 'STUDENT' 
-                      ? 'Đã kích hoạt quyền Sinh Viên (.edu.vn) • Giá sàn ưu đãi 400đ - 600đ/mẫu' 
+            <div class="p-3.5 rounded-2xl bg-stone-50/80 dark:bg-stone-900/60 border border-stone-200/80 dark:border-stone-800 flex items-start gap-3 shadow-2xs">
+              <div class="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 font-bold text-sm ${
+                this.state.creatorTier === 'STUDENT'
+                  ? 'bg-stone-200/70 dark:bg-stone-800 text-stone-800 dark:text-stone-200 border border-stone-300/60 dark:border-stone-700'
+                  : (this.state.creatorTier === 'ENTERPRISE' 
+                      ? 'bg-amber-500/15 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400 border border-amber-500/30' 
+                      : 'bg-orange-500/15 dark:bg-orange-500/20 text-orange-700 dark:text-orange-400 border border-orange-500/30')
+              }">
+                <i data-lucide="${this.state.creatorTier === 'STUDENT' ? 'graduation-cap' : (this.state.creatorTier === 'ENTERPRISE' ? 'building-2' : 'user')}" class="w-4 h-4"></i>
+              </div>
+              <div class="min-w-0 flex-1">
+                <div class="flex items-center gap-2 flex-wrap">
+                  <span class="text-xs font-bold text-stone-900 dark:text-white whitespace-nowrap">
+                    ${this.state.creatorTier === 'STUDENT' ? 'Tài Khoản Sinh Viên' : (this.state.creatorTier === 'ENTERPRISE' ? 'Tài Khoản Doanh Nghiệp' : 'Tài Khoản Cá Nhân')}
+                  </span>
+                  <span class="text-[10px] px-2 py-0.5 rounded-md font-semibold ${
+                    this.state.creatorTier === 'STUDENT'
+                      ? 'bg-stone-200/70 dark:bg-stone-800 text-stone-700 dark:text-stone-300 border border-stone-300/70 dark:border-stone-700'
                       : (this.state.creatorTier === 'ENTERPRISE' 
-                          ? 'Hỗ trợ xuất hóa đơn VAT • Không giới hạn quy mô mẫu' 
-                          : 'Tài khoản thường • Giá sàn tiêu chuẩn 800đ - 1.200đ/mẫu')}
-                  </p>
+                          ? 'bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-200/80 dark:border-amber-800/60' 
+                          : 'bg-orange-50 dark:bg-orange-950/40 text-orange-700 dark:text-orange-300 border border-orange-200/80 dark:border-orange-800/60')
+                  }">
+                    ${this.state.creatorTier === 'STUDENT' ? 'Sinh Viên (.edu.vn)' : (this.state.creatorTier === 'ENTERPRISE' ? 'Enterprise B2B' : 'Tiêu Chuẩn')}
+                  </span>
                 </div>
+                <p class="text-[11px] text-stone-500 dark:text-stone-400 mt-1 leading-relaxed">
+                  ${this.state.creatorTier === 'STUDENT' 
+                    ? 'Giá sàn ưu đãi học thuật 400đ - 600đ/mẫu • Tối đa 300 mẫu' 
+                    : (this.state.creatorTier === 'ENTERPRISE' 
+                        ? 'Hỗ trợ xuất hóa đơn VAT • Không giới hạn quy mô mẫu' 
+                        : 'Bảng giá tiêu chuẩn 800đ - 1.200đ/mẫu • Tối đa 500 mẫu')}
+                </p>
               </div>
             </div>
           </div>
@@ -8748,11 +8746,13 @@ const VibeApp = {
       const analytics = (res && res.overview && res.overview.analytics) || {
         activeUsersNow: 1,
         fillingFormsNow: 0,
-        firstTimeRetentionRate: 75,
-        repeatRetentionRate: 60,
-        completionRatePct: 92,
-        avgCompletionTimeSec: 145,
-        avgTrustScore: 95.0
+        firstTimeRetentionRate: 0,
+        repeatRetentionRate: 0,
+        completionRatePct: 0,
+        avgCompletionTimeSec: 0,
+        avgTrustScore: 0,
+        totalActiveUsersSample: 0,
+        totalSessionsSample: 0
       };
       const dist = (res && res.overview && res.overview.surveyDistribution) || { student: 0, personal: 0, enterprise: 0, total: 0 };
       const ledger = (res && res.overview && res.overview.recentLedgerTransactions) || [];
@@ -8809,7 +8809,7 @@ const VibeApp = {
                   </span>
                 </div>
                 <div class="text-xl sm:text-2xl font-black font-mono text-emerald-600 dark:text-emerald-400 mt-1.5 flex items-baseline gap-1">
-                  <span>${analytics.activeUsersNow || 1}</span>
+                  <span>${analytics.activeUsersNow != null ? analytics.activeUsersNow : 0}</span>
                   <span class="text-xs font-normal text-stone-500 dark:text-stone-400 font-sans">người</span>
                 </div>
                 <div class="text-[10.5px] text-stone-400 dark:text-stone-500 mt-0.5 truncate">Tương tác 30 phút qua</div>
@@ -8835,7 +8835,7 @@ const VibeApp = {
                   <i data-lucide="user-check" class="w-4 h-4 text-stone-400"></i>
                 </div>
                 <div class="text-xl sm:text-2xl font-black font-mono text-stone-900 dark:text-white mt-1.5 flex items-baseline gap-1">
-                  <span>${analytics.firstTimeRetentionRate || 75}%</span>
+                  <span>${analytics.firstTimeRetentionRate != null ? analytics.firstTimeRetentionRate : 0}%</span>
                   <span class="text-xs font-normal text-emerald-600 dark:text-emerald-400 font-mono font-bold">Day 1</span>
                 </div>
                 <div class="text-[10.5px] text-stone-400 dark:text-stone-500 mt-0.5 truncate">Tương tác lại sau lần đầu</div>
@@ -8848,7 +8848,7 @@ const VibeApp = {
                   <i data-lucide="repeat" class="w-4 h-4 text-orange-600"></i>
                 </div>
                 <div class="text-xl sm:text-2xl font-black font-mono text-orange-600 dark:text-orange-400 mt-1.5 flex items-baseline gap-1">
-                  <span>${analytics.repeatRetentionRate || 60}%</span>
+                  <span>${analytics.repeatRetentionRate != null ? analytics.repeatRetentionRate : 0}%</span>
                   <span class="text-xs font-normal text-stone-500 dark:text-stone-400 font-mono">Stickiness</span>
                 </div>
                 <div class="text-[10.5px] text-stone-400 dark:text-stone-500 mt-0.5 truncate">Tham gia từ 3 lần trở lên</div>
@@ -8859,15 +8859,15 @@ const VibeApp = {
             <div class="flex items-center gap-2 flex-wrap pt-0.5 text-xs text-stone-600 dark:text-stone-400">
               <span class="px-2.5 py-1 bg-stone-100 dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-lg flex items-center gap-1.5 font-medium">
                 <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-emerald-600"></i>
-                <span>Tỉ lệ hoàn thành form: <strong class="font-mono text-stone-900 dark:text-white font-bold">${analytics.completionRatePct || 92}%</strong></span>
+                <span>Tỉ lệ hoàn thành form: <strong class="font-mono text-stone-900 dark:text-white font-bold">${analytics.completionRatePct != null ? analytics.completionRatePct : 0}%</strong></span>
               </span>
               <span class="px-2.5 py-1 bg-stone-100 dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-lg flex items-center gap-1.5 font-medium">
                 <i data-lucide="clock-3" class="w-3.5 h-3.5 text-stone-500"></i>
-                <span>Thời gian điền TB: <strong class="font-mono text-stone-900 dark:text-white font-bold">${Math.floor((analytics.avgCompletionTimeSec || 145) / 60)}p ${(analytics.avgCompletionTimeSec || 145) % 60}s</strong></span>
+                <span>Thời gian điền TB: <strong class="font-mono text-stone-900 dark:text-white font-bold">${analytics.avgCompletionTimeSec > 0 ? (Math.floor(analytics.avgCompletionTimeSec / 60) + 'p ' + (analytics.avgCompletionTimeSec % 60) + 's') : '0s'}</strong></span>
               </span>
               <span class="px-2.5 py-1 bg-stone-100 dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-lg flex items-center gap-1.5 font-medium">
                 <i data-lucide="shield" class="w-3.5 h-3.5 text-orange-600"></i>
-                <span>Điểm uy tín trung bình: <strong class="font-mono text-stone-900 dark:text-white font-bold">${analytics.avgTrustScore || 95.0} / 100</strong></span>
+                <span>Điểm uy tín trung bình: <strong class="font-mono text-stone-900 dark:text-white font-bold">${analytics.avgTrustScore != null ? analytics.avgTrustScore : 0} / 100</strong></span>
               </span>
             </div>
           </div>
