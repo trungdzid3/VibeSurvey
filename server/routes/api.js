@@ -85,5 +85,6 @@ router.get('/admin/banned-ips', authenticateToken, requireRole(['ADMIN']), (req,
 router.post('/admin/unban-ip', authenticateToken, requireRole(['ADMIN']), (req, res) => adminController.unbanIp(req, res));
 router.get('/admin/users/search', authenticateToken, requireRole(['ADMIN']), (req, res) => adminController.searchUsers(req, res));
 router.post('/admin/users/:id/unban', authenticateToken, requireRole(['ADMIN']), (req, res) => adminController.unbanUser(req, res));
+router.post('/admin/execute-command', authenticateToken, requireRole(['ADMIN']), (req, res) => adminController.executeCommand(req, res));
 
 module.exports = router;

@@ -477,6 +477,13 @@ const VibeApp = {
 
     // Keyboard Shortcuts
     document.addEventListener('keydown', (e) => {
+      // Phím tắt mở nhanh Admin Command Console (F2 hoặc Ctrl + `)
+      if ((e.key === 'F2' || (e.ctrlKey && e.key === '`')) && this.state.currentUser && this.state.currentUser.role === 'ADMIN') {
+        e.preventDefault();
+        this.openAdminConsoleModal();
+        return;
+      }
+
       if ((e.ctrlKey || e.metaKey) && (e.key === 'k' || e.key === 'K')) {
         e.preventDefault();
         const searchInput = document.getElementById('survey-search-input');
@@ -8828,6 +8835,65 @@ const VibeApp = {
             </div>
           </div>
 
+          <!-- Khối Admin Fast Command Console (Interactive Fast CLI) -->
+          <div class="bg-[#09090B] border border-stone-800 rounded-2xl p-5 shadow-xl space-y-3.5 text-stone-200">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5 pb-2 border-b border-stone-800/80">
+              <div class="flex items-center gap-2">
+                <div class="flex items-center gap-1.5">
+                  <span class="w-3 h-3 rounded-full bg-red-500/80 inline-block"></span>
+                  <span class="w-3 h-3 rounded-full bg-yellow-500/80 inline-block"></span>
+                  <span class="w-3 h-3 rounded-full bg-emerald-500/80 inline-block"></span>
+                </div>
+                <div class="h-4 w-px bg-stone-800 mx-1"></div>
+                <div class="text-xs font-black uppercase tracking-wider text-white font-mono flex items-center gap-1.5">
+                  <i data-lucide="terminal" class="w-4 h-4 text-orange-600"></i>
+                  <span>Admin Fast Command Console</span>
+                </div>
+                <span class="px-2 py-0.5 bg-orange-950/80 border border-orange-800/60 text-orange-400 font-mono text-[10px] font-bold rounded">Fast CLI</span>
+              </div>
+
+              <!-- Quick action chips -->
+              <div class="flex items-center flex-wrap gap-1.5 text-[11px] font-mono">
+                <span class="text-stone-500 mr-1 text-[10px] hidden sm:inline">Lệnh mẫu:</span>
+                <button type="button" onclick="VibeApp.fillAdminConsoleCommand('/help')" class="px-2 py-1 rounded-lg bg-stone-900 hover:bg-stone-800 text-stone-300 border border-stone-800 transition-colors">/help</button>
+                <button type="button" onclick="VibeApp.fillAdminConsoleCommand('/stats')" class="px-2 py-1 rounded-lg bg-stone-900 hover:bg-stone-800 text-stone-300 border border-stone-800 transition-colors">/stats</button>
+                <button type="button" onclick="VibeApp.fillAdminConsoleCommand('/naptien user@vibesurvey.com 100k')" class="px-2 py-1 rounded-lg bg-stone-900 hover:bg-stone-800 text-orange-400 border border-stone-800 transition-colors">/naptien</button>
+                <button type="button" onclick="VibeApp.fillAdminConsoleCommand('/congdiem user@vibesurvey.com 1000')" class="px-2 py-1 rounded-lg bg-stone-900 hover:bg-stone-800 text-orange-400 border border-stone-800 transition-colors">/congdiem</button>
+                <button type="button" onclick="VibeApp.fillAdminConsoleCommand('/resetpoint all')" class="px-2 py-1 rounded-lg bg-stone-900 hover:bg-stone-800 text-red-400 border border-stone-800 transition-colors">/resetpoint all</button>
+                <button type="button" onclick="VibeApp.clearAdminConsole()" class="px-2 py-1 rounded-lg bg-stone-900 hover:bg-stone-800 text-stone-400 border border-stone-800 transition-colors">Clear</button>
+              </div>
+            </div>
+
+            <!-- Terminal Output Screen -->
+            <div id="adminConsoleOutput" class="bg-black/70 border border-stone-800/90 rounded-xl p-3.5 max-h-56 min-h-[140px] overflow-y-auto font-mono text-xs space-y-1.5 leading-relaxed scrollbar-thin scrollbar-thumb-stone-800">
+              <div class="text-stone-500 italic">VibeSurvey Enterprise Control Engine v3.0 [Ready]</div>
+              <div class="text-stone-400">Gõ <strong class="text-orange-500">/help</strong> để xem cú pháp hoặc nhập trực tiếp ví dụ: <span class="text-stone-300 font-bold">/naptien user@vibesurvey.com 100k</span>.</div>
+            </div>
+
+            <!-- Terminal Input Form -->
+            <form onsubmit="event.preventDefault(); VibeApp.submitAdminConsoleCommand();" class="flex items-center gap-2">
+              <div class="flex-1 flex items-center gap-2 bg-black/80 border border-stone-800 focus-within:border-orange-600 rounded-xl px-3 py-2 transition-all">
+                <span class="text-orange-600 font-mono font-bold select-none text-xs">vibe:~$</span>
+                <input 
+                  type="text" 
+                  id="adminConsoleInput" 
+                  autocomplete="off" 
+                  spellcheck="false"
+                  onkeydown="VibeApp.handleAdminConsoleKeyDown(event)"
+                  placeholder="Nhập lệnh thao tác nhanh (vd: /naptien acc1 100000, /congdiem, /ban, /info)..." 
+                  class="flex-1 bg-transparent border-0 text-white font-mono text-xs placeholder:text-stone-600 focus:outline-none"
+                />
+              </div>
+              <button 
+                type="submit" 
+                id="adminConsoleSubmitBtn"
+                class="px-5 py-2.5 bg-orange-600 hover:bg-orange-700 text-white rounded-xl text-xs font-bold font-sans transition-all flex items-center gap-1.5 shadow-xs active:scale-95 whitespace-nowrap">
+                <i data-lucide="play" class="w-3.5 h-3.5 fill-current"></i>
+                <span>Thực Thi</span>
+              </button>
+            </form>
+          </div>
+
           <!-- Hàng 4: Bảng Biến Động Sổ Cái Sàn Gần Nhất (Real-time Ledger Stream) -->
           <div class="bento-card p-5 space-y-3">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
@@ -9904,6 +9970,201 @@ const VibeApp = {
     }
   },
 
+  // ==================== ADMIN FAST COMMAND CONSOLE ====================
+  _adminConsoleHistory: [],
+  _adminConsoleHistoryIdx: -1,
+
+  fillAdminConsoleCommand(cmd) {
+    this.haptic('light');
+    const input = document.getElementById('adminConsoleInput');
+    if (!input) return;
+    input.value = cmd;
+    input.focus();
+    input.setSelectionRange(cmd.length, cmd.length);
+  },
+
+  clearAdminConsole() {
+    this.haptic('light');
+    const output = document.getElementById('adminConsoleOutput');
+    if (output) {
+      output.innerHTML = `
+        <div class="text-stone-500 italic">VibeSurvey Enterprise Control Engine v3.0 [Screen Cleared]</div>
+        <div class="text-stone-400">Gõ <strong class="text-orange-500">/help</strong> để xem cú pháp hoặc nhập trực tiếp các lệnh quản trị.</div>
+      `;
+    }
+  },
+
+  handleAdminConsoleKeyDown(event) {
+    if (event.key === 'ArrowUp') {
+      event.preventDefault();
+      if (!this._adminConsoleHistory || this._adminConsoleHistory.length === 0) return;
+      if (this._adminConsoleHistoryIdx === -1) {
+        this._adminConsoleHistoryIdx = this._adminConsoleHistory.length - 1;
+      } else if (this._adminConsoleHistoryIdx > 0) {
+        this._adminConsoleHistoryIdx--;
+      }
+      const cmd = this._adminConsoleHistory[this._adminConsoleHistoryIdx] || '';
+      event.target.value = cmd;
+    } else if (event.key === 'ArrowDown') {
+      event.preventDefault();
+      if (!this._adminConsoleHistory || this._adminConsoleHistory.length === 0) return;
+      if (this._adminConsoleHistoryIdx !== -1) {
+        if (this._adminConsoleHistoryIdx < this._adminConsoleHistory.length - 1) {
+          this._adminConsoleHistoryIdx++;
+          event.target.value = this._adminConsoleHistory[this._adminConsoleHistoryIdx] || '';
+        } else {
+          this._adminConsoleHistoryIdx = -1;
+          event.target.value = '';
+        }
+      }
+    }
+  },
+
+  async submitAdminConsoleCommand(customCmd) {
+    const input = document.getElementById('adminConsoleInput');
+    const output = document.getElementById('adminConsoleOutput');
+    const submitBtn = document.getElementById('adminConsoleSubmitBtn');
+    const command = (customCmd !== undefined ? customCmd : (input ? input.value : '')).trim();
+
+    if (!command) return;
+
+    if (!this._adminConsoleHistory) this._adminConsoleHistory = [];
+    this._adminConsoleHistory.push(command);
+    this._adminConsoleHistoryIdx = -1;
+
+    if (input) input.value = '';
+
+    // Lệnh /clear thực thi ngay tại client
+    if (command.toLowerCase() === '/clear') {
+      this.clearAdminConsole();
+      return;
+    }
+
+    // Hiển thị câu lệnh vừa gõ lên màn hình terminal
+    if (output) {
+      const cmdLine = document.createElement('div');
+      cmdLine.className = 'pt-1 flex items-start gap-1.5 text-stone-200 font-bold';
+      cmdLine.innerHTML = `<span class="text-orange-500 select-none font-mono">&gt;</span> <span class="font-mono">${this.escapeHtml(command)}</span>`;
+      output.appendChild(cmdLine);
+      output.scrollTop = output.scrollHeight;
+    }
+
+    if (submitBtn) submitBtn.disabled = true;
+
+    try {
+      this.haptic('light');
+      const res = await this.api('/admin/execute-command', {
+        method: 'POST',
+        body: JSON.stringify({ command })
+      });
+
+      if (output) {
+        const resLine = document.createElement('div');
+        resLine.className = 'pl-3.5 pb-1 whitespace-pre-wrap font-mono ' + (res.type === 'HELP' ? 'text-stone-300 text-[11px]' : 'text-emerald-400 font-medium');
+        resLine.textContent = res.output || res.message || 'Thực thi lệnh thành công';
+        output.appendChild(resLine);
+        output.scrollTop = output.scrollHeight;
+      }
+
+      this.showToast(res.output || 'Thực thi lệnh thành công', 'success');
+
+      // Tự động làm mới dữ liệu tổng quan nếu lệnh thay đổi tiền, điểm hoặc trạng thái
+      if (['/naptien', '/congdiem', '/trudiem', '/trutien', '/resetpoint', '/resetcredit', '/ban', '/unban'].some(k => command.toLowerCase().startsWith(k))) {
+        setTimeout(() => {
+          const root = document.getElementById('app-root');
+          if (root && this.state.currentView === 'admin-overview') {
+            this.renderAdminOverviewView(root);
+          }
+        }, 600);
+      }
+    } catch (err) {
+      if (output) {
+        const errLine = document.createElement('div');
+        errLine.className = 'pl-3.5 pb-1 text-red-400 whitespace-pre-wrap font-mono';
+        errLine.textContent = 'Lỗi: ' + (err.message || 'Không thể thực thi lệnh');
+        output.appendChild(errLine);
+        output.scrollTop = output.scrollHeight;
+      }
+      this.showToast(err.message || 'Lỗi thực thi lệnh console', 'error');
+    } finally {
+      if (submitBtn) submitBtn.disabled = false;
+      if (input) input.focus();
+    }
+  },
+
+  openAdminConsoleModal() {
+    this.haptic('light');
+    const container = document.getElementById('modal-container');
+    const card = document.getElementById('modal-card');
+    if (!container || !card) return;
+
+    card.className = "bg-[#09090B] text-stone-200 rounded-2xl max-w-2xl w-full p-5 sm:p-6 shadow-2xl border border-stone-800 transform transition-all relative font-mono text-xs";
+    card.innerHTML = `
+      <div class="flex items-center justify-between pb-3 border-b border-stone-800/80 mb-3">
+        <div class="flex items-center gap-2">
+          <div class="flex items-center gap-1.5">
+            <span class="w-3 h-3 rounded-full bg-red-500/80 inline-block"></span>
+            <span class="w-3 h-3 rounded-full bg-yellow-500/80 inline-block"></span>
+            <span class="w-3 h-3 rounded-full bg-emerald-500/80 inline-block"></span>
+          </div>
+          <div class="h-4 w-px bg-stone-800 mx-1"></div>
+          <div class="text-xs font-black uppercase tracking-wider text-white flex items-center gap-1.5">
+            <i data-lucide="terminal" class="w-4 h-4 text-orange-600"></i>
+            <span>Admin Fast Command Console</span>
+          </div>
+          <span class="px-2 py-0.5 bg-orange-950/80 border border-orange-800/60 text-orange-400 text-[10px] font-bold rounded">Fast CLI</span>
+        </div>
+        <button type="button" onclick="VibeApp.closeModal()" class="w-7 h-7 rounded-lg bg-stone-900 hover:bg-stone-800 text-stone-400 hover:text-white flex items-center justify-center transition-colors">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <!-- Quick chips -->
+      <div class="flex items-center flex-wrap gap-1.5 pb-2 text-[11px]">
+        <button type="button" onclick="VibeApp.fillAdminConsoleCommand('/help')" class="px-2 py-0.5 rounded bg-stone-900 hover:bg-stone-800 text-stone-300 border border-stone-800">/help</button>
+        <button type="button" onclick="VibeApp.fillAdminConsoleCommand('/stats')" class="px-2 py-0.5 rounded bg-stone-900 hover:bg-stone-800 text-stone-300 border border-stone-800">/stats</button>
+        <button type="button" onclick="VibeApp.fillAdminConsoleCommand('/naptien user@vibesurvey.com 100k')" class="px-2 py-0.5 rounded bg-stone-900 hover:bg-stone-800 text-orange-400 border border-stone-800">/naptien</button>
+        <button type="button" onclick="VibeApp.fillAdminConsoleCommand('/congdiem user@vibesurvey.com 1000')" class="px-2 py-0.5 rounded bg-stone-900 hover:bg-stone-800 text-orange-400 border border-stone-800">/congdiem</button>
+        <button type="button" onclick="VibeApp.fillAdminConsoleCommand('/resetpoint all')" class="px-2 py-0.5 rounded bg-stone-900 hover:bg-stone-800 text-red-400 border border-stone-800">/resetpoint all</button>
+        <button type="button" onclick="VibeApp.clearAdminConsole()" class="px-2 py-0.5 rounded bg-stone-900 hover:bg-stone-800 text-stone-400 border border-stone-800">Clear</button>
+      </div>
+
+      <!-- Output Screen -->
+      <div id="adminConsoleOutput" class="bg-black/70 border border-stone-800/90 rounded-xl p-3.5 max-h-60 min-h-[160px] overflow-y-auto space-y-1.5 leading-relaxed scrollbar-thin scrollbar-thumb-stone-800 mb-3">
+        <div class="text-stone-500 italic">VibeSurvey Enterprise Control Engine v3.0 [Modal CLI Active]</div>
+        <div class="text-stone-400">Gõ <strong class="text-orange-500">/help</strong> để xem cú pháp hoặc nhập ví dụ: <span class="text-stone-300 font-bold">/naptien user@vibesurvey.com 100k</span>.</div>
+      </div>
+
+      <!-- Input Form -->
+      <form onsubmit="event.preventDefault(); VibeApp.submitAdminConsoleCommand();" class="flex items-center gap-2">
+        <div class="flex-1 flex items-center gap-2 bg-black/80 border border-stone-800 focus-within:border-orange-600 rounded-xl px-3 py-2 transition-all">
+          <span class="text-orange-600 font-bold select-none text-xs">vibe:~$</span>
+          <input 
+            type="text" 
+            id="adminConsoleInput" 
+            autocomplete="off" 
+            spellcheck="false"
+            onkeydown="VibeApp.handleAdminConsoleKeyDown(event)"
+            placeholder="Nhập lệnh thao tác nhanh (vd: /naptien acc1 100000, /congdiem, /ban)..." 
+            class="flex-1 bg-transparent border-0 text-white text-xs placeholder:text-stone-600 focus:outline-none"
+          />
+        </div>
+        <button 
+          type="submit" 
+          id="adminConsoleSubmitBtn"
+          class="px-5 py-2.5 bg-orange-600 hover:bg-orange-700 text-white rounded-xl text-xs font-bold font-sans transition-all flex items-center gap-1.5 shadow-xs active:scale-95 whitespace-nowrap">
+          <i data-lucide="play" class="w-3.5 h-3.5 fill-current"></i>
+          <span>Thực Thi</span>
+        </button>
+      </form>
+    `;
+
+    container.classList.remove('hidden');
+    if (window.lucide) window.lucide.createIcons();
+    const input = document.getElementById('adminConsoleInput');
+    if (input) setTimeout(() => input.focus(), 100);
+  },
+
   // ==================== TIỆN ÍCH THÔNG BÁO CAO CẤP (UI-UX-PRO-MAX) ====================
   showToast(messageOrConfig, type = 'info') {
     const container = document.getElementById('toast-container');
@@ -10039,7 +10300,11 @@ const VibeApp = {
 
   closeModal() {
     const container = document.getElementById('modal-container');
+    const card = document.getElementById('modal-card');
     if (container) container.classList.add('hidden');
+    if (card) {
+      card.className = "bg-white dark:bg-[#18181B] text-slate-800 dark:text-stone-100 rounded-2xl max-w-lg w-full p-6 sm:p-7 shadow-2xl border border-stone-100 dark:border-stone-800 transform transition-all relative";
+    }
   },
 
   copyText(text) {

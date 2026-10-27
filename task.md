@@ -149,3 +149,12 @@ Tài liệu tham chiếu duy nhất: [KE_HOACH_TONG_THE.md](file:///c:/Users/Len
   - [x] Làm phẳng ô tìm kiếm và chuyển nút "Tra Cứu" sang màu Cam Vibe `#EA580C`.
   - [x] Nâng cấp Khối 3 (Danh sách IP bị khóa) và Khối 4 (Nhật ký cảnh báo gian lận) sang thẻ card phẳng đồng bộ `border-stone-200 dark:border-stone-800 rounded-2xl`.
   - [x] Tích hợp Custom Dropdown tiêu chuẩn chọn số dòng/trang (5 dòng gọn, 10 dòng chuẩn, 20 dòng đầy đủ) và dropdown nhảy trang trực tiếp, khắc phục triệt để lỗi không chuyển trang được.
+- [x] **Task 10: Xóa Bỏ Hoàn Toàn Lượng Điểm Đang Lưu Hành Trên Thị Trường**:
+  - [x] Thực thi reset toàn bộ `point_balance = 0` trên tất cả tài khoản người dùng trong cơ sở dữ liệu SQLite.
+  - [x] Cập nhật mảng cấu hình khởi tạo `essentialUsers` trong `server/db/database.js` để tránh việc tái sinh điểm khi bootstrap máy chủ.
+  - [x] Xác minh chỉ số `circulatingPointLiability` và `total_active_points` trên trang Quản trị Tổng Quan đã về đúng 0 pts.
+- [x] **Task 11: Cơ Chế Admin Fast Command Console (Terminal CLI Thao Tác Nhanh)**:
+  - [x] Backend API `POST /api/v1/admin/execute-command` phân tích và thực thi an toàn 16 lệnh quản trị: `/naptien`, `/trutien`, `/congdiem`, `/trudiem`, `/resetpoint`, `/resetcredit`, `/ban`, `/unban`, `/banip`, `/unbanip`, `/setrole`, `/settier`, `/settrust`, `/info`, `/stats`, `/help`.
+  - [x] Giao diện Terminal Card Bento trên trang Tổng Quan Admin (`admin-overview`) với phong cách Hacker tối giản Obsidian Charcoal `#09090B`, viền `border-stone-800`, font mono, chip lệnh mẫu 1-click.
+  - [x] Phím tắt toàn cục `F2` hoặc `Ctrl + \`` hỗ trợ mở nhanh Modal Console từ bất kỳ trang nào.
+  - [x] Duyệt lịch sử câu lệnh đã gõ (Command History) bằng phím Mũi tên Lên/Xuống.

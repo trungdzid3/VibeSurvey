@@ -493,6 +493,460 @@ class AdminController {
       return res.status(500).json({ success: false, message: 'Lỗi gỡ cấm địa chỉ IP' });
     }
   }
+
+  /**
+   * Thực thi lệnh quản trị nhanh qua Admin Command Console
+   * Hỗ trợ các lệnh: /naptien, /congdiem, /trudiem, /trutien, /resetpoint, /ban, /unban, /setrole, /settier, /settrust, /info, /stats, /help
+   */
+  executeCommand(req, res) {
+    try {
+      const rawCommand = req.body.command;
+      if (!rawCommand || typeof rawCommand !== 'string') {
+        return res.status(400).json({ success: false, message: 'Vui lòng cung cấp lệnh quản trị cần thực thi' });
+      }
+
+      const tokens = this._parseCommandTokens(rawCommand);
+      if (tokens.length === 0) {
+        return res.status(400).json({ success: false, message: 'Lệnh không được để trống' });
+      }
+
+      let cmd = tokens[0].toLowerCase();
+      if (!cmd.startsWith('/')) {
+        cmd = '/' + cmd;
+      }
+      const args = tokens.slice(1);
+
+      switch (cmd) {
+        case '/help': {
+          const helpText = [
+            'DANH SÁCH LỆNH ADMIN CONSOLE HỖ TRỢ:',
+            '  /naptien <email|id> <số_tiền>     : Nạp tiền Credit cho tài khoản (Ví dụ: /naptien user@vibesurvey.com 100k)',
+            '  /trutien <email|id> <số_tiền>     : Trừ tiền Credit của tài khoản (Ví dụ: /trutien user@vibesurvey.com 50000)',
+            '  /congdiem <email|id> <số_điểm>   : Cộng điểm Point cho tài khoản (Ví dụ: /congdiem user@vibesurvey.com 1000)',
+            '  /trudiem <email|id> <số_điểm>    : Trừ điểm Point của tài khoản (Ví dụ: /trudiem user@vibesurvey.com 500)',
+            '  /resetpoint <email|id|all>       : Reset điểm về 0 cho 1 tài khoản hoặc /resetpoint all xóa sạch thị trường',
+            '  /resetcredit <email|id>          : Reset tiền Credit của tài khoản về 0 đ',
+            '  /ban <email|id> [lý_do]          : Khóa tài khoản người dùng ngay lập tức',
+            '  /unban <email|id>                : Mở khóa tài khoản người dùng',
+            '  /banip <địa_chỉ_ip> [lý_do]      : Khóa địa chỉ IP vào danh sách cấm',
+            '  /unbanip <địa_chỉ_ip>            : Gỡ cấm địa chỉ IP',
+            '  /setrole <email|id> <role>       : Đổi vai trò (ADMIN, CREATOR, RESPONDENT)',
+            '  /settier <email|id> <tier>       : Đổi phân hạng (STUDENT, ENTERPRISE_LEVEL_1, ENTERPRISE_LEVEL_2, REGULAR)',
+            '  /settrust <email|id> <điểm>      : Cập nhật điểm uy tín (từ 0 đến 100)',
+            '  /info <email|id>                 : Xem chi tiết thông số hồ sơ người dùng',
+            '  /stats                           : Xem tóm tắt nhanh hiện trạng tài chính & người dùng',
+            '  /clear                           : Xóa sạch màn hình console'
+          ].join('\n');
+          return res.json({ success: true, command: rawCommand, output: helpText, type: 'HELP' });
+        }
+
+        case '/naptien':
+        case '/napcredit':
+        case '/topup': {
+          if (args.length < 2) {
+            return res.status(400).json({ success: false, message: 'Cú pháp: /naptien <email_hoặc_id> <số_tiền>. Ví dụ: /naptien user@vibesurvey.com 100000' });
+          }
+          const user = this._findTargetUser(args[0]);
+          if (!user) {
+            return res.status(404).json({ success: false, message: `Không tìm thấy tài khoản nào khớp với "${args[0]}"` });
+          }
+          const amount = this._parseNumericAmount(args[1]);
+          if (amount <= 0) {
+            return res.status(400).json({ success: false, message: 'Số tiền nạp phải là số dương hợp lệ (> 0 đ)' });
+          }
+
+          db.prepare('UPDATE users SET credit_balance = credit_balance + ? WHERE id = ?').run(amount, user.id);
+          const updated = db.prepare('SELECT credit_balance FROM users WHERE id = ?').get(user.id);
+          
+          const crypto = require('crypto');
+          db.prepare(`
+            INSERT INTO point_transactions (id, user_id, reference_id, tx_type, currency, amount, balance_after, description)
+            VALUES (?, ?, ?, 'DEPOSIT_CREDIT', 'VND', ?, ?, ?)
+          `).run(crypto.randomUUID(), user.id, null, amount, updated.credit_balance, `Nạp Credit qua Admin Console (+${amount.toLocaleString()} VND)`);
+
+          return res.json({
+            success: true,
+            command: rawCommand,
+            output: `Thành công: Đã nạp +${amount.toLocaleString('vi-VN')} đ Credit cho tài khoản ${user.email} (${user.name}). Số dư mới: ${updated.credit_balance.toLocaleString('vi-VN')} đ.`,
+            type: 'SUCCESS'
+          });
+        }
+
+        case '/trutien':
+        case '/trucredit': {
+          if (args.length < 2) {
+            return res.status(400).json({ success: false, message: 'Cú pháp: /trutien <email_hoặc_id> <số_tiền>. Ví dụ: /trutien user@vibesurvey.com 50000' });
+          }
+          const user = this._findTargetUser(args[0]);
+          if (!user) {
+            return res.status(404).json({ success: false, message: `Không tìm thấy tài khoản nào khớp với "${args[0]}"` });
+          }
+          const amount = this._parseNumericAmount(args[1]);
+          if (amount <= 0) {
+            return res.status(400).json({ success: false, message: 'Số tiền trừ phải là số dương hợp lệ (> 0 đ)' });
+          }
+
+          db.prepare('UPDATE users SET credit_balance = MAX(0, credit_balance - ?) WHERE id = ?').run(amount, user.id);
+          const updated = db.prepare('SELECT credit_balance FROM users WHERE id = ?').get(user.id);
+
+          return res.json({
+            success: true,
+            command: rawCommand,
+            output: `Thành công: Đã trừ -${amount.toLocaleString('vi-VN')} đ Credit của tài khoản ${user.email}. Số dư mới: ${updated.credit_balance.toLocaleString('vi-VN')} đ.`,
+            type: 'SUCCESS'
+          });
+        }
+
+        case '/congdiem':
+        case '/addpoint':
+        case '/point': {
+          if (args.length < 2) {
+            return res.status(400).json({ success: false, message: 'Cú pháp: /congdiem <email_hoặc_id> <số_điểm>. Ví dụ: /congdiem user@vibesurvey.com 1000' });
+          }
+          const user = this._findTargetUser(args[0]);
+          if (!user) {
+            return res.status(404).json({ success: false, message: `Không tìm thấy tài khoản nào khớp với "${args[0]}"` });
+          }
+          const points = this._parseNumericAmount(args[1]);
+          if (points <= 0) {
+            return res.status(400).json({ success: false, message: 'Số điểm cộng phải là số dương hợp lệ (> 0)' });
+          }
+
+          db.prepare('UPDATE users SET point_balance = point_balance + ? WHERE id = ?').run(points, user.id);
+          const updated = db.prepare('SELECT point_balance FROM users WHERE id = ?').get(user.id);
+
+          const crypto = require('crypto');
+          db.prepare(`
+            INSERT INTO point_transactions (id, user_id, reference_id, tx_type, currency, amount, balance_after, description)
+            VALUES (?, ?, ?, 'SURVEY_REWARD', 'POINT', ?, ?, ?)
+          `).run(crypto.randomUUID(), user.id, null, points, updated.point_balance, `Cộng điểm thưởng qua Admin Console (+${points.toLocaleString()} PTS)`);
+
+          return res.json({
+            success: true,
+            command: rawCommand,
+            output: `Thành công: Đã cộng +${points.toLocaleString('vi-VN')} điểm cho tài khoản ${user.email} (${user.name}). Số dư mới: ${updated.point_balance.toLocaleString('vi-VN')} pts.`,
+            type: 'SUCCESS'
+          });
+        }
+
+        case '/trudiem':
+        case '/subpoint': {
+          if (args.length < 2) {
+            return res.status(400).json({ success: false, message: 'Cú pháp: /trudiem <email_hoặc_id> <số_điểm>. Ví dụ: /trudiem user@vibesurvey.com 500' });
+          }
+          const user = this._findTargetUser(args[0]);
+          if (!user) {
+            return res.status(404).json({ success: false, message: `Không tìm thấy tài khoản nào khớp với "${args[0]}"` });
+          }
+          const points = this._parseNumericAmount(args[1]);
+          if (points <= 0) {
+            return res.status(400).json({ success: false, message: 'Số điểm trừ phải là số dương hợp lệ (> 0)' });
+          }
+
+          db.prepare('UPDATE users SET point_balance = MAX(0, point_balance - ?) WHERE id = ?').run(points, user.id);
+          const updated = db.prepare('SELECT point_balance FROM users WHERE id = ?').get(user.id);
+
+          return res.json({
+            success: true,
+            command: rawCommand,
+            output: `Thành công: Đã trừ -${points.toLocaleString('vi-VN')} điểm của tài khoản ${user.email}. Số dư mới: ${updated.point_balance.toLocaleString('vi-VN')} pts.`,
+            type: 'SUCCESS'
+          });
+        }
+
+        case '/resetpoint': {
+          if (args.length < 1) {
+            return res.status(400).json({ success: false, message: 'Cú pháp: /resetpoint <email_hoặc_id|all>. Ví dụ: /resetpoint all' });
+          }
+          if (args[0].toLowerCase() === 'all') {
+            const countRow = db.prepare('SELECT COUNT(*) AS c FROM users WHERE point_balance > 0').get();
+            db.prepare('UPDATE users SET point_balance = 0').run();
+            db.prepare("DELETE FROM point_transactions WHERE currency = 'PTS' OR currency = 'POINT'").run();
+            return res.json({
+              success: true,
+              command: rawCommand,
+              output: `Thành công: Đã xóa sạch 100% điểm thưởng đang lưu hành trên toàn bộ thị trường (${countRow.c} tài khoản đã được reset về 0 pts).`,
+              type: 'SUCCESS'
+            });
+          }
+
+          const user = this._findTargetUser(args[0]);
+          if (!user) {
+            return res.status(404).json({ success: false, message: `Không tìm thấy tài khoản nào khớp với "${args[0]}"` });
+          }
+          db.prepare('UPDATE users SET point_balance = 0 WHERE id = ?').run(user.id);
+          return res.json({
+            success: true,
+            command: rawCommand,
+            output: `Thành công: Đã reset số dư điểm của tài khoản ${user.email} về 0 pts.`,
+            type: 'SUCCESS'
+          });
+        }
+
+        case '/resetcredit': {
+          if (args.length < 1) {
+            return res.status(400).json({ success: false, message: 'Cú pháp: /resetcredit <email_hoặc_id>. Ví dụ: /resetcredit user@vibesurvey.com' });
+          }
+          const user = this._findTargetUser(args[0]);
+          if (!user) {
+            return res.status(404).json({ success: false, message: `Không tìm thấy tài khoản nào khớp với "${args[0]}"` });
+          }
+          db.prepare('UPDATE users SET credit_balance = 0 WHERE id = ?').run(user.id);
+          return res.json({
+            success: true,
+            command: rawCommand,
+            output: `Thành công: Đã reset số dư Credit của tài khoản ${user.email} về 0 đ.`,
+            type: 'SUCCESS'
+          });
+        }
+
+        case '/ban': {
+          if (args.length < 1) {
+            return res.status(400).json({ success: false, message: 'Cú pháp: /ban <email_hoặc_id> [lý_do]' });
+          }
+          const user = this._findTargetUser(args[0]);
+          if (!user) {
+            return res.status(404).json({ success: false, message: `Không tìm thấy tài khoản nào khớp với "${args[0]}"` });
+          }
+          if (user.role === 'ADMIN') {
+            return res.status(403).json({ success: false, message: 'Không thể khóa tài khoản có quyền Quản trị viên (ADMIN)' });
+          }
+          const reason = args.slice(1).join(' ') || 'Bị khóa bởi Quản trị viên qua Command Console';
+          db.prepare("UPDATE users SET status = 'BANNED', ban_reason = ?, banned_at = CURRENT_TIMESTAMP WHERE id = ?").run(reason, user.id);
+          return res.json({
+            success: true,
+            command: rawCommand,
+            output: `Thành công: Đã khóa tài khoản ${user.email}. Lý do: "${reason}".`,
+            type: 'SUCCESS'
+          });
+        }
+
+        case '/unban': {
+          if (args.length < 1) {
+            return res.status(400).json({ success: false, message: 'Cú pháp: /unban <email_hoặc_id>' });
+          }
+          const user = this._findTargetUser(args[0]);
+          if (!user) {
+            return res.status(404).json({ success: false, message: `Không tìm thấy tài khoản nào khớp với "${args[0]}"` });
+          }
+          db.prepare("UPDATE users SET status = 'ACTIVE', ban_reason = NULL, banned_at = NULL, trust_score = 85 WHERE id = ?").run(user.id);
+          return res.json({
+            success: true,
+            command: rawCommand,
+            output: `Thành công: Đã mở khóa tài khoản ${user.email}. Trạng thái hiện tại: ACTIVE, Điểm uy tín: 85đ.`,
+            type: 'SUCCESS'
+          });
+        }
+
+        case '/banip': {
+          if (args.length < 1) {
+            return res.status(400).json({ success: false, message: 'Cú pháp: /banip <địa_chỉ_ip> [lý_do]' });
+          }
+          const ip = args[0];
+          const reason = args.slice(1).join(' ') || 'Bị cấm bởi Quản trị viên qua Console';
+          antiFraudService.banIp(ip, reason);
+          return res.json({
+            success: true,
+            command: rawCommand,
+            output: `Thành công: Đã khóa địa chỉ IP ${ip}. Lý do: "${reason}".`,
+            type: 'SUCCESS'
+          });
+        }
+
+        case '/unbanip': {
+          if (args.length < 1) {
+            return res.status(400).json({ success: false, message: 'Cú pháp: /unbanip <địa_chỉ_ip>' });
+          }
+          const ip = args[0];
+          antiFraudService.unbanIp(ip);
+          return res.json({
+            success: true,
+            command: rawCommand,
+            output: `Thành công: Đã gỡ cấm cho địa chỉ IP ${ip}.`,
+            type: 'SUCCESS'
+          });
+        }
+
+        case '/setrole': {
+          if (args.length < 2) {
+            return res.status(400).json({ success: false, message: 'Cú pháp: /setrole <email_hoặc_id> <ADMIN|CREATOR|RESPONDENT>' });
+          }
+          const user = this._findTargetUser(args[0]);
+          if (!user) {
+            return res.status(404).json({ success: false, message: `Không tìm thấy tài khoản nào khớp với "${args[0]}"` });
+          }
+          const role = args[1].toUpperCase();
+          if (!['ADMIN', 'CREATOR', 'RESPONDENT'].includes(role)) {
+            return res.status(400).json({ success: false, message: 'Vai trò chỉ được là một trong các giá trị: ADMIN, CREATOR, RESPONDENT' });
+          }
+          db.prepare('UPDATE users SET role = ? WHERE id = ?').run(role, user.id);
+          return res.json({
+            success: true,
+            command: rawCommand,
+            output: `Thành công: Đã thay đổi vai trò của ${user.email} thành ${role}.`,
+            type: 'SUCCESS'
+          });
+        }
+
+        case '/settier': {
+          if (args.length < 2) {
+            return res.status(400).json({ success: false, message: 'Cú pháp: /settier <email_hoặc_id> <STUDENT|ENTERPRISE_LEVEL_1|ENTERPRISE_LEVEL_2|REGULAR>' });
+          }
+          const user = this._findTargetUser(args[0]);
+          if (!user) {
+            return res.status(404).json({ success: false, message: `Không tìm thấy tài khoản nào khớp với "${args[0]}"` });
+          }
+          const tier = args[1].toUpperCase();
+          db.prepare('UPDATE users SET account_tier = ? WHERE id = ?').run(tier, user.id);
+          return res.json({
+            success: true,
+            command: rawCommand,
+            output: `Thành công: Đã cập nhật phân hạng tài khoản của ${user.email} thành ${tier}.`,
+            type: 'SUCCESS'
+          });
+        }
+
+        case '/settrust': {
+          if (args.length < 2) {
+            return res.status(400).json({ success: false, message: 'Cú pháp: /settrust <email_hoặc_id> <số_điểm (0-100)>' });
+          }
+          const user = this._findTargetUser(args[0]);
+          if (!user) {
+            return res.status(404).json({ success: false, message: `Không tìm thấy tài khoản nào khớp với "${args[0]}"` });
+          }
+          const score = Math.min(100, Math.max(0, parseFloat(args[1]) || 85));
+          db.prepare('UPDATE users SET trust_score = ? WHERE id = ?').run(score, user.id);
+          return res.json({
+            success: true,
+            command: rawCommand,
+            output: `Thành công: Đã cập nhật điểm uy tín của ${user.email} thành ${score}đ.`,
+            type: 'SUCCESS'
+          });
+        }
+
+        case '/info': {
+          if (args.length < 1) {
+            return res.status(400).json({ success: false, message: 'Cú pháp: /info <email_hoặc_id>' });
+          }
+          const user = this._findTargetUser(args[0]);
+          if (!user) {
+            return res.status(404).json({ success: false, message: `Không tìm thấy tài khoản nào khớp với "${args[0]}"` });
+          }
+          const infoText = [
+            `THÔNG TIN TÀI KHOẢN [${user.email}]:`,
+            `  ID           : ${user.id}`,
+            `  Tên          : ${user.name}`,
+            `  Email        : ${user.email}`,
+            `  Vai trò      : ${user.role}`,
+            `  Phân hạng    : ${user.account_tier || 'Mặc định (REGULAR)'}`,
+            `  Số dư Credit : ${(user.credit_balance || 0).toLocaleString('vi-VN')} đ`,
+            `  Số dư Point  : ${(user.point_balance || 0).toLocaleString('vi-VN')} pts`,
+            `  Điểm uy tín  : ${user.trust_score !== undefined ? user.trust_score : 85}đ`,
+            `  Trạng thái   : ${user.status}`
+          ].join('\n');
+          return res.json({ success: true, command: rawCommand, output: infoText, type: 'INFO' });
+        }
+
+        case '/stats':
+        case '/overview': {
+          const uStats = db.prepare(`
+            SELECT 
+              COUNT(*) AS total,
+              SUM(CASE WHEN role = 'CREATOR' THEN 1 ELSE 0 END) AS creators,
+              SUM(CASE WHEN role = 'RESPONDENT' THEN 1 ELSE 0 END) AS respondents,
+              SUM(CASE WHEN role != 'ADMIN' THEN point_balance ELSE 0 END) AS circulating_points
+            FROM users
+          `).get();
+          const sStats = db.prepare(`SELECT COUNT(*) as total, COALESCE(SUM(escrow_locked_balance), 0) as escrow FROM surveys`).get();
+          const pStats = db.prepare(`SELECT COUNT(*) as total FROM payout_requests WHERE status = 'PENDING'`).get();
+
+          const statsText = [
+            'TỔNG QUAN HỆ THỐNG:',
+            `  Tài khoản : ${uStats.total} (Đáp viên: ${uStats.respondents || 0}, Doanh nghiệp: ${uStats.creators || 0})`,
+            `  Khảo sát  : ${sStats.total} bài | Ký quỹ Escrow: ${(sStats.escrow || 0).toLocaleString('vi-VN')} đ`,
+            `  Rút tiền  : ${pStats.total} yêu cầu đang chờ duyệt`,
+            `  Thị trường: ${(uStats.circulating_points || 0).toLocaleString('vi-VN')} PTS điểm lưu hành`
+          ].join('\n');
+          return res.json({ success: true, command: rawCommand, output: statsText, type: 'INFO' });
+        }
+
+        default:
+          return res.status(400).json({
+            success: false,
+            message: `Lệnh "${tokens[0]}" không được nhận diện. Gõ /help để xem danh sách tất cả các lệnh khả dụng.`
+          });
+      }
+    } catch (err) {
+      console.error('Lỗi executeCommand:', err);
+      return res.status(500).json({ success: false, message: err.message || 'Lỗi xử lý lệnh console' });
+    }
+  }
+
+  /**
+   * Phân tách câu lệnh thành các tham số (hỗ trợ dấu nháy kép cho chuỗi có khoảng trắng)
+   */
+  _parseCommandTokens(commandText) {
+    const text = String(commandText || '').trim();
+    const tokens = [];
+    let current = '';
+    let inQuote = false;
+    let quoteChar = '';
+
+    for (let i = 0; i < text.length; i++) {
+      const char = text[i];
+      if ((char === '"' || char === "'") && (!inQuote || quoteChar === char)) {
+        inQuote = !inQuote;
+        quoteChar = inQuote ? char : '';
+      } else if (char === ' ' && !inQuote) {
+        if (current.length > 0) {
+          tokens.push(current);
+          current = '';
+        }
+      } else {
+        current += char;
+      }
+    }
+    if (current.length > 0) {
+      tokens.push(current);
+    }
+    return tokens;
+  }
+
+  /**
+   * Chuyển đổi chuỗi số tiền hoặc điểm (hỗ trợ 100k, 1.5m, 100000)
+   */
+  _parseNumericAmount(val) {
+    if (typeof val === 'number') return Math.floor(val);
+    if (!val) return 0;
+    const s = String(val).trim().toLowerCase().replace(/,/g, '');
+    if (s.endsWith('k')) return Math.floor(parseFloat(s) * 1000);
+    if (s.endsWith('m') || s.endsWith('tr') || s.endsWith('trieu') || s.endsWith('triệu')) {
+      return Math.floor(parseFloat(s) * 1000000);
+    }
+    return Math.floor(parseFloat(s) || 0);
+  }
+
+  /**
+   * Tìm người dùng theo Email, ID hoặc một phần tên/email
+   */
+  _findTargetUser(target) {
+    if (!target) return null;
+    const raw = String(target).trim();
+    // 1. Tìm chính xác email
+    let user = db.prepare('SELECT id, name, email, role, status, credit_balance, point_balance, trust_score, account_tier FROM users WHERE LOWER(email) = LOWER(?)').get(raw);
+    if (user) return user;
+    // 2. Tìm chính xác ID
+    user = db.prepare('SELECT id, name, email, role, status, credit_balance, point_balance, trust_score, account_tier FROM users WHERE id = ?').get(raw);
+    if (user) return user;
+    // 3. Tìm gần đúng
+    const matches = db.prepare('SELECT id, name, email, role, status, credit_balance, point_balance, trust_score, account_tier FROM users WHERE LOWER(email) LIKE LOWER(?) OR LOWER(name) LIKE LOWER(?) LIMIT 5').all(`%${raw}%`, `%${raw}%`);
+    if (matches.length === 1) return matches[0];
+    if (matches.length > 1) {
+      const listStr = matches.map(m => `${m.email} (${m.name})`).join(', ');
+      throw new Error(`Tìm thấy ${matches.length} tài khoản khớp với "${raw}": [${listStr}]. Vui lòng nhập chính xác Email hoặc ID.`);
+    }
+    return null;
+  }
 }
 
 module.exports = new AdminController();

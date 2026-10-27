@@ -200,6 +200,25 @@ ode -c public/app.js đạt 100% PASS không lỗi. |
   + Triệt Tiêu Lỗi Autofill Trắng Chữ Đen & Sửa Lỗi Liệt Focus Studio: Bổ sung `autocomplete="off"` và `spellcheck="false"` trên toàn bộ input/textarea; cấu hình CSS `-webkit-autofill` trong suốt trong Dark Mode. Bỏ đường gạch chân cam 100% thô ráp dưới mô tả, đổi nút thêm ảnh bìa thành Ghost Button tinh tế. Bọc `event.stopPropagation()` trên toàn bộ input/textarea câu hỏi và cập nhật trực tiếp DOM ma trận Lưới (`CHOICE_GRID`, `CHECKBOX_GRID`), ngăn chặn hiện tượng click làm vẽ lại DOM gây mất focus hoặc liệt phím khi nhập liệu. Cập nhật cục bộ Cột Phải qua vùng chứa `#studio-sidebar-root`, giúp chuyển tab "Ngân Sách & Bảng Giá" / "Bộ Lọc & Cài Đặt" tức thì mà không ảnh hưởng Canvas câu hỏi.
   + Dọn Sạch Toàn Diện Triệt Để Data Demo/Test (v3.1): Xóa sạch 100% khảo sát tự tạo demo (`surveys`: 0), câu hỏi demo (`questions`: 0), phản hồi demo (`responses`: 0), hóa đơn VAT demo (`vat_invoices`: 0), chiến dịch voucher demo (`voucher_campaigns`: 0, `voucher_codes`: 0), yêu cầu rút tiền demo (`payout_requests`: 0) và toàn bộ 282 tài khoản bị ban test trên trang Admin Fraud. Xóa 758 tài khoản test ảo, bảo tồn duy nhất 7 tài khoản cốt lõi và tài khoản thật (`trungdzid3@gmail.com`, `linharmykxbnvn@gmail.com`, `haidzid3@gmail.com`, `trungclone1234@gmail.com`, `admin@vibesurvey.com`, `creator@vibesurvey.com`, `user@vibesurvey.com`) ở trạng thái ACTIVE sạch sẽ. Hệ thống được đưa về trạng thái xuất xưởng hoàn toàn sạch bóng.
 
+- **Xóa Bỏ Hoàn Toàn Điểm Lưu Hành Thị Trường & Xây Dựng Admin Fast Command Console (v3.2)**:
+  + Xóa Bỏ Hoàn Toàn Lượng Điểm Đang Lưu Hành: Đã reset `point_balance = 0` cho toàn bộ tài khoản người dùng trong cơ sở dữ liệu SQLite; sửa các giá trị mặc định của `point_balance` trong `essentialUsers` tại `server/db/database.js` về 0 để tránh tái sinh điểm khi khởi động lại. Chỉ số `circulatingPointLiability` (công nợ điểm thưởng lưu hành) và `total_active_points` trên trang Tổng Quan Kinh Tế đã về đúng `0 pts` tuyệt đối.
+  + Cơ Chế Admin Fast Command Console (Fast Terminal CLI): Xây dựng API `POST /api/v1/admin/execute-command` hỗ trợ 16 lệnh quản trị nhanh:
+    * `/naptien <target> <số_tiền>` (alias `/napcredit`, `/topup`): Nạp tiền Credit vào tài khoản người dùng, hỗ trợ định dạng số thông minh (`100k`, `1.5m`, `50000`).
+    * `/trutien <target> <số_tiền>` (alias `/trucredit`): Trừ tiền Credit của tài khoản.
+    * `/congdiem <target> <số_điểm>` (alias `/addpoint`): Cộng điểm Point vào ví đáp viên (ghi nhận sổ cái chuẩn `POINT`).
+    * `/trudiem <target> <số_điểm>` (alias `/subpoint`): Trừ điểm Point của tài khoản.
+    * `/resetpoint <target|all>`: Reset điểm về 0 cho 1 tài khoản hoặc `/resetpoint all` xóa sạch 100% điểm lưu hành trên toàn bộ thị trường.
+    * `/resetcredit <target>`: Reset Credit của 1 tài khoản về 0 đ.
+    * `/ban <target> [lý_do]`: Khóa tài khoản ngay lập tức (chặn ban tài khoản ADMIN).
+    * `/unban <target>`: Mở khóa tài khoản ngay lập tức và phục hồi điểm uy tín về 85đ.
+    * `/banip <ip> [lý_do]` & `/unbanip <ip>`: Khóa và gỡ khóa địa chỉ IP.
+    * `/setrole <target> <role>` & `/settier <target> <tier>`: Cập nhật vai trò và phân hạng tài khoản.
+    * `/settrust <target> <điểm>`: Cập nhật điểm uy tín người dùng (0 - 100đ).
+    * `/info <target>`: Tra cứu tức thì toàn bộ thông số chi tiết của tài khoản.
+    * `/stats`: Xem tóm tắt nhanh hiện trạng tài chính, khảo sát và người dùng.
+    * `/help`: Hiển thị bảng hướng dẫn cú pháp câu lệnh đầy đủ.
+  + Giao diện Frontend Terminal Console Đẳng Cấp: Tích hợp trực tiếp Card Terminal Bento phong cách Obsidian Charcoal `#09090B`, viền `border-stone-800`, font mono chuẩn `ui-ux-pro-max`, nút chip lệnh mẫu 1-click. Tích hợp phím tắt toàn cục `F2` hoặc `Ctrl + \`` giúp Quản trị viên mở nhanh Modal Terminal Console từ bất kỳ trang nào. Hỗ trợ duyệt lịch sử lệnh đã gõ bằng phím Mũi tên Lên/Xuống.
+
 ## 5. Hướng Dẫn Chuyển Giao Cho Phiên Tiếp Theo
 - Đọc `PROJECT_CONTEXT.md` để nắm trạng thái hiện tại.
 - Chạy `npm test` để kiểm tra độ tin cậy của mã nguồn trước khi thêm tính năng mới.
