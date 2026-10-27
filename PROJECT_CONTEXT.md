@@ -303,3 +303,8 @@ ode -c public/app.js đạt 100% PASS không lỗi. |
   2. **Profile Dropdown**:
      - Đưa thanh hiển thị phân khúc tài khoản về nền phẳng sáng tiệp màu (g-stone-50 dark:bg-stone-900/60 border-b border-stone-100 dark:border-stone-800), xóa bỏ hoàn toàn thanh đen kịt.
   3. Cập nhật cache buster mới nhất: =1793122100000.
+
+
+### Toi Gian Hoa Phan Khuc & Bo Khung Do Dai Bang Hoi (v3.1.0)
+- 1. Toi gian dong phan khuc tai khoan: Bo khung vien, icon va badge; chi hien thi 1 dong van ban phang: Phan khuc tai khoan: Sinh Vien (hoac Doanh Nghiep, Ca Nhan).
+- 2. Bo hoan toan khung hien thi Do dai bang hoi vi he thong tu dong nhan dien ngam vao bang gia SLA.

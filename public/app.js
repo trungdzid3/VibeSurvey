@@ -1079,52 +1079,12 @@ const VibeApp = {
             <span class="text-[11px] font-mono font-bold text-orange-600 dark:text-orange-400" id="sidebar-floor-indicator">Sàn: ${calc.floorPrice}đ/mẫu</span>
           </div>
 
-          <!-- Phân khúc tài khoản xác thực -->
-          <div class="space-y-2">
-            <div class="flex items-center justify-between">
-              <label class="text-[11px] font-bold text-stone-600 dark:text-stone-300">Phân khúc tài khoản:</label>
-              ${user?.account_tier !== 'STUDENT' && user?.account_tier !== 'ENTERPRISE' ? `
-                <a href="javascript:void(0)" onclick="VibeApp.navigate('profile')" class="text-[10px] text-orange-600 dark:text-orange-400 font-bold hover:underline flex items-center gap-0.5">
-                  <span>Xác thực để nhận ưu đãi</span>
-                  <i data-lucide="arrow-right" class="w-3 h-3"></i>
-                </a>
-              ` : ''}
-            </div>
-            
-            <div class="p-3.5 rounded-2xl bg-stone-50/80 dark:bg-stone-900/60 border border-stone-200/80 dark:border-stone-800 flex items-start gap-3 shadow-2xs">
-              <div class="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 font-bold text-sm ${
-                this.state.creatorTier === 'STUDENT'
-                  ? 'bg-stone-200/70 dark:bg-stone-800 text-stone-800 dark:text-stone-200 border border-stone-300/60 dark:border-stone-700'
-                  : (this.state.creatorTier === 'ENTERPRISE' 
-                      ? 'bg-amber-500/15 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400 border border-amber-500/30' 
-                      : 'bg-orange-500/15 dark:bg-orange-500/20 text-orange-700 dark:text-orange-400 border border-orange-500/30')
-              }">
-                <i data-lucide="${this.state.creatorTier === 'STUDENT' ? 'graduation-cap' : (this.state.creatorTier === 'ENTERPRISE' ? 'building-2' : 'user')}" class="w-4 h-4"></i>
-              </div>
-              <div class="min-w-0 flex-1">
-                <div class="flex items-center gap-2 flex-wrap">
-                  <span class="text-xs font-bold text-stone-900 dark:text-white whitespace-nowrap">
-                    ${this.state.creatorTier === 'STUDENT' ? 'Tài Khoản Sinh Viên' : (this.state.creatorTier === 'ENTERPRISE' ? 'Tài Khoản Doanh Nghiệp' : 'Tài Khoản Cá Nhân')}
-                  </span>
-                  <span class="text-[10px] px-2 py-0.5 rounded-md font-semibold ${
-                    this.state.creatorTier === 'STUDENT'
-                      ? 'bg-stone-200/70 dark:bg-stone-800 text-stone-700 dark:text-stone-300 border border-stone-300/70 dark:border-stone-700'
-                      : (this.state.creatorTier === 'ENTERPRISE' 
-                          ? 'bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-200/80 dark:border-amber-800/60' 
-                          : 'bg-orange-50 dark:bg-orange-950/40 text-orange-700 dark:text-orange-300 border border-orange-200/80 dark:border-orange-800/60')
-                  }">
-                    ${this.state.creatorTier === 'STUDENT' ? 'Sinh Viên (.edu.vn)' : (this.state.creatorTier === 'ENTERPRISE' ? 'Enterprise B2B' : 'Tiêu Chuẩn')}
-                  </span>
-                </div>
-                <p class="text-[11px] text-stone-500 dark:text-stone-400 mt-1 leading-relaxed">
-                  ${this.state.creatorTier === 'STUDENT' 
-                    ? 'Giá sàn ưu đãi học thuật 400đ - 600đ/mẫu • Tối đa 300 mẫu' 
-                    : (this.state.creatorTier === 'ENTERPRISE' 
-                        ? 'Hỗ trợ xuất hóa đơn VAT • Không giới hạn quy mô mẫu' 
-                        : 'Bảng giá tiêu chuẩn 800đ - 1.200đ/mẫu • Tối đa 500 mẫu')}
-                </p>
-              </div>
-            </div>
+          <!-- Phân khúc tài khoản (Tự động nhận diện, tinh gọn không khung viền) -->
+          <div class="flex items-center justify-between text-xs pt-0.5">
+            <span class="text-stone-500 dark:text-stone-400 font-medium text-[11px]">Phân khúc tài khoản:</span>
+            <span class="font-bold text-stone-900 dark:text-white text-[11px]">
+              ${this.state.creatorTier === 'STUDENT' ? 'Sinh Viên' : (this.state.creatorTier === 'ENTERPRISE' ? 'Doanh Nghiệp' : 'Cá Nhân')}
+            </span>
           </div>
 
           <!-- Nhập số lượng mẫu -->
@@ -1135,12 +1095,6 @@ const VibeApp = {
             </div>
             <input type="number" id="fast-target-count" value="${this.state.targetResponses}" min="10" step="5" oninput="VibeApp.setStudioTargetResponses(this.value)" autocomplete="off" spellcheck="false"
                    class="w-full p-2.5 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 text-sm font-mono font-bold text-slate-900 dark:text-white focus:outline-none focus:border-orange-500">
-          </div>
-
-          <!-- Thống kê độ dài câu hỏi -->
-          <div class="p-2.5 bg-stone-50 dark:bg-stone-900/80 rounded-xl border border-stone-200/80 dark:border-stone-800 text-[11px] flex items-center justify-between">
-            <span class="text-stone-600 dark:text-stone-400">Độ dài bảng hỏi:</span>
-            <span class="font-bold text-stone-900 dark:text-stone-100">${calc.questionCount} câu • Nhóm ${calc.lengthBadge}</span>
           </div>
         </div>
 
