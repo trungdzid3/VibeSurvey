@@ -31,6 +31,8 @@ router.put('/auth/profile/demographics', authenticateToken, (req, res) => authCo
 router.post('/auth/profile/demographics', authenticateToken, (req, res) => authController.updateDemographicProfile(req, res));
 router.post('/auth/enterprise/profile', authenticateToken, (req, res) => authController.registerEnterpriseProfile(req, res));
 router.put('/auth/enterprise/profile', authenticateToken, (req, res) => authController.registerEnterpriseProfile(req, res));
+router.post('/auth/enterprise-profile', authenticateToken, (req, res) => authController.registerEnterpriseProfile(req, res));
+router.put('/auth/enterprise-profile', authenticateToken, (req, res) => authController.registerEnterpriseProfile(req, res));
 
 // === 2. Tuyến Đường Khảo Sát (Surveys) ===
 // Hỗ trợ khách chưa đăng nhập vẫn xem được danh sách và nội dung khảo sát công khai

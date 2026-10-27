@@ -107,6 +107,7 @@ const VibeApp = {
     transactions: [],
     activeSession: null,
     adminViewMode: localStorage.getItem('vibesurvey_admin_view_mode') || 'ADMIN', // 'ADMIN' | 'RESPONDENT' | 'CREATOR'
+    adminMode: localStorage.getItem('vibesurvey_admin_view_mode') || 'ADMIN',
   },
 
   // ==================== HTTP CLIENT ====================
@@ -878,6 +879,7 @@ const VibeApp = {
   switchAdminMode(mode) {
     this.haptic('medium');
     this.state.adminViewMode = mode;
+    this.state.adminMode = mode;
     localStorage.setItem('vibesurvey_admin_view_mode', mode);
     this.renderNavigation();
     this.renderUserProfileDropdown();
@@ -886,14 +888,22 @@ const VibeApp = {
       this.showToast('Đã chuyển sang góc nhìn Người Điền (Đáp Viên)', 'info');
       if (['admin-overview', 'admin-payouts', 'admin-fraud'].includes(this.state.currentTab)) {
         this.navigate('surveys');
+      } else if (this.state.currentTab === 'profile') {
+        this.renderProfileView(document.getElementById('app-root'));
       }
     } else if (mode === 'CREATOR') {
       this.showToast('Đã chuyển sang góc nhìn Doanh Nghiệp (Creator)', 'info');
       if (['admin-overview', 'admin-payouts', 'admin-fraud', 'voucher-market'].includes(this.state.currentTab)) {
         this.navigate('creator-surveys');
+      } else if (this.state.currentTab === 'profile') {
+        this.state.profileTab = 'ENTERPRISE';
+        this.renderProfileView(document.getElementById('app-root'));
       }
     } else {
       this.showToast('Đã quay lại góc nhìn Quản Trị Viên (Toàn quyền)', 'info');
+      if (this.state.currentTab === 'profile') {
+        this.renderProfileView(document.getElementById('app-root'));
+      }
     }
   },
 
@@ -7774,10 +7784,20 @@ const VibeApp = {
     } catch (e) {}
 
     const user = this.state.currentUser;
-    const isEnterprise = user.account_tier === 'ENTERPRISE';
-    if (!this.state.profileTab) this.state.profileTab = 'DEMOGRAPHICS';
-    if (isEnterprise && this.state.profileTab === 'STUDENT') this.state.profileTab = 'DEMOGRAPHICS';
-    if (!isEnterprise && this.state.profileTab === 'ENTERPRISE') this.state.profileTab = 'DEMOGRAPHICS';
+    const isEnterprise = user.account_tier === 'ENTERPRISE' || 
+                         user.role === 'CREATOR' || 
+                         this.state.adminMode === 'CREATOR' || 
+                         this.state.adminViewMode === 'CREATOR';
+    const enterpriseLevel = Number(user.enterprise_verify_level || user.enterprise_level || 0);
+    const isEnterpriseLevel2 = enterpriseLevel >= 2;
+    const isEnterpriseLevel1 = enterpriseLevel >= 1;
+
+    if (!this.state.profileTab) {
+      this.state.profileTab = isEnterprise ? 'ENTERPRISE' : 'DEMOGRAPHICS';
+    }
+    if (isEnterprise && this.state.profileTab === 'STUDENT') {
+      this.state.profileTab = 'ENTERPRISE';
+    }
 
     let demographics = {};
     if (user.demographics_json) {
@@ -7788,10 +7808,18 @@ const VibeApp = {
     if (user.enterprise_profile_json) {
       try { enterpriseProfile = JSON.parse(user.enterprise_profile_json); } catch (e) {}
     }
+    enterpriseProfile = {
+      brand_name: enterpriseProfile.brand_name || user.brand_name || '',
+      industry: enterpriseProfile.industry || user.industry || '',
+      website_url: enterpriseProfile.website_url || user.website_url || '',
+      contact_phone: enterpriseProfile.contact_phone || user.contact_phone || '',
+      company_legal_name: enterpriseProfile.company_legal_name || user.company_legal_name || '',
+      tax_id: enterpriseProfile.tax_id || user.tax_id || '',
+      headquarters_address: enterpriseProfile.headquarters_address || user.headquarters_address || '',
+      invoice_email: enterpriseProfile.invoice_email || user.invoice_email || ''
+    };
 
     const isStudentVerified = user.is_student_verified === 1 || user.account_tier === 'STUDENT';
-    const isEnterpriseLevel2 = user.enterprise_level === 2;
-    const isEnterpriseLevel1 = user.enterprise_level === 1;
 
     const isLocked = user.demographic_locked_until && (new Date(user.demographic_locked_until).getTime() > Date.now());
     const lockDateStr = isLocked ? new Date(user.demographic_locked_until).toLocaleDateString('vi-VN') : '';
@@ -7805,9 +7833,9 @@ const VibeApp = {
             <div class="flex items-center gap-2 mb-1">
               <span class="px-2.5 py-0.5 rounded-full text-[11px] font-extrabold ${
                 user.account_tier === 'STUDENT' ? 'bg-[#FFF7ED] text-orange-700 border border-orange-200' :
-                (user.account_tier === 'ENTERPRISE' ? 'bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900' : 'bg-orange-600 text-white')
+                (isEnterprise ? 'bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900' : 'bg-orange-600 text-white')
               }">
-                ${user.account_tier === 'STUDENT' ? 'GÓI SINH VIÊN (.EDU.VN)' : (user.account_tier === 'ENTERPRISE' ? 'GÓI DOANH NGHIỆP' : 'GÓI CÁ NHÂN')}
+                ${user.account_tier === 'STUDENT' ? 'GÓI SINH VIÊN (.EDU.VN)' : (isEnterprise ? 'GÓI DOANH NGHIỆP' : 'GÓI CÁ NHÂN')}
               </span>
               <span class="text-xs text-stone-500">• Điểm uy tín: <strong class="font-mono text-orange-600">${Number(user.trust_score || 85).toFixed(1)}/100</strong></span>
             </div>
@@ -7831,18 +7859,24 @@ const VibeApp = {
             <i data-lucide="user" class="w-4 h-4"></i>
             <span>${isEnterprise ? '1. Thông Tin Người Đại Diện' : '1. Thông Tin Cá Nhân'}</span>
           </button>
-          ${!isEnterprise ? `
+          ${isEnterprise ? `
+          <button type="button" onclick="VibeApp.switchProfileTab('ENTERPRISE')" 
+                  class="pb-3 border-b-2 transition-all flex items-center gap-1.5 ${this.state.profileTab === 'ENTERPRISE' ? 'border-orange-600 text-orange-600 dark:text-orange-400' : 'border-transparent text-stone-500 hover:text-stone-900 dark:hover:text-stone-200'}">
+            <i data-lucide="briefcase" class="w-4 h-4"></i>
+            <span>2. Hồ Sơ Doanh Nghiệp</span>
+            ${isEnterpriseLevel1 || isEnterpriseLevel2 ? '<span class="w-2 h-2 rounded-full bg-emerald-500"></span>' : ''}
+          </button>
+          ` : `
           <button type="button" onclick="VibeApp.switchProfileTab('STUDENT')" 
                   class="pb-3 border-b-2 transition-all flex items-center gap-1.5 ${this.state.profileTab === 'STUDENT' ? 'border-orange-600 text-orange-600 dark:text-orange-400' : 'border-transparent text-stone-500 hover:text-stone-900 dark:hover:text-stone-200'}">
             <i data-lucide="graduation-cap" class="w-4 h-4"></i>
             <span>2. Đăng Ký Gói Sinh Viên</span>
             ${isStudentVerified ? '<span class="w-2 h-2 rounded-full bg-emerald-500"></span>' : ''}
           </button>
-          ` : `
           <button type="button" onclick="VibeApp.switchProfileTab('ENTERPRISE')" 
                   class="pb-3 border-b-2 transition-all flex items-center gap-1.5 ${this.state.profileTab === 'ENTERPRISE' ? 'border-orange-600 text-orange-600 dark:text-orange-400' : 'border-transparent text-stone-500 hover:text-stone-900 dark:hover:text-stone-200'}">
             <i data-lucide="briefcase" class="w-4 h-4"></i>
-            <span>2. Hồ Sơ Doanh Nghiệp</span>
+            <span>3. Nâng Cấp Doanh Nghiệp</span>
             ${isEnterpriseLevel1 || isEnterpriseLevel2 ? '<span class="w-2 h-2 rounded-full bg-emerald-500"></span>' : ''}
           </button>
           `}
@@ -8004,7 +8038,7 @@ const VibeApp = {
         </div>
 
         <!-- TAB CONTENT 2: STUDENT REGISTRATION (.EDU.VN) -->
-        <div id="profile-tab-STUDENT" class="${this.state.profileTab === 'STUDENT' && !isEnterprise ? '' : 'hidden'} space-y-5">
+        <div id="profile-tab-STUDENT" class="${this.state.profileTab === 'STUDENT' ? '' : 'hidden'} space-y-5">
           
           <div class="bg-white dark:bg-[#18181B] border border-stone-200 dark:border-stone-800 rounded-2xl p-6 shadow-sm space-y-5">
             
@@ -8094,7 +8128,7 @@ const VibeApp = {
         </div>
 
         <!-- TAB CONTENT 3: ENTERPRISE PROFILE (2 LEVELS) -->
-        <div id="profile-tab-ENTERPRISE" class="${this.state.profileTab === 'ENTERPRISE' && isEnterprise ? '' : 'hidden'} space-y-5">
+        <div id="profile-tab-ENTERPRISE" class="${this.state.profileTab === 'ENTERPRISE' ? '' : 'hidden'} space-y-5">
           
           <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
             
@@ -8188,9 +8222,14 @@ const VibeApp = {
 
   switchProfileTab(tabName) {
     this.haptic('light');
-    const isEnterprise = this.state.currentUser?.account_tier === 'ENTERPRISE';
-    if (!isEnterprise && tabName === 'ENTERPRISE') tabName = 'DEMOGRAPHICS';
-    if (isEnterprise && tabName === 'STUDENT') tabName = 'DEMOGRAPHICS';
+    const user = this.state.currentUser || {};
+    const isEnterprise = user.account_tier === 'ENTERPRISE' || 
+                         user.role === 'CREATOR' || 
+                         this.state.adminMode === 'CREATOR' || 
+                         this.state.adminViewMode === 'CREATOR';
+    if (isEnterprise && tabName === 'STUDENT') {
+      tabName = 'ENTERPRISE';
+    }
     this.state.profileTab = tabName;
     ['DEMOGRAPHICS', 'STUDENT', 'ENTERPRISE'].forEach(t => {
       const el = document.getElementById(`profile-tab-${t}`);
@@ -8376,8 +8415,8 @@ const VibeApp = {
       payload.website_url = document.getElementById('ent-website')?.value?.trim();
       payload.contact_phone = document.getElementById('ent-phone')?.value?.trim();
 
-      if (!payload.brand_name || !payload.contact_phone) {
-        this.showToast('Vui lòng điền tên thương hiệu và số điện thoại liên hệ!', 'warning');
+      if (!payload.brand_name || !payload.industry || !payload.contact_phone) {
+        this.showToast('Vui lòng điền tên thương hiệu, lĩnh vực hoạt động và số điện thoại liên hệ!', 'warning');
         return;
       }
     } else {
@@ -8386,8 +8425,8 @@ const VibeApp = {
       payload.headquarters_address = document.getElementById('ent-address')?.value?.trim();
       payload.invoice_email = document.getElementById('ent-invoice-email')?.value?.trim();
 
-      if (!payload.company_legal_name || !payload.tax_id || !payload.invoice_email) {
-        this.showToast('Vui lòng điền tên công ty, mã số thuế và email nhận hóa đơn VAT!', 'warning');
+      if (!payload.company_legal_name || !payload.tax_id || !payload.headquarters_address || !payload.invoice_email) {
+        this.showToast('Vui lòng điền tên công ty, mã số thuế, địa chỉ trụ sở và email nhận hóa đơn VAT!', 'warning');
         return;
       }
     }
@@ -8402,8 +8441,12 @@ const VibeApp = {
       if (res.success) {
         this.haptic('success');
         this.showToast(res.message || 'Cập nhật hồ sơ doanh nghiệp thành công!', 'success');
-        if (res.user) this.state.currentUser = res.user;
+        if (res.user) {
+          this.state.currentUser = res.user;
+        }
         this.renderProfileView(document.getElementById('app-root'));
+        this.renderNavigation();
+        this.renderUserProfileDropdown();
       }
     } catch (err) {
       this.showToast(err.message, 'error');

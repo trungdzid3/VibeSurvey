@@ -82,3 +82,7 @@ Tài liệu tham chiếu duy nhất: [KE_HOACH_TONG_THE.md](file:///c:/Users/Len
 - [x] Bổ sung ô gõ tìm kiếm nhanh cho phần Khu Vực (34 tỉnh thành mới) trong bộ lọc đối tượng đích khi tạo khảo sát.
 - [x] Chuyển nút "+ Thêm ảnh bìa form" ra khỏi thanh công cụ "Chế độ tạo khảo sát", dời xuống thẻ tiêu đề form (Form Header / Title Card) để thanh chế độ tạo và lĩnh vực rộng rãi, hoàn toàn không bị chèn ép.
 - [x] Responsive Mobile Studio Tạo Khảo Sát: Trên màn hình điện thoại thu nhỏ, thay thế việc dồn cột Sidebar xuống dưới đáy bằng nút chuyển đổi 2 chế độ hiển thị ("Soạn Câu Hỏi" và "Cài Đặt & Ngân Sách") để thao tác nhanh chóng và mượt mà.
+- [x] Đồng bộ hiển thị Tab Hồ Sơ Doanh Nghiệp trong Profile View:
+  - [x] Khi người dùng chuyển sang góc nhìn hoặc vai trò Doanh Nghiệp (`adminMode === 'CREATOR'`, `role === 'CREATOR'`, hoặc `account_tier === 'ENTERPRISE'`), tự động mở và hiển thị Tab "Hồ Sơ Doanh Nghiệp" (Cấp 1 & Cấp 2: Thương hiệu, Mã số thuế, Hóa đơn VAT) thay vì ép vào Tab "Đăng Ký Gói Sinh Viên".
+  - [x] Sửa lỗi mapping biến trạng thái cấp độ xác minh: sử dụng chuẩn xác trường `enterprise_verify_level` từ cơ sở dữ liệu SQLite.
+  - [x] Cho phép người dùng chuyển đổi linh hoạt hoặc chọn nâng cấp giữa Xác Thực Sinh Viên và Hồ Sơ Doanh Nghiệp.
