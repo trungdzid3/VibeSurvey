@@ -76,3 +76,9 @@ Tài liệu tham chiếu duy nhất: [KE_HOACH_TONG_THE.md](file:///c:/Users/Len
 - [x] Bổ sung cơ chế Cooldown đếm ngược 60s và khóa/ẩn nút "Gửi Mã OTP" sinh viên khi người dùng ấn quá nhiều lần liên tiếp.
 - [x] Chuẩn hóa các Dropdown trong Modal Rút Tiền / Đổi Thưởng thành Custom Dropdown tiêu chuẩn.
 - [x] Đảm bảo Cổng Khảo Sát luôn fetch mới dữ liệu từ server, loại bỏ triệt để tình trạng cache 25 form cũ trên client.
+
+- [x] Khắc phục triệt để lỗi chuyển câu khảo sát: Định nghĩa hàm `triggerPacingLock` và bọc an toàn trong `nextQuestion`.
+- [x] Bổ sung cơ chế click outside đóng toàn bộ tất cả Dropdown/Popover trong toàn hệ thống (không sót bất kỳ menu nào: Profile, Bộ lọc đối tượng, Trường học, Danh mục, Đổi thưởng, Tỉnh thành).
+- [x] Bổ sung ô gõ tìm kiếm nhanh cho phần Khu Vực (34 tỉnh thành mới) trong bộ lọc đối tượng đích khi tạo khảo sát.
+- [x] Chuyển nút "+ Thêm ảnh bìa form" ra khỏi thanh công cụ "Chế độ tạo khảo sát", dời xuống thẻ tiêu đề form (Form Header / Title Card) để thanh chế độ tạo và lĩnh vực rộng rãi, hoàn toàn không bị chèn ép.
+- [x] Responsive Mobile Studio Tạo Khảo Sát: Trên màn hình điện thoại thu nhỏ, thay thế việc dồn cột Sidebar xuống dưới đáy bằng nút chuyển đổi 2 chế độ hiển thị ("Soạn Câu Hỏi" và "Cài Đặt & Ngân Sách") để thao tác nhanh chóng và mượt mà.

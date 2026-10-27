@@ -90,6 +90,7 @@ const VibeApp = {
     token: localStorage.getItem('vibesurvey_token') || null,
     currentUser: null,
     currentTab: 'surveys',
+    mobileStudioActiveTab: 'CANVAS', // 'CANVAS' (Soạn câu hỏi) | 'SIDEBAR' (Cài đặt & ngân sách)
     categoryFilter: 'ALL',
     searchQuery: '',
     hideFinished: true, // Tự động ẩn khảo sát đã đủ 100% mẫu hoặc người dùng đã nhận thưởng
@@ -395,38 +396,72 @@ const VibeApp = {
   },
 
   closeAllCustomDropdowns() {
-    document.querySelectorAll('.custom-dropdown-menu').forEach(d => d.classList.add('hidden'));
+    // 1. Đóng toàn bộ các menu có class chuẩn
+    document.querySelectorAll('.custom-dropdown-menu, .vibe-popover').forEach(d => d.classList.add('hidden'));
     document.querySelectorAll('.dropdown-trigger-icon').forEach(i => i.classList.remove('rotate-180'));
-    const demoUniPop = document.getElementById('demo-uni-popover');
-    if (demoUniPop) demoUniPop.classList.add('hidden');
+
+    // 2. Danh sách các ID menu/popover cụ thể trong toàn bộ ứng dụng
+    const specificIds = [
+      'studio-category-menu',
+      'studio-gender-menu',
+      'studio-age-menu',
+      'studio-region-popover',
+      'studio-region-menu',
+      'studio-occ-menu',
+      'studio-uni-popover',
+      'studio-duration-menu',
+      'demo-uni-popover',
+      'demo-gender-menu',
+      'demo-province-menu',
+      'demo-occupation-menu',
+      'demo-income-menu',
+      'user-profile-dropdown',
+      'sort-dropdown-menu',
+      'length-dropdown-menu',
+      'payout-points-menu',
+      'payout-method-menu',
+      'payout-telco-menu',
+      'redeem-custom-bank-menu',
+      'redeem-custom-telco-menu',
+      'fast-cat-dropdown-menu'
+    ];
+    specificIds.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.classList.add('hidden');
+    });
   },
 
   async init() {
     this.initTheme();
 
-    // Đóng User Dropdown khi click ra ngoài
+    // Cơ chế Click Outside đóng toàn bộ Dropdown / Popover trong toàn hệ thống
     document.addEventListener('click', (e) => {
-      const dropdown = document.getElementById('user-profile-dropdown');
-      const btn = document.getElementById('user-profile-btn');
-      if (dropdown && btn && !dropdown.contains(e.target) && !btn.contains(e.target)) {
-        dropdown.classList.add('hidden');
-      }
-    });
+      // 1. Nếu click vào nút trigger hoặc bên trong menu/popover/input tìm kiếm thì không đóng tự động
+      const isTrigger = e.target.closest('.custom-dropdown-trigger') || 
+                        e.target.closest('#user-profile-btn') || 
+                        e.target.closest('#studio-region-input') || 
+                        e.target.closest('#studio-uni-input') || 
+                        e.target.closest('#demo-university');
+      
+      const isInsideMenu = e.target.closest('.custom-dropdown-menu') || 
+                           e.target.closest('.vibe-popover') || 
+                           e.target.closest('#user-profile-dropdown') || 
+                           e.target.closest('#studio-region-popover') || 
+                           e.target.closest('#studio-uni-popover') || 
+                           e.target.closest('#demo-uni-popover') ||
+                           e.target.closest('#studio-region-menu') ||
+                           e.target.closest('#studio-category-menu') ||
+                           e.target.closest('#studio-gender-menu') ||
+                           e.target.closest('#studio-age-menu') ||
+                           e.target.closest('#studio-occ-menu') ||
+                           e.target.closest('#studio-duration-menu');
 
-    
-    // Đóng custom dropdown popover khi click ra ngoài
-    document.addEventListener('click', (e) => {
-      if (e.target.closest('.custom-dropdown-trigger') || e.target.closest('.custom-dropdown-menu')) {
+      if (isTrigger || isInsideMenu) {
         return;
       }
+
+      // 2. Click hoàn toàn ra ngoài => Đóng tất cả dropdown và popover
       this.closeAllCustomDropdowns();
-      const studioUniPopover = document.getElementById('studio-uni-popover');
-      const studioUniInput = document.getElementById('studio-uni-input');
-      if (studioUniPopover && !studioUniPopover.classList.contains('hidden')) {
-        if (!studioUniPopover.contains(e.target) && e.target !== studioUniInput) {
-          studioUniPopover.classList.add('hidden');
-        }
-      }
     });
 
     // Keyboard Shortcuts
@@ -2002,8 +2037,39 @@ const VibeApp = {
   },
 
   closeAllCustomDropdowns() {
-    document.querySelectorAll('.custom-dropdown-menu').forEach(d => d.classList.add('hidden'));
+    // 1. Đóng toàn bộ các menu có class chuẩn
+    document.querySelectorAll('.custom-dropdown-menu, .vibe-popover').forEach(d => d.classList.add('hidden'));
     document.querySelectorAll('.dropdown-trigger-icon').forEach(i => i.classList.remove('rotate-180'));
+
+    // 2. Danh sách các ID menu/popover cụ thể trong toàn bộ ứng dụng
+    const specificIds = [
+      'studio-category-menu',
+      'studio-gender-menu',
+      'studio-age-menu',
+      'studio-region-popover',
+      'studio-region-menu',
+      'studio-occ-menu',
+      'studio-uni-popover',
+      'studio-duration-menu',
+      'demo-uni-popover',
+      'demo-gender-menu',
+      'demo-province-menu',
+      'demo-occupation-menu',
+      'demo-income-menu',
+      'user-profile-dropdown',
+      'sort-dropdown-menu',
+      'length-dropdown-menu',
+      'payout-points-menu',
+      'payout-method-menu',
+      'payout-telco-menu',
+      'redeem-custom-bank-menu',
+      'redeem-custom-telco-menu',
+      'fast-cat-dropdown-menu'
+    ];
+    specificIds.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.classList.add('hidden');
+    });
   },
 
   selectDropdownOption(type, value, label, event) {
@@ -3607,8 +3673,19 @@ const VibeApp = {
     if (session.currentIndex < session.questions.length - 1) {
       session.currentIndex++;
       this._saveActiveSessionToStorage();
-      this.triggerPacingLock();
+      if (typeof this.triggerPacingLock === 'function') this.triggerPacingLock();
       this.renderTakeSurveyView(document.getElementById('app-root'), session.surveyId);
+    }
+  },
+
+  triggerPacingLock() {
+    if (this.state.activeSession) {
+      this.state.activeSession.isPacingLocked = true;
+      setTimeout(() => {
+        if (this.state.activeSession) {
+          this.state.activeSession.isPacingLocked = false;
+        }
+      }, 300);
     }
   },
 
@@ -5377,7 +5454,54 @@ const VibeApp = {
   setStudioTargetRegion(region) {
     this.initStudioDemographics();
     this.state.targetDemographics.region = region;
+    const popover = document.getElementById('studio-region-popover');
+    if (popover) popover.classList.add('hidden');
+    this.closeAllCustomDropdowns();
     this.renderCreateSurveyView(document.getElementById('app-root'));
+  },
+
+  filterStudioRegions(query) {
+    const q = (query || '').trim().toLowerCase();
+    const listEl = document.getElementById('studio-region-dropdown-list');
+    const popover = document.getElementById('studio-region-popover');
+    if (!listEl) return;
+    if (popover) popover.classList.remove('hidden');
+
+    const allRegions = window.VIBE_PROVINCES_34 || [];
+    let matched = [];
+    if (!q) {
+      matched = allRegions;
+    } else {
+      matched = allRegions.filter(r => 
+        (r.name && r.name.toLowerCase().includes(q)) || 
+        (r.code && r.code.toLowerCase().includes(q))
+      );
+    }
+
+    if (matched.length === 0) {
+      listEl.innerHTML = '<div class="p-3 text-stone-400 text-xs text-center font-medium">Không tìm thấy tỉnh thành hoặc vùng miền khớp</div>';
+      return;
+    }
+
+    const currentRegion = this.state.targetDemographics?.region || 'ALL';
+
+    listEl.innerHTML = matched.map(r => {
+      const isSelected = currentRegion === r.name || currentRegion === r.code;
+      const isZone = ['ALL', 'MIEN_BAC', 'MIEN_TRUNG', 'MIEN_NAM'].includes(r.code);
+      return `
+        <div onclick="VibeApp.setStudioTargetRegion('${r.name.replace(/'/g, "\\'")}')" 
+             class="p-2 rounded-lg hover:bg-orange-50 dark:hover:bg-stone-800 cursor-pointer text-xs transition-colors flex items-center justify-between ${
+               isSelected ? 'text-orange-600 font-bold bg-orange-50 dark:bg-stone-800' : 'text-stone-800 dark:text-stone-200'
+             }">
+          <span class="${isZone ? 'font-black text-slate-900 dark:text-white' : 'font-medium'}">${r.name}</span>
+          ${isSelected ? '<i data-lucide="check" class="w-3.5 h-3.5 text-orange-600 flex-shrink-0"></i>' : ''}
+        </div>
+      `;
+    }).join('');
+
+    if (window.lucide && typeof window.lucide.createIcons === 'function') {
+      window.lucide.createIcons({ root: listEl });
+    }
   },
 
   setStudioTargetUniversity(uniName) {
@@ -5517,6 +5641,12 @@ const VibeApp = {
     }
   },
 
+  setMobileStudioTab(tab) {
+    this.haptic('light');
+    this.state.mobileStudioActiveTab = tab;
+    this.renderCreateSurveyView(document.getElementById('app-root'));
+  },
+
   openCreateSurveyModal() {
     this.navigate('create-survey');
   },
@@ -5617,11 +5747,33 @@ const VibeApp = {
           </div>
         </div>
 
+        <!-- THANH ĐIỀU HƯỚNG MOBILE STUDIO (SEGMENTED CONTROL) -->
+        <div class="lg:hidden flex items-center p-1.5 bg-stone-100 dark:bg-stone-800/90 rounded-2xl border border-stone-200 dark:border-stone-700 shadow-xs mb-4">
+          <button type="button" onclick="VibeApp.setMobileStudioTab('CANVAS')" 
+                  class="flex-1 py-2.5 px-3 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 ${
+                    (this.state.mobileStudioActiveTab || 'CANVAS') === 'CANVAS'
+                      ? 'bg-white dark:bg-stone-900 text-orange-600 dark:text-orange-400 shadow-sm'
+                      : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200'
+                  }">
+            <i data-lucide="file-text" class="w-4 h-4"></i>
+            <span>Soạn Câu Hỏi (${this.state.builderQuestions ? this.state.builderQuestions.length : 0})</span>
+          </button>
+          <button type="button" onclick="VibeApp.setMobileStudioTab('SIDEBAR')" 
+                  class="flex-1 py-2.5 px-3 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 ${
+                    this.state.mobileStudioActiveTab === 'SIDEBAR'
+                      ? 'bg-white dark:bg-stone-900 text-orange-600 dark:text-orange-400 shadow-sm'
+                      : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200'
+                  }">
+            <i data-lucide="sliders-horizontal" class="w-4 h-4"></i>
+            <span>Cài Đặt & Ngân Sách (${calc.totalEscrowVnd.toLocaleString('vi-VN')}đ)</span>
+          </button>
+        </div>
+
         <!-- TWO-COLUMN STUDIO GRID -->
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           
           <!-- CỘT TRÁI (~65% Canvas Cuộn Tự Do): lg:col-span-8 -->
-          <div class="lg:col-span-8 space-y-5 lg:border-r lg:border-stone-200 dark:lg:border-stone-800 lg:pr-6">
+          <div class="${(this.state.mobileStudioActiveTab || 'CANVAS') === 'CANVAS' ? 'block' : 'hidden'} lg:block lg:col-span-8 space-y-5 lg:border-r lg:border-stone-200 dark:lg:border-stone-800 lg:pr-6">
             
             <!-- THẺ TIÊU ĐỀ BIỂU MẪU (FORM HEADER CARD CHUẨN GOOGLE FORMS) -->
             <div class="bg-white dark:bg-[#18181B] border border-stone-200 dark:border-stone-800 rounded-2xl shadow-sm relative overflow-visible">
@@ -5645,6 +5797,17 @@ const VibeApp = {
               <div class="h-2.5 bg-orange-600 w-full ${this.state.draftCoverImageUrl ? '' : 'rounded-t-2xl'}"></div>
 
               <div class="p-6 sm:p-7 space-y-5">
+                ${!this.state.draftCoverImageUrl ? `
+                  <!-- Nút thêm ảnh bìa biểu mẫu góc trên với viền nét đứt tinh tế -->
+                  <div class="flex items-center justify-end -mb-2">
+                    <button type="button" onclick="VibeApp.promptStudioCoverImage()" 
+                            class="px-3 py-1.5 rounded-xl border border-dashed border-orange-300 dark:border-orange-800/80 bg-orange-50/50 dark:bg-orange-950/20 text-orange-600 dark:text-orange-400 hover:bg-orange-100/60 dark:hover:bg-orange-950/40 text-xs font-bold transition-all flex items-center gap-1.5 active:scale-95 shadow-xs">
+                      <i data-lucide="image-plus" class="w-3.5 h-3.5 stroke-[2.2]"></i>
+                      <span>+ Thêm ảnh bìa biểu mẫu</span>
+                    </button>
+                  </div>
+                ` : ''}
+
                 <div>
                   <input type="text" id="fast-title" placeholder="Tiêu đề biểu mẫu khảo sát..." value="${this.state.draftTitle || ''}" oninput="VibeApp.state.draftTitle = this.value"
                          class="w-full text-xl sm:text-2xl font-black text-slate-900 dark:text-white placeholder:text-stone-400 bg-transparent border-b-2 border-stone-200 dark:border-stone-800 focus:border-orange-600 focus:outline-none pb-2 transition-colors">
@@ -5673,28 +5836,20 @@ const VibeApp = {
                   </div>
 
                   <!-- Dropdown Lĩnh Vực -->
-                  <div class="flex items-center gap-3">
-                    ${!this.state.draftCoverImageUrl ? `
-                      <button type="button" onclick="VibeApp.promptStudioCoverImage()" class="text-xs text-orange-600 dark:text-orange-400 font-bold hover:underline flex items-center gap-1">
-                        <i data-lucide="image-plus" class="w-3.5 h-3.5"></i>
-                        <span>+ Thêm ảnh bìa form</span>
+                  <div class="flex items-center gap-1.5">
+                    <span class="text-xs font-bold text-stone-500 dark:text-stone-400">Lĩnh vực:</span>
+                    <div class="relative">
+                      <button type="button" onclick="VibeApp.toggleCustomDropdown('studio-category-menu', event)" class="custom-dropdown-trigger py-1.5 px-3 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5 shadow-xs">
+                        <span id="fast-category-display">${this.state.draftCategory || 'Thị trường'}</span>
+                        <i data-lucide="chevron-down" class="dropdown-trigger-icon w-3 h-3 text-stone-400 transition-transform duration-200"></i>
                       </button>
-                    ` : ''}
-                    <div class="flex items-center gap-1.5">
-                      <span class="text-xs font-bold text-stone-500 dark:text-stone-400">Lĩnh vực:</span>
-                      <div class="relative">
-                        <button type="button" onclick="document.getElementById('studio-category-menu').classList.toggle('hidden')" class="py-1.5 px-3 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5 shadow-xs">
-                          <span id="fast-category-display">${this.state.draftCategory || 'Thị trường'}</span>
-                          <i data-lucide="chevron-down" class="w-3 h-3 text-stone-400"></i>
-                        </button>
-                        <div id="studio-category-menu" class="hidden absolute right-0 top-full mt-1 bg-white dark:bg-[#18181B] border border-stone-200 dark:border-stone-700 rounded-xl shadow-xl z-30 p-1 space-y-0.5 w-60">
-                          <div onclick="VibeApp.setStudioCategory('Thị trường')" class="p-2 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 cursor-pointer text-xs font-medium">Thị trường & Người tiêu dùng</div>
-                          <div onclick="VibeApp.setStudioCategory('Học thuật')" class="p-2 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 cursor-pointer text-xs font-medium">Học thuật, Luận văn & Sinh viên</div>
-                          <div onclick="VibeApp.setStudioCategory('Công nghệ')" class="p-2 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 cursor-pointer text-xs font-medium">Công nghệ, Phần mềm & AI</div>
-                          <div onclick="VibeApp.setStudioCategory('Thương mại điện tử')" class="p-2 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 cursor-pointer text-xs font-medium">Thương mại điện tử & Bán lẻ</div>
-                          <div onclick="VibeApp.setStudioCategory('Đời sống & Sức khỏe')" class="p-2 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 cursor-pointer text-xs font-medium">Đời sống & Sức khỏe</div>
-                          <div onclick="VibeApp.setStudioCategory('Khác')" class="p-2 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 cursor-pointer text-xs font-medium">Lĩnh vực khác</div>
-                        </div>
+                      <div id="studio-category-menu" class="custom-dropdown-menu hidden absolute right-0 top-full mt-1 bg-white dark:bg-[#18181B] border border-stone-200 dark:border-stone-700 rounded-xl shadow-xl z-30 p-1 space-y-0.5 w-60">
+                        <div onclick="VibeApp.setStudioCategory('Thị trường')" class="p-2 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 cursor-pointer text-xs font-medium">Thị trường & Người tiêu dùng</div>
+                        <div onclick="VibeApp.setStudioCategory('Học thuật')" class="p-2 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 cursor-pointer text-xs font-medium">Học thuật, Luận văn & Sinh viên</div>
+                        <div onclick="VibeApp.setStudioCategory('Công nghệ')" class="p-2 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 cursor-pointer text-xs font-medium">Công nghệ, Phần mềm & AI</div>
+                        <div onclick="VibeApp.setStudioCategory('Thương mại điện tử')" class="p-2 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 cursor-pointer text-xs font-medium">Thương mại điện tử & Bán lẻ</div>
+                        <div onclick="VibeApp.setStudioCategory('Đời sống & Sức khỏe')" class="p-2 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 cursor-pointer text-xs font-medium">Đời sống & Sức khỏe</div>
+                        <div onclick="VibeApp.setStudioCategory('Khác')" class="p-2 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 cursor-pointer text-xs font-medium">Lĩnh vực khác</div>
                       </div>
                     </div>
                   </div>
@@ -5817,7 +5972,7 @@ const VibeApp = {
           </div>
 
           <!-- CỘT PHẢI (~35% STICKY SIDEBAR GHIM CỐ ĐỊNH KHI CUỘN): lg:col-span-4 -->
-          <div class="lg:col-span-4 space-y-4 lg:pl-1 lg:sticky lg:top-20">
+          <div class="${this.state.mobileStudioActiveTab === 'SIDEBAR' ? 'block' : 'hidden'} lg:block lg:col-span-4 space-y-4 lg:pl-1 lg:sticky lg:top-20">
             
             <!-- CARD 1: PHÂN KHÚC & QUY MÔ MẪU -->
             <div class="bg-white dark:bg-[#18181B] border border-stone-200 dark:border-stone-800 rounded-2xl p-5 shadow-sm space-y-4">
@@ -6006,15 +6161,15 @@ const VibeApp = {
                       <div>
                         <span class="font-bold text-stone-700 dark:text-stone-300 block mb-1">Giới tính:</span>
                         <div class="relative">
-                          <button type="button" onclick="document.getElementById('studio-gender-menu').classList.toggle('hidden')" class="w-full p-2 bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-xl text-left flex items-center justify-between font-bold text-slate-800 dark:text-slate-200 shadow-xs">
+                          <button type="button" onclick="VibeApp.toggleCustomDropdown('studio-gender-menu', event)" class="custom-dropdown-trigger w-full p-2 bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-xl text-left flex items-center justify-between font-bold text-slate-800 dark:text-slate-200 shadow-xs">
                             <span>${
                               (this.state.targetDemographics?.gender === 'MALE') ? 'Nam' :
                               (this.state.targetDemographics?.gender === 'FEMALE') ? 'Nữ' :
                               (this.state.targetDemographics?.gender === 'OTHER') ? 'Khác' : 'Tất cả giới tính'
                             }</span>
-                            <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-stone-400"></i>
+                            <i data-lucide="chevron-down" class="dropdown-trigger-icon w-3.5 h-3.5 text-stone-400 transition-transform duration-200"></i>
                           </button>
-                          <div id="studio-gender-menu" class="hidden absolute left-0 right-0 top-full mt-1 bg-white dark:bg-[#18181B] border border-stone-200 dark:border-stone-700 rounded-xl shadow-xl z-30 p-1 space-y-0.5">
+                          <div id="studio-gender-menu" class="custom-dropdown-menu hidden absolute left-0 right-0 top-full mt-1 bg-white dark:bg-[#18181B] border border-stone-200 dark:border-stone-700 rounded-xl shadow-xl z-30 p-1 space-y-0.5">
                             <div onclick="VibeApp.setStudioTargetGender('ALL')" class="p-2 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 cursor-pointer font-medium">Tất cả giới tính</div>
                             <div onclick="VibeApp.setStudioTargetGender('MALE')" class="p-2 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 cursor-pointer font-medium">Nam</div>
                             <div onclick="VibeApp.setStudioTargetGender('FEMALE')" class="p-2 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 cursor-pointer font-medium">Nữ</div>
@@ -6026,13 +6181,13 @@ const VibeApp = {
                       <div>
                         <span class="font-bold text-stone-700 dark:text-stone-300 block mb-1">Độ tuổi mục tiêu:</span>
                         <div class="relative">
-                          <button type="button" onclick="document.getElementById('studio-age-menu').classList.toggle('hidden')" class="w-full p-2 bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-xl text-left flex items-center justify-between font-bold text-slate-800 dark:text-slate-200 shadow-xs truncate">
+                          <button type="button" onclick="VibeApp.toggleCustomDropdown('studio-age-menu', event)" class="custom-dropdown-trigger w-full p-2 bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-xl text-left flex items-center justify-between font-bold text-slate-800 dark:text-slate-200 shadow-xs truncate">
                             <span class="truncate">${
                               (window.VIBE_AGE_GROUPS || []).find(a => a.code === this.state.targetDemographics?.age_group)?.name || 'Tất cả độ tuổi'
                             }</span>
-                            <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-stone-400 flex-shrink-0"></i>
+                            <i data-lucide="chevron-down" class="dropdown-trigger-icon w-3.5 h-3.5 text-stone-400 flex-shrink-0 transition-transform duration-200"></i>
                           </button>
-                          <div id="studio-age-menu" class="hidden absolute left-0 right-0 top-full mt-1 bg-white dark:bg-[#18181B] border border-stone-200 dark:border-stone-700 rounded-xl shadow-xl z-30 p-1 space-y-0.5 max-h-48 overflow-y-auto">
+                          <div id="studio-age-menu" class="custom-dropdown-menu hidden absolute left-0 right-0 top-full mt-1 bg-white dark:bg-[#18181B] border border-stone-200 dark:border-stone-700 rounded-xl shadow-xl z-30 p-1 space-y-0.5 max-h-48 overflow-y-auto">
                             ${(window.VIBE_AGE_GROUPS || []).map(a => `
                               <div onclick="VibeApp.setStudioTargetAgeGroup('${a.code}')" class="p-2 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 cursor-pointer font-medium ${this.state.targetDemographics?.age_group === a.code ? 'text-orange-600 font-bold bg-orange-50 dark:bg-stone-800' : ''}">
                                 ${a.name}
@@ -6043,29 +6198,53 @@ const VibeApp = {
                       </div>
                     </div>
 
-                    <!-- 2. Hàng 2: Khu vực (34 Tỉnh thành mới) -->
+                    <!-- 2. Hàng 2: Khu vực (34 Tỉnh thành mới & Vùng miền - Combobox Tìm kiếm Nhanh) -->
                     <div>
-                      <span class="font-bold text-stone-700 dark:text-stone-300 block mb-1">Khu vực (34 Tỉnh thành mới):</span>
+                      <div class="flex items-center justify-between mb-1">
+                        <span class="font-bold text-stone-700 dark:text-stone-300">Khu vực (34 Tỉnh thành & Vùng miền):</span>
+                        ${(this.state.targetDemographics?.region && this.state.targetDemographics?.region !== 'ALL') ? `
+                          <button type="button" onclick="VibeApp.setStudioTargetRegion('ALL')" class="text-[10px] text-red-500 hover:underline font-bold flex items-center gap-0.5">
+                            <span>Bỏ chọn khu vực</span>
+                            <i data-lucide="x" class="w-3 h-3"></i>
+                          </button>
+                        ` : ''}
+                      </div>
                       <div class="relative">
-                        <button type="button" onclick="document.getElementById('studio-region-menu').classList.toggle('hidden')" class="w-full p-2 bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-xl text-left flex items-center justify-between font-bold text-slate-800 dark:text-slate-200 shadow-xs">
-                          <span class="truncate">${
-                            (window.VIBE_PROVINCES_34 || []).find(p => p.code === this.state.targetDemographics?.region || p.name === this.state.targetDemographics?.region)?.name || 'Toàn quốc (Tất cả khu vực)'
-                          }</span>
-                          <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-stone-400 flex-shrink-0"></i>
-                        </button>
-                        <div id="studio-region-menu" class="hidden absolute left-0 right-0 top-full mt-1 bg-white dark:bg-[#18181B] border border-stone-200 dark:border-stone-700 rounded-xl shadow-xl z-30 p-2 space-y-1 max-h-56 overflow-y-auto">
-                          <input type="text" placeholder="Tìm tỉnh thành..." oninput="
-                            const q = this.value.toLowerCase();
-                            document.querySelectorAll('.region-item').forEach(el => {
-                              el.style.display = el.innerText.toLowerCase().includes(q) ? 'block' : 'none';
-                            });
-                          " class="w-full p-1.5 mb-1 text-xs border border-stone-200 dark:border-stone-700 rounded-lg bg-stone-50 dark:bg-stone-800 focus:outline-none focus:border-orange-500">
-                          
-                          ${(window.VIBE_PROVINCES_34 || []).map(p => `
-                            <div onclick="VibeApp.setStudioTargetRegion('${p.name}')" class="region-item p-1.5 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 cursor-pointer font-medium ${(this.state.targetDemographics?.region === p.name || this.state.targetDemographics?.region === p.code) ? 'text-orange-600 font-bold bg-orange-50 dark:bg-stone-800' : ''}">
-                              ${p.name}
-                            </div>
-                          `).join('')}
+                        <div class="relative">
+                          <input type="text" id="studio-region-input" 
+                                 placeholder="Gõ tìm tỉnh thành (VD: Hà Nội, TP. HCM, Đà Nẵng, Cần Thơ...)"
+                                 value="${
+                                   (this.state.targetDemographics?.region && this.state.targetDemographics?.region !== 'ALL')
+                                     ? ((window.VIBE_PROVINCES_34 || []).find(p => p.code === this.state.targetDemographics.region || p.name === this.state.targetDemographics.region)?.name || this.state.targetDemographics.region)
+                                     : ''
+                                 }"
+                                 onfocus="VibeApp.filterStudioRegions(this.value); document.getElementById('studio-region-popover').classList.remove('hidden')"
+                                 oninput="VibeApp.filterStudioRegions(this.value); document.getElementById('studio-region-popover').classList.remove('hidden')"
+                                 class="w-full p-2.5 pl-8 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 text-xs font-bold text-slate-800 dark:text-slate-200 focus:outline-none focus:border-orange-500 shadow-xs">
+                          <i data-lucide="map-pin" class="w-3.5 h-3.5 text-stone-400 absolute left-2.5 top-3"></i>
+                        </div>
+
+                        <!-- Dropdown Popover kết quả tìm kiếm tỉnh thành -->
+                        <div id="studio-region-popover" class="vibe-popover hidden absolute left-0 right-0 top-full mt-1 bg-white dark:bg-[#18181B] border border-stone-200 dark:border-stone-700 rounded-xl shadow-2xl z-40 p-2 max-h-56 overflow-y-auto space-y-1">
+                          <div class="flex items-center justify-between pb-1 border-b border-stone-100 dark:border-stone-800 mb-1">
+                            <span class="text-[10px] text-stone-400 font-bold uppercase">34 Tỉnh Thành Mới & 4 Vùng Miền</span>
+                            <button type="button" onclick="document.getElementById('studio-region-popover').classList.add('hidden')" class="text-[10px] text-stone-500 hover:text-stone-800 font-bold">Đóng</button>
+                          </div>
+                          <div id="studio-region-dropdown-list" class="space-y-0.5">
+                            ${(window.VIBE_PROVINCES_34 || []).map(r => {
+                              const isSelected = (this.state.targetDemographics?.region || 'ALL') === r.name || (this.state.targetDemographics?.region || 'ALL') === r.code;
+                              const isZone = ['ALL', 'MIEN_BAC', 'MIEN_TRUNG', 'MIEN_NAM'].includes(r.code);
+                              return `
+                                <div onclick="VibeApp.setStudioTargetRegion('${r.name.replace(/'/g, "\\'")}')" 
+                                     class="p-2 rounded-lg hover:bg-orange-50 dark:hover:bg-stone-800 cursor-pointer text-xs transition-colors flex items-center justify-between ${
+                                       isSelected ? 'text-orange-600 font-bold bg-orange-50 dark:bg-stone-800' : 'text-stone-800 dark:text-stone-200'
+                                     }">
+                                  <span class="${isZone ? 'font-black text-slate-900 dark:text-white' : 'font-medium'}">${r.name}</span>
+                                  ${isSelected ? '<i data-lucide="check" class="w-3.5 h-3.5 text-orange-600 flex-shrink-0"></i>' : ''}
+                                </div>
+                              `;
+                            }).join('')}
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -6094,7 +6273,7 @@ const VibeApp = {
                         </div>
 
                         <!-- Dropdown Popover kết quả tìm kiếm -->
-                        <div id="studio-uni-popover" class="hidden absolute left-0 right-0 top-full mt-1 bg-white dark:bg-[#18181B] border border-stone-200 dark:border-stone-700 rounded-xl shadow-2xl z-40 p-2 max-h-56 overflow-y-auto space-y-1">
+                        <div id="studio-uni-popover" class="vibe-popover hidden absolute left-0 right-0 top-full mt-1 bg-white dark:bg-[#18181B] border border-stone-200 dark:border-stone-700 rounded-xl shadow-2xl z-40 p-2 max-h-56 overflow-y-auto space-y-1">
                           <div class="flex items-center justify-between pb-1 border-b border-stone-100 dark:border-stone-800 mb-1">
                             <span class="text-[10px] text-stone-400 font-bold uppercase">246 Trường ĐH / CĐ Việt Nam</span>
                             <button type="button" onclick="document.getElementById('studio-uni-popover').classList.add('hidden')" class="text-[10px] text-stone-500 hover:text-stone-800 font-bold">Đóng</button>
@@ -6119,11 +6298,11 @@ const VibeApp = {
                     <div>
                       <span class="font-bold text-stone-700 dark:text-stone-300 block mb-1">Ngành nghề / Lĩnh vực:</span>
                       <div class="relative">
-                        <button type="button" onclick="document.getElementById('studio-occ-menu').classList.toggle('hidden')" class="w-full p-2 bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-xl text-left flex items-center justify-between font-bold text-slate-800 dark:text-slate-200 shadow-xs truncate">
+                        <button type="button" onclick="VibeApp.toggleCustomDropdown('studio-occ-menu', event)" class="custom-dropdown-trigger w-full p-2 bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-xl text-left flex items-center justify-between font-bold text-slate-800 dark:text-slate-200 shadow-xs truncate">
                           <span class="truncate">${this.state.targetDemographics?.occupation || 'Tất cả ngành nghề'}</span>
-                          <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-stone-400 flex-shrink-0"></i>
+                          <i data-lucide="chevron-down" class="dropdown-trigger-icon w-3.5 h-3.5 text-stone-400 flex-shrink-0 transition-transform duration-200"></i>
                         </button>
-                        <div id="studio-occ-menu" class="hidden absolute left-0 right-0 top-full mt-1 bg-white dark:bg-[#18181B] border border-stone-200 dark:border-stone-700 rounded-xl shadow-xl z-30 p-1 space-y-0.5 max-h-48 overflow-y-auto">
+                        <div id="studio-occ-menu" class="custom-dropdown-menu hidden absolute left-0 right-0 top-full mt-1 bg-white dark:bg-[#18181B] border border-stone-200 dark:border-stone-700 rounded-xl shadow-xl z-30 p-1 space-y-0.5 max-h-48 overflow-y-auto">
                           ${(window.VIBE_OCCUPATIONS || []).map(o => `
                             <div onclick="VibeApp.setStudioTargetOccupation('${o.code}')" class="p-2 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 cursor-pointer font-medium ${this.state.targetDemographics?.occupation === o.code ? 'text-orange-600 font-bold bg-orange-50 dark:bg-stone-800' : ''}">
                               ${o.name}
@@ -6157,11 +6336,17 @@ const VibeApp = {
               <div class="flex items-center justify-between text-xs">
                 <span class="font-bold text-stone-700 dark:text-stone-300">Thời hạn thu mẫu:</span>
                 <div class="relative">
-                  <button type="button" onclick="document.getElementById('studio-duration-menu').classList.toggle('hidden')" class="py-1.5 px-3 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 font-bold text-xs flex items-center gap-1.5 shadow-xs text-slate-800 dark:text-slate-200">
+                  <button type="button" onclick="VibeApp.toggleCustomDropdown('studio-duration-menu', event)" class="custom-dropdown-trigger py-1.5 px-3 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 font-bold text-xs flex items-center gap-1.5 shadow-xs text-slate-800 dark:text-slate-200">
                     <span>${this.state.surveyDurationDays === 7 ? '7 ngày' : (this.state.surveyDurationDays === 30 ? '30 ngày' : '14 ngày (Chuẩn)')}</span>
-                    <i data-lucide="chevron-down" class="w-3 h-3 text-stone-400"></i>
+                    <i data-lucide="chevron-down" class="dropdown-trigger-icon w-3 h-3 text-stone-400 transition-transform duration-200"></i>
                   </button>
-                  <div id="studio-duration-menu" class="hidden absolute right-0 top-full mt-1 bg-white dark:bg-[#18181B] border border-stone-200 dark:border-stone-700 rounded-xl shadow-xl z-30 p-1 space-y-0.5 w-36 text-xs">
+                  <div id="studio-duration-menu" class="custom-dropdown-menu hidden absolute right-0 top-full mt-1 bg-white dark:bg-[#18181B] border border-stone-200 dark:border-stone-700 rounded-xl shadow-xl z-30 p-1 space-y-0.5 w-36 text-xs">
+                    <div onclick="VibeApp.setStudioDuration(7); document.getElementById('studio-duration-menu').classList.add('hidden')" class="p-2 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 cursor-pointer font-bold ${this.state.surveyDurationDays === 7 ? 'text-orange-600 bg-orange-50 dark:bg-stone-800' : ''}">7 ngày</div>
+                    <div onclick="VibeApp.setStudioDuration(14); document.getElementById('studio-duration-menu').classList.add('hidden')" class="p-2 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 cursor-pointer font-bold ${(this.state.surveyDurationDays === 14 || !this.state.surveyDurationDays) ? 'text-orange-600 bg-orange-50 dark:bg-stone-800' : ''}">14 ngày (Chuẩn)</div>
+                    <div onclick="VibeApp.setStudioDuration(30); document.getElementById('studio-duration-menu').classList.add('hidden')" class="p-2 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 cursor-pointer font-bold ${this.state.surveyDurationDays === 30 ? 'text-orange-600 bg-orange-50 dark:bg-stone-800' : ''}">30 ngày</div>
+                  </div>
+                </div>
+              </div>
                     <div onclick="VibeApp.setStudioDuration(7); document.getElementById('studio-duration-menu').classList.add('hidden')" class="p-2 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 cursor-pointer font-bold ${this.state.surveyDurationDays === 7 ? 'text-orange-600 bg-orange-50 dark:bg-stone-800' : ''}">7 ngày</div>
                     <div onclick="VibeApp.setStudioDuration(14); document.getElementById('studio-duration-menu').classList.add('hidden')" class="p-2 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 cursor-pointer font-bold ${(this.state.surveyDurationDays === 14 || !this.state.surveyDurationDays) ? 'text-orange-600 bg-orange-50 dark:bg-stone-800' : ''}">14 ngày (Chuẩn)</div>
                     <div onclick="VibeApp.setStudioDuration(30); document.getElementById('studio-duration-menu').classList.add('hidden')" class="p-2 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 cursor-pointer font-bold ${this.state.surveyDurationDays === 30 ? 'text-orange-600 bg-orange-50 dark:bg-stone-800' : ''}">30 ngày</div>
