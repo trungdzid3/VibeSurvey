@@ -997,21 +997,21 @@ const VibeApp = {
       <!-- Segmented Switcher chuyển đổi 2 Tab Cột Phải: BUDGET & SETTINGS -->
       <div class="flex items-center p-1 bg-stone-100 dark:bg-stone-800/90 rounded-xl border border-stone-200 dark:border-stone-700 shadow-xs">
         <button type="button" onclick="VibeApp.setStudioSidebarSubTab('BUDGET')" 
-                class="flex-1 py-2 px-3 rounded-lg text-xs font-black transition-all flex items-center justify-center gap-1.5 ${
+                class="flex-1 py-2 px-2 rounded-lg text-[11px] sm:text-xs font-black transition-all flex items-center justify-center gap-1.5 whitespace-nowrap ${
                   (this.state.studioSidebarSubTab || 'BUDGET') === 'BUDGET'
                     ? 'bg-white dark:bg-stone-900 text-orange-600 dark:text-orange-400 shadow-sm'
                     : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200'
                 }">
-          <i data-lucide="wallet" class="w-3.5 h-3.5"></i>
-          <span>Ngân Sách & Bảng Giá</span>
+          <i data-lucide="wallet" class="w-3.5 h-3.5 shrink-0"></i>
+          <span>Ngân Sách & Giá</span>
         </button>
         <button type="button" onclick="VibeApp.setStudioSidebarSubTab('SETTINGS')" 
-                class="flex-1 py-2 px-3 rounded-lg text-xs font-black transition-all flex items-center justify-center gap-1.5 ${
+                class="flex-1 py-2 px-2 rounded-lg text-[11px] sm:text-xs font-black transition-all flex items-center justify-center gap-1.5 whitespace-nowrap ${
                   this.state.studioSidebarSubTab === 'SETTINGS'
                     ? 'bg-white dark:bg-stone-900 text-orange-600 dark:text-orange-400 shadow-sm'
                     : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200'
                 }">
-          <i data-lucide="sliders-horizontal" class="w-3.5 h-3.5"></i>
+          <i data-lucide="sliders-horizontal" class="w-3.5 h-3.5 shrink-0"></i>
           <span>Bộ Lọc & Cài Đặt</span>
         </button>
       </div>
@@ -6091,9 +6091,10 @@ const VibeApp = {
 
     try {
       this.showToast('Đang kết nối máy chủ Google Forms để bóc tách câu hỏi...', 'info');
+      const googleCookie = localStorage.getItem('vibe_google_cookie') || '';
       const res = await this.api('/surveys/parse-external', {
         method: 'POST',
-        body: JSON.stringify({ url })
+        body: JSON.stringify({ url, googleCookie })
       });
 
       if (!res.success || !res.data) {
@@ -6187,7 +6188,17 @@ const VibeApp = {
             </div>
             <div class="p-3.5 bg-stone-50 dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 space-y-2 leading-relaxed">
               <div><strong>Cách 1 (Mở quyền biểu mẫu):</strong> Mở Google Forms > <strong>Cài đặt (Settings)</strong> > <strong>Câu trả lời (Responses)</strong> > Tắt <em>"Giới hạn ở 1 câu trả lời"</em> và tắt <em>"Hạn chế đối với người dùng trong miền"</em>, sau đó bấm Đồng Bộ lại.</div>
-              <div class="pt-1.5 border-t border-stone-200/60 dark:border-stone-800"><strong>Cách 2 (Giữ nguyên quyền riêng tư):</strong> Dùng tiện ích Google Apps Script để trích xuất 100% câu hỏi ra dạng text, hoặc sao chép văn bản thô để dán nhanh vào Studio.</div>
+              <div class="pt-1.5 border-t border-stone-200/60 dark:border-stone-800"><strong>Cách 2 (Dùng Cookie tài khoản Google hệ thống):</strong> Nhập Cookie phiên làm việc Google để máy chủ truy cập trực tiếp form nội bộ:</div>
+              <div class="flex gap-2 pt-1">
+                <input type="text" id="system-google-cookie-input" value="${(localStorage.getItem('vibe_google_cookie') || '').replace(/"/g, '&quot;')}" 
+                       placeholder="Dán Cookie tài khoản Google (SID / HSID / SSID / S)..." 
+                       class="flex-1 p-2 rounded-lg border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 text-xs font-mono">
+                <button type="button" onclick="VibeApp.saveSystemGoogleCookieAndRetry()" 
+                        class="px-3 py-2 rounded-lg bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold shrink-0">
+                  Lưu & Thử Lại
+                </button>
+              </div>
+              <div class="pt-1.5 border-t border-stone-200/60 dark:border-stone-800"><strong>Cách 3 (Dự phòng):</strong> Dùng tiện ích Google Apps Script để trích xuất 100% câu hỏi ra dạng text, hoặc dán nhanh vào Studio.</div>
             </div>
           </div>
 
@@ -6206,6 +6217,20 @@ const VibeApp = {
         </div>
       `
     });
+  },
+
+  saveSystemGoogleCookieAndRetry() {
+    const input = document.getElementById('system-google-cookie-input');
+    const cookie = input?.value?.trim() || '';
+    if (cookie) {
+      localStorage.setItem('vibe_google_cookie', cookie);
+      this.showToast('Đã lưu Cookie Google hệ thống!', 'success');
+    } else {
+      localStorage.removeItem('vibe_google_cookie');
+      this.showToast('Đã xóa Cookie Google hệ thống!', 'info');
+    }
+    this.closeModal();
+    this.syncExternalForm();
   },
 
   openGoogleAppsScriptGuide() {

@@ -8,11 +8,13 @@ module.exports = {
   JWT_SECRET: process.env.JWT_SECRET || 'vibesurvey_default_secret_key_2026',
   DB_PATH: process.env.DB_PATH || path.join(__dirname, '../db/vibesurvey.db'),
   
-  // Cấu hình Google OAuth 2.0
+  // Cấu hình Google OAuth 2.0 & Đồng Bộ Biểu Mẫu Hệ Thống
   GOOGLE: {
     CLIENT_ID: process.env.GOOGLE_CLIENT_ID || '',
     CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET || '',
-    CALLBACK_URL: process.env.GOOGLE_CALLBACK_URL || `${process.env.APP_URL || 'http://localhost:3000'}/api/v1/auth/google/callback`
+    CALLBACK_URL: process.env.GOOGLE_CALLBACK_URL || `${process.env.APP_URL || 'http://localhost:3000'}/api/v1/auth/google/callback`,
+    SYNC_EMAIL: process.env.GOOGLE_SYNC_EMAIL || '',
+    SYNC_COOKIE: process.env.GOOGLE_SYNC_COOKIE || process.env.GOOGLE_SESSION_COOKIE || ''
   },
 
   // Mô hình kinh tế (Unit Economics) theo chỉ đạo Argon Chief Visionary & KE_HOACH_TONG_THE.md

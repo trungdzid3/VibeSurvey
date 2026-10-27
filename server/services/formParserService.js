@@ -1,6 +1,7 @@
 const url = require('url');
 const net = require('net');
 const dns = require('dns').promises;
+const config = require('../config');
 
 class FormParserService {
   constructor() {
@@ -800,7 +801,7 @@ class FormParserService {
    * 4. Bóc tách biểu mẫu từ URL ngoại vi (Google Forms / Microsoft Forms)
    * Chống SSRF toàn diện: Giám sát từng bước chuyển hướng (Redirect Validation), chặn IP nội bộ & giới hạn dung lượng
    */
-  async parseFromUrl(rawUrl) {
+  async parseFromUrl(rawUrl, customCookie = null) {
     let currentUrl = (rawUrl || '').trim();
     let redirectCount = 0;
     const MAX_REDIRECTS = 3;
@@ -816,12 +817,23 @@ class FormParserService {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 8000);
 
+        const reqHeaders = {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
+        };
+
+        // Sử dụng cookie từ client gửi lên (customCookie) hoặc cấu hình hệ thống (GOOGLE_SYNC_COOKIE)
+        const cookieToUse = (customCookie && typeof customCookie === 'string' && customCookie.trim()) 
+          ? customCookie.trim() 
+          : (config.GOOGLE && config.GOOGLE.SYNC_COOKIE ? config.GOOGLE.SYNC_COOKIE : '');
+
+        if (cookieToUse) {
+          reqHeaders['Cookie'] = cookieToUse;
+        }
+
         const resp = await fetch(valid.url, {
           method: 'GET',
-          headers: {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
-          },
+          headers: reqHeaders,
           redirect: 'manual', // Chặn tự động chuyển hướng không kiểm soát chống SSRF
           signal: controller.signal
         });

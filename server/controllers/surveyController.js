@@ -1939,7 +1939,7 @@ class SurveyController {
    */
   async parseExternalForm(req, res) {
     try {
-      const { url, text, mode } = req.body;
+      const { url, text, mode, googleCookie } = req.body;
 
       if (!url && !text) {
         return res.status(400).json({
@@ -1953,7 +1953,7 @@ class SurveyController {
         const dupCheck = antiFraudService.checkDuplicateFormUrl(normalizedUrl);
         // Bóc tách nội dung câu hỏi bình thường, không chặn đứng thao tác preview đồng bộ
 
-        const result = await formParserService.parseFromUrl(url);
+        const result = await formParserService.parseFromUrl(url, googleCookie);
         return res.json({
           success: true,
           message: `Bóc tách thành công biểu mẫu từ ${result.source}!`,
