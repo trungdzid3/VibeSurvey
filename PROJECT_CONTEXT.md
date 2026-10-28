@@ -303,3 +303,26 @@ c:\Users\Lenovo\Downloads\Linh\
      - Tương thích Android Capacitor: Cấu hình plugin `LocalNotifications` trong `capacitor.config.json` và code hook `window.Capacitor.Plugins.LocalNotifications`.
      - Tuyệt đối tuân thủ quy chuẩn không dùng bất kỳ emoji nào trong mã nguồn và giao diện.
      - Bộ kiểm thử `tests/test_push_notifications.js` (Tầng 15) đạt 100% PASS (7/7 bài test).
+
+
+### Tính Năng Đính Kèm Voucher Riêng & Mua Thêm Voucher Sàn Trong Studio Tạo Khảo Sát (v3.2.0)
+- **Nhiệm vụ hoàn thành**:
+  1. **Giao diện Sidebar Studio Tạo Khảo Sát (`public/app.js`)**:
+     - Bổ sung **Card 3: Quà Tặng & Voucher Kèm Theo** ngay tại Tab Ngân Sách & Bảng Giá (giữa Card 2 Mức Thưởng và Card Ký Quỹ Escrow).
+     - Switch Toggle: `Tặng E-Voucher cho người hoàn thành bài` kèm badge `GẤP 2X GOM MẪU`.
+     - Phân định rõ ràng 2 chế độ:
+       + **Chế độ A: Tự Thêm Voucher Riêng (Miễn phí sàn 0đ)**: Nhập tên thương hiệu tài trợ, tiêu đề ưu đãi, trị giá quy đổi VNĐ, hạn sử dụng, hướng dẫn sử dụng. Hỗ trợ 2 cơ chế: `1 Mã Dùng Chung` (cấp tự động cho tất cả người nộp bài) hoặc `Danh Sách Mã Riêng` (mỗi người 1 mã độc nhất).
+       + **Chế độ B: Mua Voucher Từ Kho Sàn Bằng Credit**: Lựa chọn các thương hiệu uy tín từ kho sàn (Shopee 50K, Grab 30K, Highlands Coffee 50K, Phúc Long 30K, CGV Cinemas 100K, Starbucks 100K). Nhập số lượng mã cần mua (có nút tiện ích `Bằng số mẫu` 1 chạm). Tự động tính chi phí mua voucher real-time.
+  2. **Tích hợp Escrow Ký Quỹ Real-Time**:
+     - `calculateStudioEscrow()` tự động cộng chi phí mua voucher sàn vào `finalEscrowCredit`: `finalEscrowCredit = baseEscrow + targetingFee + pinFee + (quantity * faceValue)`.
+     - Card Ký Quỹ Escrow hiển thị chi tiết dòng: `Quà tặng E-Voucher (Tên thương hiệu x Số lượng): +... Credit`.
+  3. **Backend & Cơ chế Giữ Chỗ / Hoàn Trả Mã An Toàn (`server/services/voucherService.js` & `server/controllers/surveyController.js`)**:
+     - Migration CSDL: Bổ sung cột `voucher_purchase_quantity INTEGER DEFAULT 0` vào bảng `surveys`.
+     - `reserveCatalogVouchersForSurvey`: Khi Doanh Nghiệp xuất bản khảo sát có mua voucher sàn, hệ thống trích xuất đúng số lượng mã từ kho catalog, gán `survey_id` và chuyển trạng thái `RESERVED_FOR_SURVEY`, giảm `remaining_quantity` của catalog. Tự động sinh thêm mã nếu kho sàn thiếu.
+     - `releaseReservedSurveyVouchers`: Khi khảo sát bị đóng hoặc xóa, tự động hoàn trả toàn bộ các mã đã giữ chỗ nhưng chưa ai claim về lại trạng thái `AVAILABLE, survey_id = NULL` và cộng lại kho sàn, chống thất thoát voucher.
+     - `claimVoucherForResponse`: Tự động cấp phát mã nguyên tử khi đáp viên hoàn thành khảo sát, hiển thị ngay trên màn hình hoàn tất và lưu vào Ví Voucher của người làm.
+     - Cập nhật `createSurvey`, `publishSurvey`, `deleteSurvey` đồng bộ trọn vẹn với payload voucher.
+  4. **Kiểm tra & Xác minh**:
+     - Đã chạy kiểm tra cú pháp `node -c public/app.js` và `node -c server/controllers/surveyController.js` đạt PASS 100%.
+     - Đã chạy kiểm thử nghiệp vụ toàn diện (Tạo voucher riêng 0đ, Mua voucher Shopee bằng Credit, Reserve mã, Claim mã, Hoàn trả mã khi xóa) đạt 100% PASS.
+     - Cập nhật cache buster `index.html` lên `v=1793185000000`.

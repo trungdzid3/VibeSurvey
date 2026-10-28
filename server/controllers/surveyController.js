@@ -672,24 +672,42 @@ class SurveyController {
       const costPerResp = reward_mode === 'VOUCHER_ONLY' ? 0 : economics.costPerResponseVnd;
       const rewardPointsPerResp = reward_mode === 'VOUCHER_ONLY' ? 0 : economics.rewardPointsPerResponse;
 
-      // Xử lý tạo voucher tài trợ nếu Creator cung cấp danh sách mã (Zero Cash)
+      // Xử lý tạo voucher tài trợ nếu Doanh Nghiệp cung cấp danh sách mã riêng (Zero Cash) hoặc Mua voucher từ kho sàn
       let finalSponsorCampaignId = sponsor_campaign_id;
-      if (voucher_data && voucher_data.voucher_codes && Array.isArray(voucher_data.voucher_codes) && voucher_data.voucher_codes.length > 0) {
-        try {
-          const vcResult = voucherService.createSponsorVoucherCampaign(
-            user.id,
-            {
-              brand_name: voucher_data.brand_name || 'Nhà tài trợ',
-              brand_logo: voucher_data.brand_logo || '🎁',
-              title: voucher_data.title || 'Voucher quà tặng',
-              face_value_vnd: voucher_data.face_value_vnd || 0,
-              instructions: voucher_data.instructions || 'Mã ưu đãi quà tặng sau khi hoàn thành khảo sát'
-            },
-            voucher_data.voucher_codes
-          );
-          finalSponsorCampaignId = vcResult.campaignId;
-        } catch (vErr) {
-          return res.status(400).json({ success: false, message: 'Lỗi tạo chiến dịch voucher tài trợ: ' + vErr.message });
+      let voucherPurchaseQty = 0;
+      let effectiveRewardMode = reward_mode;
+
+      if (voucher_data) {
+        // Trường hợp A: Doanh Nghiệp tự tải lên danh sách mã voucher riêng (Miễn phí 0đ)
+        if (voucher_data.mode === 'CUSTOM' || (voucher_data.voucher_codes && Array.isArray(voucher_data.voucher_codes) && voucher_data.voucher_codes.length > 0)) {
+          try {
+            const vcResult = voucherService.createSponsorVoucherCampaign(
+              user.id,
+              {
+                brand_name: voucher_data.brand_name || 'Nhà tài trợ',
+                brand_logo: voucher_data.brand_logo || '🎁',
+                title: voucher_data.title || 'Voucher quà tặng',
+                face_value_vnd: voucher_data.face_value_vnd || 0,
+                instructions: voucher_data.instructions || 'Mã ưu đãi quà tặng sau khi hoàn thành khảo sát',
+                expiry_date: voucher_data.expiry_date || null
+              },
+              voucher_data.voucher_codes
+            );
+            finalSponsorCampaignId = vcResult.campaignId;
+            effectiveRewardMode = effectiveRewardMode === 'POINTS_ONLY' ? 'HYBRID_POINTS_AND_VOUCHER' : effectiveRewardMode;
+          } catch (vErr) {
+            return res.status(400).json({ success: false, message: 'Lỗi tạo chiến dịch voucher tài trợ: ' + vErr.message });
+          }
+        }
+        // Trường hợp B: Doanh Nghiệp mua voucher từ kho sàn (PLATFORM_CATALOG) bằng Credit
+        else if (voucher_data.mode === 'CATALOG' && voucher_data.catalog_campaign_id) {
+          const catCamp = db.prepare("SELECT id, brand_name, face_value_vnd FROM voucher_campaigns WHERE id = ? AND voucher_type = 'PLATFORM_CATALOG'").get(voucher_data.catalog_campaign_id);
+          if (!catCamp) {
+            return res.status(400).json({ success: false, message: 'Gói voucher sàn được chọn không tồn tại' });
+          }
+          finalSponsorCampaignId = catCamp.id;
+          voucherPurchaseQty = Math.max(1, parseInt(voucher_data.quantity, 10) || target_responses);
+          effectiveRewardMode = effectiveRewardMode === 'POINTS_ONLY' ? 'HYBRID_POINTS_AND_VOUCHER' : effectiveRewardMode;
         }
       }
 
@@ -706,8 +724,8 @@ class SurveyController {
             cost_per_response, reward_points_per_response, escrow_locked_balance, min_completion_time_sec, 
             status, survey_source, external_form_url, normalized_form_url, google_sheets_webhook_url, sponsor_campaign_id, reward_mode,
             academic_tags_json, target_demographics_json, package_type, pricing_tier,
-            allow_edit_response, allow_view_response, duration_days, expires_at
-          ) VALUES (?, ?, ?, ?, ?, ?, 0, ?, ?, 0.0, ?, 'DRAFT', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now', '+' || ? || ' days'))
+            allow_edit_response, allow_view_response, duration_days, expires_at, voucher_purchase_quantity
+          ) VALUES (?, ?, ?, ?, ?, ?, 0, ?, ?, 0.0, ?, 'DRAFT', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now', '+' || ? || ' days'), ?)
         `).run(
           surveyId,
           user.id,
@@ -723,7 +741,7 @@ class SurveyController {
           normalizedFormUrl || null,
           cleanWebhookUrl,
           finalSponsorCampaignId || null,
-          reward_mode,
+          effectiveRewardMode,
           academicTagsJson,
           targetDemoJson,
           package_type,
@@ -731,7 +749,8 @@ class SurveyController {
           allow_edit_response ? 1 : 0,
           allow_view_response !== undefined && (allow_view_response === 0 || allow_view_response === false) ? 0 : 1,
           validDurationDays,
-          validDurationDays
+          validDurationDays,
+          voucherPurchaseQty
         );
 
         const insertQ = db.prepare(`
@@ -1003,7 +1022,16 @@ class SurveyController {
         });
       }
 
-      const totalEscrow = survey.cost_per_response * survey.target_responses;
+      // Tính toán chi phí mua voucher sàn (nếu có)
+      let voucherEscrowCost = 0;
+      if (survey.sponsor_campaign_id && survey.voucher_purchase_quantity > 0) {
+        const catCamp = db.prepare("SELECT face_value_vnd FROM voucher_campaigns WHERE id = ? AND voucher_type = 'PLATFORM_CATALOG'").get(survey.sponsor_campaign_id);
+        if (catCamp) {
+          voucherEscrowCost = survey.voucher_purchase_quantity * catCamp.face_value_vnd;
+        }
+      }
+
+      const totalEscrow = (survey.cost_per_response * survey.target_responses) + voucherEscrowCost;
       
       // Tự động kiểm tra hoặc nhận cờ sử dụng gói khảo sát dùng thử miễn phí (First Survey Free Trial)
       let useFreeTrial = req.body && req.body.use_free_trial === true;
@@ -1028,6 +1056,15 @@ class SurveyController {
       }
 
       const result = ledgerService.lockEscrowForSurvey(id, user.id, totalEscrow, { useFreeTrial });
+
+      // Nếu có mua voucher từ sàn, tiến hành giữ chỗ (reserve) các mã từ catalog
+      if (survey.sponsor_campaign_id && survey.voucher_purchase_quantity > 0 && voucherEscrowCost > 0) {
+        try {
+          voucherService.reserveCatalogVouchersForSurvey(user.id, id, survey.sponsor_campaign_id, survey.voucher_purchase_quantity);
+        } catch (vResErr) {
+          console.error('[publishSurvey] Lỗi giữ chỗ voucher sàn:', vResErr.message);
+        }
+      }
 
       // Kích hoạt thông báo đẩy thời gian thực nếu khảo sát thuộc diện HỎA TỐC hoặc Thưởng Cao / Boost >= 25%
       const activeSurvey = db.prepare('SELECT * FROM surveys WHERE id = ?').get(id);
@@ -2027,6 +2064,13 @@ class SurveyController {
         } catch (escrowErr) {
           console.warn('[DeleteSurvey] Hoàn ký quỹ chú ý:', escrowErr.message);
         }
+      }
+
+      // Nếu có mã voucher sàn đã giữ chỗ nhưng chưa phát, hoàn trả an toàn về kho sàn
+      try {
+        voucherService.releaseReservedSurveyVouchers(id);
+      } catch (vRelErr) {
+        console.warn('[DeleteSurvey] Hoàn voucher sàn chú ý:', vRelErr.message);
       }
 
       // Xóa dữ liệu liên quan trong transaction ACID

@@ -712,6 +712,157 @@ class VoucherService {
       };
     });
   }
+
+  /**
+   * 7. Doanh nghiệp mua voucher từ kho sàn (PLATFORM_CATALOG) gán vào khảo sát
+   */
+  reserveCatalogVouchersForSurvey(creatorId, surveyId, catalogCampaignId, quantity) {
+    if (!creatorId || !surveyId || !catalogCampaignId) {
+      throw new Error('Thiếu thông tin bắt buộc để gán voucher sàn vào khảo sát');
+    }
+    const numQty = parseInt(quantity, 10);
+    if (!Number.isInteger(numQty) || numQty <= 0) {
+      throw new Error('Số lượng voucher cần mua phải là số nguyên dương');
+    }
+
+    const campaign = db.prepare(`
+      SELECT * FROM voucher_campaigns 
+      WHERE id = ? AND voucher_type = 'PLATFORM_CATALOG'
+    `).get(catalogCampaignId);
+
+    if (!campaign) {
+      throw new Error('Gói voucher sàn không tồn tại');
+    }
+
+    db.exec('BEGIN IMMEDIATE TRANSACTION');
+    try {
+      // Đảm bảo đủ mã khả dụng, nếu thiếu thì tự động bổ sung
+      const availCountRow = db.prepare(`
+        SELECT COUNT(*) as cnt FROM voucher_codes 
+        WHERE campaign_id = ? AND status = 'AVAILABLE' AND survey_id IS NULL
+      `).get(catalogCampaignId);
+
+      const availCount = availCountRow ? availCountRow.cnt : 0;
+      if (availCount < numQty) {
+        const needed = numQty - availCount + 10;
+        const insertStmt = db.prepare(`
+          INSERT INTO voucher_codes (id, campaign_id, survey_id, code, status)
+          VALUES (?, ?, NULL, ?, 'AVAILABLE')
+        `);
+        const cleanBrand = campaign.brand_name.replace(/[^A-Z0-9]/gi, '').toUpperCase();
+        for (let i = 1; i <= needed; i++) {
+          const randHex = crypto.randomBytes(3).toString('hex').toUpperCase();
+          const codeStr = `${cleanBrand}-${randHex}-${Math.floor(1000 + Math.random() * 9000)}`;
+          insertStmt.run(crypto.randomUUID(), catalogCampaignId, codeStr);
+        }
+        db.prepare(`
+          UPDATE voucher_campaigns 
+          SET total_quantity = total_quantity + ?, remaining_quantity = remaining_quantity + ? 
+          WHERE id = ?
+        `).run(needed, needed, catalogCampaignId);
+      }
+
+      // Lấy đúng số lượng mã cần reserve
+      const codes = db.prepare(`
+        SELECT id, code FROM voucher_codes 
+        WHERE campaign_id = ? AND status = 'AVAILABLE' AND survey_id IS NULL
+        LIMIT ?
+      `).all(catalogCampaignId, numQty);
+
+      if (codes.length < numQty) {
+        throw new Error(`Không thể cấp đủ ${numQty} mã voucher`);
+      }
+
+      const updateCodeStmt = db.prepare(`
+        UPDATE voucher_codes 
+        SET survey_id = ?, status = 'RESERVED_FOR_SURVEY' 
+        WHERE id = ?
+      `);
+
+      for (const c of codes) {
+        updateCodeStmt.run(surveyId, c.id);
+      }
+
+      db.prepare(`
+        UPDATE voucher_campaigns 
+        SET remaining_quantity = MAX(0, remaining_quantity - ?) 
+        WHERE id = ?
+      `).run(numQty, catalogCampaignId);
+
+      db.prepare(`
+        UPDATE surveys 
+        SET sponsor_campaign_id = ?, 
+            voucher_purchase_quantity = ?,
+            reward_mode = CASE WHEN reward_mode = 'POINTS_ONLY' THEN 'HYBRID_POINTS_AND_VOUCHER' ELSE reward_mode END,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = ?
+      `).run(catalogCampaignId, numQty, surveyId);
+
+      db.exec('COMMIT');
+
+      return {
+        success: true,
+        reservedCount: codes.length,
+        catalogCampaignId,
+        brandName: campaign.brand_name,
+        title: campaign.title,
+        faceValueVnd: campaign.face_value_vnd
+      };
+    } catch (err) {
+      this._safeRollback();
+      throw err;
+    }
+  }
+
+  /**
+   * 8. Hoàn trả các mã voucher đã reserve nhưng chưa ai claim về lại kho sàn
+   */
+  releaseReservedSurveyVouchers(surveyId) {
+    if (!surveyId) return { releasedCount: 0 };
+
+    db.exec('BEGIN IMMEDIATE TRANSACTION');
+    try {
+      const reservedCodes = db.prepare(`
+        SELECT vc.id, vc.campaign_id, c.voucher_type 
+        FROM voucher_codes vc
+        JOIN voucher_campaigns c ON vc.campaign_id = c.id
+        WHERE vc.survey_id = ? AND vc.status = 'RESERVED_FOR_SURVEY' AND vc.claimed_by_user_id IS NULL
+      `).all(surveyId);
+
+      if (reservedCodes.length === 0) {
+        db.exec('COMMIT');
+        return { releasedCount: 0 };
+      }
+
+      const releaseStmt = db.prepare(`
+        UPDATE voucher_codes 
+        SET survey_id = NULL, status = 'AVAILABLE' 
+        WHERE id = ?
+      `);
+
+      const catalogCounts = {};
+      for (const item of reservedCodes) {
+        if (item.voucher_type === 'PLATFORM_CATALOG') {
+          catalogCounts[item.campaign_id] = (catalogCounts[item.campaign_id] || 0) + 1;
+          releaseStmt.run(item.id);
+        }
+      }
+
+      for (const [campId, count] of Object.entries(catalogCounts)) {
+        db.prepare(`
+          UPDATE voucher_campaigns 
+          SET remaining_quantity = remaining_quantity + ? 
+          WHERE id = ?
+        `).run(count, campId);
+      }
+
+      db.exec('COMMIT');
+      return { releasedCount: reservedCodes.length };
+    } catch (err) {
+      this._safeRollback();
+      return { releasedCount: 0, error: err.message };
+    }
+  }
 }
 
 module.exports = new VoucherService();

@@ -414,6 +414,7 @@ function initSchema() {
     'ALTER TABLE surveys ADD COLUMN allow_view_response INTEGER DEFAULT 1;',
     'ALTER TABLE surveys ADD COLUMN duration_days INTEGER DEFAULT 14;',
     'ALTER TABLE surveys ADD COLUMN expires_at TEXT;',
+    'ALTER TABLE surveys ADD COLUMN voucher_purchase_quantity INTEGER DEFAULT 0;',
     'ALTER TABLE responses ADD COLUMN edited_at TEXT;',
     `CREATE TABLE IF NOT EXISTS warranty_claims (
       id TEXT PRIMARY KEY,
