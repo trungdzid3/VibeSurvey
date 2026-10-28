@@ -119,6 +119,15 @@
             <i id="theme-icon" data-lucide="moon" class="w-4 h-4 stroke-[2]"></i>
           </button>
 
+          <!-- Daily Streak Widget on Header (Phong cách TikTok Streak siêu gọn: Ngọn lửa + Số, chuyển cạnh chuông thông báo) -->
+          <button id="header-streak-btn" onclick="VibeApp.openStreakModal()" class="hidden h-8 items-center gap-1 px-2 rounded-full border border-stone-200 dark:border-stone-800 bg-stone-100/80 dark:bg-stone-800/60 text-stone-400 dark:text-stone-500 hover:border-orange-300 dark:hover:border-orange-800 transition-all active:scale-95 flex-shrink-0 cursor-pointer select-none text-xs" title="Chuỗi điểm danh hàng ngày">
+            <span id="header-streak-flame" class="relative flex items-center justify-center">
+              <i data-lucide="flame" class="w-3.5 h-3.5 stroke-[2.2]"></i>
+              <span id="header-streak-dot" class="hidden absolute -top-1 -right-1 w-2 h-2 rounded-full bg-rose-500 ring-2 ring-white dark:ring-stone-900 animate-pulse"></span>
+            </span>
+            <span id="header-streak-text" class="font-mono font-black text-xs leading-none">0</span>
+          </button>
+
           <!-- Notification Bell & Dropdown (Push & Realtime Center) -->
           <div id="header-notif-container" class="relative flex-shrink-0">
             <button id="header-notif-btn" onclick="VibeApp.toggleNotificationsDropdown()" class="relative w-9 h-9 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 flex items-center justify-center transition-colors active:scale-95 flex-shrink-0" title="Thông báo hệ thống">
@@ -139,12 +148,6 @@
               </div>
             </div>
           </div>
-
-          <!-- Daily Streak Widget on Header (Khi đăng nhập) -->
-          <button id="header-streak-btn" onclick="VibeApp.openStreakModal()" class="hidden h-9 items-center space-x-1.5 px-2.5 sm:px-3 rounded-lg bg-orange-50 dark:bg-orange-950/40 border border-orange-200 dark:border-orange-800 text-orange-600 dark:text-orange-400 text-xs font-bold hover:bg-orange-100 dark:hover:bg-orange-900/50 transition-all active:scale-95 flex-shrink-0 cursor-pointer" title="Điểm danh nhận thưởng chuỗi ngày">
-            <i data-lucide="flame" class="w-3.5 h-3.5 stroke-[2]"></i>
-            <span id="header-streak-text">Streak: 0 ngày</span>
-          </button>
 
           <!-- Guest Authentication Actions (When not logged in) -->
           <div id="guest-auth-actions" class="flex items-center space-x-1.5 flex-shrink-0">
@@ -449,6 +452,6 @@
   </div>
 
   <!-- Application Script -->
-  <script src="/app.js?v=1793180185305"></script>
+  <script src="/app.js?v=1793181800000"></script>
 </body>
 </html>

@@ -2577,9 +2577,14 @@ const VibeApp = {
   /**
    * Cập nhật hiển thị Widget Streak trên Header
    */
+  /**
+   * Cập nhật hiển thị Widget Streak trên Header (Phong cách TikTok Streak siêu gọn: Ngọn lửa + Số)
+   */
   updateStreakHeaderUI(streak) {
     const streakBtn = document.getElementById('header-streak-btn');
     const streakText = document.getElementById('header-streak-text');
+    const streakFlame = document.getElementById('header-streak-flame');
+    const streakDot = document.getElementById('header-streak-dot');
     if (!streakBtn || !streakText) return;
 
     if (!this.state.currentUser) {
@@ -2594,21 +2599,48 @@ const VibeApp = {
     const streakCount = streak ? (streak.current_streak || 0) : 0;
     const hasCheckedIn = streak ? streak.has_checked_in_today : false;
 
-    streakText.textContent = `Streak: ${streakCount} ngày`;
+    // Chỉ hiển thị số như TikTok Streak
+    streakText.textContent = streakCount;
 
-    if (hasCheckedIn) {
-      streakBtn.classList.remove('ring-2', 'ring-orange-500/60');
-      streakBtn.title = `Chuỗi hiện tại: ${streakCount} ngày (Đã điểm danh hôm nay)`;
+    // Đổi màu chuẩn TikTok Streak
+    if (streakCount > 0) {
+      // Đang có streak: Màu cam lửa rực rỡ đặc trưng
+      streakBtn.className = 'h-8 flex items-center gap-1 px-2.5 rounded-full border border-orange-300 dark:border-orange-800 bg-orange-50/90 dark:bg-orange-950/40 text-orange-600 dark:text-orange-400 hover:bg-orange-100 dark:hover:bg-orange-900/50 transition-all active:scale-95 flex-shrink-0 cursor-pointer select-none text-xs font-mono font-bold shadow-xs';
+      if (streakFlame) {
+        streakFlame.className = 'relative flex items-center justify-center text-orange-600 dark:text-orange-400';
+      }
+
+      if (hasCheckedIn) {
+        if (streakDot) streakDot.classList.add('hidden');
+        streakBtn.title = `Chuỗi hiện tại: ${streakCount} ngày liên tiếp (Đã điểm danh hôm nay)`;
+      } else {
+        // Chưa điểm danh hôm nay: hiện chấm đỏ cam nhấp nháy nhắc nhở giữ chuỗi
+        if (streakDot) streakDot.classList.remove('hidden');
+        streakBtn.title = `Chuỗi hiện tại: ${streakCount} ngày (Chưa điểm danh hôm nay - Bấm để giữ chuỗi!)`;
+      }
     } else {
-      streakBtn.classList.add('ring-2', 'ring-orange-500/60');
-      streakBtn.title = `Chuỗi hiện tại: ${streakCount} ngày (Bấm để điểm danh ngay)`;
+      // Chưa có streak (0 ngày): Màu xám bạc trung tính nhẹ nhàng, không chiếm spotlight
+      streakBtn.className = 'h-8 flex items-center gap-1 px-2 rounded-full border border-stone-200 dark:border-stone-800 bg-stone-100/80 dark:bg-stone-800/60 text-stone-400 dark:text-stone-500 hover:text-stone-700 dark:hover:text-stone-200 hover:border-stone-300 dark:hover:border-stone-700 transition-all active:scale-95 flex-shrink-0 cursor-pointer select-none text-xs font-mono font-bold';
+      if (streakFlame) {
+        streakFlame.className = 'relative flex items-center justify-center text-stone-400 dark:text-stone-500';
+      }
+      if (streakDot) {
+        if (!hasCheckedIn) {
+          streakDot.classList.remove('hidden');
+        } else {
+          streakDot.classList.add('hidden');
+        }
+      }
+      streakBtn.title = hasCheckedIn 
+        ? 'Đã điểm danh hôm nay' 
+        : 'Chưa có chuỗi ngày (Bấm để điểm danh nhận 50 điểm)';
     }
 
     if (window.lucide) lucide.createIcons();
   },
 
   /**
-   * Mở Modal Điểm Danh Hàng Ngày & Lộ Trình 7 Ngày
+   * Mở Modal Điểm Danh Hàng Ngày & Lộ Trình 7 Ngày (Chuẩn UI/UX Pro Max)
    */
   async openStreakModal() {
     this.haptic('light');
@@ -2648,38 +2680,67 @@ const VibeApp = {
       ]
     };
 
-    card.className = 'bg-white dark:bg-[#18181B] text-slate-800 dark:text-stone-100 rounded-3xl max-w-xl w-full p-6 sm:p-7 shadow-2xl border border-stone-100 dark:border-stone-800 transform transition-all relative max-h-[92vh] overflow-y-auto';
+    card.className = 'bg-white dark:bg-[#18181B] text-slate-900 dark:text-stone-100 rounded-3xl max-w-xl w-full p-6 sm:p-7 shadow-2xl border border-stone-200/80 dark:border-stone-800 transform transition-all relative max-h-[92vh] overflow-y-auto no-scrollbar';
 
     const roadmapHtml = (streak.roadmap || []).map(r => {
-      let statusClasses = 'bg-stone-50 dark:bg-stone-900/40 border-stone-200 dark:border-stone-800 text-stone-400 dark:text-stone-600';
-      let iconHtml = '<i data-lucide="lock" class="w-3.5 h-3.5 stroke-[2]"></i>';
+      // 1. Ngày 7: Mốc Vàng Đặc Biệt (Đặt chip bên trong card, tuyệt đối không bị đè chữ)
+      if (r.is_milestone) {
+        let milestoneClasses = 'border-amber-400/80 bg-gradient-to-b from-amber-50/80 to-orange-50/40 dark:from-amber-950/30 dark:to-orange-950/20 text-amber-700 dark:text-amber-400';
+        let iconHtml = '<i data-lucide="crown" class="w-4 h-4 stroke-[2.2] text-amber-600 dark:text-amber-400"></i>';
+        let statusText = 'Mốc Vàng';
+
+        if (r.status === 'CLAIMED') {
+          milestoneClasses = 'border-emerald-300 dark:border-emerald-800 bg-emerald-50/60 dark:bg-emerald-950/20 text-emerald-700 dark:text-emerald-400';
+          iconHtml = '<i data-lucide="check-circle-2" class="w-4 h-4 stroke-[2.5] text-emerald-600 dark:text-emerald-400"></i>';
+          statusText = 'Đã nhận';
+        } else if (r.status === 'TODAY') {
+          milestoneClasses = 'border-2 border-orange-500 bg-white dark:bg-stone-900 ring-4 ring-orange-500/20 shadow-md text-orange-600 dark:text-orange-400';
+          iconHtml = '<i data-lucide="flame" class="w-4 h-4 stroke-[2.5] text-orange-600 animate-pulse"></i>';
+          statusText = 'Hôm nay';
+        }
+
+        return `
+          <div class="flex flex-col items-center justify-between p-2 rounded-2xl border ${milestoneClasses} transition-all relative overflow-hidden group">
+            <span class="px-1.5 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-amber-500/20 text-amber-800 dark:text-amber-300 border border-amber-300/60 dark:border-amber-700/60 mb-0.5 whitespace-nowrap">
+              Mốc Vàng
+            </span>
+            <span class="text-[11px] font-bold text-stone-600 dark:text-stone-300">Ngày ${r.day}</span>
+            <div class="my-1 flex items-center justify-center">
+              ${iconHtml}
+            </div>
+            <span class="font-mono font-black text-xs text-amber-700 dark:text-amber-300">
+              +${r.points}
+            </span>
+            <span class="text-[9px] font-bold text-amber-600/80 dark:text-amber-400/80 mt-0.5">${statusText}</span>
+          </div>
+        `;
+      }
+
+      // 2. Các ngày 1 - 6
+      let statusClasses = 'bg-stone-50/70 dark:bg-stone-900/40 border-stone-200/70 dark:border-stone-800 text-stone-400 dark:text-stone-600';
+      let iconHtml = '<i data-lucide="lock" class="w-3.5 h-3.5 stroke-[2] text-stone-400/70 dark:text-stone-600"></i>';
       let statusText = 'Khóa';
 
       if (r.status === 'CLAIMED') {
-        statusClasses = 'bg-orange-50 dark:bg-orange-950/30 border-orange-300 dark:border-orange-800 text-orange-600 dark:text-orange-400';
+        statusClasses = 'bg-emerald-50/50 dark:bg-emerald-950/20 border-emerald-200/80 dark:border-emerald-800/60 text-emerald-700 dark:text-emerald-400';
         iconHtml = '<i data-lucide="check" class="w-3.5 h-3.5 stroke-[2.5] text-emerald-600 dark:text-emerald-400"></i>';
         statusText = 'Đã nhận';
       } else if (r.status === 'TODAY') {
-        statusClasses = 'bg-white dark:bg-stone-900 border-2 border-orange-600 text-orange-600 dark:text-orange-500 shadow-sm ring-2 ring-orange-500/20';
+        statusClasses = 'bg-white dark:bg-stone-900 border-2 border-orange-600 text-orange-600 dark:text-orange-500 shadow-md ring-4 ring-orange-500/15';
         iconHtml = '<i data-lucide="flame" class="w-4 h-4 stroke-[2.2] text-orange-600 animate-pulse"></i>';
         statusText = 'Hôm nay';
       }
 
       return `
-        <div class="relative flex flex-col items-center justify-between p-2.5 rounded-xl border ${statusClasses} transition-all">
-          ${r.is_milestone ? `
-            <span class="absolute -top-2.5 px-1.5 py-0.5 rounded-full bg-orange-600 text-white text-[9px] font-black uppercase tracking-wider shadow-xs">
-              Mốc Vàng
-            </span>
-          ` : ''}
+        <div class="flex flex-col items-center justify-between p-2.5 rounded-2xl border ${statusClasses} transition-all">
           <span class="text-[11px] font-bold text-stone-500 dark:text-stone-400">Ngày ${r.day}</span>
-          <div class="my-1 flex items-center justify-center">
+          <div class="my-1.5 flex items-center justify-center">
             ${iconHtml}
           </div>
-          <span class="font-mono font-black text-xs ${r.status === 'TODAY' ? 'text-orange-600 dark:text-orange-400' : 'text-slate-800 dark:text-stone-200'}">
+          <span class="font-mono font-black text-xs ${r.status === 'TODAY' ? 'text-orange-600 dark:text-orange-400' : (r.status === 'CLAIMED' ? 'text-emerald-700 dark:text-emerald-400' : 'text-slate-800 dark:text-stone-200')}">
             +${r.points}
           </span>
-          <span class="text-[10px] font-medium text-stone-400 dark:text-stone-500 mt-0.5">${statusText}</span>
+          <span class="text-[9px] font-semibold text-stone-400 dark:text-stone-500 mt-0.5">${statusText}</span>
         </div>
       `;
     }).join('');
@@ -2687,47 +2748,66 @@ const VibeApp = {
     card.innerHTML = `
       <div class="relative space-y-5">
         <!-- Close Button -->
-        <button onclick="VibeApp.closeModal()" class="absolute -top-2 -right-2 p-1.5 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+        <button onclick="VibeApp.closeModal()" class="absolute -top-1.5 -right-1.5 p-2 rounded-xl text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors cursor-pointer" title="Đóng">
           <i data-lucide="x" class="w-4 h-4 stroke-[2.2]"></i>
         </button>
 
-        <!-- Header -->
+        <!-- Header: Minimalist Modern Gamification -->
         <div class="flex items-center gap-3 pr-8">
-          <div class="w-12 h-12 rounded-2xl bg-orange-50 dark:bg-orange-950/50 border border-orange-200 dark:border-orange-800 flex items-center justify-center text-orange-600 dark:text-orange-400 flex-shrink-0">
-            <i data-lucide="flame" class="w-6 h-6 stroke-[2]"></i>
+          <div class="w-11 h-11 rounded-2xl bg-orange-50 dark:bg-orange-950/50 border border-orange-200 dark:border-orange-800 flex items-center justify-center text-orange-600 dark:text-orange-400 flex-shrink-0 shadow-xs">
+            <i data-lucide="flame" class="w-6 h-6 stroke-[2.2]"></i>
           </div>
           <div>
             <div class="flex items-center gap-2">
-              <h3 class="text-lg font-black text-slate-900 dark:text-white tracking-tight">Điểm Danh Chuỗi Ngày</h3>
-              <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-orange-100 dark:bg-orange-950/60 text-orange-700 dark:text-orange-300 border border-orange-300 dark:border-orange-800">
-                Gamification
+              <h3 class="text-base sm:text-lg font-black text-slate-900 dark:text-white tracking-tight">Điểm Danh Chuỗi Ngày</h3>
+              <span class="px-2 py-0.5 rounded-full text-[9px] font-extrabold uppercase tracking-wider bg-orange-100 dark:bg-orange-950/60 text-orange-700 dark:text-orange-300 border border-orange-300/60 dark:border-orange-800/60">
+                Streak
               </span>
             </div>
-            <p class="text-xs text-stone-500 dark:text-stone-400 mt-0.5">Duy trì điểm danh liên tục mỗi ngày để nhận điểm thưởng tăng dần</p>
+            <p class="text-xs text-stone-500 dark:text-stone-400 mt-0.5">Duy trì thói quen mỗi ngày để nhận điểm thưởng tăng dần</p>
           </div>
         </div>
 
-        <!-- 3 Stats Columns -->
-        <div class="grid grid-cols-3 gap-2 p-3 bg-stone-50 dark:bg-stone-900/60 rounded-2xl border border-stone-200 dark:border-stone-800 text-center">
-          <div>
+        <!-- 3 Bento Stat Cards (Chuẩn UI/UX Pro Max) -->
+        <div class="grid grid-cols-3 gap-2 sm:gap-2.5">
+          <!-- Card 1: Chuỗi Hiện Tại -->
+          <div class="p-3 rounded-2xl bg-stone-50 dark:bg-stone-900/60 border border-stone-200/80 dark:border-stone-800 text-center">
             <span class="block text-[11px] text-stone-500 dark:text-stone-400 font-medium">Chuỗi Hiện Tại</span>
-            <span class="font-mono font-black text-base text-orange-600 dark:text-orange-500">${streak.current_streak} ngày</span>
+            <div class="flex items-center justify-center gap-1 mt-0.5">
+              <i data-lucide="flame" class="w-4 h-4 text-orange-600 dark:text-orange-500"></i>
+              <span class="font-mono font-black text-lg text-orange-600 dark:text-orange-500">${streak.current_streak}</span>
+              <span class="text-xs font-semibold text-stone-500">ngày</span>
+            </div>
           </div>
-          <div class="border-x border-stone-200 dark:border-stone-800">
-            <span class="block text-[11px] text-stone-500 dark:text-stone-400 font-medium">Kỷ Lục Cao Nhất</span>
-            <span class="font-mono font-black text-base text-slate-800 dark:text-stone-200">${streak.max_streak} ngày</span>
+
+          <!-- Card 2: Kỷ Lục -->
+          <div class="p-3 rounded-2xl bg-stone-50 dark:bg-stone-900/60 border border-stone-200/80 dark:border-stone-800 text-center">
+            <span class="block text-[11px] text-stone-500 dark:text-stone-400 font-medium">Kỷ Lục Chuỗi</span>
+            <div class="flex items-center justify-center gap-1 mt-0.5">
+              <i data-lucide="trophy" class="w-4 h-4 text-stone-500"></i>
+              <span class="font-mono font-black text-lg text-slate-800 dark:text-stone-200">${streak.max_streak}</span>
+              <span class="text-xs font-semibold text-stone-500">ngày</span>
+            </div>
           </div>
-          <div>
-            <span class="block text-[11px] text-stone-500 dark:text-stone-400 font-medium">Tổng Điểm Nhận</span>
-            <span class="font-mono font-black text-base text-emerald-600 dark:text-emerald-400">+${(streak.total_points_earned || 0).toLocaleString('vi-VN')}</span>
+
+          <!-- Card 3: Tổng Điểm -->
+          <div class="p-3 rounded-2xl bg-stone-50 dark:bg-stone-900/60 border border-stone-200/80 dark:border-stone-800 text-center">
+            <span class="block text-[11px] text-stone-500 dark:text-stone-400 font-medium">Tổng Đã Tích Lũy</span>
+            <div class="flex items-center justify-center gap-1 mt-0.5">
+              <i data-lucide="coins" class="w-4 h-4 text-emerald-600"></i>
+              <span class="font-mono font-black text-lg text-emerald-600 dark:text-emerald-400">+${(streak.total_points_earned || 0).toLocaleString('vi-VN')}</span>
+            </div>
           </div>
         </div>
 
-        <!-- 7-Day Visual Roadmap -->
-        <div>
-          <div class="flex items-center justify-between text-xs mb-2">
-            <span class="font-bold text-slate-900 dark:text-white">Lộ Trình Thưởng 7 Ngày</span>
-            <span class="text-stone-500 dark:text-stone-400 text-[11px]">Hoàn thành chuỗi: +1.560 Point</span>
+        <!-- 7-Day Visual Roadmap (Lộ trình chuẩn 7 ngày) -->
+        <div class="space-y-2">
+          <div class="flex items-center justify-between text-xs px-0.5">
+            <span class="font-extrabold text-slate-900 dark:text-white flex items-center gap-1.5">
+              <i data-lucide="calendar" class="w-3.5 h-3.5 text-orange-600"></i>
+              <span>Lộ Trình Thưởng 7 Ngày</span>
+            </span>
+            <span class="text-stone-500 dark:text-stone-400 text-[11px] font-mono font-semibold">Chuỗi 7 ngày = +1.560 Point</span>
           </div>
           <div class="grid grid-cols-4 sm:grid-cols-7 gap-2">
             ${roadmapHtml}
@@ -2735,29 +2815,31 @@ const VibeApp = {
         </div>
 
         <!-- Checkin Action Button -->
-        <div class="pt-1">
+        <div class="pt-0.5">
           ${!streak.has_checked_in_today ? `
-            <button id="streak-modal-action-btn" onclick="VibeApp.performCheckin()" class="w-full py-3.5 px-4 rounded-xl bg-orange-600 hover:bg-orange-700 text-white font-bold text-sm shadow-md transition-all active:scale-95 flex items-center justify-center gap-2 cursor-pointer">
-              <i data-lucide="zap" class="w-4 h-4"></i>
+            <button id="streak-modal-action-btn" onclick="VibeApp.performCheckin()" class="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-orange-600 via-orange-500 to-amber-600 hover:from-orange-700 hover:to-amber-700 text-white font-extrabold text-sm shadow-lg shadow-orange-500/20 transition-all active:scale-[0.98] flex items-center justify-center gap-2 cursor-pointer">
+              <i data-lucide="zap" class="w-4 h-4 fill-white"></i>
               <span>Điểm Danh Ngay (+${streak.today_reward_points} Điểm)</span>
             </button>
           ` : `
-            <div class="w-full py-3.5 px-4 rounded-xl bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-400 font-bold text-sm flex items-center justify-center gap-2 border border-stone-200 dark:border-stone-700/60">
+            <div class="w-full py-3.5 px-4 rounded-2xl bg-emerald-50/70 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400 font-extrabold text-xs sm:text-sm flex items-center justify-center gap-2 border border-emerald-200 dark:border-emerald-800/80">
               <i data-lucide="check-circle" class="w-4 h-4 text-emerald-600"></i>
-              <span>Đã Điểm Danh Hôm Nay (+${streak.today_reward_points} Điểm)</span>
+              <span>Đã Điểm Danh Hôm Nay (+${streak.today_reward_points} Điểm vào ví)</span>
             </div>
           `}
         </div>
 
-        <!-- Rules & Guidelines -->
-        <div class="p-3.5 bg-stone-50 dark:bg-stone-900/40 rounded-2xl border border-stone-200 dark:border-stone-800/80 text-[11px] text-stone-500 dark:text-stone-400 space-y-1.5 leading-relaxed">
-          <div class="font-bold text-slate-800 dark:text-stone-200 text-xs">Quy chế chuỗi ngày điểm danh:</div>
-          <ul class="space-y-1 list-disc pl-4">
-            <li>Thang thưởng: Ngày 1 (+50), Ngày 2 (+80), Ngày 3 (+120), Ngày 4 (+160), Ngày 5 (+200), Ngày 6 (+250).</li>
-            <li><span class="font-bold text-orange-600 dark:text-orange-400">Ngày 7 (Mốc Vàng)</span>: Nhận <span class="font-bold font-mono">+500 Point</span> và mở khóa <span class="font-bold">Badge Tích Cực</span>.</li>
-            <li>Duy trì từ Ngày 8 trở đi: Nhận cố định <span class="font-bold font-mono">+200 Point/ngày</span>.</li>
-            <li>Nếu ngắt quãng 1 ngày không điểm danh, chuỗi sẽ quay về Ngày 1.</li>
-            <li>Mốc thời gian tính theo múi giờ Việt Nam (UTC+7), làm mới lúc 00:00 hàng ngày.</li>
+        <!-- Rules & Guidelines (Tip Card gọn gàng) -->
+        <div class="p-3.5 bg-stone-50/70 dark:bg-stone-900/40 rounded-2xl border border-stone-200/70 dark:border-stone-800 text-[11px] text-stone-500 dark:text-stone-400 space-y-1.5 leading-relaxed">
+          <div class="font-bold text-slate-800 dark:text-stone-200 text-xs flex items-center gap-1.5">
+            <i data-lucide="info" class="w-3.5 h-3.5 text-stone-400"></i>
+            <span>Quy chế chuỗi điểm danh:</span>
+          </div>
+          <ul class="space-y-0.5 list-disc pl-4 text-[11px]">
+            <li>Thang thưởng: Ngày 1 (+50đ), Ngày 2 (+80đ), Ngày 3 (+120đ), Ngày 4 (+160đ), Ngày 5 (+200đ), Ngày 6 (+250đ).</li>
+            <li><span class="font-bold text-orange-600 dark:text-orange-400">Ngày 7 (Mốc Vàng)</span>: Thưởng lớn <span class="font-bold font-mono">+500 Point</span> và mở khóa <span class="font-bold">Badge Tích Cực</span>.</li>
+            <li>Duy trì từ Ngày 8 trở đi: Nhận cố định <span class="font-bold font-mono">+200 Point/ngày</span>. Nếu đứt chuỗi 1 ngày, chuỗi quay về Ngày 1.</li>
+            <li>Thời gian làm mới: <span class="font-bold">00:00 hàng ngày</span> theo giờ Việt Nam (UTC+7).</li>
           </ul>
         </div>
       </div>
