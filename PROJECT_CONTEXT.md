@@ -68,6 +68,12 @@ c:\Users\Lenovo\Downloads\Linh\
   - `firstTimeRetentionRate` & `repeatRetentionRate`: Tính từ lịch sử đăng nhập thiết bị `device_ip_logs`.
   - Toàn bộ chỉ số lấy thực tế 100% từ CSDL SQLite, loại bỏ hoàn toàn số demo giả định.
 - **Admin Fast Command Console**: Hỗ trợ 16 lệnh quản trị nhanh (`/naptien`, `/congdiem`, `/resetpoint`, `/ban`, `/unban`, `/settier`, phím tắt F2).
+- **Tối ưu Mobile Navigation cho Admin (Đề xuất 3 - v3.3.1)**:
+  - Trên Desktop: Giữ nguyên đầy đủ 6 tab quản trị và trải nghiệm.
+  - Trên Mobile Bottom Navigation: Co gọn tự động về đúng **4 tab cốt lõi** (`Tổng Quan`, `Duyệt Tiền`, `Gian Lận`, `Khảo Sát`), giải phóng diện tích, mỗi nút chiếm 25% chiều rộng với nhãn text rõ nét, loại bỏ triệt để lỗi bị chật chội và cắt cụt chữ `Khảo Sát C...`.
+- **Thống nhất định danh & Khắc phục lỗi thông báo kép**:
+  - Thống nhất 100% thuật ngữ tiếng Việt hiển thị trên UI: dùng `Doanh Nghiệp` thay cho `Creator` (`(Doanh Nghiệp Boost)`, `Sổ cái nạp Doanh Nghiệp`, Quy chuẩn minh bạch Doanh nghiệp).
+  - Khắc phục triệt để lỗi nhảy 2 thông báo toast cùng lúc khi chuyển góc nhìn sang Doanh Nghiệp bằng cờ `silent: true` trong `switchAdminTier`.
 
 ### D. Phân Hệ Gamification Giữ Chân & Điểm Danh Chuỗi Ngày (Daily Streaks Engine - v3.3.0)
 - **Bảng CSDL `daily_streaks`**: Lưu trữ `id`, `user_id` (UNIQUE), `current_streak`, `max_streak`, `last_checkin_date`, `total_points_earned`, `updated_at`.

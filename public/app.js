@@ -1296,13 +1296,13 @@ const VibeApp = {
             `}
           </p>
 
-          <!-- Thanh trượt Creator Boost tự do -->
+          <!-- Thanh trượt Doanh Nghiệp Boost tự do -->
           <div class="pt-3 border-t border-stone-100 dark:border-stone-800 space-y-2.5 relative">
             <div class="flex items-center justify-between text-xs gap-2">
               <span class="font-bold text-stone-700 dark:text-stone-300 inline-flex items-center flex-wrap gap-1 leading-normal">
                 <span>Tăng Thưởng Tự Do</span>
                 <span class="inline-flex items-center gap-1 whitespace-nowrap">
-                  <span>(Creator Boost)</span>
+                  <span>(Doanh Nghiệp Boost)</span>
                   <!-- Dấu ? Nằm dính liền ngay sau Boost) -->
                   <button type="button" 
                           onmouseenter="VibeApp.toggleBoostExplainModal(true)"
@@ -1551,7 +1551,7 @@ const VibeApp = {
       this.showToast('Đã chuyển sang góc nhìn Người Điền (Đáp Viên)', 'info');
       // Người điền chỉ là Người Điền Thường (PERSONAL) hoặc Sinh Viên (STUDENT), tuyệt đối không nhận Doanh Nghiệp
       if (this.state.currentUser && this.state.currentUser.account_tier === 'ENTERPRISE') {
-        this.switchAdminTier('PERSONAL');
+        this.switchAdminTier('PERSONAL', true);
       }
       if (['admin-overview', 'admin-payouts', 'admin-fraud'].includes(this.state.currentTab)) {
         this.navigate('surveys');
@@ -1559,9 +1559,9 @@ const VibeApp = {
         this.renderProfileView(document.getElementById('app-root'));
       }
     } else if (mode === 'CREATOR') {
-      this.showToast('Đã chuyển sang góc nhìn Doanh Nghiệp (Creator)', 'info');
-      // Tự động chuyển gói tài khoản sang Doanh Nghiệp (ENTERPRISE)
-      this.switchAdminTier('ENTERPRISE');
+      this.showToast('Đã chuyển sang góc nhìn Doanh Nghiệp', 'info');
+      // Tự động chuyển gói tài khoản sang Doanh Nghiệp (ENTERPRISE) nhưng tắt toast thứ 2 để không bị thông báo kép
+      this.switchAdminTier('ENTERPRISE', true);
       if (['admin-overview', 'admin-payouts', 'admin-fraud', 'voucher-market'].includes(this.state.currentTab)) {
         this.navigate('creator-surveys');
       } else if (this.state.currentTab === 'profile') {
@@ -1576,7 +1576,7 @@ const VibeApp = {
     }
   },
 
-  async switchAdminTier(tier) {
+  async switchAdminTier(tier, silent = false) {
     this.haptic('medium');
     try {
       const res = await this.api('/admin/switch-tier', {
@@ -1594,7 +1594,10 @@ const VibeApp = {
         this.state.creatorTier = res.tier;
         delete this.state.customPricePerResponse;
 
-        this.showToast(res.message || `Đã chuyển sang gói ${res.tier}`, 'success');
+        if (!silent) {
+          const tierLabel = res.tier === 'ENTERPRISE' ? 'Doanh Nghiệp' : (res.tier === 'STUDENT' ? 'Sinh Viên' : 'Cá Nhân');
+          this.showToast(res.message || `Đã chuyển sang gói ${tierLabel}`, 'success');
+        }
 
         this.renderUserProfileDropdown();
         if (this.state.currentTab === 'create-survey') {
@@ -1608,7 +1611,9 @@ const VibeApp = {
         }
       }
     } catch (err) {
-      this.showToast(err.message || 'Lỗi chuyển đổi phân hạng gói tài khoản', 'error');
+      if (!silent) {
+        this.showToast(err.message || 'Lỗi chuyển đổi phân hạng gói tài khoản', 'error');
+      }
     }
   },
 
@@ -2413,7 +2418,7 @@ const VibeApp = {
               Điều Khoản Dịch Vụ & Quy Tắc Nền Tảng VibeSurvey
             </h3>
             <p class="text-xs text-stone-500 dark:text-stone-400">
-              Quy chuẩn minh bạch cho Người làm bài (Respondent) và Người tạo khảo sát (Creator)
+              Quy chuẩn minh bạch cho Người làm bài (Đáp Viên) và Doanh Nghiệp nghiên cứu
             </p>
           </div>
           <button onclick="VibeApp.closeTermsModal()" class="p-2 rounded-xl text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors -mr-1 -mt-1">
@@ -2432,7 +2437,7 @@ const VibeApp = {
             </div>
             <ul class="list-disc list-inside space-y-1 pl-1 text-[11px] text-stone-600 dark:text-stone-400">
               <li><strong>Nguyên tắc 1 tài khoản chính chủ:</strong> Mỗi cá nhân chỉ được sử dụng duy nhất 01 tài khoản gắn liền với 01 email và số điện thoại xác thực. Nghiêm cấm tạo nhiều tài khoản (multi-account) trên cùng 1 thiết bị để trục lợi quà tặng tân thủ hay lượt làm bài.</li>
-              <li><strong>Tỷ giá minh bạch:</strong> Điểm thưởng khảo sát <code>1 Point = 1 VNĐ</code>. Số dư nạp ví Creator <code>1 Credit = 1 VNĐ</code>. Hệ thống không sử dụng token ảo hoặc đơn vị quy đổi khó hiểu.</li>
+              <li><strong>Tỷ giá minh bạch:</strong> Điểm thưởng khảo sát <code>1 Point = 1 VNĐ</code>. Số dư nạp ví Doanh Nghiệp <code>1 Credit = 1 VNĐ</code>. Hệ thống không sử dụng token ảo hoặc đơn vị quy đổi khó hiểu.</li>
             </ul>
           </div>
 
@@ -2454,15 +2459,15 @@ const VibeApp = {
             </ul>
           </div>
 
-          <!-- Box 3: Quy chuẩn Người tạo khảo sát (Creator & Escrow) -->
+          <!-- Box 3: Quy chuẩn Doanh Nghiệp tạo khảo sát & Ký quỹ Escrow -->
           <div class="p-4 rounded-2xl bg-stone-50 dark:bg-stone-900/60 border border-stone-200 dark:border-stone-800 space-y-2">
             <div class="flex items-center gap-2 text-stone-900 dark:text-white font-extrabold text-xs uppercase tracking-wide">
               <i data-lucide="layers" class="w-4 h-4 text-orange-600"></i>
-              <span>3. Quy Chuẩn Người Tạo Khảo Sát & Ký Quỹ Escrow An Toàn</span>
+              <span>3. Quy Chuẩn Doanh Nghiệp Tạo Khảo Sát & Ký Quỹ Escrow An Toàn</span>
             </div>
             <ul class="list-disc list-inside space-y-1.5 pl-1 text-[11px] text-stone-600 dark:text-stone-400">
               <li><strong>Ký quỹ Escrow minh bạch:</strong> Khi xuất bản bài khảo sát, ngân sách được khóa an toàn trong quỹ Escrow và chỉ giải ngân cho đáp viên khi câu trả lời vượt qua toàn bộ kiểm duyệt chất lượng.</li>
-              <li><strong>Hoàn tiền 100% khi đóng khảo sát:</strong> Khi bài khảo sát kết thúc hoặc đóng sớm, toàn bộ số tiền mẫu chưa thu thập được sẽ được hoàn lại 100% vào ví Credit của Creator.</li>
+              <li><strong>Hoàn tiền 100% khi đóng khảo sát:</strong> Khi bài khảo sát kết thúc hoặc đóng sớm, toàn bộ số tiền mẫu chưa thu thập được sẽ được hoàn lại 100% vào ví Credit của Doanh Nghiệp.</li>
               <li><strong>Nghiêm cấm nội dung độc hại:</strong> Tuyệt đối cấm tạo khảo sát vi phạm pháp luật Việt Nam, đồi trụy, cờ bạc, lừa đảo đa cấp, hoặc thu thập trái phép mật khẩu ngân hàng, mã OTP, số CCCD. Vi phạm sẽ bị gỡ bài và khóa tài khoản không hoàn tiền.</li>
               <li><strong>Bảo hành mẫu doanh nghiệp:</strong> Doanh nghiệp (Enterprise) được cam kết bảo hành 1 đổi 1 trong vòng 7 ngày cho các mẫu không đúng phân khúc mục tiêu.</li>
             </ul>
@@ -2477,7 +2482,7 @@ const VibeApp = {
             <ul class="list-disc list-inside space-y-1 pl-1 text-[11px] text-stone-600 dark:text-stone-400">
               <li><strong>Đổi thẻ cào điện thoại:</strong> Tối thiểu từ 10.000 VNĐ (Viettel, VinaPhone, MobiFone), phí xử lý 0 VNĐ.</li>
               <li><strong>Rút tiền ngân hàng / Ví MoMo:</strong> Tối thiểu từ 50.000 VNĐ (phí 2.000 VNĐ); từ 100.000 VNĐ trở lên miễn phí 100%.</li>
-              <li><strong>Nạp tiền Creator:</strong> Tối thiểu 20.000 VNĐ qua VietQR tự động cộng số dư trong vòng 30 giây.</li>
+              <li><strong>Nạp tiền Doanh Nghiệp:</strong> Tối thiểu 20.000 VNĐ qua VietQR tự động cộng số dư trong vòng 30 giây.</li>
               <li><strong>Thời gian giải ngân đổi thưởng:</strong> Kiểm duyệt và chuyển thưởng tự động trong vòng 24 - 48 giờ làm việc.</li>
             </ul>
           </div>
@@ -2489,7 +2494,7 @@ const VibeApp = {
               <span>5. Bảo Vệ Dữ Liệu Cá Nhân (Nghị Định 13/2023/NĐ-CP)</span>
             </div>
             <p class="text-[11px] text-stone-600 dark:text-stone-400">
-              Toàn bộ dữ liệu phản hồi khảo sát được chuyển giao cho Creator dưới dạng báo cáo thống kê ẩn danh. Creator không thể xem được họ tên, email, số điện thoại hay tài khoản thanh toán của bạn. VibeSurvey cam kết không bao giờ bán dữ liệu cá nhân cho bên thứ ba vì bất kỳ mục đích thương mại nào.
+              Toàn bộ dữ liệu phản hồi khảo sát được chuyển giao cho Doanh Nghiệp dưới dạng báo cáo thống kê ẩn danh. Doanh Nghiệp không thể xem được họ tên, email, số điện thoại hay tài khoản thanh toán của bạn. VibeSurvey cam kết không bao giờ bán dữ liệu cá nhân cho bên thứ ba vì bất kỳ mục đích thương mại nào.
             </p>
           </div>
 
@@ -3198,6 +3203,16 @@ const VibeApp = {
     // Mobile Bottom Floating Nav (Kiểu Bong Bóng Nổi Bo Tròn Đẳng Cấp)
     if (mobileNav) {
       let mobileItems = [...tabs];
+      // Đề xuất 3: Trên điện thoại di động của Admin toàn quyền, co gọn về 4 tab cốt lõi
+      // Tránh tình trạng nhồi nhét 6 nút gây chật chội và xén cụt chữ "Khảo Sát C..."
+      if (user && user.role === 'ADMIN' && (this.state.adminViewMode || 'ADMIN') === 'ADMIN') {
+        mobileItems = [
+          { id: 'admin-overview', label: 'Tổng Quan', icon: 'pie-chart' },
+          { id: 'admin-payouts', label: 'Duyệt Tiền', icon: 'check-circle' },
+          { id: 'admin-fraud', label: 'Gian Lận', icon: 'shield-alert' },
+          { id: 'surveys', label: 'Khảo Sát', icon: 'compass' }
+        ];
+      }
       if (!user) {
         mobileItems.push({ id: 'auth-login', label: 'Đăng Nhập', icon: 'log-in', isAuthAction: true });
       }
@@ -3206,7 +3221,7 @@ const VibeApp = {
         const clickAction = tab.isAuthAction ? `VibeApp.openAuthModal('login')` : `VibeApp.navigate('${tab.id}')`;
         return `
           <button onclick="${clickAction}" 
-                  class="relative flex-1 py-1.5 px-1.5 rounded-full flex flex-col items-center justify-center transition-all duration-200 active:scale-95 group ${
+                  class="relative flex-1 py-1.5 px-1 rounded-full flex flex-col items-center justify-center transition-all duration-200 active:scale-95 group ${
                     isActive 
                       ? 'text-orange-600 dark:text-orange-400 font-extrabold' 
                       : 'text-stone-400 dark:text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 font-semibold'
@@ -3215,7 +3230,7 @@ const VibeApp = {
               <span class="absolute inset-0 bg-stone-100 dark:bg-stone-800 rounded-full transition-all -z-10 shadow-xs border border-stone-200 dark:border-stone-700"></span>
             ` : ''}
             <i data-lucide="${tab.icon}" class="w-4 h-4 mb-0.5 transition-transform group-hover:scale-110 ${isActive ? 'stroke-[2.5] scale-105' : 'stroke-[1.8]'}"></i>
-            <span class="text-[9.5px] leading-tight truncate max-w-[65px] font-sans tracking-tight">${tab.label}</span>
+            <span class="text-[10px] leading-tight truncate max-w-[72px] font-sans tracking-tight">${tab.label}</span>
           </button>
         `;
       }).join('');
@@ -10627,7 +10642,7 @@ const VibeApp = {
                 <div class="text-lg sm:text-xl font-black font-mono ${(fin.totalDepositedVnd || 0) > 0 ? 'text-stone-900 dark:text-white' : 'text-stone-400 dark:text-stone-600'} mt-1.5">
                   ${(fin.totalDepositedVnd || 0).toLocaleString('vi-VN')} đ
                 </div>
-                <div class="text-[10.5px] text-stone-400 dark:text-stone-500 mt-0.5 truncate">Sổ cái nạp từ Creator</div>
+                <div class="text-[10.5px] text-stone-400 dark:text-stone-500 mt-0.5 truncate">Sổ cái nạp Doanh Nghiệp</div>
               </div>
 
               <!-- KPI 2: Escrow đang khóa -->
