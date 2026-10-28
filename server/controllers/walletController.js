@@ -157,10 +157,19 @@ class WalletController {
         calculatedFeeVnd
       );
 
+      const message = result.isAutoPayout
+        ? (payout_method === 'PHONE_CARD' 
+            ? 'Đã tự động duyệt và cấp mã thẻ cào thành công!' 
+            : 'Hệ thống đã tự động phê duyệt và hoàn tất chi trả cho tài khoản uy tín cao!')
+        : 'Đã tạo yêu cầu rút thưởng thành công. Tiền/Thẻ sẽ được chuyển sau khi hệ thống phê duyệt.';
+
       return res.status(201).json({
         success: true,
-        message: 'Đã tạo yêu cầu rút thưởng thành công. Tiền/Thẻ sẽ được chuyển sau khi hệ thống phê duyệt.',
+        message,
         payoutId: result.payoutId,
+        status: result.status,
+        isAutoPayout: result.isAutoPayout,
+        cardDetails: result.cardDetails,
         netAmountVnd: result.netAmountVnd,
         feeVnd: result.feeVnd,
         newPointBalance: result.newPointBalance
@@ -246,6 +255,70 @@ class WalletController {
       return res.status(500).json({ success: false, message: 'Lỗi tải danh sách hóa đơn VAT' });
     }
   }
+
+  createDepositOrder(req, res) {
+    try {
+      const user = req.user;
+      const { amount_vnd } = req.body;
+      const amount = parseInt(amount_vnd, 10);
+      if (isNaN(amount) || amount < 20000 || amount > 1000000000) {
+        return res.status(400).json({ success: false, message: 'Số tiền nạp tối thiểu là 20,000 VNĐ và tối đa 1,000,000,000 VNĐ' });
+      }
+
+      const order = ledgerService.createDepositOrder(user.id, amount);
+      return res.status(201).json({
+        success: true,
+        message: 'Tạo đơn nạp tiền VietQR thành công',
+        ...order
+      });
+    } catch (err) {
+      console.error('Lỗi createDepositOrder:', err);
+      return res.status(400).json({ success: false, message: err.message });
+    }
+  }
+
+  getDepositOrderByCode(req, res) {
+    try {
+      const { orderCode } = req.params;
+      const userId = req.user ? req.user.id : null;
+      const order = ledgerService.getDepositOrderByCode(orderCode, userId);
+      return res.json({
+        success: true,
+        order
+      });
+    } catch (err) {
+      console.error('Lỗi getDepositOrderByCode:', err);
+      return res.status(400).json({ success: false, message: err.message });
+    }
+  }
+
+  handlePaymentWebhook(req, res) {
+    try {
+      const payload = req.body;
+      const result = ledgerService.handlePaymentWebhook(payload);
+      return res.json(result);
+    } catch (err) {
+      console.error('Lỗi handlePaymentWebhook:', err);
+      return res.status(400).json({ success: false, message: err.message });
+    }
+  }
+
+  simulatePaymentSuccess(req, res) {
+    try {
+      const { order_code } = req.body;
+      if (!order_code) {
+        return res.status(400).json({ success: false, message: 'Vui lòng cung cấp order_code' });
+      }
+      const userId = req.user ? req.user.id : null;
+      const result = ledgerService.simulatePaymentSuccess(order_code, userId);
+      return res.json(result);
+    } catch (err) {
+      console.error('Lỗi simulatePaymentSuccess:', err);
+      return res.status(400).json({ success: false, message: err.message });
+    }
+  }
+
 }
+
 
 module.exports = new WalletController();

@@ -15,6 +15,11 @@
     },
     "Haptics": {
       "enabled": true
+    },
+    "LocalNotifications": {
+      "smallIcon": "ic_stat_icon_config_sample",
+      "iconColor": "#EA580C",
+      "sound": "beep.wav"
     }
   }
 }

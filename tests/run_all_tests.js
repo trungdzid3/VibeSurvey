@@ -97,6 +97,12 @@ const testSuites = [
     name: 'Tầng 14: Review & Edit Response Suite (Google / Microsoft Forms Standard)',
     description: 'Kiểm tra Xem lại bài làm sau khi gửi, Chỉnh sửa câu trả lời, Bảo toàn quỹ Escrow và chặn sửa khi tắt tùy chọn',
     file: 'test_response_review_and_edit.js'
+  },
+  {
+    id: 15,
+    name: 'Tầng 15: Push Notification Engine & Mobile Hybrid Suite',
+    description: 'Kiểm tra Bảng push_subscriptions, API subscribe-push, Realtime Broadcast Alert, Rung chuông & Popup',
+    file: 'test_push_notifications.js'
   }
 ];
 

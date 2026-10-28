@@ -1184,3 +1184,55 @@ html.dark textarea:-webkit-autofill {
   max-width: 100% !important;
 }
 
+/* =========================================================
+   PUSH NOTIFICATION ENGINE & BELL ANIMATIONS
+   ========================================================= */
+@keyframes bellRing {
+  0% { transform: rotate(0); }
+  10% { transform: rotate(14deg); }
+  20% { transform: rotate(-14deg); }
+  30% { transform: rotate(10deg); }
+  40% { transform: rotate(-10deg); }
+  50% { transform: rotate(6deg); }
+  60% { transform: rotate(-6deg); }
+  70% { transform: rotate(0); }
+  100% { transform: rotate(0); }
+}
+
+.animate-bell-ring {
+  animation: bellRing 0.9s ease-in-out infinite;
+  transform-origin: top center;
+  display: inline-block;
+}
+
+@keyframes pushBannerSlideDown {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.push-banner-enter {
+  animation: pushBannerSlideDown 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes pushPopupSlideIn {
+  from {
+    transform: translateX(110%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.push-popup-enter {
+  animation: pushPopupSlideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+

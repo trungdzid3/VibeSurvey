@@ -9,6 +9,7 @@ const voucherService = require('../services/voucherService');
 const formParserService = require('../services/formParserService');
 const matchingService = require('../services/matchingService');
 const webhookService = require('../services/webhookService');
+const pushNotificationService = require('../services/pushNotificationService');
 
 class SurveyController {
 
@@ -984,6 +985,15 @@ class SurveyController {
 
         db.prepare("UPDATE surveys SET status = 'ACTIVE', updated_at = CURRENT_TIMESTAMP WHERE id = ? AND creator_id = ? AND status = 'DRAFT'").run(id, user.id);
 
+        const activeSurvey = db.prepare('SELECT * FROM surveys WHERE id = ?').get(id);
+        if (activeSurvey && pushNotificationService.isHighRewardSurvey(activeSurvey)) {
+          try {
+            pushNotificationService.sendHighRewardSurveyAlert(activeSurvey);
+          } catch (pushErr) {
+            console.error('Lỗi sendHighRewardSurveyAlert:', pushErr.message);
+          }
+        }
+
         return res.json({
           success: true,
           message: 'Xuất bản chiến dịch khảo sát tài trợ Voucher thành công (Zero Cash Model)!',
@@ -1018,6 +1028,16 @@ class SurveyController {
       }
 
       const result = ledgerService.lockEscrowForSurvey(id, user.id, totalEscrow, { useFreeTrial });
+
+      // Kích hoạt thông báo đẩy thời gian thực nếu khảo sát thuộc diện HỎA TỐC hoặc Thưởng Cao / Boost >= 25%
+      const activeSurvey = db.prepare('SELECT * FROM surveys WHERE id = ?').get(id);
+      if (activeSurvey && pushNotificationService.isHighRewardSurvey(activeSurvey)) {
+        try {
+          pushNotificationService.sendHighRewardSurveyAlert(activeSurvey);
+        } catch (pushErr) {
+          console.error('Lỗi sendHighRewardSurveyAlert trong publishSurvey:', pushErr.message);
+        }
+      }
 
       return res.json({
         success: true,
@@ -1070,6 +1090,13 @@ class SurveyController {
       const notificationService = require('../services/notificationService');
       const dispatchResult = notificationService.broadcastFastTrackNotification(survey.id);
 
+      // Kích hoạt đẩy thông báo realtime qua pushNotificationService
+      try {
+        pushNotificationService.sendHighRewardSurveyAlert(survey);
+      } catch (pErr) {
+        console.error('Lỗi sendHighRewardSurveyAlert trong boostFastTrack:', pErr.message);
+      }
+
       const updatedUser = db.prepare('SELECT fast_track_tickets FROM users WHERE id = ?').get(user.id);
 
       return res.json({
@@ -1106,6 +1133,94 @@ class SurveyController {
     } catch (err) {
       console.error('Lỗi markNotificationAsRead:', err);
       return res.status(500).json({ success: false, message: 'Lỗi cập nhật thông báo' });
+    }
+  }
+
+  /**
+   * Đăng ký kênh Web Push / Mobile Hybrid Push Notification
+   */
+  subscribePushNotification(req, res) {
+    try {
+      const user = req.user;
+      const result = pushNotificationService.saveSubscription(user ? user.id : null, req.body);
+      return res.json({
+        success: true,
+        message: 'Đăng ký nhận thông báo đẩy thành công',
+        data: result
+      });
+    } catch (err) {
+      console.error('Lỗi subscribePushNotification:', err);
+      return res.status(400).json({ success: false, message: err.message });
+    }
+  }
+
+  /**
+   * Hủy đăng ký kênh Push Notification
+   */
+  unsubscribePushNotification(req, res) {
+    try {
+      const user = req.user;
+      const endpoint = req.body && req.body.endpoint;
+      const result = pushNotificationService.removeSubscription(endpoint, user ? user.id : null);
+      return res.json({
+        success: true,
+        message: 'Hủy đăng ký nhận thông báo đẩy thành công',
+        data: result
+      });
+    } catch (err) {
+      console.error('Lỗi unsubscribePushNotification:', err);
+      return res.status(400).json({ success: false, message: err.message });
+    }
+  }
+
+  /**
+   * Lấy số lượng thông báo chưa đọc và tin phát sóng thời gian thực mới nhất
+   */
+  getUnreadNotificationCount(req, res) {
+    try {
+      const user = req.user;
+      const unreadRow = db.prepare('SELECT COUNT(*) as count FROM notifications WHERE user_id = ? AND is_read = 0').get(user.id);
+      const unreadCount = unreadRow ? unreadRow.count : 0;
+      const since = req.query && req.query.since ? parseInt(req.query.since, 10) : 0;
+      const recentBroadcasts = pushNotificationService.getRecentBroadcasts(since);
+
+      return res.json({
+        success: true,
+        unreadCount,
+        recentBroadcasts
+      });
+    } catch (err) {
+      console.error('Lỗi getUnreadNotificationCount:', err);
+      return res.status(500).json({ success: false, message: 'Lỗi tải số thông báo chưa đọc' });
+    }
+  }
+
+  /**
+   * Đánh dấu toàn bộ thông báo của người dùng là đã đọc
+   */
+  markAllNotificationsAsRead(req, res) {
+    try {
+      const user = req.user;
+      const notificationService = require('../services/notificationService');
+      notificationService.markAsRead(user.id, 'ALL');
+      return res.json({ success: true, message: 'Đã đánh dấu tất cả thông báo là đã đọc' });
+    } catch (err) {
+      console.error('Lỗi markAllNotificationsAsRead:', err);
+      return res.status(500).json({ success: false, message: 'Lỗi cập nhật thông báo' });
+    }
+  }
+
+  /**
+   * Lấy danh sách tin phát sóng đẩy realtime mới nhất
+   */
+  getRealtimeAlerts(req, res) {
+    try {
+      const since = req.query && req.query.since ? parseInt(req.query.since, 10) : 0;
+      const alerts = pushNotificationService.getRecentBroadcasts(since);
+      return res.json({ success: true, alerts });
+    } catch (err) {
+      console.error('Lỗi getRealtimeAlerts:', err);
+      return res.status(500).json({ success: false, message: 'Lỗi tải tin phát sóng' });
     }
   }
 

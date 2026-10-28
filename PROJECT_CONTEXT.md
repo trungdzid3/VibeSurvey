@@ -69,6 +69,27 @@ c:\Users\Lenovo\Downloads\Linh\
   - Toàn bộ chỉ số lấy thực tế 100% từ CSDL SQLite, loại bỏ hoàn toàn số demo giả định.
 - **Admin Fast Command Console**: Hỗ trợ 16 lệnh quản trị nhanh (`/naptien`, `/congdiem`, `/resetpoint`, `/ban`, `/unban`, `/settier`, phím tắt F2).
 
+### D. Phân Hệ Gamification Giữ Chân & Điểm Danh Chuỗi Ngày (Daily Streaks Engine - v3.3.0)
+- **Bảng CSDL `daily_streaks`**: Lưu trữ `id`, `user_id` (UNIQUE), `current_streak`, `max_streak`, `last_checkin_date`, `total_points_earned`, `updated_at`.
+- **Thang thưởng chuỗi ngày tăng dần**:
+  - Ngày 1: +50 Point
+  - Ngày 2: +80 Point
+  - Ngày 3: +120 Point
+  - Ngày 4: +160 Point
+  - Ngày 5: +200 Point
+  - Ngày 6: +250 Point
+  - Ngày 7 (Mốc Vàng): +500 Point + Mở khóa Badge Tích Cực
+  - Từ Ngày 8 trở đi: Duy trì +200 Point/ngày. Nếu ngắt quãng 1 ngày không điểm danh, chuỗi quay về Ngày 1.
+- **API Backend**:
+  - `GET /api/v1/users/streak-info`: Cung cấp thông tin chuỗi ngày hiện tại, trạng thái điểm danh hôm nay, phần thưởng hôm nay và lộ trình 7 ngày tới.
+  - `POST /api/v1/users/checkin`: Thực hiện điểm danh trong ngày theo múi giờ Việt Nam (UTC+7), chống điểm danh trùng lặp, cộng điểm vào ví qua `ledgerService.rewardDailyStreak` với ghi nhận sổ cái kép `point_transactions`, cập nhật `daily_streaks`, gửi thông báo vào bảng `notifications`.
+- **Giao diện Frontend**:
+  - Widget Streak trên Header (cạnh chuông thông báo/profile, icon ngọn lửa tối giản, text chuỗi ngày, viền cam nổi bật khi chưa điểm danh, click mở modal).
+  - Daily Streak Card tại đầu Dashboard Khảo sát (ngay dưới Welcome Banner) với trạng thái và nút điểm danh nhanh.
+  - Modal Điểm danh Chuỗi Ngày với sơ đồ 7 ngày trực quan, ngày đã nhận có dấu tích, ngày hôm nay nổi bật, nút điểm danh và bảng quy chế chi tiết.
+  - Cập nhật số dư điểm tức thời ngay khi hoàn thành điểm danh, không cần tải lại trang.
+  - Tuyệt đối không dùng bất kỳ emoji nào, tuân thủ phong cách Minimalist Modern của `DESIGN.md`.
+
 ## 4. Các Lưu Ý Kỹ Thuật Bắt Buộc (Technical Gotchas)
 1. **Bảo mật câu hỏi bẫy**: Khi API trả danh sách câu hỏi cho người điền, bắt buộc bóc tách 100% thuộc tính `is_attention_check` và `expected_answer` khỏi payload.
 2. **Nguyên tắc giao dịch kép (Double-entry Ledger)**: Mọi biến động số dư Point và Credit phải được bọc trong Transaction ACID của SQLite với câu lệnh kiểm tra số dư nguyên tử.
@@ -243,3 +264,28 @@ c:\Users\Lenovo\Downloads\Linh\
   2. Thêm câu lệnh dọn dẹp campaign do user test phát hành: `DELETE FROM voucher_campaigns WHERE issuer_id IN (...)`.
   3. Xây dựng hàm bọc `safeRun` bao bọc từng thao tác xóa bảng trong `try...catch` an toàn, ngăn chặn hoàn toàn việc một lỗi bảng đơn lẻ làm sập toàn bộ chu trình thanh lọc CSDL.
   4. Khởi động lại server backend Node.js để nạp bản vá; kiểm thử xác nhận dọn dẹp thành công 100% không còn bất kỳ lỗi nào.
+
+
+### Cơ Chế Thông Báo Đẩy Thời Gian Thực & Android Hybrid (Push Notification Engine - v3.1.8)
+- **Nhiệm vụ hoàn thành**:
+  1. **Bảng CSDL `push_subscriptions` (`server/db/database.js`)**:
+     - Cấu trúc: `id`, `user_id`, `endpoint` TEXT UNIQUE NOT NULL, `keys_p256dh`, `keys_auth`, `device_type` (WEB/ANDROID/IOS), `created_at`, `last_active_at`.
+     - Chỉ mục `idx_push_subs_user` và `idx_push_subs_endpoint` tối ưu tra cứu siêu tốc.
+  2. **Dịch vụ thông báo `pushNotificationService.js` (`server/services/pushNotificationService.js`)**:
+     - `saveSubscription(userId, data)`: Hỗ trợ lưu trữ đăng ký Web Push và thiết bị di động, tự động xác thực khóa ngoại `user_id` và cập nhật khi thiết bị tái kích hoạt.
+     - `removeSubscription(endpoint, userId)`: Hủy đăng ký nhanh gọn, an toàn.
+     - `isHighRewardSurvey(survey)`: Nhận diện khảo sát gói Hỏa Tốc (`package_type`/`pricing_tier` là `RUSH` hoặc `FAST_TRACK`), có Creator Boost >= 25%, gắn nhãn `[HỎA TỐC]`, `[Thưởng Cao]`, hoặc điểm thưởng >= 250 điểm.
+     - `sendHighRewardSurveyAlert(survey)`: Bắn thông báo đẩy thời gian thực, đồng thời ghi bản ghi đồng bộ vào bảng `notifications` và `email_notifications_log` trong một Transaction ACID duy nhất.
+     - Lưu trữ buffer tin phát sóng `recentBroadcasts` phục vụ polling realtime trên SPA.
+  3. **Tích hợp Controller & API (`server/controllers/surveyController.js` & `server/routes/api.js`)**:
+     - Kết nối vào `publishSurvey`: Khi xuất bản khảo sát (Voucher hoặc Ký quỹ Escrow) có Boost hoặc Hỏa Tốc, tự động gọi `pushNotificationService.sendHighRewardSurveyAlert(activeSurvey)`.
+     - Kết nối vào `boostFastTrack`: Kích hoạt phát sóng realtime cho thiết bị và ứng dụng.
+     - Các endpoints API: `POST /api/v1/notifications/subscribe-push`, `POST /api/v1/notifications/unsubscribe-push`, `GET /api/v1/notifications/unread-count`, `PUT /api/v1/notifications/read-all`, `GET /api/v1/notifications/realtime-alerts`.
+  4. **Giao diện SPA & Android Capacitor (`public/app.js`, `public/index.html`, `public/styles.css`)**:
+     - Banner xin cấp quyền Web Notification thanh lịch, tinh tế: "Bật thông báo để nhận tin ngay khi có khảo sát thưởng cao hoặc hỏa tốc" kèm nút "Bật Thông Báo" và "Để Sau".
+     - Nút chuông thông báo trên Header kèm badge đếm số lượng chưa đọc và animation rung chuông (`animate-bell-ring` và haptic vibration).
+     - Dropdown xem danh sách thông báo chi tiết, bấm vào làm khảo sát ngay, nút "Đã đọc tất cả".
+     - Popup nổi góc màn hình (Floating Banner) khi có khảo sát Hỏa Tốc / Thưởng Cao mới đến, tự động đóng sau 12 giây.
+     - Tương thích Android Capacitor: Cấu hình plugin `LocalNotifications` trong `capacitor.config.json` và code hook `window.Capacitor.Plugins.LocalNotifications`.
+     - Tuyệt đối tuân thủ quy chuẩn không dùng bất kỳ emoji nào trong mã nguồn và giao diện.
+     - Bộ kiểm thử `tests/test_push_notifications.js` (Tầng 15) đạt 100% PASS (7/7 bài test).

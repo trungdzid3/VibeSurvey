@@ -440,6 +440,7 @@ const VibeApp = {
       'demo-occupation-menu',
       'demo-income-menu',
       'user-profile-dropdown',
+      'header-notif-dropdown',
       'sort-dropdown-menu',
       'length-dropdown-menu',
       'payout-points-menu',
@@ -466,6 +467,7 @@ const VibeApp = {
       // 1. Nếu click vào nút trigger hoặc bên trong menu/popover/input tìm kiếm thì không đóng tự động
       const isTrigger = e.target.closest('.custom-dropdown-trigger') || 
                         e.target.closest('#user-profile-btn') || 
+                        e.target.closest('#header-notif-btn') ||
                         e.target.closest('#studio-region-input') || 
                         e.target.closest('#studio-uni-input') || 
                         e.target.closest('#demo-university');
@@ -473,6 +475,7 @@ const VibeApp = {
       const isInsideMenu = e.target.closest('.custom-dropdown-menu') || 
                            e.target.closest('.vibe-popover') || 
                            e.target.closest('#user-profile-dropdown') || 
+                           e.target.closest('#header-notif-dropdown') || 
                            e.target.closest('#studio-region-popover') || 
                            e.target.closest('#studio-uni-popover') || 
                            e.target.closest('#demo-uni-popover') ||
@@ -612,6 +615,7 @@ const VibeApp = {
           this.applyUserInterface();
 
           this.checkDeepLinkSurvey();
+          this.initPushNotifications();
           return;
         }
       } catch (e) {
@@ -625,6 +629,7 @@ const VibeApp = {
     // Nếu chưa đăng nhập: Hiển thị giao diện khách
     this.applyGuestInterface();
     this.checkDeepLinkSurvey();
+    this.initPushNotifications();
   },
 
   /**
@@ -699,6 +704,13 @@ const VibeApp = {
     if (userProfileMenu) userProfileMenu.classList.add('hidden');
     if (guestAuthActions) guestAuthActions.classList.remove('hidden');
 
+    const streakBtn = document.getElementById('header-streak-btn');
+    if (streakBtn) {
+      streakBtn.classList.add('hidden');
+      streakBtn.classList.remove('flex');
+    }
+    this.state.streakInfo = null;
+
     this.renderNavigation();
     if (['creator-surveys', 'wallet', 'admin-overview', 'admin-payouts', 'admin-fraud'].includes(this.state.currentTab)) {
       this.state.currentTab = 'surveys';
@@ -743,6 +755,13 @@ const VibeApp = {
       userProfileMenu.classList.remove('hidden');
     }
 
+    const streakBtn = document.getElementById('header-streak-btn');
+    if (streakBtn) {
+      streakBtn.classList.remove('hidden');
+      streakBtn.classList.add('flex');
+    }
+    this.fetchStreakInfo();
+
     const shortName = user.name ? (user.name.split(' ').pop() || user.name) : 'User';
     if (nameEl) nameEl.textContent = shortName;
     if (avatarEl) avatarEl.textContent = (user.name || 'U').charAt(0).toUpperCase();
@@ -756,6 +775,7 @@ const VibeApp = {
 
     this.renderUserProfileDropdown();
     this.renderNavigation();
+    this.refreshNotificationBadge();
     if (!silent) {
       this.navigate(this.state.currentTab);
     }
@@ -898,6 +918,15 @@ const VibeApp = {
           <span class="text-stone-500 dark:text-stone-400">Vé Thu Mẫu Hỏa Tốc:</span>
           <span class="font-mono font-bold text-stone-900 dark:text-stone-100">
             ${Number(user.fast_track_tickets || 0)} Vé
+          </span>
+        </div>
+        <div class="flex items-center justify-between text-xs pt-1 border-t border-stone-200/60 dark:border-stone-800 cursor-pointer hover:opacity-85 transition-opacity" onclick="VibeApp.toggleProfileDropdown(); VibeApp.openStreakModal()">
+          <span class="inline-flex items-center gap-1.5 text-stone-600 dark:text-stone-300 font-medium">
+            <i data-lucide="flame" class="w-3.5 h-3.5 text-orange-600"></i>
+            <span>Chuỗi điểm danh:</span>
+          </span>
+          <span class="font-mono font-bold text-orange-600 dark:text-orange-400">
+            ${this.state.streakInfo ? this.state.streakInfo.current_streak + ' ngày' : 'Điểm danh'}
           </span>
         </div>
       </div>
@@ -2527,6 +2556,280 @@ const VibeApp = {
     }
   },
 
+  /**
+   * Lấy dữ liệu chuỗi điểm danh của người dùng hiện tại
+   */
+  async fetchStreakInfo() {
+    if (!this.state.token) return null;
+    try {
+      const res = await this.api('/users/streak-info');
+      if (res && res.success && res.streak) {
+        this.state.streakInfo = res.streak;
+        this.updateStreakHeaderUI(res.streak);
+        return res.streak;
+      }
+    } catch (err) {
+      console.warn('Không thể nạp thông tin chuỗi ngày:', err.message);
+    }
+    return null;
+  },
+
+  /**
+   * Cập nhật hiển thị Widget Streak trên Header
+   */
+  updateStreakHeaderUI(streak) {
+    const streakBtn = document.getElementById('header-streak-btn');
+    const streakText = document.getElementById('header-streak-text');
+    if (!streakBtn || !streakText) return;
+
+    if (!this.state.currentUser) {
+      streakBtn.classList.add('hidden');
+      streakBtn.classList.remove('flex');
+      return;
+    }
+
+    streakBtn.classList.remove('hidden');
+    streakBtn.classList.add('flex');
+
+    const streakCount = streak ? (streak.current_streak || 0) : 0;
+    const hasCheckedIn = streak ? streak.has_checked_in_today : false;
+
+    streakText.textContent = `Streak: ${streakCount} ngày`;
+
+    if (hasCheckedIn) {
+      streakBtn.classList.remove('ring-2', 'ring-orange-500/60');
+      streakBtn.title = `Chuỗi hiện tại: ${streakCount} ngày (Đã điểm danh hôm nay)`;
+    } else {
+      streakBtn.classList.add('ring-2', 'ring-orange-500/60');
+      streakBtn.title = `Chuỗi hiện tại: ${streakCount} ngày (Bấm để điểm danh ngay)`;
+    }
+
+    if (window.lucide) lucide.createIcons();
+  },
+
+  /**
+   * Mở Modal Điểm Danh Hàng Ngày & Lộ Trình 7 Ngày
+   */
+  async openStreakModal() {
+    this.haptic('light');
+    if (!this.state.currentUser) {
+      this.openAuthModal('login');
+      return;
+    }
+
+    const container = document.getElementById('modal-container');
+    const card = document.getElementById('modal-card');
+    if (!container || !card) return;
+
+    if (!this.state.streakInfo) {
+      card.className = 'bg-white dark:bg-[#18181B] text-slate-800 dark:text-stone-100 rounded-3xl max-w-lg w-full p-8 shadow-2xl border border-stone-100 dark:border-stone-800 transform transition-all relative text-center py-12';
+      card.innerHTML = `
+        <div class="animate-spin rounded-full h-8 w-8 border-2 border-stone-300 dark:border-stone-700 border-t-orange-600 mx-auto mb-3"></div>
+        <p class="text-xs text-stone-500 dark:text-stone-400">Đang tải thông tin chuỗi ngày...</p>
+      `;
+      container.classList.remove('hidden');
+      await this.fetchStreakInfo();
+    }
+
+    const streak = this.state.streakInfo || {
+      current_streak: 0,
+      max_streak: 0,
+      total_points_earned: 0,
+      has_checked_in_today: false,
+      today_reward_points: 50,
+      roadmap: [
+        { day: 1, points: 50, status: 'TODAY', is_milestone: false },
+        { day: 2, points: 80, status: 'LOCKED', is_milestone: false },
+        { day: 3, points: 120, status: 'LOCKED', is_milestone: false },
+        { day: 4, points: 160, status: 'LOCKED', is_milestone: false },
+        { day: 5, points: 200, status: 'LOCKED', is_milestone: false },
+        { day: 6, points: 250, status: 'LOCKED', is_milestone: false },
+        { day: 7, points: 500, status: 'LOCKED', is_milestone: true, badge: 'Badge Tích Cực' }
+      ]
+    };
+
+    card.className = 'bg-white dark:bg-[#18181B] text-slate-800 dark:text-stone-100 rounded-3xl max-w-xl w-full p-6 sm:p-7 shadow-2xl border border-stone-100 dark:border-stone-800 transform transition-all relative max-h-[92vh] overflow-y-auto';
+
+    const roadmapHtml = (streak.roadmap || []).map(r => {
+      let statusClasses = 'bg-stone-50 dark:bg-stone-900/40 border-stone-200 dark:border-stone-800 text-stone-400 dark:text-stone-600';
+      let iconHtml = '<i data-lucide="lock" class="w-3.5 h-3.5 stroke-[2]"></i>';
+      let statusText = 'Khóa';
+
+      if (r.status === 'CLAIMED') {
+        statusClasses = 'bg-orange-50 dark:bg-orange-950/30 border-orange-300 dark:border-orange-800 text-orange-600 dark:text-orange-400';
+        iconHtml = '<i data-lucide="check" class="w-3.5 h-3.5 stroke-[2.5] text-emerald-600 dark:text-emerald-400"></i>';
+        statusText = 'Đã nhận';
+      } else if (r.status === 'TODAY') {
+        statusClasses = 'bg-white dark:bg-stone-900 border-2 border-orange-600 text-orange-600 dark:text-orange-500 shadow-sm ring-2 ring-orange-500/20';
+        iconHtml = '<i data-lucide="flame" class="w-4 h-4 stroke-[2.2] text-orange-600 animate-pulse"></i>';
+        statusText = 'Hôm nay';
+      }
+
+      return `
+        <div class="relative flex flex-col items-center justify-between p-2.5 rounded-xl border ${statusClasses} transition-all">
+          ${r.is_milestone ? `
+            <span class="absolute -top-2.5 px-1.5 py-0.5 rounded-full bg-orange-600 text-white text-[9px] font-black uppercase tracking-wider shadow-xs">
+              Mốc Vàng
+            </span>
+          ` : ''}
+          <span class="text-[11px] font-bold text-stone-500 dark:text-stone-400">Ngày ${r.day}</span>
+          <div class="my-1 flex items-center justify-center">
+            ${iconHtml}
+          </div>
+          <span class="font-mono font-black text-xs ${r.status === 'TODAY' ? 'text-orange-600 dark:text-orange-400' : 'text-slate-800 dark:text-stone-200'}">
+            +${r.points}
+          </span>
+          <span class="text-[10px] font-medium text-stone-400 dark:text-stone-500 mt-0.5">${statusText}</span>
+        </div>
+      `;
+    }).join('');
+
+    card.innerHTML = `
+      <div class="relative space-y-5">
+        <!-- Close Button -->
+        <button onclick="VibeApp.closeModal()" class="absolute -top-2 -right-2 p-1.5 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+          <i data-lucide="x" class="w-4 h-4 stroke-[2.2]"></i>
+        </button>
+
+        <!-- Header -->
+        <div class="flex items-center gap-3 pr-8">
+          <div class="w-12 h-12 rounded-2xl bg-orange-50 dark:bg-orange-950/50 border border-orange-200 dark:border-orange-800 flex items-center justify-center text-orange-600 dark:text-orange-400 flex-shrink-0">
+            <i data-lucide="flame" class="w-6 h-6 stroke-[2]"></i>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h3 class="text-lg font-black text-slate-900 dark:text-white tracking-tight">Điểm Danh Chuỗi Ngày</h3>
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-orange-100 dark:bg-orange-950/60 text-orange-700 dark:text-orange-300 border border-orange-300 dark:border-orange-800">
+                Gamification
+              </span>
+            </div>
+            <p class="text-xs text-stone-500 dark:text-stone-400 mt-0.5">Duy trì điểm danh liên tục mỗi ngày để nhận điểm thưởng tăng dần</p>
+          </div>
+        </div>
+
+        <!-- 3 Stats Columns -->
+        <div class="grid grid-cols-3 gap-2 p-3 bg-stone-50 dark:bg-stone-900/60 rounded-2xl border border-stone-200 dark:border-stone-800 text-center">
+          <div>
+            <span class="block text-[11px] text-stone-500 dark:text-stone-400 font-medium">Chuỗi Hiện Tại</span>
+            <span class="font-mono font-black text-base text-orange-600 dark:text-orange-500">${streak.current_streak} ngày</span>
+          </div>
+          <div class="border-x border-stone-200 dark:border-stone-800">
+            <span class="block text-[11px] text-stone-500 dark:text-stone-400 font-medium">Kỷ Lục Cao Nhất</span>
+            <span class="font-mono font-black text-base text-slate-800 dark:text-stone-200">${streak.max_streak} ngày</span>
+          </div>
+          <div>
+            <span class="block text-[11px] text-stone-500 dark:text-stone-400 font-medium">Tổng Điểm Nhận</span>
+            <span class="font-mono font-black text-base text-emerald-600 dark:text-emerald-400">+${(streak.total_points_earned || 0).toLocaleString('vi-VN')}</span>
+          </div>
+        </div>
+
+        <!-- 7-Day Visual Roadmap -->
+        <div>
+          <div class="flex items-center justify-between text-xs mb-2">
+            <span class="font-bold text-slate-900 dark:text-white">Lộ Trình Thưởng 7 Ngày</span>
+            <span class="text-stone-500 dark:text-stone-400 text-[11px]">Hoàn thành chuỗi: +1.560 Point</span>
+          </div>
+          <div class="grid grid-cols-4 sm:grid-cols-7 gap-2">
+            ${roadmapHtml}
+          </div>
+        </div>
+
+        <!-- Checkin Action Button -->
+        <div class="pt-1">
+          ${!streak.has_checked_in_today ? `
+            <button id="streak-modal-action-btn" onclick="VibeApp.performCheckin()" class="w-full py-3.5 px-4 rounded-xl bg-orange-600 hover:bg-orange-700 text-white font-bold text-sm shadow-md transition-all active:scale-95 flex items-center justify-center gap-2 cursor-pointer">
+              <i data-lucide="zap" class="w-4 h-4"></i>
+              <span>Điểm Danh Ngay (+${streak.today_reward_points} Điểm)</span>
+            </button>
+          ` : `
+            <div class="w-full py-3.5 px-4 rounded-xl bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-400 font-bold text-sm flex items-center justify-center gap-2 border border-stone-200 dark:border-stone-700/60">
+              <i data-lucide="check-circle" class="w-4 h-4 text-emerald-600"></i>
+              <span>Đã Điểm Danh Hôm Nay (+${streak.today_reward_points} Điểm)</span>
+            </div>
+          `}
+        </div>
+
+        <!-- Rules & Guidelines -->
+        <div class="p-3.5 bg-stone-50 dark:bg-stone-900/40 rounded-2xl border border-stone-200 dark:border-stone-800/80 text-[11px] text-stone-500 dark:text-stone-400 space-y-1.5 leading-relaxed">
+          <div class="font-bold text-slate-800 dark:text-stone-200 text-xs">Quy chế chuỗi ngày điểm danh:</div>
+          <ul class="space-y-1 list-disc pl-4">
+            <li>Thang thưởng: Ngày 1 (+50), Ngày 2 (+80), Ngày 3 (+120), Ngày 4 (+160), Ngày 5 (+200), Ngày 6 (+250).</li>
+            <li><span class="font-bold text-orange-600 dark:text-orange-400">Ngày 7 (Mốc Vàng)</span>: Nhận <span class="font-bold font-mono">+500 Point</span> và mở khóa <span class="font-bold">Badge Tích Cực</span>.</li>
+            <li>Duy trì từ Ngày 8 trở đi: Nhận cố định <span class="font-bold font-mono">+200 Point/ngày</span>.</li>
+            <li>Nếu ngắt quãng 1 ngày không điểm danh, chuỗi sẽ quay về Ngày 1.</li>
+            <li>Mốc thời gian tính theo múi giờ Việt Nam (UTC+7), làm mới lúc 00:00 hàng ngày.</li>
+          </ul>
+        </div>
+      </div>
+    `;
+
+    container.classList.remove('hidden');
+    if (window.lucide) lucide.createIcons();
+  },
+
+  /**
+   * Thực hiện điểm danh nhận thưởng Point
+   */
+  async performCheckin() {
+    this.haptic('medium');
+    const btn = document.getElementById('streak-modal-action-btn');
+    if (btn) {
+      btn.disabled = true;
+      btn.innerHTML = `
+        <div class="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2"></div>
+        <span>Đang xử lý điểm danh...</span>
+      `;
+    }
+
+    try {
+      const res = await this.api('/users/checkin', { method: 'POST' });
+      if (!res || !res.success) {
+        throw new Error((res && res.message) || 'Không thể thực hiện điểm danh');
+      }
+
+      this.haptic('success');
+      this.showToast(res.message, 'success');
+
+      // Cập nhật số dư điểm người dùng trong state
+      if (this.state.currentUser && res.streak && typeof res.streak.new_point_balance === 'number') {
+        this.state.currentUser.point_balance = res.streak.new_point_balance;
+      }
+
+      // Nạp lại thông tin streak
+      await this.fetchStreakInfo();
+
+      // Cập nhật UI Header
+      const pointsBadgeText = document.getElementById('header-points-text');
+      if (pointsBadgeText && this.state.currentUser) {
+        pointsBadgeText.textContent = `${(this.state.currentUser.point_balance || 0).toLocaleString('vi-VN')} Điểm`;
+      }
+      this.renderUserProfileDropdown();
+
+      // Nếu đang mở Modal, re-render modal với trạng thái mới
+      const container = document.getElementById('modal-container');
+      if (container && !container.classList.contains('hidden')) {
+        this.openStreakModal();
+      }
+
+      // Nếu đang ở màn hình surveys, re-render lại để cập nhật card streak và số dư
+      if (this.state.currentTab === 'surveys') {
+        const root = document.getElementById('app-root');
+        if (root) this.renderSurveysView(root, false);
+      }
+    } catch (err) {
+      this.haptic('error');
+      this.showToast(err.message || 'Lỗi xử lý điểm danh', 'error');
+      if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = `
+          <i data-lucide="zap" class="w-4 h-4"></i>
+          <span>Điểm Danh Ngay</span>
+        `;
+        if (window.lucide) lucide.createIcons();
+      }
+    }
+  },
+
   async verifyEmailAccount() {
     this.haptic('light');
     if (!this.state.currentUser) {
@@ -2960,6 +3263,7 @@ const VibeApp = {
       'demo-occupation-menu',
       'demo-income-menu',
       'user-profile-dropdown',
+      'header-notif-dropdown',
       'sort-dropdown-menu',
       'length-dropdown-menu',
       'payout-points-menu',
@@ -3020,6 +3324,13 @@ const VibeApp = {
 
     const surveys = this.state.surveys;
     const user = this.state.currentUser;
+
+    if (user && (!this.state.streakInfo || forceFetch)) {
+      try {
+        await this.fetchStreakInfo();
+      } catch (err) {}
+    }
+
     const curPoints = user ? user.point_balance : 0;
     const curVnd = curPoints; // 1:1 VNĐ
     const targetPayoutVnd = curVnd < 10000 ? 10000 : 50000;
@@ -3132,6 +3443,60 @@ const VibeApp = {
             </div>
           `}
         </div>
+
+        <!-- ==================== DAILY STREAK CARD ==================== -->
+        ${user && this.state.streakInfo ? `
+          <div class="bg-white dark:bg-[#18181B] rounded-2xl border border-stone-200 dark:border-stone-800 p-4 sm:p-5 shadow-xs mb-3 transition-all">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3.5">
+              
+              <!-- Left: Streak Status & Flame Icon -->
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-orange-50 dark:bg-orange-950/50 border border-orange-200 dark:border-orange-800 flex items-center justify-center text-orange-600 dark:text-orange-400 flex-shrink-0 cursor-pointer" onclick="VibeApp.openStreakModal()">
+                  <i data-lucide="flame" class="w-5 h-5 stroke-[2]"></i>
+                </div>
+                <div>
+                  <div class="flex items-center gap-2">
+                    <span class="font-extrabold text-sm text-slate-900 dark:text-white">Chuỗi Điểm Danh: <span class="text-orange-600 dark:text-orange-500 font-mono font-black">${this.state.streakInfo.current_streak} ngày</span></span>
+                    ${this.state.streakInfo.has_checked_in_today ? `
+                      <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 flex items-center gap-1">
+                        <i data-lucide="check" class="w-3 h-3"></i> Đã nhận hôm nay
+                      </span>
+                    ` : `
+                      <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-orange-50 text-orange-700 dark:bg-orange-950/40 dark:text-orange-400 border border-orange-200 dark:border-orange-800">
+                        Chưa điểm danh
+                      </span>
+                    `}
+                  </div>
+                  <p class="text-xs text-stone-500 dark:text-stone-400 mt-0.5">
+                    ${this.state.streakInfo.has_checked_in_today 
+                      ? 'Bạn đã duy trì chuỗi hôm nay. Hãy quay lại vào ngày mai để tiếp tục nhận thưởng!' 
+                      : `Điểm danh hôm nay để nhận +${this.state.streakInfo.today_reward_points} Point vào ví.`}
+                  </p>
+                </div>
+              </div>
+
+              <!-- Right: Checkin CTA or View Roadmap -->
+              <div class="flex items-center gap-2 shrink-0">
+                ${!this.state.streakInfo.has_checked_in_today ? `
+                  <button onclick="VibeApp.performCheckin()" class="h-9 px-4 rounded-xl bg-orange-600 hover:bg-orange-700 text-white font-bold text-xs shadow-sm transition-all active:scale-95 flex items-center gap-1.5 whitespace-nowrap cursor-pointer">
+                    <i data-lucide="zap" class="w-3.5 h-3.5"></i>
+                    <span>Điểm Danh Ngay (+${this.state.streakInfo.today_reward_points} Điểm)</span>
+                  </button>
+                ` : `
+                  <button onclick="VibeApp.openStreakModal()" class="h-9 px-3.5 rounded-xl bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-300 font-bold text-xs transition-colors flex items-center gap-1.5 whitespace-nowrap cursor-pointer">
+                    <i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i>
+                    <span>Đã Điểm Danh</span>
+                  </button>
+                `}
+                <button onclick="VibeApp.openStreakModal()" class="h-9 px-3 rounded-xl border border-stone-200 dark:border-stone-800 hover:bg-stone-50 dark:hover:bg-stone-800 text-stone-600 dark:text-stone-400 text-xs font-semibold transition-colors flex items-center gap-1 cursor-pointer" title="Xem sơ đồ 7 ngày">
+                  <i data-lucide="calendar" class="w-3.5 h-3.5"></i>
+                  <span>Lộ Trình</span>
+                </button>
+              </div>
+
+            </div>
+          </div>
+        ` : ''}
 
         <!-- ==================== THANH CÔNG CỤ LỌC TINH GỌN (PHẲNG, ÍT KHUNG) ==================== -->
         <div class="allow-overflow py-2 space-y-2.5 relative z-20 border-b border-stone-200 dark:border-stone-800 pb-3">
@@ -5230,11 +5595,16 @@ const VibeApp = {
       return;
     }
 
-    const res = await this.api('/wallet');
+    const [res, payoutsRes] = await Promise.all([
+      this.api('/wallet'),
+      this.api('/wallet/payouts').catch(() => ({ payouts: [] }))
+    ]);
     const wallet = res.wallet;
     const transactions = res.transactions || [];
+    const payouts = (payoutsRes && payoutsRes.payouts) || [];
     this.state.wallet = wallet;
     this.state.transactions = transactions;
+    this.state.payouts = payouts;
 
     const curPoints = wallet.point_balance || 0;
     const minPayout = 10000; // Mốc đổi thưởng tối thiểu từ 10.000 điểm (10.000đ quy đổi 1:1)
@@ -5314,6 +5684,74 @@ const VibeApp = {
             </div>
           </div>
 
+        </div>
+
+        <!-- Payout Requests Table -->
+        <div class="bento-card p-6 space-y-4 bg-white dark:bg-[#18181B] border border-stone-200 dark:border-stone-800 rounded-2xl shadow-xs">
+          <div class="flex justify-between items-center">
+            <h3 class="text-sm font-extrabold text-stone-900 dark:text-white">Lịch Sử Yêu Cầu Đổi Thưởng & Rút Tiền</h3>
+            <span class="text-xs text-stone-400 font-mono font-semibold">${payouts.length} yêu cầu</span>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-stone-50 dark:bg-stone-900 text-stone-500 dark:text-stone-400 font-bold uppercase tracking-wider border-b border-stone-100 dark:border-stone-800">
+                <tr>
+                  <th class="py-3 px-3.5 rounded-l-xl">Thời gian</th>
+                  <th class="py-3 px-3.5">Mệnh giá</th>
+                  <th class="py-3 px-3.5">Phương thức</th>
+                  <th class="py-3 px-3.5">Trạng thái</th>
+                  <th class="py-3 px-3.5 rounded-r-xl">Chi tiết nhận</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-stone-100 dark:divide-stone-800/60">
+                ${payouts.length === 0 ? `
+                  <tr><td colspan="5" class="py-6 text-center text-stone-400">Chưa có yêu cầu rút tiền nào.</td></tr>
+                ` : payouts.map(p => {
+                  let info = {};
+                  try { info = JSON.parse(p.recipient_info_json || '{}'); } catch (e) {}
+
+                  let statusBadge = '<span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-800">Đang chờ duyệt</span>';
+                  if (p.status === 'COMPLETED') {
+                    statusBadge = '<span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800">Đã hoàn tất</span>';
+                  } else if (p.status === 'REJECTED') {
+                    statusBadge = '<span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200 dark:bg-rose-950/40 dark:text-rose-300 dark:border-rose-800">Từ chối</span>';
+                  }
+
+                  let detailsHtml = '';
+                  if (p.payout_method === 'PHONE_CARD') {
+                    if (p.status === 'COMPLETED' && info.card_code) {
+                      detailsHtml = `
+                        <div class="space-y-1">
+                          <div class="font-mono font-bold text-stone-900 dark:text-white flex items-center gap-1.5">
+                            <span>Mã PIN: ${info.card_code}</span>
+                            <button type="button" onclick="VibeApp.copyValue('${info.card_code}', 'Mã thẻ')" class="text-orange-600 hover:underline text-[10px] font-bold">Chép</button>
+                          </div>
+                          <div class="text-[10px] text-stone-500 font-mono">Seri: ${info.card_serial || 'N/A'} - ${info.telco || 'Thẻ'}</div>
+                        </div>
+                      `;
+                    } else {
+                      detailsHtml = `<span class="text-stone-600 dark:text-stone-300">${info.telco || 'Thẻ cào'} - SĐT: ${info.phone_number || ''}</span>`;
+                    }
+                  } else if (p.payout_method === 'BANK_TRANSFER') {
+                    detailsHtml = `<div class="font-mono text-stone-900 dark:text-white font-medium">${info.bank_name || ''} - ${info.account_number || ''} <span class="text-[10px] text-stone-500 font-sans">(${info.account_name || ''})</span></div>`;
+                  } else {
+                    detailsHtml = `<div class="font-mono text-stone-900 dark:text-white font-medium">${info.bank_name || 'MoMo'} - ${info.account_number || ''}</div>`;
+                  }
+
+                  return `
+                    <tr class="hover:bg-stone-50/60 dark:hover:bg-stone-800/40 transition-colors">
+                      <td class="py-3 px-3.5 text-stone-500 dark:text-stone-400 font-mono">${new Date(p.created_at).toLocaleDateString('vi-VN')}</td>
+                      <td class="py-3 px-3.5 font-mono font-bold text-stone-900 dark:text-white">${Number(p.fiat_amount_vnd || (p.points_amount * 1)).toLocaleString('vi-VN')} đ</td>
+                      <td class="py-3 px-3.5 font-bold text-stone-700 dark:text-stone-300 text-[11px]">${p.payout_method === 'PHONE_CARD' ? 'Thẻ cào' : (p.payout_method === 'BANK_TRANSFER' ? 'Ngân hàng' : 'Ví MoMo')}</td>
+                      <td class="py-3 px-3.5">${statusBadge}</td>
+                      <td class="py-3 px-3.5">${detailsHtml}</td>
+                    </tr>
+                  `;
+                }).join('')}
+              </tbody>
+            </table>
+          </div>
         </div>
 
         <!-- Transaction Table -->
@@ -5619,9 +6057,78 @@ const VibeApp = {
 
       if (res.success) {
         this.haptic('success');
-        this.closeModal();
-        this.showToast('Yêu cầu đổi thưởng đã được tiếp nhận thành công', 'success');
-        await this.renderWalletView(document.getElementById('app-root'));
+        if (this.state.currentUser && res.newPointBalance !== undefined) {
+          this.state.currentUser.point_balance = res.newPointBalance;
+        }
+
+        // Neu duoc Auto-Payout cap ma the cao ngay lap tuc
+        if (res.isAutoPayout && res.cardDetails) {
+          const card = res.cardDetails;
+          this.showModal({
+            title: 'Cấp Thẻ Cào Thành Công (Auto-Payout)',
+            content: `
+              <div class="space-y-4 text-left">
+                <div class="p-3 bg-emerald-50 dark:bg-emerald-950/60 rounded-xl border border-emerald-200 dark:border-emerald-800 text-xs text-emerald-800 dark:text-emerald-300 space-y-1">
+                  <div class="font-bold flex items-center gap-1.5">
+                    <i data-lucide="check-circle" class="w-4 h-4 text-emerald-600"></i>
+                    <span>Tự động phê duyệt & cấp mã thẻ tức thì</span>
+                  </div>
+                  <p class="text-[11px] leading-relaxed">
+                    Tài khoản của bạn đạt điểm uy tín cao. Thẻ cào điện thoại đã được hệ thống kích hoạt thành công.
+                  </p>
+                </div>
+
+                <div class="p-3.5 bg-stone-50 dark:bg-stone-900 rounded-2xl border border-stone-200 dark:border-stone-800 space-y-2.5 text-xs">
+                  <div class="flex justify-between items-center pb-2 border-b border-stone-200/80 dark:border-stone-800">
+                    <span class="text-stone-500 dark:text-stone-400">Nhà mạng:</span>
+                    <span class="font-extrabold text-stone-900 dark:text-white uppercase tracking-wider">${card.telco}</span>
+                  </div>
+                  <div class="flex justify-between items-center pb-2 border-b border-stone-200/80 dark:border-stone-800">
+                    <span class="text-stone-500 dark:text-stone-400">Mệnh giá thẻ:</span>
+                    <span class="font-mono font-extrabold text-orange-600 dark:text-orange-400">${Number(card.card_value_vnd).toLocaleString('vi-VN')} VNĐ</span>
+                  </div>
+                  <div class="p-2.5 bg-white dark:bg-stone-800 rounded-xl border border-stone-200 dark:border-stone-700 flex items-center justify-between">
+                    <div>
+                      <div class="text-[10px] text-stone-500 dark:text-stone-400 font-medium">Mã nạp (PIN):</div>
+                      <div class="font-mono font-black text-sm text-stone-900 dark:text-white tracking-widest select-all">${card.card_code}</div>
+                    </div>
+                    <button type="button" onclick="VibeApp.copyValue('${card.card_code}', 'Mã nạp thẻ')" class="px-2.5 py-1.5 bg-orange-600 hover:bg-orange-700 text-white rounded-lg font-bold text-[11px] shadow-xs transition-all">
+                      Sao chép
+                    </button>
+                  </div>
+                  <div class="p-2.5 bg-white dark:bg-stone-800 rounded-xl border border-stone-200 dark:border-stone-700 flex items-center justify-between">
+                    <div>
+                      <div class="text-[10px] text-stone-500 dark:text-stone-400 font-medium">Số Seri:</div>
+                      <div class="font-mono font-bold text-xs text-stone-700 dark:text-stone-300 select-all">${card.card_serial}</div>
+                    </div>
+                    <button type="button" onclick="VibeApp.copyValue('${card.card_serial}', 'Số seri')" class="px-2.5 py-1.5 bg-stone-100 dark:bg-stone-700 hover:bg-stone-200 text-stone-700 dark:text-stone-200 rounded-lg font-bold text-[11px] transition-all">
+                      Sao chép
+                    </button>
+                  </div>
+                  <div class="text-[10px] text-stone-400 font-medium">
+                    Hạn sử dụng: ${card.expiry_date || 'Không thời hạn'}
+                  </div>
+                </div>
+
+                <div class="flex gap-2 pt-1">
+                  <a href="tel:*100*${card.card_code}%23" class="flex-1 py-2.5 px-3 bg-emerald-600 hover:bg-emerald-700 text-white text-center rounded-xl text-xs font-bold transition-all shadow-xs flex items-center justify-center gap-1.5">
+                    <i data-lucide="phone-call" class="w-3.5 h-3.5"></i>
+                    <span>Nạp Ngay (*100*MÃ#)</span>
+                  </a>
+                  <button type="button" onclick="VibeApp.closeModal(); VibeApp.navigateTo('wallet');" class="py-2.5 px-4 bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-300 rounded-xl text-xs font-bold transition-all">
+                    Đóng
+                  </button>
+                </div>
+              </div>
+            `
+          });
+        } else {
+          this.closeModal();
+          this.showToast(res.message || 'Yêu cầu đổi thưởng đã được tiếp nhận thành công', 'success');
+        }
+
+        const appRoot = document.getElementById('app-root');
+        if (appRoot) await this.renderWalletView(appRoot);
       }
     } catch (err) {
       this.showToast(err.message, 'error');
@@ -5862,27 +6369,237 @@ const VibeApp = {
   },
 
   async submitDepositAction() {
-    const amount = parseInt(document.getElementById('deposit-amount-input').value, 10);
-    if (isNaN(amount) || amount < 10000) {
-      this.showToast('Vui lòng nhập số tiền nạp hợp lệ', 'warning');
+    const input = document.getElementById('deposit-amount-input');
+    if (!input) return;
+    const amount = parseInt(input.value, 10);
+    if (isNaN(amount) || amount < 20000) {
+      this.showToast('Số tiền nạp tối thiểu là 20.000 VNĐ', 'warning');
       return;
     }
 
     try {
-      const res = await this.api('/wallet/deposit', {
+      this.haptic('light');
+      const res = await this.api('/wallet/create-deposit-order', {
         method: 'POST',
-        body: JSON.stringify({ amount_vnd: amount, description: 'Nạp quỹ khảo sát VibeSurvey' })
+        body: JSON.stringify({ amount_vnd: amount })
       });
 
       if (res.success) {
-        this.haptic('success');
-        this.showToast(res.message, 'success');
-        if (this.state.currentUser) {
-          this.state.currentUser.credit_balance = res.newCreditBalance;
-          if (res.newPointBalance !== undefined) this.state.currentUser.point_balance = res.newPointBalance;
+        this.showVietQrPaymentModal(res);
+      }
+    } catch (err) {
+      this.showToast(err.message, 'error');
+    }
+  },
+
+  showVietQrPaymentModal(order) {
+    if (this._depositPollInterval) clearInterval(this._depositPollInterval);
+    if (this._depositTimerInterval) clearInterval(this._depositTimerInterval);
+
+    const bank = order.bankInfo || {};
+    let remainingSec = order.expiresInSec || 900;
+
+    this.showModal({
+      title: 'Thanh Toán Quét Mã VietQR Napas247',
+      content: `
+        <div class="space-y-4 text-left">
+          
+          <!-- Thanh trạng thái & Bộ đếm -->
+          <div class="p-3 bg-orange-50/80 dark:bg-stone-900 rounded-xl border border-orange-200/80 dark:border-stone-800 flex items-center justify-between text-xs">
+            <div class="flex items-center gap-2">
+              <span class="inline-block w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse"></span>
+              <span class="font-bold text-stone-900 dark:text-white" id="deposit-status-text">Đang chờ quét mã chuyển khoản...</span>
+            </div>
+            <div class="font-mono font-bold text-orange-600 dark:text-orange-400 bg-white dark:bg-stone-800 px-2.5 py-1 rounded-lg border border-orange-200 dark:border-stone-700 shadow-xs" id="deposit-countdown-timer">
+              15:00
+            </div>
+          </div>
+
+          <!-- Khung QR & Chi tiết chuyển khoản -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
+            
+            <!-- Cột trái: Mã VietQR động -->
+            <div class="flex flex-col items-center justify-center p-3 bg-white dark:bg-stone-900 rounded-2xl border border-stone-200 dark:border-stone-800 shadow-xs text-center">
+              <div class="w-48 h-48 sm:w-52 sm:h-52 bg-white p-2 rounded-xl border border-stone-100 dark:border-stone-800 flex items-center justify-center overflow-hidden">
+                <img src="${order.qrUrl}" alt="VietQR Napas247" class="w-full h-full object-contain select-none">
+              </div>
+              <div class="mt-2 text-[11px] text-stone-500 dark:text-stone-400 font-medium">
+                Mở ứng dụng ngân hàng bất kỳ để quét mã
+              </div>
+            </div>
+
+            <!-- Cột phải: Thông tin nhận tiền -->
+            <div class="space-y-2 text-xs">
+              <div class="p-2.5 bg-stone-50 dark:bg-stone-900/90 rounded-xl border border-stone-200/80 dark:border-stone-800">
+                <div class="text-[10px] text-stone-500 dark:text-stone-400">Ngân hàng thụ hưởng:</div>
+                <div class="font-bold text-stone-900 dark:text-white text-xs mt-0.5">${bank.bank_name || 'MBBank (Ngân hàng Quân Đội)'}</div>
+              </div>
+
+              <div class="p-2.5 bg-stone-50 dark:bg-stone-900/90 rounded-xl border border-stone-200/80 dark:border-stone-800 flex items-center justify-between">
+                <div>
+                  <div class="text-[10px] text-stone-500 dark:text-stone-400">Số tài khoản:</div>
+                  <div class="font-mono font-bold text-stone-900 dark:text-white text-sm mt-0.5">${bank.account_number}</div>
+                </div>
+                <button type="button" onclick="VibeApp.copyValue('${bank.account_number}', 'Số tài khoản')" class="px-2.5 py-1.5 bg-white dark:bg-stone-800 hover:bg-stone-100 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-300 rounded-lg font-bold border border-stone-200 dark:border-stone-700 text-[11px] transition-all">
+                  Sao chép
+                </button>
+              </div>
+
+              <div class="p-2.5 bg-stone-50 dark:bg-stone-900/90 rounded-xl border border-stone-200/80 dark:border-stone-800 flex items-center justify-between">
+                <div>
+                  <div class="text-[10px] text-stone-500 dark:text-stone-400">Chủ tài khoản:</div>
+                  <div class="font-bold text-stone-900 dark:text-white text-xs mt-0.5">${bank.account_name}</div>
+                </div>
+                <button type="button" onclick="VibeApp.copyValue('${bank.account_name}', 'Tên chủ tài khoản')" class="px-2.5 py-1.5 bg-white dark:bg-stone-800 hover:bg-stone-100 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-300 rounded-lg font-bold border border-stone-200 dark:border-stone-700 text-[11px] transition-all">
+                  Sao chép
+                </button>
+              </div>
+
+              <div class="p-2.5 bg-stone-50 dark:bg-stone-900/90 rounded-xl border border-stone-200/80 dark:border-stone-800 flex items-center justify-between">
+                <div>
+                  <div class="text-[10px] text-stone-500 dark:text-stone-400">Số tiền nạp:</div>
+                  <div class="font-mono font-bold text-orange-600 dark:text-orange-400 text-sm mt-0.5">${Number(order.amountVnd).toLocaleString('vi-VN')} VNĐ</div>
+                </div>
+                <button type="button" onclick="VibeApp.copyValue('${order.amountVnd}', 'Số tiền')" class="px-2.5 py-1.5 bg-white dark:bg-stone-800 hover:bg-stone-100 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-300 rounded-lg font-bold border border-stone-200 dark:border-stone-700 text-[11px] transition-all">
+                  Sao chép
+                </button>
+              </div>
+
+              <div class="p-2.5 bg-orange-50/70 dark:bg-stone-900 rounded-xl border border-orange-200/80 dark:border-stone-800 flex items-center justify-between">
+                <div>
+                  <div class="text-[10px] text-orange-600 dark:text-orange-400 font-bold">Nội dung chuyển khoản (Memo):</div>
+                  <div class="font-mono font-black text-stone-900 dark:text-white text-sm mt-0.5 tracking-wider">${order.orderCode}</div>
+                </div>
+                <button type="button" onclick="VibeApp.copyValue('${order.orderCode}', 'Nội dung chuyển khoản')" class="px-2.5 py-1.5 bg-orange-600 hover:bg-orange-700 text-white rounded-lg font-bold text-[11px] shadow-xs transition-all">
+                  Sao chép
+                </button>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Lưu ý quan trọng -->
+          <div class="p-2.5 bg-stone-100 dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 text-[11px] text-stone-600 dark:text-stone-300 leading-relaxed">
+            Hệ thống ngân hàng tự động đối soát trong 3 giây khi nhận đúng số tiền và mã nội dung <strong>${order.orderCode}</strong>. Tổng Credit nhận: <strong>${Number(order.creditAmount).toLocaleString('vi-VN')} Credit</strong>${order.bonusCreditVnd > 0 ? ' (Đã gồm +' + Number(order.bonusCreditVnd).toLocaleString('vi-VN') + ' Credit thưởng)' : ''}.
+          </div>
+
+          <!-- Nút hành động & Giả lập thanh toán -->
+          <div class="flex flex-col sm:flex-row gap-2 pt-1">
+            <button type="button" onclick="VibeApp.checkDepositStatus('${order.orderCode}', false)" class="flex-1 py-2.5 px-3 bg-stone-900 hover:bg-stone-800 text-white rounded-xl text-xs font-bold transition-all shadow-xs active:scale-[0.98]">
+              Kiểm Tra Trạng Thái
+            </button>
+            <button type="button" onclick="VibeApp.simulatePaymentSuccess('${order.orderCode}')" class="py-2.5 px-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition-all shadow-xs active:scale-[0.98]">
+              Mô Phỏng Thanh Toán (Dev/Test)
+            </button>
+            <button type="button" onclick="VibeApp.closeModal()" class="py-2.5 px-3 bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-300 rounded-xl text-xs font-bold transition-all active:scale-[0.98]">
+              Đóng
+            </button>
+          </div>
+
+        </div>
+      `
+    });
+
+    // Khoi chay bo dem nguoc 15:00
+    this._depositTimerInterval = setInterval(() => {
+      remainingSec--;
+      const min = Math.floor(remainingSec / 60);
+      const sec = remainingSec % 60;
+      const timerEl = document.getElementById('deposit-countdown-timer');
+      if (timerEl) {
+        timerEl.textContent = `${String(min).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
+      }
+      if (remainingSec <= 0) {
+        clearInterval(this._depositTimerInterval);
+        clearInterval(this._depositPollInterval);
+        const statusEl = document.getElementById('deposit-status-text');
+        if (statusEl) statusEl.textContent = 'Đơn nạp đã hết hạn thanh toán';
+      }
+    }, 1000);
+
+    // Khoi chay Polling tu dong kiem tra trang thai don nap moi 2.5 giay
+    this._depositPollInterval = setInterval(() => {
+      this.checkDepositStatus(order.orderCode, true);
+    }, 2500);
+  },
+
+  async checkDepositStatus(orderCode, isSilent = false) {
+    try {
+      const res = await this.api(`/wallet/deposit-orders/${orderCode}`);
+      if (res && res.success && res.order) {
+        const order = res.order;
+        if (order.status === 'COMPLETED') {
+          if (this._depositPollInterval) clearInterval(this._depositPollInterval);
+          if (this._depositTimerInterval) clearInterval(this._depositTimerInterval);
+
+          this.haptic('success');
+          if (this.state.currentUser) {
+            this.state.currentUser.credit_balance = (this.state.currentUser.credit_balance || 0) + (order.creditAmount || order.credit_amount || order.amount_vnd);
+          }
+          this.applyUserInterface();
+
+          // Cap nhat modal sang man hinh Chuc mung
+          this.showModal({
+            title: 'Nạp Tiền Thành Công',
+            content: `
+              <div class="space-y-4 text-center py-2">
+                <div class="w-14 h-14 bg-emerald-100 dark:bg-emerald-950/60 rounded-full flex items-center justify-center mx-auto text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
+                  <i data-lucide="check" class="w-7 h-7 stroke-[2.5]"></i>
+                </div>
+                <div>
+                  <h3 class="text-base font-extrabold text-stone-900 dark:text-white">Giao Dịch Đã Hoàn Tất</h3>
+                  <p class="text-xs text-stone-500 dark:text-stone-400 mt-1">Đơn nạp mã <strong>${orderCode}</strong> đã được hệ thống ghi nhận thành công.</p>
+                </div>
+
+                <div class="p-3 bg-stone-50 dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 text-xs space-y-1.5 text-left max-w-sm mx-auto">
+                  <div class="flex justify-between text-stone-600 dark:text-stone-400">
+                    <span>Số tiền nạp:</span>
+                    <span class="font-mono font-bold text-stone-900 dark:text-white">${Number(order.amount_vnd).toLocaleString('vi-VN')} VNĐ</span>
+                  </div>
+                  <div class="flex justify-between text-stone-600 dark:text-stone-400">
+                    <span>Credit được cộng:</span>
+                    <span class="font-mono font-extrabold text-orange-600 dark:text-orange-400">+${Number(order.credit_amount || order.amount_vnd).toLocaleString('vi-VN')} Credit</span>
+                  </div>
+                </div>
+
+                <div class="pt-2">
+                  <button type="button" onclick="VibeApp.closeModal(); VibeApp.navigateTo('wallet');" class="w-full py-2.5 bg-orange-600 hover:bg-orange-700 text-white rounded-xl text-xs font-bold shadow-xs transition-all active:scale-[0.98]">
+                    Xem Số Dư Ví & Tiếp Tục
+                  </button>
+                </div>
+              </div>
+            `
+          });
+          return;
+        } else if (order.status === 'EXPIRED') {
+          if (this._depositPollInterval) clearInterval(this._depositPollInterval);
+          if (this._depositTimerInterval) clearInterval(this._depositTimerInterval);
+          const statusEl = document.getElementById('deposit-status-text');
+          if (statusEl) statusEl.textContent = 'Đơn nạp đã hết hạn thanh toán';
+          if (!isSilent) this.showToast('Đơn nạp này đã hết hạn', 'warning');
+          return;
         }
-        this.closeModal();
-        this.applyUserInterface();
+      }
+
+      if (!isSilent) {
+        this.showToast('Đang chờ đối soát tiền vào tài khoản...', 'info');
+      }
+    } catch (err) {
+      if (!isSilent) this.showToast(err.message, 'error');
+    }
+  },
+
+  async simulatePaymentSuccess(orderCode) {
+    try {
+      this.haptic('light');
+      const res = await this.api('/wallet/simulate-payment-success', {
+        method: 'POST',
+        body: JSON.stringify({ order_code: orderCode })
+      });
+
+      if (res.success) {
+        this.showToast('Đã mô phỏng thanh toán ngân hàng thành công!', 'success');
+        await this.checkDepositStatus(orderCode, false);
       }
     } catch (err) {
       this.showToast(err.message, 'error');
@@ -11680,6 +12397,14 @@ const VibeApp = {
   },
 
   closeModal() {
+    if (this._depositPollInterval) {
+      clearInterval(this._depositPollInterval);
+      this._depositPollInterval = null;
+    }
+    if (this._depositTimerInterval) {
+      clearInterval(this._depositTimerInterval);
+      this._depositTimerInterval = null;
+    }
     const container = document.getElementById('modal-container');
     const card = document.getElementById('modal-card');
     if (container) container.classList.add('hidden');
@@ -11688,12 +12413,524 @@ const VibeApp = {
     }
   },
 
+  copyValue(text, label = 'nội dung') {
+    this.haptic('success');
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(String(text));
+    }
+    this.showToast(`Đã sao chép ${label}!`, 'success');
+  },
+
   copyText(text) {
     this.haptic('success');
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(text);
     }
     this.showToast('Đã sao chép mã ưu đãi!', 'success');
+  },
+
+  // ==================== CƠ CHẾ THÔNG BÁO ĐẨY THỜI GIAN THỰC & ANDROID HYBRID ====================
+
+  /**
+   * Khởi tạo cơ chế thông báo đẩy (Web Push API & Capacitor LocalNotifications)
+   */
+  initPushNotifications() {
+    this._shownAlerts = this._shownAlerts || new Set();
+    this._lastAlertCheckTime = Date.now();
+
+    // 1. Kiểm tra hiển thị Banner xin cấp quyền Web Notification
+    const bannerDismissed = localStorage.getItem('vibesurvey_push_banner_dismissed') === '1';
+    const bannerEl = document.getElementById('push-permission-banner');
+
+    if ('Notification' in window) {
+      if (Notification.permission === 'default' && !bannerDismissed && bannerEl) {
+        bannerEl.classList.remove('hidden');
+        if (window.lucide) window.lucide.createIcons();
+      } else if (Notification.permission === 'granted') {
+        // Tự động đồng bộ endpoint lên server
+        this.syncPushSubscriptionToServer().catch(() => {});
+      }
+    }
+
+    // 2. Tương thích Android Capacitor LocalNotifications
+    if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.LocalNotifications) {
+      try {
+        window.Capacitor.Plugins.LocalNotifications.addListener('localNotificationActionPerformed', (action) => {
+          const surveyId = action?.notification?.extra?.surveyId;
+          if (surveyId) {
+            this.handleDeepLinkSurvey(surveyId);
+          }
+        });
+      } catch (capErr) {
+        console.warn('Lỗi lắng nghe sự kiện Capacitor LocalNotifications:', capErr);
+      }
+    }
+
+    // 3. Khởi động chu kỳ Polling thông báo thời gian thực
+    this.startNotificationPolling();
+
+    // 4. Lấy số lượng thông báo chưa đọc khởi tạo
+    this.refreshNotificationBadge();
+  },
+
+  /**
+   * Đóng và ghi nhớ trạng thái từ chối banner cấp quyền thông báo
+   */
+  dismissPushBanner() {
+    localStorage.setItem('vibesurvey_push_banner_dismissed', '1');
+    const bannerEl = document.getElementById('push-permission-banner');
+    if (bannerEl) bannerEl.classList.add('hidden');
+  },
+
+  /**
+   * Yêu cầu cấp quyền nhận thông báo trên trình duyệt hoặc Android App
+   */
+  async requestPushPermission() {
+    this.haptic('light');
+
+    // 1. Yêu cầu quyền trên Android Capacitor
+    if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.LocalNotifications) {
+      try {
+        await window.Capacitor.Plugins.LocalNotifications.requestPermissions();
+      } catch (err) {
+        console.warn('Yêu cầu quyền Android LocalNotifications:', err);
+      }
+    }
+
+    // 2. Yêu cầu quyền qua Web Notification API
+    if ('Notification' in window) {
+      try {
+        const perm = await Notification.requestPermission();
+        this.dismissPushBanner();
+        if (perm === 'granted') {
+          await this.syncPushSubscriptionToServer();
+          this.showToast('Bật thông báo thành công! Bạn sẽ nhận tin ngay khi có khảo sát thưởng cao.', 'success');
+        } else {
+          this.showToast('Bạn đã từ chối nhận thông báo. Bạn có thể bật lại trong cài đặt trang web.', 'info');
+        }
+      } catch (permErr) {
+        console.warn('Lỗi gọi Notification.requestPermission:', permErr);
+        this.dismissPushBanner();
+      }
+    } else {
+      this.dismissPushBanner();
+      this.showToast('Trình duyệt hiện tại chưa hỗ trợ API thông báo đẩy Web Notification.', 'info');
+    }
+  },
+
+  /**
+   * Đồng bộ Endpoint thiết bị / trình duyệt lên máy chủ lưu vào push_subscriptions
+   */
+  async syncPushSubscriptionToServer() {
+    try {
+      let endpoint = localStorage.getItem('vibesurvey_push_endpoint');
+      if (!endpoint) {
+        const devicePrefix = window.Capacitor ? 'android' : 'web';
+        const randomId = (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : Math.random().toString(36).substring(2) + Date.now().toString(36);
+        endpoint = `vibesurvey://${devicePrefix}/${randomId}`;
+        localStorage.setItem('vibesurvey_push_endpoint', endpoint);
+      }
+
+      await this.api('/notifications/subscribe-push', {
+        method: 'POST',
+        body: JSON.stringify({
+          endpoint,
+          device_type: window.Capacitor ? 'ANDROID' : 'WEB'
+        })
+      });
+    } catch (err) {
+      console.warn('Lỗi đồng bộ push subscription lên server:', err.message);
+    }
+  },
+
+  /**
+   * Bắt đầu vòng lặp định kỳ lấy thông báo chưa đọc và tin phát sóng thời gian thực
+   */
+  startNotificationPolling() {
+    if (this._notifPollInterval) {
+      clearInterval(this._notifPollInterval);
+    }
+
+    // Lặp mỗi 20 giây để cập nhật tin phát sóng và đếm số thông báo chưa đọc
+    this._notifPollInterval = setInterval(() => {
+      this.pollNotifications();
+    }, 20000);
+
+    // Kích hoạt tức thì khi người dùng quay lại tab trình duyệt
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) {
+        this.pollNotifications();
+      }
+    });
+  },
+
+  /**
+   * Thực hiện một lần kiểm tra thông báo và tin phát sóng
+   */
+  async pollNotifications() {
+    try {
+      const since = this._lastAlertCheckTime || (Date.now() - 30000);
+      this._lastAlertCheckTime = Date.now();
+
+      if (this.state.token) {
+        const res = await this.api(`/notifications/unread-count?since=${since}`);
+        if (res && res.success) {
+          this.updateNotificationBadge(res.unreadCount);
+
+          if (Array.isArray(res.recentBroadcasts) && res.recentBroadcasts.length > 0) {
+            for (const alert of res.recentBroadcasts) {
+              if (!this._shownAlerts.has(alert.id)) {
+                this._shownAlerts.add(alert.id);
+                this.triggerAlertArrival(alert);
+              }
+            }
+          }
+        }
+      } else {
+        // Khách vãng lai: Kiểm tra các tin phát sóng khảo sát hỏa tốc công khai
+        const res = await this.api(`/notifications/realtime-alerts?since=${since}`);
+        if (res && res.success && Array.isArray(res.alerts)) {
+          for (const alert of res.alerts) {
+            if (!this._shownAlerts.has(alert.id)) {
+              this._shownAlerts.add(alert.id);
+              this.triggerAlertArrival(alert);
+            }
+          }
+        }
+      }
+    } catch (err) {
+      // Bỏ qua lỗi mạng nền khi polling
+    }
+  },
+
+  /**
+   * Kích hoạt toàn bộ hiệu ứng khi có thông báo thưởng cao mới đến
+   */
+  triggerAlertArrival(alert) {
+    // 1. Rung chuông thông báo trên thanh Header
+    this.ringNotificationBell();
+
+    // 2. Hiển thị Popup đẩy thông báo ở góc màn hình
+    this.showPushPopup(alert);
+
+    // 3. Kích hoạt Web Notification nếu đã được cấp quyền
+    if ('Notification' in window && Notification.permission === 'granted') {
+      try {
+        const n = new Notification(alert.title || '[HỎA TỐC] Khảo sát mới', {
+          body: alert.body || 'Khảo sát thù lao cao vừa mở.',
+          icon: '/logo.svg',
+          badge: '/logo.svg',
+          tag: 'survey-' + (alert.survey_id || 'new')
+        });
+        n.onclick = () => {
+          window.focus();
+          if (alert.survey_id) this.handleDeepLinkSurvey(alert.survey_id);
+          n.close();
+        };
+      } catch (e) {}
+    }
+
+    // 4. Kích hoạt Native Notification trên Android Capacitor
+    if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.LocalNotifications) {
+      try {
+        window.Capacitor.Plugins.LocalNotifications.schedule({
+          notifications: [{
+            title: alert.title || '[HỎA TỐC] Khảo sát thưởng cao',
+            body: alert.body || 'Bấm để tham gia nhận thưởng ngay.',
+            id: Math.floor(Math.random() * 100000),
+            schedule: { at: new Date(Date.now() + 300) },
+            extra: { surveyId: alert.survey_id }
+          }]
+        }).catch(() => {});
+      } catch (capErr) {}
+    }
+  },
+
+  /**
+   * Hiệu ứng rung chuông trên Header và rung thiết bị di động
+   */
+  ringNotificationBell() {
+    this.haptic('success');
+    if (navigator.vibrate) {
+      try { navigator.vibrate([120, 60, 120]); } catch (e) {}
+    }
+
+    const bellIcon = document.getElementById('header-bell-icon');
+    if (bellIcon) {
+      bellIcon.classList.remove('animate-bell-ring');
+      void bellIcon.offsetWidth; // Trigger reflow
+      bellIcon.classList.add('animate-bell-ring');
+
+      setTimeout(() => {
+        bellIcon.classList.remove('animate-bell-ring');
+      }, 3500);
+    }
+  },
+
+  /**
+   * Cập nhật số đếm thông báo chưa đọc trên chuông Header
+   */
+  updateNotificationBadge(count = 0) {
+    const badgeEl = document.getElementById('header-notif-badge');
+    if (!badgeEl) return;
+
+    const num = parseInt(count, 10) || 0;
+    if (num > 0) {
+      badgeEl.textContent = num > 99 ? '99+' : String(num);
+      badgeEl.classList.remove('hidden');
+      badgeEl.classList.add('flex');
+    } else {
+      badgeEl.classList.add('hidden');
+      badgeEl.classList.remove('flex');
+    }
+  },
+
+  /**
+   * Làm mới số đếm thông báo chưa đọc từ server
+   */
+  async refreshNotificationBadge() {
+    if (!this.state.token) {
+      this.updateNotificationBadge(0);
+      return;
+    }
+    try {
+      const res = await this.api('/notifications/unread-count');
+      if (res && res.success) {
+        this.updateNotificationBadge(res.unreadCount);
+      }
+    } catch (e) {}
+  },
+
+  /**
+   * Hiển thị Popup đẩy thông báo ở góc màn hình (Floating Banner)
+   */
+  showPushPopup(alert) {
+    const container = document.getElementById('push-popup-container');
+    if (!container) return;
+
+    const popupId = 'popup-' + (alert.id || Math.random().toString(36).substring(2));
+    const titleClean = (alert.title || 'Khảo sát thưởng cao').replace(/^\[HỎA TỐC\]\s*/i, '');
+    const pointsText = alert.reward_points ? `+${Number(alert.reward_points).toLocaleString('vi-VN')} Điểm` : '';
+
+    const card = document.createElement('div');
+    card.id = popupId;
+    card.className = 'pointer-events-auto bg-white dark:bg-[#18181B] border border-orange-500/40 rounded-2xl p-4 shadow-2xl max-w-sm w-full push-popup-enter transition-all select-none';
+
+    card.innerHTML = `
+      <div class="flex items-start justify-between gap-3">
+        <div class="flex items-start gap-2.5">
+          <div class="w-8 h-8 rounded-xl bg-orange-50 dark:bg-orange-950/40 border border-orange-200 dark:border-orange-800 flex items-center justify-center shrink-0 text-orange-600">
+            <i data-lucide="zap" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <div class="flex items-center gap-1.5 flex-wrap">
+              <span class="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded bg-orange-100 dark:bg-orange-950/60 text-orange-700 dark:text-orange-400 border border-orange-200 dark:border-orange-800">
+                [HỎA TỐC]
+              </span>
+              ${pointsText ? `<span class="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 font-mono">${pointsText}</span>` : ''}
+            </div>
+            <h4 class="text-xs font-bold text-stone-900 dark:text-white mt-1 leading-snug line-clamp-2">
+              ${titleClean}
+            </h4>
+            <p class="text-[11px] text-stone-500 dark:text-stone-400 mt-1 line-clamp-2">
+              ${alert.body || ''}
+            </p>
+            <div class="mt-2.5 flex items-center gap-2">
+              <button onclick="VibeApp.handlePushAction('${alert.survey_id}', '${popupId}')" class="px-3 py-1.5 bg-orange-600 hover:bg-orange-700 text-white rounded-lg text-[11px] font-bold shadow-sm transition-all active:scale-95 flex items-center gap-1">
+                <span>Làm Khảo Sát Ngay</span>
+                <i data-lucide="arrow-right" class="w-3 h-3"></i>
+              </button>
+              <button onclick="VibeApp.dismissPushPopup('${popupId}')" class="px-2 py-1.5 rounded-lg text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 text-[11px] font-medium transition-colors">
+                Bỏ qua
+              </button>
+            </div>
+          </div>
+        </div>
+        <button onclick="VibeApp.dismissPushPopup('${popupId}')" class="text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 p-1 flex-shrink-0" title="Đóng">
+          <i data-lucide="x" class="w-3.5 h-3.5"></i>
+        </button>
+      </div>
+    `;
+
+    container.appendChild(card);
+    if (window.lucide) window.lucide.createIcons();
+
+    // Tự động đóng sau 12 giây
+    setTimeout(() => {
+      this.dismissPushPopup(popupId);
+    }, 12000);
+  },
+
+  /**
+   * Đóng một popup thông báo đẩy
+   */
+  dismissPushPopup(popupId) {
+    const el = document.getElementById(popupId);
+    if (el) {
+      el.style.opacity = '0';
+      el.style.transform = 'translateX(100%)';
+      setTimeout(() => el.remove(), 250);
+    }
+  },
+
+  /**
+   * Xử lý nút hành động trên Popup thông báo
+   */
+  handlePushAction(surveyId, popupId) {
+    this.dismissPushPopup(popupId);
+    const dd = document.getElementById('header-notif-dropdown');
+    if (dd) dd.classList.add('hidden');
+    if (surveyId) {
+      this.handleDeepLinkSurvey(surveyId);
+    }
+  },
+
+  /**
+   * Bật / tắt hiển thị Dropdown danh sách thông báo trên Header
+   */
+  toggleNotificationsDropdown() {
+    this.haptic('light');
+    const dropdown = document.getElementById('header-notif-dropdown');
+    if (!dropdown) return;
+
+    const isHidden = dropdown.classList.contains('hidden');
+    this.closeAllCustomDropdowns();
+
+    if (isHidden) {
+      dropdown.classList.remove('hidden');
+      this.loadNotificationsList();
+    }
+  },
+
+  /**
+   * Nạp và hiển thị danh sách thông báo trong dropdown
+   */
+  async loadNotificationsList() {
+    const listEl = document.getElementById('header-notif-list');
+    if (!listEl) return;
+
+    if (!this.state.token) {
+      listEl.innerHTML = `
+        <div class="py-6 px-4 text-center space-y-2">
+          <p class="text-stone-500 dark:text-stone-400 text-xs">Vui lòng đăng nhập để xem thông báo cá nhân và khảo sát dành riêng cho bạn.</p>
+          <button onclick="VibeApp.toggleNotificationsDropdown(); VibeApp.openAuthModal('login')" class="px-4 py-1.5 bg-orange-600 hover:bg-orange-700 text-white rounded-lg text-xs font-bold">
+            Đăng Nhập Ngay
+          </button>
+        </div>
+      `;
+      return;
+    }
+
+    listEl.innerHTML = '<div class="py-6 text-center text-stone-400 text-xs">Đang tải thông báo...</div>';
+
+    try {
+      const res = await this.api('/notifications');
+      const notifications = (res && res.notifications) || [];
+
+      if (notifications.length === 0) {
+        listEl.innerHTML = `
+          <div class="py-8 text-center text-stone-400 dark:text-stone-500 space-y-1">
+            <div class="w-8 h-8 mx-auto rounded-full bg-stone-100 dark:bg-stone-800 flex items-center justify-center text-stone-400">
+              <i data-lucide="bell-off" class="w-4 h-4"></i>
+            </div>
+            <p class="text-xs font-medium">Hiện chưa có thông báo mới</p>
+          </div>
+        `;
+        if (window.lucide) window.lucide.createIcons();
+        return;
+      }
+
+      listEl.innerHTML = notifications.map(n => {
+        const isUnread = n.is_read === 0;
+        const timeAgo = this._formatTimeAgo(n.created_at);
+        const reward = n.reward_points_per_response ? `+${n.reward_points_per_response.toLocaleString('vi-VN')} Điểm` : '';
+
+        return `
+          <div onclick="VibeApp.clickNotificationItem('${n.id}', '${n.survey_id || ''}')" class="p-2.5 rounded-xl hover:bg-stone-50 dark:hover:bg-stone-900 cursor-pointer transition-colors flex items-start gap-2.5 ${isUnread ? 'bg-orange-50/40 dark:bg-orange-950/20' : ''}">
+            <div class="w-7 h-7 rounded-lg ${isUnread ? 'bg-orange-100 text-orange-600 dark:bg-orange-950/60 dark:text-orange-400' : 'bg-stone-100 text-stone-500 dark:bg-stone-800 dark:text-stone-400'} flex items-center justify-center shrink-0 mt-0.5">
+              <i data-lucide="${isUnread ? 'zap' : 'bell'}" class="w-3.5 h-3.5"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center justify-between gap-1">
+                <span class="text-xs font-bold text-stone-900 dark:text-white truncate ${isUnread ? 'text-orange-600 dark:text-orange-400 font-extrabold' : ''}">
+                  ${n.title}
+                </span>
+                <span class="text-[10px] text-stone-400 whitespace-nowrap">${timeAgo}</span>
+              </div>
+              <p class="text-[11px] text-stone-600 dark:text-stone-300 line-clamp-2 mt-0.5">
+                ${n.message}
+              </p>
+              ${reward ? `
+                <div class="mt-1.5 flex items-center gap-1.5">
+                  <span class="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 font-mono px-1.5 py-0.5 bg-emerald-50 dark:bg-emerald-950/40 rounded border border-emerald-200/60 dark:border-emerald-900/40">
+                    ${reward}
+                  </span>
+                  <span class="text-[10px] text-orange-600 hover:underline font-bold">Làm khảo sát ngay</span>
+                </div>
+              ` : ''}
+            </div>
+            ${isUnread ? '<span class="w-2 h-2 rounded-full bg-orange-600 mt-2 shrink-0"></span>' : ''}
+          </div>
+        `;
+      }).join('');
+
+      if (window.lucide) window.lucide.createIcons();
+    } catch (err) {
+      listEl.innerHTML = '<div class="py-6 text-center text-red-500 text-xs">Không thể tải danh sách thông báo</div>';
+    }
+  },
+
+  /**
+   * Xử lý khi người dùng bấm vào một thông báo cụ thể
+   */
+  async clickNotificationItem(notificationId, surveyId) {
+    try {
+      await this.api(`/notifications/${notificationId}/read`, { method: 'PUT' });
+      this.refreshNotificationBadge();
+    } catch (e) {}
+
+    const dd = document.getElementById('header-notif-dropdown');
+    if (dd) dd.classList.add('hidden');
+
+    if (surveyId) {
+      this.handleDeepLinkSurvey(surveyId);
+    }
+  },
+
+  /**
+   * Đánh dấu toàn bộ thông báo của người dùng là đã đọc
+   */
+  async markAllNotificationsAsRead() {
+    this.haptic('light');
+    try {
+      await this.api('/notifications/read-all', { method: 'PUT' });
+      this.updateNotificationBadge(0);
+      this.loadNotificationsList();
+      this.showToast('Đã đánh dấu tất cả thông báo là đã đọc.', 'success');
+    } catch (err) {
+      this.showToast('Lỗi cập nhật thông báo: ' + err.message, 'error');
+    }
+  },
+
+  /**
+   * Helper định dạng thời gian tương đối
+   */
+  _formatTimeAgo(dateStr) {
+    if (!dateStr) return '';
+    try {
+      const dt = new Date(dateStr.endsWith('Z') ? dateStr : dateStr + 'Z');
+      const diffMs = Date.now() - dt.getTime();
+      const diffSec = Math.floor(diffMs / 1000);
+      if (diffSec < 60) return 'Vừa xong';
+      const diffMin = Math.floor(diffSec / 60);
+      if (diffMin < 60) return `${diffMin} phút trước`;
+      const diffHour = Math.floor(diffMin / 60);
+      if (diffHour < 24) return `${diffHour} giờ trước`;
+      const diffDay = Math.floor(diffHour / 24);
+      return `${diffDay} ngày trước`;
+    } catch (e) {
+      return '';
+    }
   }
 };
 

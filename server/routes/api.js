@@ -6,6 +6,7 @@ const surveyController = require('../controllers/surveyController');
 const walletController = require('../controllers/walletController');
 const voucherController = require('../controllers/voucherController');
 const adminController = require('../controllers/adminController');
+const userController = require('../controllers/userController');
 const { authenticateToken, optionalAuthenticateToken, requireRole } = require('../middlewares/auth');
 const { checkIpBannedMiddleware } = require('../middlewares/ipBan');
 
@@ -34,6 +35,10 @@ router.put('/auth/enterprise/profile', authenticateToken, (req, res) => authCont
 router.post('/auth/enterprise-profile', authenticateToken, (req, res) => authController.registerEnterpriseProfile(req, res));
 router.put('/auth/enterprise-profile', authenticateToken, (req, res) => authController.registerEnterpriseProfile(req, res));
 
+// === Tuyến Đường Điểm Danh Hàng Ngày & Chuỗi Ngày (Daily Streaks Gamification) ===
+router.get('/users/streak-info', authenticateToken, (req, res) => userController.getStreakInfo(req, res));
+router.post('/users/checkin', authenticateToken, (req, res) => userController.checkin(req, res));
+
 // === 2. Tuyến Đường Khảo Sát (Surveys) ===
 // Hỗ trợ khách chưa đăng nhập vẫn xem được danh sách và nội dung khảo sát công khai
 router.get('/surveys', optionalAuthenticateToken, (req, res) => surveyController.listSurveys(req, res));
@@ -58,9 +63,20 @@ router.post('/surveys/:id/unpin', authenticateToken, requireRole(['RESPONDENT', 
 router.post('/surveys/:id/warranty-claim', authenticateToken, requireRole(['RESPONDENT', 'CREATOR', 'ADMIN']), (req, res) => surveyController.claimWarranty(req, res));
 router.get('/notifications', authenticateToken, (req, res) => surveyController.getNotifications(req, res));
 router.put('/notifications/:id/read', authenticateToken, (req, res) => surveyController.markNotificationAsRead(req, res));
+router.post('/notifications/subscribe-push', optionalAuthenticateToken, (req, res) => surveyController.subscribePushNotification(req, res));
+router.post('/notifications/unsubscribe-push', optionalAuthenticateToken, (req, res) => surveyController.unsubscribePushNotification(req, res));
+router.get('/notifications/unread-count', authenticateToken, (req, res) => surveyController.getUnreadNotificationCount(req, res));
+router.put('/notifications/read-all', authenticateToken, (req, res) => surveyController.markAllNotificationsAsRead(req, res));
+router.get('/notifications/realtime-alerts', optionalAuthenticateToken, (req, res) => surveyController.getRealtimeAlerts(req, res));
 
 // === 3. Tuyến Đường Ví & Tài Chính (Wallet & Payouts) ===
 router.get('/wallet', authenticateToken, (req, res) => walletController.getWallet(req, res));
+
+// Cổng nạp tiền thật VietQR & Webhook đối soát ngân hàng tự động
+router.post('/wallet/create-deposit-order', authenticateToken, (req, res) => walletController.createDepositOrder(req, res));
+router.get('/wallet/deposit-orders/:orderCode', optionalAuthenticateToken, (req, res) => walletController.getDepositOrderByCode(req, res));
+router.post('/wallet/payment-webhook', (req, res) => walletController.handlePaymentWebhook(req, res));
+router.post('/wallet/simulate-payment-success', authenticateToken, (req, res) => walletController.simulatePaymentSuccess(req, res));
 router.post('/wallet/deposit', authenticateToken, requireRole(['RESPONDENT', 'CREATOR', 'ADMIN']), (req, res) => walletController.depositCredit(req, res));
 router.post('/wallet/payouts', authenticateToken, requireRole(['RESPONDENT', 'ADMIN']), (req, res) => walletController.requestPayout(req, res));
 router.get('/wallet/payouts', authenticateToken, (req, res) => walletController.getPayouts(req, res));

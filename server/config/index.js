@@ -8,6 +8,17 @@ module.exports = {
   JWT_SECRET: process.env.JWT_SECRET || 'vibesurvey_default_secret_key_2026',
   DB_PATH: process.env.DB_PATH || path.join(__dirname, '../db/vibesurvey.db'),
   
+  // Cấu hình Cổng Thanh Toán & VietQR Napas247
+  PAYMENT_GATEWAY: {
+    BANK_ID: process.env.PAYMENT_BANK_ID || 'MB',
+    BANK_NAME: process.env.PAYMENT_BANK_NAME || 'Ngân hàng Quân Đội (MBBank)',
+    ACCOUNT_NUMBER: process.env.PAYMENT_ACCOUNT_NUMBER || '0335888888',
+    ACCOUNT_NAME: process.env.PAYMENT_ACCOUNT_NAME || 'VIBESURVEY PLATFORM',
+    TEMPLATE: process.env.PAYMENT_QR_TEMPLATE || 'compact',
+    WEBHOOK_SECRET: process.env.PAYMENT_WEBHOOK_SECRET || 'vibesurvey_payment_secret_2026',
+    ORDER_EXPIRE_MINUTES: 15
+  },
+
   // Cấu hình Google OAuth 2.0 & Đồng Bộ Biểu Mẫu Hệ Thống
   GOOGLE: {
     CLIENT_ID: process.env.GOOGLE_CLIENT_ID || '',

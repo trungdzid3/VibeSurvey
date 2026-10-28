@@ -122,6 +122,23 @@ function initSchema() {
     );
 
     -- Bảng Nhật Ký Chống Gian Lận (Fraud Logs)
+    
+    -- Bảng Đơn Nạp Tiền & Đối Soát VietQR (Deposit Orders)
+    CREATE TABLE IF NOT EXISTS deposit_orders (
+      id TEXT PRIMARY KEY,
+      user_id TEXT NOT NULL REFERENCES users(id),
+      order_code TEXT UNIQUE NOT NULL,
+      amount_vnd REAL NOT NULL,
+      credit_amount REAL NOT NULL,
+      bonus_credit_vnd REAL DEFAULT 0.0,
+      status TEXT DEFAULT 'PENDING' CHECK(status IN ('PENDING', 'COMPLETED', 'EXPIRED', 'CANCELLED')),
+      payment_method TEXT DEFAULT 'VIETQR' CHECK(payment_method IN ('VIETQR', 'MANUAL_BANK')),
+      bank_account_info_json TEXT,
+      paid_at TEXT,
+      created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+      expires_at TEXT NOT NULL
+    );
+
     CREATE TABLE IF NOT EXISTS fraud_logs (
       id TEXT PRIMARY KEY,
       user_id TEXT REFERENCES users(id),
@@ -168,6 +185,10 @@ function initSchema() {
     CREATE INDEX IF NOT EXISTS idx_responses_survey ON responses(survey_id);
     CREATE INDEX IF NOT EXISTS idx_transactions_user ON point_transactions(user_id);
     CREATE INDEX IF NOT EXISTS idx_payouts_status ON payout_requests(status);
+    CREATE UNIQUE INDEX IF NOT EXISTS idx_deposit_orders_code ON deposit_orders(order_code);
+    CREATE INDEX IF NOT EXISTS idx_deposit_orders_user ON deposit_orders(user_id);
+    CREATE INDEX IF NOT EXISTS idx_deposit_orders_status ON deposit_orders(status);
+
     CREATE INDEX IF NOT EXISTS idx_voucher_campaigns_type ON voucher_campaigns(voucher_type);
     CREATE INDEX IF NOT EXISTS idx_voucher_codes_campaign ON voucher_codes(campaign_id);
     CREATE INDEX IF NOT EXISTS idx_voucher_codes_survey ON voucher_codes(survey_id);
@@ -223,6 +244,21 @@ function initSchema() {
 
     CREATE INDEX IF NOT EXISTS idx_notifications_user ON notifications(user_id, is_read);
 
+    -- Bang Dang Ky Thong Bao Day Push Notification (Web Push & Mobile Hybrid)
+    CREATE TABLE IF NOT EXISTS push_subscriptions (
+      id TEXT PRIMARY KEY,
+      user_id TEXT REFERENCES users(id),
+      endpoint TEXT UNIQUE NOT NULL,
+      keys_p256dh TEXT,
+      keys_auth TEXT,
+      device_type TEXT DEFAULT 'WEB',
+      created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+      last_active_at TEXT DEFAULT CURRENT_TIMESTAMP
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_push_subs_user ON push_subscriptions(user_id);
+    CREATE INDEX IF NOT EXISTS idx_push_subs_endpoint ON push_subscriptions(endpoint);
+
     -- Bảng Yêu cầu Xuất Hóa Đơn Điện Tử VAT Doanh Nghiệp (Full VAT Support)
     CREATE TABLE IF NOT EXISTS vat_invoices (
       id TEXT PRIMARY KEY,
@@ -256,10 +292,50 @@ function initSchema() {
     );
 
     CREATE INDEX IF NOT EXISTS idx_email_log_user ON email_notifications_log(user_id);
+
+    -- Bảng Điểm Danh Hàng Ngày & Chuỗi Ngày (Daily Streaks Engine)
+    CREATE TABLE IF NOT EXISTS daily_streaks (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id TEXT UNIQUE NOT NULL REFERENCES users(id),
+      current_streak INTEGER DEFAULT 0,
+      max_streak INTEGER DEFAULT 0,
+      last_checkin_date TEXT,
+      total_points_earned INTEGER DEFAULT 0,
+      updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_daily_streaks_user ON daily_streaks(user_id);
   `);
 
   // Migration v2: Bổ sung các cột mới cho Users, Surveys và Responses
   const migrations = [
+    `CREATE TABLE IF NOT EXISTS daily_streaks (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id TEXT UNIQUE NOT NULL REFERENCES users(id),
+      current_streak INTEGER DEFAULT 0,
+      max_streak INTEGER DEFAULT 0,
+      last_checkin_date TEXT,
+      total_points_earned INTEGER DEFAULT 0,
+      updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+    );`,
+    `CREATE TABLE IF NOT EXISTS deposit_orders (
+      id TEXT PRIMARY KEY,
+      user_id TEXT NOT NULL REFERENCES users(id),
+      order_code TEXT UNIQUE NOT NULL,
+      amount_vnd REAL NOT NULL,
+      credit_amount REAL NOT NULL,
+      bonus_credit_vnd REAL DEFAULT 0.0,
+      status TEXT DEFAULT 'PENDING' CHECK(status IN ('PENDING', 'COMPLETED', 'EXPIRED', 'CANCELLED')),
+      payment_method TEXT DEFAULT 'VIETQR' CHECK(payment_method IN ('VIETQR', 'MANUAL_BANK')),
+      bank_account_info_json TEXT,
+      paid_at TEXT,
+      created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+      expires_at TEXT NOT NULL
+    );`,
+    'CREATE UNIQUE INDEX IF NOT EXISTS idx_deposit_orders_code ON deposit_orders(order_code);',
+    'CREATE INDEX IF NOT EXISTS idx_deposit_orders_user ON deposit_orders(user_id);',
+    'CREATE INDEX IF NOT EXISTS idx_deposit_orders_status ON deposit_orders(status);',
+
     'ALTER TABLE users ADD COLUMN demographics_json TEXT;',
     'ALTER TABLE users ADD COLUMN promo_credit_balance REAL DEFAULT 0.0;',
     "ALTER TABLE surveys ADD COLUMN survey_source TEXT DEFAULT 'INTERNAL_BUILDER';",
@@ -350,6 +426,18 @@ function initSchema() {
     );`,
     'CREATE INDEX IF NOT EXISTS idx_warranty_survey ON warranty_claims(survey_id);',
     'CREATE INDEX IF NOT EXISTS idx_warranty_creator ON warranty_claims(creator_id);',
+    `CREATE TABLE IF NOT EXISTS push_subscriptions (
+      id TEXT PRIMARY KEY,
+      user_id TEXT REFERENCES users(id),
+      endpoint TEXT UNIQUE NOT NULL,
+      keys_p256dh TEXT,
+      keys_auth TEXT,
+      device_type TEXT DEFAULT 'WEB',
+      created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+      last_active_at TEXT DEFAULT CURRENT_TIMESTAMP
+    );`,
+    'CREATE INDEX IF NOT EXISTS idx_push_subs_user ON push_subscriptions(user_id);',
+    'CREATE INDEX IF NOT EXISTS idx_push_subs_endpoint ON push_subscriptions(endpoint);',
     `CREATE TABLE IF NOT EXISTS registration_otps (
       email TEXT PRIMARY KEY,
       otp TEXT NOT NULL,
@@ -535,9 +623,9 @@ function ensureEssentialAccounts() {
         `).run(hash, u.fast_track_tickets || 0, u.credit_balance || 0, u.free_trial_surveys_available || 0, existing.id);
       }
     }
-    console.log('🛡️ [DB Bootstrap] Đã tự động đảm bảo các tài khoản quản trị cốt lõi.');
+    console.log('[DB Bootstrap] Đã tự động đảm bảo các tài khoản quản trị cốt lõi.');
   } catch (err) {
-    console.warn('⚠️ [DB Bootstrap] Không thể tự động tạo tài khoản kiểm thử:', err.message);
+    console.warn('[DB Bootstrap] Không thể tự động tạo tài khoản kiểm thử:', err.message);
   }
 }
 

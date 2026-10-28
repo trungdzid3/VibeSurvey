@@ -1,167 +1,31 @@
-# DANH SÁCH CÔNG VIỆC THỰC THI (TASK LIST) - HỆ THỐNG KINH TẾ 1:1 VNĐ, GOOGLE FORMS STUDIO & 3 PHÂN KHÚC
+# KẾ HOẠCH TRIỂN KHAI: HỆ THỐNG NẠP/RÚT TIỀN THẬT, DAILY STREAKS, PUSH NOTIFICATION & AUTO-PAYOUT
 
-Tài liệu tham chiếu duy nhất: [KE_HOACH_TONG_THE.md](file:///c:/Users/Lenovo/Downloads/Linh/KE_HOACH_TONG_THE.md) | [TUONG_LAI_HE_THONG.md](file:///c:/Users/Lenovo/Downloads/Linh/TUONG_LAI_HE_THONG.md) | [DESIGN.md](file:///c:/Users/Lenovo/Downloads/Linh/DESIGN.md)
+## Mục tiêu
+1. Chuyển đổi toàn diện cơ chế Nạp tiền và Rút tiền từ mô hình Demo sang Cơ chế Tài chính Thực tế (VietQR động chuẩn Napas247, mã Memo đối soát ngân hàng, Webhook SePay/Casso tự động, Auto-Payout cho tài khoản uy tín cao).
+2. Xây dựng Hệ thống Điểm danh Hàng ngày (Daily Streaks & Nhiệm vụ) kích thích đáp viên quay lại mỗi ngày.
+3. Triển khai Module Thông báo đẩy (Web Push & Capacitor Push Notifications) kích hoạt rung điện thoại khi có khảo sát Thưởng Cao/Hỏa Tốc.
+4. Tự động duyệt rút thẻ cào và rút tiền nhỏ cho tài khoản Trust Score >= 90.
 
-## Giai đoạn 1: Lập Kế Hoạch & Chuẩn Hóa Chính Sách (Đã Hoàn Thành)
-- [x] Chuẩn hóa tỷ lệ tiền tệ 1:1 VNĐ (`1 Point = 1 VNĐ`, `1 Credit = 1 VNĐ`) và khóa van một chiều.
-- [x] Chuẩn hóa Mô hình Định giá 2 Tầng: Giá sàn tối thiểu $P_{\text{sàn}}$ cho 3 Phân khúc (Sinh viên 400đ/500đ/600đ, Cá nhân 800đ/1.000đ/1.200đ, Doanh nghiệp 1.500đ/2.000đ/2.500đ).
-- [x] Thiết lập 3 nấc giá đề xuất gắn với thời gian thu mẫu SLA (Tiết kiệm 3-5 ngày, Đề xuất +25% 24-48h, Hỏa tốc +60% 2-6h) và cơ chế Tăng thưởng tự do (Creator Boost) chia sẻ công bằng: 85% cho người điền / 15% cho sàn (Sinh viên), 80% cho người điền / 20% cho sàn (Cá nhân & Doanh nghiệp).
-- [x] Thiết lập chính sách phụ phí Bộ lọc đối tượng + Auto-Screener (+100đ/mẫu cho Sinh viên, +200đ/mẫu cho Cá nhân, Miễn phí 100% cho Doanh nghiệp).
-- [x] Thiết lập định mức 30 lượt miễn phí/tháng cho Sinh viên (trừ 10 lượt cho mỗi 50 mẫu đăng) và 25 lượt miễn phí đầu tay cho Cá nhân khi hoàn thiện 100% Profile.
-- [x] Thiết kế lại Trình tạo form chuẩn Google Forms với **Bố cục 2 Cột Studio**: Cột trái (~65% Canvas) là thẻ câu hỏi chuẩn Google Forms (viền nhấn dọc 4px màu cam, 6 chấm kéo thả, menu chọn 12 định dạng, thanh công cụ nổi dọc bên cạnh, nút Duplicate, Trash, công tắc Bắt buộc); Cột phải (~35% Sticky Sidebar) ghim cố định Giá, Ngân sách ký quỹ, Phân khúc, Hạn treo và Tạm tính Escrow Real-time.
-- [x] Mở rộng đầy đủ 12 định dạng câu hỏi chuẩn Google Forms (bao gồm Lưới trắc nghiệm `CHOICE_GRID` và Lưới hộp kiểm `CHECKBOX_GRID`).
-- [x] Thiết lập cơ chế tự động nhận diện 100% dạng câu hỏi và cờ bắt buộc `is_required` từ Google Forms (`FB_PUBLIC_LOAD_DATA_`) và Microsoft Forms (`runtimeForms`).
-- [x] Chuẩn hóa công thức hoàn tiền an toàn khi hủy sớm khóa theo `escrow_locked_balance` với hàm chặn âm `Math.max(0, ...)`, triệt tiêu lỗ hổng hoàn vượt số tiền thực nạp khi dùng lượt free.
-- [x] Thiết lập bảng mốc nạp tiền mới từ 20.000đ đến 5.000.000đ+, hợp nhất Vé Ghim VIP + Push APK + Email.
-- [x] Thiết lập 5 ưu đãi độc quyền Gói Doanh Nghiệp, quy trình 2 cấp độ mở khóa Hồ sơ Doanh nghiệp (ghi chú lưu lại phương án Gói Thuê Bao Tháng/Năm cho giai đoạn sau, chưa triển khai ngay).
-- [x] Thiết lập quy trình xác thực Email trường (`.edu.vn` / `.ac.vn`) qua Gmail SMTP & Brevo, mục Hồ sơ cá nhân và Sàng lọc thích ứng (Adaptive Auto-Screener).
-- [x] Thiết lập 5 chốt chặn Anti-Fraud và nâng cấp bảo mật (tắt thưởng tiền mặt khi Screen-out; thống nhất trừ `-12 điểm uy tín` khi `REJECTED`; sửa Auto-Ban chỉ tính theo `device_fingerprint` để tránh khóa nhầm Wi-Fi trường đại học; không tính thời gian câu tự luận).
-- [x] Hợp nhất toàn bộ vào 1 file duy nhất `KE_HOACH_TONG_THE.md` và loại bỏ toàn bộ các file kế hoạch cũ.
+## Phân công Subagents & Trách nhiệm
+- **Subagent 1 (Fintech & Payment Gateway Architect)**:
+  - Bảng cơ sở dữ liệu `deposit_orders` và `bank_accounts`.
+  - Sinh mã VietQR động theo chuẩn Napas247 kèm mã chuyển khoản Memo độc nhất.
+  - Endpoint Webhook nhận biến động số dư ngân hàng và đối soát tự động.
+  - Cơ chế Auto-payout thẻ cào và tiền nhỏ cho tài khoản Trust Score >= 90.
+- **Subagent 2 (Retention & Daily Streak Specialist)**:
+  - Bảng cơ sở dữ liệu `daily_streaks`.
+  - API điểm danh hàng ngày `POST /api/v1/users/checkin` và `GET /api/v1/users/streak-info`.
+  - Giao diện Streak Widget trên Header/Dashboard với số ngày liên tục và hiệu ứng nhận thưởng.
+- **Subagent 3 (Push Notification & Mobile Hybrid Specialist)**:
+  - Tích hợp Web Push API (Notification API & Service Worker) và Capacitor Push Notification trên Android.
+  - Kích hoạt thông báo đẩy thời gian thực khi có bài khảo sát Hỏa Tốc / Creator Boost.
+  - Giao diện cấp quyền thông báo và trung tâm chuông thông báo trực quan.
 
-## Giai đoạn 2: Triển Khai Mã Nguồn (Chờ Lệnh Thực Thi Từ Người Dùng)
-- [x] **Task 1: Cấu hình Kinh tế học 1:1 VNĐ, Bảng giá Sàn & Động cơ Tăng thưởng Boost (`server/config/index.js`, `server/services/pricingService.js`)**
-  - [x] Cập nhật tỷ giá 1:1 VNĐ, bảng giá sàn Sinh viên / Cá nhân / Doanh nghiệp theo 3 mức độ dài câu hỏi ($\le 10$, $11-25$, $>25$).
-  - [x] Tích hợp logic tính 3 nấc SLA đề xuất (Tiết kiệm, Đề xuất +25%, Hỏa tốc +60%) và thuật toán chia sẻ phần tiền tăng thêm $\Delta P$: 85% cho người điền / 15% cho sàn (Gói Sinh Viên), 80% cho người điền / 20% cho sàn (Gói Cá Nhân & Doanh Nghiệp).
-  - [x] Tích hợp tính phụ phí Bộ lọc đối tượng (+100đ SV, +200đ Cá nhân, 0đ DN) và chiết khấu quy mô lớn (10% từ 300 mẫu, 15% từ 500 mẫu cho DN).
-  - [x] Khóa cứng công thức tính `EscrowRefund` khi hủy form sớm bằng `Math.min(escrow_locked_balance, Math.max(0, TotalEscrow - (collected * effective_cost)))`.
-- [x] **Task 2: Sổ cái Tiền tệ, Mốc Nạp từ 20k & Đổi Point sang Credit +5% (`server/services/ledgerService.js`, `server/controllers/walletController.js`)**
-  - [x] Hạ mức nạp tối thiểu xuống 20.000đ, cập nhật bậc thưởng nạp (2% - 10%) và tặng Vé Ghim VIP.
-  - [x] Cập nhật hàm đổi Point sang Credit (+5% thưởng tái đầu tư) và bảng mốc rút tiền/thẻ cào/voucher theo chuẩn 1 Point = 1 VNĐ.
-- [x] **Task 3: Hồ sơ Cá nhân (Profile), Xác thực Sinh viên (`.edu.vn`) & Hồ sơ Doanh nghiệp 2 Cấp độ (`server/controllers/authController.js`, `server/services/matchingService.js`)**
-  - [x] Xây dựng API xác thực OTP Email trường (`.edu.vn` / `.ac.vn`) qua Gmail SMTP & Brevo kèm nhánh dự phòng tải ảnh thẻ sinh viên.
-  - [x] Tích hợp cơ sở dữ liệu định danh số toàn diện: Nạp toàn bộ danh mục 13 Đại học, Đại học Quốc gia, Đại học Vùng, ĐH đa ngành, các trường đại học chuyên ngành và cao đẳng trên cả nước kèm 5 mô hình subdomain (`@st.`, `@student.`, `@sv.`, `@sis.`, `@ms.`, `@gm.`, `@lms.`, `@stu.`,...) và các tên miền trường đặc thù vào `matchingService.js`.
-  - [x] Xây dựng API lưu Hồ sơ cá nhân (mở khóa 25 lượt free Cá nhân hoặc 30 lượt free/tháng cho SV, khóa sửa các trường nhân khẩu học 90 ngày) và Hồ sơ Doanh nghiệp Cấp độ 1 & 2.
-- [x] **Task 4: Trình Bóc Tách Form Đa Năng 12 Định Dạng & Tự Động Nhận Diện Link Ngoài (`server/services/formParserService.js`)**
-  - [x] Nâng cấp bóc tách Google Forms (`FB_PUBLIC_LOAD_DATA_`): Nhận diện đúng 12 dạng câu hỏi (đặc biệt `item[3] === 7` bóc tách thành `CHOICE_GRID` và `CHECKBOX_GRID` với danh sách `rows` và `columns`), trích xuất chính xác cờ bắt buộc `is_required`.
-  - [x] Nâng cấp bóc tách Microsoft Forms (`runtimeForms`): Nhận diện `MatrixChoiceGroup` / `Likert` thành dạng Lưới, trích xuất `question.required`.
-  - [x] Nâng cấp Smart Text Paste: Nhận diện cú pháp ma trận hàng - cột và cờ bắt buộc.
-- [x] **Task 5: Câu hỏi Sàng lọc Thích ứng (Adaptive Auto-Screener), Cờ `is_required` & Bảo hành 1 Đổi 1 (`server/controllers/surveyController.js`)**
-  - [x] Tự động sinh câu hỏi sàng lọc ở đầu bài cho người chưa khớp Profile, ẩn tự động với người đã khớp 100% Profile và tự động điền ngầm (Auto-fill) dữ liệu Profile vào file xuất CSV/Google Sheets.
-  - [x] Bổ sung cột `is_required` (Bắt buộc trả lời / Không bắt buộc) vào bảng câu hỏi trong DB, hỗ trợ lưu trữ cấu trúc Hàng $\times$ Cột của câu hỏi Lưới (`CHOICE_GRID`, `CHECKBOX_GRID`).
-  - [x] Bổ sung tính năng yêu cầu đổi mẫu lỗi (tối đa 15% số mẫu trong 7 ngày) cho Gói Doanh Nghiệp.
-- [x] **Task 6: Nâng cấp Anti-Fraud Engine (`server/services/antiFraudService.js`)**
-  - [x] Chuyển thưởng `Screen-out` về `0 Point` (chỉ cộng `+0.2 trust_score`).
-  - [x] Sửa điều kiện Auto-Ban chỉ kích hoạt khi $\ge 3$ tài khoản trùng mã phần cứng `device_fingerprint` trong 24h, bảo vệ người dùng chung IP Wi-Fi trường học.
-  - [x] Chốt chặn 1 & 4: Không tính thời gian (`0 giây`) đối với câu tự luận (`OPEN_TEXT`, `SHORT_TEXT`, `PARAGRAPH`) trong bẫy tốc độ và chấp nhận các câu trả lời ngắn hợp lệ (kể cả chỉ ghi số `0`, *"Không"*, *"Có"*), chỉ chặn chuỗi phím gõ bừa vô nghĩa (`asdfgh`, `aaaaaa`).
-  - [x] Chốt chặn 2: Chèn động câu hỏi bẫy tập trung ở vị trí ngẫu nhiên giữa bài (30%-80%) theo từng phiên làm bài (không gắn cứng vị trí) và bổ sung cơ chế **thêm 01 cơ hội thứ hai** nếu người làm vô tình click nhầm ở lần đầu.
-  - [x] Cơ chế Điểm Uy Tín (`trust_score`): Khởi tạo `85 điểm`; từ `80 - 100 điểm` nhận đủ 100% thưởng; từ `40 - 79 điểm` khấu trừ phạt `1%` cho mỗi điểm thiếu dưới mốc 80; dưới `40 điểm` tự động khóa tài khoản (`BAN`); bài làm bị từ chối `REJECTED` trừ `-12 điểm uy tín`; làm bài chuẩn cộng `+2 điểm` để phục hồi uy tín.
-- [x] **Task 7: Giao diện Frontend Google Forms Studio 2 Cột & Trình Làm Bài (`public/app.js`, `public/index.html`)**
-  - [x] Xây dựng Bố cục 2 Cột Studio cho màn hình Tạo Khảo Sát: Cột Trái (~65% Canvas) chứa Active Question Card có viền nhấn dọc 4px màu cam, 6 chấm kéo thả, menu chọn 12 định dạng câu hỏi, thanh công cụ nổi dọc bên cạnh, nút Duplicate/Trash/Required; Cột Phải (~35% Sticky Sidebar) ghim cố định Bảng giá & 3 nấc SLA, Thanh trượt Boost chia tiền 85/15 hoặc 80/20, Số mẫu, Bộ lọc, Cài đặt thời hạn và Tạm tính Escrow Real-time.
-  - [x] Nâng cấp Trình làm bài Stepper: Render đầy đủ 12 định dạng câu hỏi (giao diện chọn ma trận Hàng $\times$ Cột cho `CHOICE_GRID` và `CHECKBOX_GRID`), kiểm tra tính hợp lệ của câu hỏi có cờ `is_required`.
-  - [x] Cập nhật giao diện Tab Hồ sơ (Cá nhân / Sinh viên / Doanh nghiệp), Ví & Mốc nạp 20k.
-- [ ] **Task 8: Kiểm Thử Tự Hành & Xác Minh Toàn Diện (`tests/`)**
-  - [ ] Kiểm tra cú pháp `node -c` toàn bộ các tệp JavaScript.
-  - [ ] Viết test bổ sung và chạy toàn bộ bộ kiểm thử tự hành đạt 100% PASS.
-- [ ] **Task 9: Hạ tầng triển khai — Oracle Cloud Always Free + Tên miền riêng + Cloudflare Tunnel (KE_HOACH_TONG_THE.md Phần VI)**
-  - [ ] Đăng ký tên miền miễn phí DigitalPlat (`vibesurvey.dpdns.org`), trỏ NS về Cloudflare Free, bật Cloudflare Tunnel thay vì mở cổng 80/443.
-  - [ ] Khởi tạo VM Ampere A1 (2 OCPU / 6GB, Ubuntu LTS, SSH key-only), cài Node.js 24 ARM64, `npm ci` rebuild module native (bcrypt), chạy server bằng pm2 + `cloudflared`.
-  - [ ] Cập nhật Google OAuth redirect URIs, `APP_URL`, Capacitor Android; reset dữ liệu test (không cần bảo toàn số dư — dự án chưa công khai); ngừng commit `vibesurvey.db` lên git.
-  - [ ] Thiết lập crontab theo Phần V: auto-close hết hạn + hoàn tiền escrow, hạ ghim sau 7 ngày, làm mới 30 lượt free ngày 01; backup SQLite hằng ngày lên Object Storage; gia cố `unattended-upgrades` + `fail2ban`; giữ Render song song 1–2 tuần làm fallback.
-
-## Tinh Chinh Giao Dien & Bao Toan Du Lieu Thuc Te (Hoan Thanh)
-- [x] Go bo nut tao khao sat mau cam (#header-create-btn) o goc phai Header de tranh trung lap voi menu chinh.
-- [x] Phan quyen hien thi Tab Ho So: Tai khoan thuong co 2 tab (1. Thong Tin Ca Nhan, 2. Dang Ky Goi Sinh Vien); an hoan toan Tab Ho So Doanh Nghiep. Tai khoan Doanh nghiep co 2 tab (1. Thong Tin Nguoi Dai Dien, 2. Ho So Doanh Nghiep); an Tab Sinh Vien.
-- [x] Dieu tra va don dep sach se toan bo 26 form test ao do kiem thu sinh ra, bao ton nguyen ven duy nhat form that cua nguoi dung.
-- [x] Tich hop hook tu dong don dep test artifacts vao tests/run_all_tests.js de database luon sach se.
-
-## Đợt Nâng Cấp Giao Diện, Sửa Lỗi Nghiệp Vụ & Bộ Dữ Liệu Giáo Dục Mới
-- [x] Sửa lỗi không điền được form: Bổ sung định nghĩa hàm `selectSingleOption` và `toggleMultipleOption` trong public/app.js.
-- [x] Sửa nút toggle "Bắt buộc" trong Studio câu hỏi: Bổ sung event.stopPropagation(), id/for liên kết và ép kiểu boolean `!!isRequired`.
-- [x] Tinh chỉnh thanh công cụ chế độ tạo khảo sát: Chuyển sang bố cục flex-wrap thoáng đãng, chống chèn ép trên màn hình hẹp.
-- [x] Cập nhật chuẩn xác danh sách 34 tỉnh thành mới vào toàn bộ hệ thống (Profile nhân khẩu học, Bộ lọc khảo sát).
-- [x] Chuẩn hóa toàn bộ Dropdown trong mục Thông Tin Cá Nhân (Profile Tab 1) thành Custom Dropdown chuẩn của VibeSurvey.
-- [x] Bổ sung đủ danh sách các trường Đại học / Học viện / Cao đẳng từ tài liệu người dùng cung cấp vào dropdown trường học.
-- [x] Khắc phục triệt để lỗi dropdown trường học không đóng được khi click ra ngoài (Click outside to close).
-- [x] Chỉnh sửa gợi ý email sinh viên chính xác theo tài liệu (HUST là @sis.hust.edu.vn, NEU là @st.neu.edu.vn,...).
-- [x] Bổ sung cơ chế Cooldown đếm ngược 60s và khóa/ẩn nút "Gửi Mã OTP" sinh viên khi người dùng ấn quá nhiều lần liên tiếp.
-- [x] Chuẩn hóa các Dropdown trong Modal Rút Tiền / Đổi Thưởng thành Custom Dropdown tiêu chuẩn.
-- [x] Đảm bảo Cổng Khảo Sát luôn fetch mới dữ liệu từ server, loại bỏ triệt để tình trạng cache 25 form cũ trên client.
-
-- [x] Khắc phục triệt để lỗi chuyển câu khảo sát: Định nghĩa hàm `triggerPacingLock` và bọc an toàn trong `nextQuestion`.
-- [x] Bổ sung cơ chế click outside đóng toàn bộ tất cả Dropdown/Popover trong toàn hệ thống (không sót bất kỳ menu nào: Profile, Bộ lọc đối tượng, Trường học, Danh mục, Đổi thưởng, Tỉnh thành).
-- [x] Bổ sung ô gõ tìm kiếm nhanh cho phần Khu Vực (34 tỉnh thành mới) trong bộ lọc đối tượng đích khi tạo khảo sát.
-- [x] Chuyển nút "+ Thêm ảnh bìa form" ra khỏi thanh công cụ "Chế độ tạo khảo sát", dời xuống thẻ tiêu đề form (Form Header / Title Card) để thanh chế độ tạo và lĩnh vực rộng rãi, hoàn toàn không bị chèn ép.
-- [x] Responsive Mobile Studio Tạo Khảo Sát: Trên màn hình điện thoại thu nhỏ, thay thế việc dồn cột Sidebar xuống dưới đáy bằng nút chuyển đổi 2 chế độ hiển thị ("Soạn Câu Hỏi" và "Cài Đặt & Ngân Sách") để thao tác nhanh chóng và mượt mà.
-- [x] Đồng bộ hiển thị Tab Hồ Sơ Doanh Nghiệp trong Profile View (nhận diện `adminMode === 'CREATOR'`, `role === 'CREATOR'`, sửa biến `enterprise_verify_level`).
-- [x] Nâng cấp Trang Giám Sát Gian Lận Admin (`admin-fraud`):
-  - [x] Báo cáo số liệu trực quan: Tổng số phát hiện, tỷ lệ vi phạm, phân rã số lượng vi phạm theo từng loại (Speed Trap, Bẫy Tập Trung, Straight-lining, Tự Luận Rác, Trùng Thiết Bị Sybil).
-  - [x] Tích hợp thanh tìm kiếm tài khoản theo Email hoặc Tài khoản Google (`google_id`).
-  - [x] Hiển thị chi tiết hồ sơ tài khoản tìm kiếm: Lý do bị khóa (`ban_reason`), thời gian khóa, trạng thái hiện tại kèm nút Mở Khóa Tài Khoản (`Unban`).
-  - [x] Bổ sung xem Lịch sử làm bài khảo sát chi tiết của tài khoản (danh sách bài, thời gian làm bài, điểm uy tín được cộng/trừ, trạng thái phản hồi).
-- [x] Nâng cấp Trang Duyệt Rút Tiền Admin (`admin-payouts`):
-  - [x] Thiết kế lại bố cục gọn gàng, hỗ trợ bộ lọc đa tiêu chí: Lọc theo Phương thức nhận (Ngân hàng, Thẻ cào Viettel/Vina/Mobi, Ví MoMo) và Lọc theo Trạng thái (Chờ duyệt, Đã duyệt, Đã từ chối).
-  - [x] Tích hợp phân trang và tùy chọn số lượng hiển thị (10, 20, 50 yêu cầu/trang), chấm dứt tình trạng bảng cuộn kéo dài.
-  - [x] Hiển thị trực quan Điểm Uy Tín (`trust_score`) của người yêu cầu rút tiền kèm cảnh báo rủi ro (<60 điểm) để Admin ra quyết định duyệt/từ chối an toàn và chính xác.
-- [x] Mở rộng Trang Tổng Quan Kinh Tế Toàn Diện Admin (`admin-overview`):
-  - [x] Mở rộng hệ thống chỉ số kinh tế đa chiều:
-    - [x] Dòng tiền nạp & Ký quỹ: Tổng tiền đã nạp thực tế, Số dư Escrow đang ký quỹ bị khóa, Tổng tiền chi trả đáp viên, Lợi nhuận sàn thực thu (từ phí chênh lệch spread, phụ phí lọc đối tượng, vé ghim VIP, phí xử lý rút tiền).
-    - [x] Kinh tế điểm thưởng & Công nợ: Tổng điểm thưởng Point đang lưu hành trong ví người dùng (Circulating Point Liability), Tổng tiền đã rút thành công, Tổng tiền rút đang chờ duyệt (`PENDING`), Tổng lượng điểm tái đầu tư đổi sang Credit (+5% bonus).
-    - [x] Thống kê vận hành khảo sát: Tổng số lượng khảo sát theo 3 phân khúc (Sinh viên, Cá nhân, Doanh nghiệp), Tỷ lệ hoàn thành mẫu (Completion Rate), Tổng số mẫu đã thu thập hợp lệ.
-  - [x] Tích hợp Bảng Theo Dõi Biến Động Sổ Cái Sàn (Real-time Financial Ledger Stream) ghi nhận các giao dịch tài chính gần nhất trong hệ thống.
-  - [x] Trực quan hóa cơ cấu doanh thu theo nấc SLA và theo từng phân khúc khách hàng.
-- [x] Tối Ưu Hóa Giao Diện Theme Tối (Dark Mode) Studio Chuẩn `ui-ux-pro-max`:
-  - [x] Triệt tiêu hoàn toàn lỗi khung hộp đen nổi cộm, viền cứng thô ráp của các ô input (Tiêu đề khảo sát, Mô tả, Tiêu đề câu hỏi, Các dòng đáp án lựa chọn) trong Dark Mode do cờ `!important` của CSS toàn cục.
-  - [x] Áp dụng nguyên lý Seamless Borderless / Fluent Typography chuẩn Google Forms & Notion: Toàn bộ ô nhập liệu chữ hòa quyện 100% vào nền Card với `background: transparent !important`, không viền hộp chữ nhật.
-  - [x] Chỉ hiển thị đường gạch chân mỏng nhẹ (`border-b border-stone-800` hoặc đường nhấn cam mượt mà khi focus/hover), tạo cảm giác soạn thảo tự nhiên, thanh thoát và cao cấp.
-- [x] Xử Lý Thấu Đáo & Chỉ Dẫn Fallback Khi Đồng Bộ Google Forms Trả Về Lỗi 401:
-  - [x] Bắt mã lỗi 401 tại `server/services/formParserService.js` và `public/app.js`: Nhận diện biểu mẫu Google Forms đang bật chế độ "Yêu cầu đăng nhập tài khoản Google" hoặc "Giới hạn trong tổ chức".
-  - [x] Hiển thị thông báo hướng dẫn trực quan: Hướng dẫn người tạo vào Cài đặt Google Forms tắt tùy chọn yêu cầu đăng nhập, hoặc kích hoạt nhanh giải pháp dự phòng 1-Click: Tự động mở Modal hướng dẫn đồng bộ qua Google Apps Script hoặc chuyển sang tab "Dán Text Nhanh".
-- [x] Tái Cấu Trúc Bố Cục Cột Phải Studio & Responsive Đúng Chuẩn:
-  - [x] Khắc phục triệt để tình trạng khối Ký Quỹ Escrow Real-time và Nút Xuất Bản bị dồn trôi xuống đáy: Đưa phần Ký Quỹ Escrow và Nút Xuất Bản luôn nằm trong tầm quan sát trực tiếp ở cột bên phải trên Desktop.
-  - [x] Tách cột bên phải thành 2 tab/phần con tinh gọn (Phần 1: "Ngân Sách & Bảng Giá", Phần 2: "Bộ Lọc & Cài Đặt") để chiều dài cột vừa vặn, không bị cuộn dài lê thê.
-  - [x] Đảm bảo trên Desktop (màn hình lớn), 2 cột luôn hiển thị song song đồng thời; chỉ khi màn hình thực sự thu nhỏ (Mobile / Màn hình hẹp), mới chuyển sang hiển thị 1 cột kèm nút chuyển đổi qua lại mượt mà giữa các bên.
-
-- [x] **Task 4: Admin Fast Command Console Mở Rộng, Sửa Lỗi Thực Thi & Chuyển Đổi Phân Hạng Gói Admin**:
-  - [x] Khắc phục triệt để lỗi Console không dùng được do xung đột DOM ID giữa trang Overview và Modal F2; truyền trực tiếp form context và tự động tìm đúng ô input đang thao tác.
-  - [x] Hỗ trợ cơ chế Alias thông minh: `/naptien acc1 100k`, `/congdiem acc1 500` tự động map sang tài khoản test `user@vibesurvey.com`, `acc2` sang `creator@vibesurvey.com`, `me` / `self` / `admin` sang Admin hiện tại.
-  - [x] Mở rộng kích thước Console to, rộng rãi: Màn hình log trong Overview tăng lên 280px - 420px; Modal CLI F2 nâng lên `max-w-5xl w-[96vw]` với màn hình log 340px - 460px to đẹp chuẩn terminal Linux.
-  - [x] Cho phép Admin chuyển đổi tự do giữa Gói Sinh Viên và Gói Cá Nhân trong User Profile Dropdown, trong Studio Tạo Khảo Sát và qua lệnh CLI `/settier me STUDENT`, `/settier me PERSONAL`.
-  - [x] Tái thiết kế bố cục trang Tổng Quan Kinh Tế Admin theo chuẩn Minimalist Modern Bento Grid Linear/Stripe.
-
-## Đợt Tinh Chỉnh Quản Trị Hệ Thống, Chuẩn Hóa Dropdown, Phân Trang & Dọn Sạch Dữ Liệu Rác
-- [x] **Task 1: Dọn sạch toàn bộ dữ liệu rác/demo trong SQLite (`vibesurvey.db`)**:
-  - [x] Xóa sạch toàn bộ 231 yêu cầu rút tiền rác demo (`@test.local`, `@api-test.com`, `@vibetest.vn`, v.v.).
-  - [x] Dọn dẹp tài khoản ảo (2.500 users ảo) và nhật ký gian lận rác (227 fraud logs) phát sinh từ các đợt test tự động trước đó.
-  - [x] Bảo tồn tuyệt đối 100% tài khoản thật (`trungdzid3@gmail.com`, `linharmykxbnvn@gmail.com`), tài khoản demo chuẩn (`admin@vibesurvey.com`, `creator@vibesurvey.com`, `user@vibesurvey.com`) và toàn bộ khảo sát thật.
-  - [x] Tối ưu hóa VACUUM database giảm dung lượng từ 67.2 MB xuống 16.1 MB.
-- [x] **Task 2: Sửa triệt để lỗi không chuyển trang được (Pagination) trên Trang Duyệt Tiền (`admin-payouts`)**:
-  - [x] Thay thế `document.getElementById('app')` thành `document.getElementById('app-root')` trong toàn bộ các hàm xử lý phân trang và lọc (`setAdminPayoutPage`, `setAdminPayoutFilter`, `handleAdminPayout`).
-  - [x] Đồng bộ logic giới hạn trang và tổng số trang (`totalPages`), bấm chuyển trang và đổi bộ lọc render lại ngay lập tức.
-- [x] **Task 3: Chuẩn hóa Custom Dropdown tiêu chuẩn trên Trang Duyệt Tiền (`admin-payouts`)**:
-  - [x] Thay thế toàn bộ 3 thẻ `<select>` native thô xám bằng Custom Dropdown tiêu chuẩn VibeSurvey (Phương thức nhận, Trạng thái duyệt, Số dòng/trang).
-  - [x] Tích hợp cấu trúc `custom-dropdown-trigger`, `custom-dropdown-menu`, `VibeApp.toggleCustomDropdown(...)` hỗ trợ tự đóng khi click ra ngoài.
-- [x] **Task 4: Thu gọn và Phân trang cho "Nhật Ký Cảnh Báo Khả Nghi & Gian Lận Gần Nhất" (`admin-fraud`)**:
-  - [x] Giới hạn hiển thị 10 bản ghi gần nhất trên mỗi trang, chấm dứt tình trạng cuộn trang kéo dài.
-  - [x] Bổ sung thanh phân trang tinh gọn bên dưới bảng kèm nút `< Trang Trước`, `Trang Sau >` và bộ đếm trang (`fraudLogPage`).
-- [x] **Task 5: Tối Ưu Hóa Tương Tác & Thẩm Mỹ Studio Tạo Khảo Sát**:
-  - [x] Triệt tiêu lỗi Autofill trắng xóa chữ đen của Chrome/Edge bằng `autocomplete="off"`, `spellcheck="false"` và quy tắc CSS `-webkit-autofill` trong suốt trong Dark Mode.
-  - [x] Bỏ viền gạch chân cam dài ngoằng thô ráp dưới ô mô tả, đổi nút "+ Thêm ảnh bìa" thành Ghost Button tối giản chuẩn Notion.
-  - [x] Khắc phục triệt để lỗi click mất focus trên câu hỏi: Bọc `event.stopPropagation()` trên toàn bộ input/textarea, chặn re-render khi card đã active, cập nhật realtime ma trận Lưới (`CHOICE_GRID`, `CHECKBOX_GRID`) không phá vỡ con trỏ nhập liệu.
-  - [x] Tối ưu nút chuyển tab Cột Phải ("Ngân Sách & Bảng Giá" và "Bộ Lọc & Cài Đặt"): Cập nhật cục bộ vùng chứa `#studio-sidebar-root`, không giật lag và bảo toàn 100% Canvas câu hỏi bên trái.
-- [x] **Task 6: Dọn Sạch Triệt Để Toàn Bộ Dữ Liệu Demo / Test / Ban Ảo**:
-  - [x] Xóa sạch 100% khảo sát demo (`surveys`: 0), câu hỏi demo (`questions`: 0), phản hồi demo (`responses`: 0).
-  - [x] Xóa sạch 758 tài khoản test ảo (`users` giảm từ 765 xuống đúng 7 tài khoản thật).
-  - [x] Triệt tiêu toàn bộ 282 tài khoản bị ban test trên trang Giám Sát Gian Lận (`banned users`: 0).
-  - [x] Xóa sạch 100% hóa đơn VAT demo (67 hóa đơn), mã voucher demo (160 mã), chiến dịch voucher (8 chiến dịch), OTP đăng ký rác.
-  - [x] Thực thi lệnh VACUUM nén SQLite database xuống kích thước tối thiểu sạch sẽ.
-- [x] **Task 7: Tách Biệt Tài Sản Admin Khỏi Thị Trường (Kinh Tế Học Sàn)**:
-  - [x] Cập nhật `server/controllers/adminController.js`: Số dư tĩnh trong ví Admin (Credit 100M, Point) không tính vào `total_deposited_vnd`, `circulatingPointLiability` hay `swappedCreditVnd`.
-  - [x] Đảm bảo tính toán thị trường chuẩn xác: Khi Admin tiêu vào thị trường (tạo khảo sát ký quỹ `escrow_locked_balance` hoặc trả thưởng cho đáp viên), dòng tiền tự động được tính đầy đủ vào quy mô thị trường và ví đáp viên.
-- [x] **Task 8: Reset Sổ Cái & Thẻ Tái Đầu Tư Sang Credit**:
-  - [x] Dọn sạch toàn bộ 7 giao dịch trong bảng `point_transactions`, đưa số dư point Admin về 0.
-  - [x] Thẻ "TÁI ĐẦU TƯ SANG CREDIT" trên trang Tổng Quan Kinh Tế trở về 0 đ sạch bóng, luồng sổ cái trống trải sẵn sàng cho dữ liệu thực.
-- [x] **Task 9: Tái Thiết Kế UI/UX Trang Kiểm Soát Gian Lận (`admin-fraud`) Chuẩn `DESIGN.md` & `ui-ux-pro-max`**:
-  - [x] Loại bỏ toàn bộ màu tím (`indigo`) và viền cầu vồng lòe loẹt, đưa về 3 màu cốt lõi chuẩn DESIGN.md: CAM VIBE `#EA580C`, TRẮNG và ĐEN (`#09090B` / `#18181B`).
-  - [x] Thiết kế lại 5 thẻ bẫy gian lận thành Minimalist Bento Grid chuẩn Linear/Stripe, font mono số liệu hiện đại.
-  - [x] Làm phẳng ô tìm kiếm và chuyển nút "Tra Cứu" sang màu Cam Vibe `#EA580C`.
-  - [x] Nâng cấp Khối 3 (Danh sách IP bị khóa) và Khối 4 (Nhật ký cảnh báo gian lận) sang thẻ card phẳng đồng bộ `border-stone-200 dark:border-stone-800 rounded-2xl`.
-  - [x] Tích hợp Custom Dropdown tiêu chuẩn chọn số dòng/trang (5 dòng gọn, 10 dòng chuẩn, 20 dòng đầy đủ) và dropdown nhảy trang trực tiếp, khắc phục triệt để lỗi không chuyển trang được.
-- [x] **Task 10: Xóa Bỏ Hoàn Toàn Lượng Điểm Đang Lưu Hành Trên Thị Trường**:
-  - [x] Thực thi reset toàn bộ `point_balance = 0` trên tất cả tài khoản người dùng trong cơ sở dữ liệu SQLite.
-  - [x] Cập nhật mảng cấu hình khởi tạo `essentialUsers` trong `server/db/database.js` để tránh việc tái sinh điểm khi bootstrap máy chủ.
-  - [x] Xác minh chỉ số `circulatingPointLiability` và `total_active_points` trên trang Quản trị Tổng Quan đã về đúng 0 pts.
-- [x] **Task 11: Cơ Chế Admin Fast Command Console (Terminal CLI Thao Tác Nhanh)**:
-  - [x] Backend API `POST /api/v1/admin/execute-command` phân tích và thực thi an toàn 16 lệnh quản trị: `/naptien`, `/trutien`, `/congdiem`, `/trudiem`, `/resetpoint`, `/resetcredit`, `/ban`, `/unban`, `/banip`, `/unbanip`, `/setrole`, `/settier`, `/settrust`, `/info`, `/stats`, `/help`.
-  - [x] Giao diện Terminal Card Bento trên trang Tổng Quan Admin (`admin-overview`) với phong cách Hacker tối giản Obsidian Charcoal `#09090B`, viền `border-stone-800`, font mono, chip lệnh mẫu 1-click.
-  - [x] Phím tắt toàn cục `F2` hoặc `Ctrl + \`` hỗ trợ mở nhanh Modal Console từ bất kỳ trang nào.
-  - [x] Duyệt lịch sử câu lệnh đã gõ (Command History) bằng phím Mũi tên Lên/Xuống.
+## Danh sách công việc (Task List)
+- [x] 1. Thiết lập cơ sở dữ liệu: `deposit_orders`, `daily_streaks`, `push_subscriptions`, cấu hình VietQR ngân hàng.
+- [x] 2. Triển khai luồng Nạp tiền VietQR động & Webhook đối soát ngân hàng thật sự.
+- [x] 3. Triển khai luồng Auto-Payout tự động duyệt thẻ cào/rút tiền nhỏ cho Trust Score >= 90.
+- [x] 4. Triển khai Hệ thống Điểm danh hàng ngày (Daily Streaks) Frontend + Backend.
+- [x] 5. Triển khai Module Thông báo đẩy (Push Notification) cho khảo sát Hỏa Tốc.
+- [x] 6. Kiểm thử tự hành toàn diện và xác minh không phát sinh lỗi (100% PASS).
+- [x] 7. Cập nhật `PROJECT_CONTEXT.md` và đồng bộ Git.

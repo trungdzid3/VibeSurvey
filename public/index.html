@@ -66,6 +66,28 @@
 </head>
 <body class="bg-[#F8F9FA] dark:bg-[#09090B] text-slate-800 dark:text-stone-100 min-h-screen flex flex-col font-sans selection:bg-orange-500 selection:text-white antialiased safe-bottom">
 
+  <!-- ==================== BANNER CẤP QUYỀN THÔNG BÁO WEB PUSH ==================== -->
+  <div id="push-permission-banner" class="hidden bg-stone-900 dark:bg-stone-950 text-white border-b border-stone-800 px-4 py-2 text-xs transition-all push-banner-enter z-50">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2.5">
+      <div class="flex items-center gap-2.5 text-center sm:text-left">
+        <div class="w-6 h-6 rounded-full bg-orange-600/20 text-orange-500 border border-orange-500/30 flex items-center justify-center shrink-0">
+          <i data-lucide="bell" class="w-3.5 h-3.5"></i>
+        </div>
+        <span class="font-medium text-stone-200">
+          Bật thông báo để nhận tin ngay khi có khảo sát thưởng cao hoặc hỏa tốc
+        </span>
+      </div>
+      <div class="flex items-center gap-2 shrink-0">
+        <button onclick="VibeApp.requestPushPermission()" class="px-3 py-1 bg-orange-600 hover:bg-orange-700 text-white rounded-lg font-bold text-[11px] shadow-sm transition-all active:scale-95">
+          Bật Thông Báo
+        </button>
+        <button onclick="VibeApp.dismissPushBanner()" class="px-2.5 py-1 text-stone-400 hover:text-white text-[11px] font-medium transition-colors">
+          Để Sau
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- ==================== HIGH-END SAAS NAVBAR ==================== -->
   <header class="sticky top-0 z-40 bg-white/95 dark:bg-[#09090B]/95 backdrop-blur-md border-b border-stone-200 dark:border-stone-800">
     <div class="max-w-7xl mx-auto px-4 sm:px-6">
@@ -95,6 +117,33 @@
           <!-- Theme Toggle Button (Light/Dark Mode) -->
           <button id="theme-toggle-btn" onclick="VibeApp.toggleTheme()" class="w-9 h-9 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 flex items-center justify-center transition-colors active:scale-95 flex-shrink-0" title="Chuyển chế độ Sáng / Tối">
             <i id="theme-icon" data-lucide="moon" class="w-4 h-4 stroke-[2]"></i>
+          </button>
+
+          <!-- Notification Bell & Dropdown (Push & Realtime Center) -->
+          <div id="header-notif-container" class="relative flex-shrink-0">
+            <button id="header-notif-btn" onclick="VibeApp.toggleNotificationsDropdown()" class="relative w-9 h-9 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 flex items-center justify-center transition-colors active:scale-95 flex-shrink-0" title="Thông báo hệ thống">
+              <i id="header-bell-icon" data-lucide="bell" class="w-4 h-4 stroke-[2]"></i>
+              <span id="header-notif-badge" class="hidden absolute -top-1 -right-1 min-w-[17px] h-[17px] px-1 bg-orange-600 text-white text-[10px] font-black rounded-full flex items-center justify-center shadow-sm">0</span>
+            </button>
+
+            <!-- Dropdown Menu Thông Báo -->
+            <div id="header-notif-dropdown" class="hidden absolute right-0 mt-2 w-80 sm:w-96 bg-white dark:bg-[#18181B] rounded-2xl shadow-2xl border border-slate-200 dark:border-stone-800 py-3 px-3 z-50 text-xs">
+              <div class="flex items-center justify-between px-2 pb-2.5 border-b border-stone-100 dark:border-stone-800">
+                <span class="font-extrabold text-sm text-stone-900 dark:text-white">Thông Báo</span>
+                <button type="button" onclick="VibeApp.markAllNotificationsAsRead()" class="text-[11px] font-bold text-orange-600 hover:text-orange-700 dark:text-orange-400 hover:underline">
+                  Đã đọc tất cả
+                </button>
+              </div>
+              <div id="header-notif-list" class="max-h-80 overflow-y-auto divide-y divide-stone-100 dark:divide-stone-800/80 my-1 py-1">
+                <div class="py-6 text-center text-stone-400">Đang tải thông báo...</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Daily Streak Widget on Header (Khi đăng nhập) -->
+          <button id="header-streak-btn" onclick="VibeApp.openStreakModal()" class="hidden h-9 items-center space-x-1.5 px-2.5 sm:px-3 rounded-lg bg-orange-50 dark:bg-orange-950/40 border border-orange-200 dark:border-orange-800 text-orange-600 dark:text-orange-400 text-xs font-bold hover:bg-orange-100 dark:hover:bg-orange-900/50 transition-all active:scale-95 flex-shrink-0 cursor-pointer" title="Điểm danh nhận thưởng chuỗi ngày">
+            <i data-lucide="flame" class="w-3.5 h-3.5 stroke-[2]"></i>
+            <span id="header-streak-text">Streak: 0 ngày</span>
           </button>
 
           <!-- Guest Authentication Actions (When not logged in) -->
@@ -223,6 +272,9 @@
       <!-- Render theo vai trò -->
     </nav>
   </div>
+
+  <!-- ==================== REALTIME PUSH NOTIFICATION POPUP CONTAINER ==================== -->
+  <div id="push-popup-container" class="fixed top-20 right-4 z-50 pointer-events-none flex flex-col items-end gap-3 max-w-sm w-full"></div>
 
   <!-- ==================== TOAST NOTIFICATION CONTAINER ==================== -->
   <div id="toast-container"></div>
@@ -397,6 +449,6 @@
   </div>
 
   <!-- Application Script -->
-  <script src="/app.js?v=1793125152286"></script>
+  <script src="/app.js?v=1793180185305"></script>
 </body>
 </html>
