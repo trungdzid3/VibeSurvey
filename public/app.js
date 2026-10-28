@@ -894,33 +894,33 @@ const VibeApp = {
         `)}
       ` : ''}
 
-      <!-- Balance & Fast Track Tickets inside Profile -->
-      <div class="px-4 py-3 bg-stone-50 dark:bg-stone-900 border-b border-stone-100 dark:border-stone-800 space-y-2">
-        <div class="flex items-center justify-between text-xs">
-          <span class="text-stone-500 dark:text-stone-400">Số dư điểm:</span>
-          <span class="font-mono font-bold text-orange-600 dark:text-orange-500">
-            ${Number(user.point_balance || 0).toLocaleString('vi-VN')} Điểm
-          </span>
+      <!-- Balance & Fast Track Tickets inside Profile (Thiết kế Bento 2 cột tinh gọn, không tràn màn hình) -->
+      <div class="px-3.5 py-2.5 bg-stone-50 dark:bg-stone-900 border-b border-stone-100 dark:border-stone-800 space-y-1.5">
+        <div class="grid grid-cols-2 gap-1.5">
+          <div class="p-2 rounded-xl bg-white dark:bg-stone-800/80 border border-stone-200/70 dark:border-stone-700/60">
+            <span class="text-[10px] text-stone-500 dark:text-stone-400 block font-medium">Số dư điểm:</span>
+            <span class="font-mono font-bold text-orange-600 dark:text-orange-500 text-xs block truncate">
+              ${Number(user.point_balance || 0).toLocaleString('vi-VN')} Điểm
+            </span>
+            <span class="text-[10px] text-stone-400 dark:text-stone-500 font-mono block">
+              ≈ ${Number(user.point_balance || 0).toLocaleString('vi-VN')}đ
+            </span>
+          </div>
+          <div class="p-2 rounded-xl bg-white dark:bg-stone-800/80 border border-stone-200/70 dark:border-stone-700/60">
+            <span class="text-[10px] text-stone-500 dark:text-stone-400 block font-medium">Credit tạo form:</span>
+            <span class="font-mono font-bold text-stone-900 dark:text-stone-100 text-xs block truncate mt-0.5">
+              ${Number(user.credit_balance || 0).toLocaleString('vi-VN')}
+            </span>
+            <span class="text-[10px] text-stone-400 dark:text-stone-500 block">Credit</span>
+          </div>
         </div>
-        <div class="flex items-center justify-between text-xs">
-          <span class="text-stone-500 dark:text-stone-400">Quy đổi:</span>
-          <span class="font-mono font-semibold text-stone-900 dark:text-stone-100">
-            ≈ ${Number(user.point_balance || 0).toLocaleString('vi-VN')}đ
-          </span>
-        </div>
-        <div class="flex items-center justify-between text-xs pt-1 border-t border-stone-200/60 dark:border-stone-800">
-          <span class="text-stone-500 dark:text-stone-400">Số dư Credit tạo form:</span>
-          <span class="font-mono font-bold text-stone-900 dark:text-stone-100">
-            ${Number(user.credit_balance || 0).toLocaleString('vi-VN')} Credit
-          </span>
-        </div>
-        <div class="flex items-center justify-between text-xs pt-1 border-t border-stone-200/60 dark:border-stone-800">
-          <span class="text-stone-500 dark:text-stone-400">Vé Thu Mẫu Hỏa Tốc:</span>
+        <div class="flex items-center justify-between text-[11px] pt-1 border-t border-stone-200/60 dark:border-stone-800">
+          <span class="text-stone-500 dark:text-stone-400 font-medium">Vé Thu Mẫu Hỏa Tốc:</span>
           <span class="font-mono font-bold text-stone-900 dark:text-stone-100">
             ${Number(user.fast_track_tickets || 0)} Vé
           </span>
         </div>
-        <div class="flex items-center justify-between text-xs pt-1 border-t border-stone-200/60 dark:border-stone-800 cursor-pointer hover:opacity-85 transition-opacity" onclick="VibeApp.toggleProfileDropdown(); VibeApp.openStreakModal()">
+        <div class="flex items-center justify-between text-[11px] pt-1 border-t border-stone-200/60 dark:border-stone-800 cursor-pointer hover:opacity-85 transition-opacity" onclick="VibeApp.toggleProfileDropdown(); VibeApp.openStreakModal()">
           <span class="inline-flex items-center gap-1.5 text-stone-600 dark:text-stone-300 font-medium">
             <i data-lucide="flame" class="w-3.5 h-3.5 text-orange-600"></i>
             <span>Chuỗi điểm danh:</span>
@@ -943,29 +943,29 @@ const VibeApp = {
       </div>
 
       <!-- Menu Shortcuts -->
-      <div class="p-1.5 space-y-0.5 text-xs">
-        <button onclick="VibeApp.navigate('profile'); document.getElementById('user-profile-dropdown').classList.add('hidden')" class="w-full text-left px-3 py-2 rounded-lg hover:bg-stone-50 dark:hover:bg-stone-800 flex items-center space-x-2.5 text-stone-800 dark:text-stone-200 font-bold transition-colors">
+      <div class="p-1 space-y-0.5 text-xs">
+        <button onclick="VibeApp.navigate('profile'); document.getElementById('user-profile-dropdown').classList.add('hidden')" class="w-full text-left px-3 py-1.5 rounded-lg hover:bg-stone-50 dark:hover:bg-stone-800 flex items-center space-x-2.5 text-stone-800 dark:text-stone-200 font-bold transition-colors">
           <i data-lucide="user-check" class="w-4 h-4 text-orange-600 dark:text-orange-500"></i>
           <span>Hồ Sơ & Xác Thực</span>
         </button>
 
-        <button onclick="VibeApp.resetStudioToNew(false); VibeApp.navigate('create-survey'); document.getElementById('user-profile-dropdown').classList.add('hidden')" class="w-full text-left px-3 py-2 rounded-lg hover:bg-stone-50 dark:hover:bg-stone-800 flex items-center space-x-2.5 text-stone-800 dark:text-stone-200 font-medium transition-colors">
+        <button onclick="VibeApp.resetStudioToNew(false); VibeApp.navigate('create-survey'); document.getElementById('user-profile-dropdown').classList.add('hidden')" class="w-full text-left px-3 py-1.5 rounded-lg hover:bg-stone-50 dark:hover:bg-stone-800 flex items-center space-x-2.5 text-stone-800 dark:text-stone-200 font-medium transition-colors">
           <i data-lucide="plus-circle" class="w-4 h-4 text-orange-600 dark:text-orange-500"></i>
           <span>Tạo Khảo Sát Mới</span>
         </button>
 
-        <button onclick="VibeApp.navigate('creator-surveys'); document.getElementById('user-profile-dropdown').classList.add('hidden')" class="w-full text-left px-3 py-2 rounded-lg hover:bg-stone-50 dark:hover:bg-stone-800 flex items-center space-x-2.5 text-stone-800 dark:text-stone-200 font-medium transition-colors">
+        <button onclick="VibeApp.navigate('creator-surveys'); document.getElementById('user-profile-dropdown').classList.add('hidden')" class="w-full text-left px-3 py-1.5 rounded-lg hover:bg-stone-50 dark:hover:bg-stone-800 flex items-center space-x-2.5 text-stone-800 dark:text-stone-200 font-medium transition-colors">
           <i data-lucide="folder-kanban" class="w-4 h-4 text-stone-700 dark:text-stone-300"></i>
           <span>Khảo Sát Của Tôi</span>
         </button>
 
-        <button onclick="VibeApp.navigate('wallet'); document.getElementById('user-profile-dropdown').classList.add('hidden')" class="w-full text-left px-3 py-2 rounded-lg hover:bg-stone-50 dark:hover:bg-stone-800 flex items-center space-x-2.5 text-stone-800 dark:text-stone-200 font-medium transition-colors">
+        <button onclick="VibeApp.navigate('wallet'); document.getElementById('user-profile-dropdown').classList.add('hidden')" class="w-full text-left px-3 py-1.5 rounded-lg hover:bg-stone-50 dark:hover:bg-stone-800 flex items-center space-x-2.5 text-stone-800 dark:text-stone-200 font-medium transition-colors">
           <i data-lucide="wallet" class="w-4 h-4 text-stone-700 dark:text-stone-300"></i>
           <span>Ví & Rút Tiền</span>
         </button>
 
         ${user.role === 'ADMIN' ? `
-          <button onclick="VibeApp.navigate('admin-overview'); document.getElementById('user-profile-dropdown').classList.add('hidden')" class="w-full text-left px-3 py-2 rounded-lg hover:bg-stone-50 dark:hover:bg-stone-800 flex items-center space-x-2.5 text-stone-800 dark:text-stone-200 font-bold transition-colors">
+          <button onclick="VibeApp.navigate('admin-overview'); document.getElementById('user-profile-dropdown').classList.add('hidden')" class="w-full text-left px-3 py-1.5 rounded-lg hover:bg-stone-50 dark:hover:bg-stone-800 flex items-center space-x-2.5 text-stone-800 dark:text-stone-200 font-bold transition-colors">
             <i data-lucide="shield" class="w-4 h-4 text-stone-700 dark:text-stone-300"></i>
             <span>Trang Quản Trị Hệ Thống</span>
           </button>
@@ -975,7 +975,7 @@ const VibeApp = {
       <!-- Logout Button -->
       <div class="border-t border-stone-100 dark:border-stone-800 my-1"></div>
       <div class="p-1">
-        <button onclick="VibeApp.logout()" class="w-full text-left px-3 py-2 hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-700 dark:text-stone-300 text-xs font-semibold rounded-lg flex items-center space-x-2 transition-colors">
+        <button onclick="VibeApp.logout()" class="w-full text-left px-3 py-1.5 hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-700 dark:text-stone-300 text-xs font-semibold rounded-lg flex items-center space-x-2 transition-colors">
           <i data-lucide="log-out" class="w-4 h-4"></i>
           <span>Đăng xuất</span>
         </button>
@@ -3148,20 +3148,20 @@ const VibeApp = {
     } else if (user.role === 'ADMIN') {
       const mode = this.state.adminViewMode || 'ADMIN';
       if (mode === 'RESPONDENT') {
-        // Góc nhìn Người Điền (Đáp Viên) - Vẫn đầy đủ Tạo Khảo Sát & Khảo Sát Của Tôi trên Menu
+        // Góc nhìn Người Điền (Đáp Viên) - Nút Tạo Khảo Sát NẰM CHÍNH GIỮA (vị trí số 3 trên 5 nút)
         tabs = [
           { id: 'surveys', label: 'Khảo Sát', icon: 'compass' },
-          { id: 'create-survey', label: 'Tạo Khảo Sát', icon: 'plus-circle' },
           { id: 'creator-surveys', label: 'Khảo Sát Của Tôi', icon: 'folder-kanban' },
+          { id: 'create-survey', label: 'Tạo Khảo Sát', icon: 'plus-circle', isCenterAction: true },
           { id: 'voucher-market', label: 'Chợ Voucher', icon: 'gift' },
           { id: 'wallet', label: 'Ví & Rút Tiền', icon: 'wallet' }
         ];
       } else if (mode === 'CREATOR') {
-        // Góc nhìn Doanh Nghiệp (Creator)
+        // Góc nhìn Doanh Nghiệp
         tabs = [
           { id: 'surveys', label: 'Khám Phá', icon: 'compass' },
-          { id: 'create-survey', label: 'Tạo Khảo Sát', icon: 'plus-circle' },
           { id: 'creator-surveys', label: 'Khảo Sát Của Tôi', icon: 'folder-kanban' },
+          { id: 'create-survey', label: 'Tạo Khảo Sát', icon: 'plus-circle', isCenterAction: true },
           { id: 'wallet', label: 'Ví & Nạp Quỹ', icon: 'wallet' }
         ];
       } else {
@@ -3177,13 +3177,23 @@ const VibeApp = {
       }
     } else {
       // Dành cho cả Người Điền (RESPONDENT) và Doanh Nghiệp (CREATOR)
-      tabs = [
-        { id: 'surveys', label: 'Khảo Sát', icon: 'compass' },
-        { id: 'create-survey', label: 'Tạo Khảo Sát', icon: 'plus-circle' },
-        { id: 'creator-surveys', label: 'Khảo Sát Của Tôi', icon: 'folder-kanban' },
-        { id: 'voucher-market', label: 'Chợ Voucher', icon: 'gift' },
-        { id: 'wallet', label: 'Ví & Rút Tiền', icon: 'wallet' }
-      ];
+      if (user.role === 'CREATOR') {
+        tabs = [
+          { id: 'surveys', label: 'Khám Phá', icon: 'compass' },
+          { id: 'creator-surveys', label: 'Khảo Sát Của Tôi', icon: 'folder-kanban' },
+          { id: 'create-survey', label: 'Tạo Khảo Sát', icon: 'plus-circle', isCenterAction: true },
+          { id: 'wallet', label: 'Ví & Nạp Quỹ', icon: 'wallet' }
+        ];
+      } else {
+        // Người Điền: Tạo Khảo Sát NẰM CHÍNH GIỮA
+        tabs = [
+          { id: 'surveys', label: 'Khảo Sát', icon: 'compass' },
+          { id: 'creator-surveys', label: 'Khảo Sát Của Tôi', icon: 'folder-kanban' },
+          { id: 'create-survey', label: 'Tạo Khảo Sát', icon: 'plus-circle', isCenterAction: true },
+          { id: 'voucher-market', label: 'Chợ Voucher', icon: 'gift' },
+          { id: 'wallet', label: 'Ví & Rút Tiền', icon: 'wallet' }
+        ];
+      }
     }
 
     // Desktop Tabs (Pill Style)
@@ -3200,11 +3210,10 @@ const VibeApp = {
       }).join('');
     }
 
-    // Mobile Bottom Floating Nav (Kiểu Bong Bóng Nổi Bo Tròn Đẳng Cấp)
+    // Mobile Bottom Floating Nav (Kiểu Bong Bóng Nổi Bo Tròn Đẳng Cấp, Chỉ Giữ Icon - Ẩn Toàn Bộ Chữ Theo Yêu Cầu)
     if (mobileNav) {
       let mobileItems = [...tabs];
-      // Đề xuất 3: Trên điện thoại di động của Admin toàn quyền, co gọn về 4 tab cốt lõi
-      // Tránh tình trạng nhồi nhét 6 nút gây chật chội và xén cụt chữ "Khảo Sát C..."
+      // Nếu là Admin góc nhìn Quản trị toàn quyền
       if (user && user.role === 'ADMIN' && (this.state.adminViewMode || 'ADMIN') === 'ADMIN') {
         mobileItems = [
           { id: 'admin-overview', label: 'Tổng Quan', icon: 'pie-chart' },
@@ -3216,21 +3225,39 @@ const VibeApp = {
       if (!user) {
         mobileItems.push({ id: 'auth-login', label: 'Đăng Nhập', icon: 'log-in', isAuthAction: true });
       }
+
       mobileNav.innerHTML = mobileItems.map(tab => {
         const isActive = this.state.currentTab === tab.id;
         const clickAction = tab.isAuthAction ? `VibeApp.openAuthModal('login')` : `VibeApp.navigate('${tab.id}')`;
+
+        // Nút Tạo Khảo Sát ở giữa: Action Button dạng tròn cam nổi bật trung tâm (chuẩn phong cách TikTok/Instagram)
+        if (tab.isCenterAction) {
+          return `
+            <button onclick="${clickAction}" 
+                    title="${tab.label}" 
+                    aria-label="${tab.label}"
+                    class="relative -my-1 flex-shrink-0 flex items-center justify-center w-11 h-11 rounded-full bg-orange-600 hover:bg-orange-700 text-white shadow-lg shadow-orange-600/30 active:scale-90 transition-all ${
+                      isActive ? 'ring-2 ring-orange-500 ring-offset-2 dark:ring-offset-stone-900' : ''
+                    }">
+              <i data-lucide="plus" class="w-6 h-6 stroke-[2.8]"></i>
+            </button>
+          `;
+        }
+
         return `
           <button onclick="${clickAction}" 
-                  class="relative flex-1 py-1.5 px-1 rounded-full flex flex-col items-center justify-center transition-all duration-200 active:scale-95 group ${
+                  title="${tab.label}" 
+                  aria-label="${tab.label}"
+                  class="relative flex-1 py-1.5 flex items-center justify-center transition-all duration-200 active:scale-90 group ${
                     isActive 
-                      ? 'text-orange-600 dark:text-orange-400 font-extrabold' 
-                      : 'text-stone-400 dark:text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 font-semibold'
+                      ? 'text-orange-600 dark:text-orange-400' 
+                      : 'text-stone-400 dark:text-stone-400 hover:text-stone-700 dark:hover:text-stone-200'
                   }">
-            ${isActive ? `
-              <span class="absolute inset-0 bg-stone-100 dark:bg-stone-800 rounded-full transition-all -z-10 shadow-xs border border-stone-200 dark:border-stone-700"></span>
-            ` : ''}
-            <i data-lucide="${tab.icon}" class="w-4 h-4 mb-0.5 transition-transform group-hover:scale-110 ${isActive ? 'stroke-[2.5] scale-105' : 'stroke-[1.8]'}"></i>
-            <span class="text-[10px] leading-tight truncate max-w-[72px] font-sans tracking-tight">${tab.label}</span>
+            <div class="w-10 h-10 rounded-full flex items-center justify-center transition-all ${
+              isActive ? 'bg-stone-100 dark:bg-stone-800 shadow-2xs' : 'group-hover:bg-stone-50 dark:group-hover:bg-stone-800/40'
+            }">
+              <i data-lucide="${tab.icon}" class="w-5 h-5 transition-transform group-hover:scale-110 ${isActive ? 'stroke-[2.5] scale-105' : 'stroke-[1.9]'}"></i>
+            </div>
           </button>
         `;
       }).join('');
