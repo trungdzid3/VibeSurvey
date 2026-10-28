@@ -68,12 +68,17 @@ c:\Users\Lenovo\Downloads\Linh\
   - `firstTimeRetentionRate` & `repeatRetentionRate`: Tính từ lịch sử đăng nhập thiết bị `device_ip_logs`.
   - Toàn bộ chỉ số lấy thực tế 100% từ CSDL SQLite, loại bỏ hoàn toàn số demo giả định.
 - **Admin Fast Command Console**: Hỗ trợ 16 lệnh quản trị nhanh (`/naptien`, `/congdiem`, `/resetpoint`, `/ban`, `/unban`, `/settier`, phím tắt F2).
-- **Tối ưu Mobile Navigation & User Profile Menu (v3.3.2)**:
-  - **Khắc phục lỗi menu tài khoản bị cắt phần đáy**: Thêm `max-h-[calc(100vh-80px)] overflow-y-auto overscroll-contain` và `max-w-[calc(100vw-20px)]` vào `#user-profile-dropdown`, thiết kế lại khối số dư Bento 2 cột tinh gọn giúp menu hiển thị trọn vẹn và cuộn mượt mà trên mọi loại màn hình laptop thấp hoặc điện thoại.
+- **Tối ưu Mobile Navigation & Phân Tách Đặc Quyền Doanh Nghiệp (v3.3.3)**:
+  - **Doanh Nghiệp không sử dụng điểm & không đổi voucher**:
+    + Bỏ hoàn toàn tab `Chợ Voucher` khỏi Doanh Nghiệp (chặn và vô hiệu hóa nút đổi voucher, hiển thị banner thông báo quy chế).
+    + Xóa bỏ hiển thị "Số dư điểm", "Quy đổi VNĐ" và "Chuỗi điểm danh" trong Dropdown tài khoản; Doanh Nghiệp chỉ quản lý Credit tạo form và Vé VIP hỏa tốc.
+    + Không hỗ trợ điểm danh cho Doanh Nghiệp: Ẩn widget ngọn lửa trên Header, ẩn thẻ Daily Streak Card trên Dashboard, chặn hành động điểm danh.
+    + Trang Ví Doanh Nghiệp (`Ví & Quỹ Doanh Nghiệp`): Ẩn Card điểm thưởng đổi thẻ cào 10K và bảng yêu cầu rút tiền; mở rộng Card Credit tạo form và nạp quỹ VietQR full width.
   - **Tối ưu thanh Mobile Bottom Dock**:
-    + Đưa nút `Tạo Khảo Sát` vào chính giữa (vị trí số 3) của cả Người Điền và Doanh Nghiệp (đồng bộ 5 tabs cân xứng: 2 icon bên trái - nút Tạo Khảo Sát ở giữa - 2 icon bên phải).
-    + Ẩn toàn bộ chữ, chỉ giữ lại icon to rõ nét `w-5 h-5` trong khung tròn `w-10 h-10` thanh lịch.
-    + Nút Tạo Khảo Sát ở giữa được thiết kế nổi bật dạng Action Button tròn cam (`w-11 h-11 bg-orange-600 text-white`), nằm cân đối 100% không còn bị lệch sang phải.
+    + Người Điền: 5 tabs, nút `Tạo Khảo Sát` ở chính giữa (vị trí số 3) làm nút tròn cam nổi bật (`w-11 h-11`), cân đối hoàn hảo (2 nút trái, 2 nút phải).
+    + Doanh Nghiệp: 4 tabs chuyên biệt (`Khám Phá`, `Tạo Khảo Sát`, `Khảo Sát Của Tôi`, `Ví & Nạp Quỹ`) chia đều 25% phẳng, đối xứng hoàn hảo 100%, không bị lệch sang phải.
+    + Toàn bộ thanh dock ẩn chữ, chỉ giữ icon to rõ nét `w-5 h-5` trong khung tròn `w-10 h-10` thanh lịch.
+  - **Khắc phục lỗi menu tài khoản bị cắt phần đáy**: Thêm `max-h-[calc(100vh-80px)] overflow-y-auto overscroll-contain` và `max-w-[calc(100vw-20px)]` vào `#user-profile-dropdown`, thiết kế lại khối số dư Bento 2 cột tinh gọn giúp menu hiển thị trọn vẹn và cuộn mượt mà trên mọi loại màn hình laptop thấp hoặc điện thoại.
 - **Thống nhất định danh & Khắc phục lỗi thông báo kép**:
   - Thống nhất 100% thuật ngữ tiếng Việt hiển thị trên UI: dùng `Doanh Nghiệp` thay cho `Creator` (`(Doanh Nghiệp Boost)`, `Sổ cái nạp Doanh Nghiệp`, Quy chuẩn minh bạch Doanh nghiệp).
   - Khắc phục triệt để lỗi nhảy 2 thông báo toast cùng lúc khi chuyển góc nhìn sang Doanh Nghiệp bằng cờ `silent: true` trong `switchAdminTier`.

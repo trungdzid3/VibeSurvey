@@ -718,12 +718,22 @@ const VibeApp = {
     this.navigate(this.state.currentTab);
   },
 
+  isEnterpriseUser() {
+    const user = this.state.currentUser;
+    if (!user) return false;
+    return user.role === 'CREATOR' || 
+           (user.role === 'ADMIN' && (this.state.adminViewMode || 'ADMIN') === 'CREATOR') || 
+           user.account_tier === 'ENTERPRISE';
+  },
+
   applyUserInterface(silent = false) {
     const user = this.state.currentUser;
     if (!user) {
       this.applyGuestInterface();
       return;
     }
+
+    const isEnterprise = this.isEnterpriseUser();
 
     const balancePill = document.getElementById('user-balance-pill');
     const ticketsChip = document.getElementById('header-tickets-chip');
@@ -757,10 +767,22 @@ const VibeApp = {
 
     const streakBtn = document.getElementById('header-streak-btn');
     if (streakBtn) {
-      streakBtn.classList.remove('hidden');
-      streakBtn.classList.add('flex');
+      // Doanh nghiệp không hỗ trợ điểm danh -> ẩn hoàn toàn nút ngọn lửa
+      if (isEnterprise) {
+        streakBtn.classList.add('hidden');
+        streakBtn.classList.remove('flex');
+        streakBtn.style.display = 'none';
+      } else {
+        streakBtn.classList.remove('hidden');
+        streakBtn.classList.add('flex');
+        streakBtn.style.display = 'flex';
+      }
     }
-    this.fetchStreakInfo();
+    if (!isEnterprise) {
+      this.fetchStreakInfo();
+    } else {
+      this.state.streakInfo = null;
+    }
 
     const shortName = user.name ? (user.name.split(' ').pop() || user.name) : 'User';
     if (nameEl) nameEl.textContent = shortName;
@@ -896,6 +918,27 @@ const VibeApp = {
 
       <!-- Balance & Fast Track Tickets inside Profile (Thiết kế Bento 2 cột tinh gọn, không tràn màn hình) -->
       <div class="px-3.5 py-2.5 bg-stone-50 dark:bg-stone-900 border-b border-stone-100 dark:border-stone-800 space-y-1.5">
+        ${this.isEnterpriseUser() ? `
+        <!-- Doanh Nghiệp: Ẩn hoàn toàn điểm và điểm danh, chỉ hiển thị Credit & Vé Hỏa Tốc -->
+        <div class="p-2.5 rounded-xl bg-white dark:bg-stone-800/80 border border-stone-200/70 dark:border-stone-700/60 flex items-center justify-between">
+          <div>
+            <span class="text-[10px] text-stone-500 dark:text-stone-400 block font-medium">Số dư Credit tạo form:</span>
+            <span class="font-mono font-black text-stone-900 dark:text-stone-100 text-sm block mt-0.5">
+              ${Number(user.credit_balance || 0).toLocaleString('vi-VN')} Credit
+            </span>
+          </div>
+          <button onclick="VibeApp.toggleProfileDropdown(); VibeApp.openDepositModal()" class="px-2.5 py-1.5 bg-orange-600 hover:bg-orange-700 text-white rounded-lg text-xs font-bold transition-all shadow-2xs active:scale-95 flex items-center gap-1">
+            <i data-lucide="plus" class="w-3.5 h-3.5"></i> Nạp Quỹ
+          </button>
+        </div>
+        <div class="flex items-center justify-between text-[11px] pt-1 border-t border-stone-200/60 dark:border-stone-800">
+          <span class="text-stone-500 dark:text-stone-400 font-medium">Vé Thu Mẫu Hỏa Tốc:</span>
+          <span class="font-mono font-bold text-stone-900 dark:text-stone-100">
+            ${Number(user.fast_track_tickets || 0)} Vé
+          </span>
+        </div>
+        ` : `
+        <!-- Người Điền: Hiển thị đầy đủ Điểm, quy đổi và chuỗi điểm danh -->
         <div class="grid grid-cols-2 gap-1.5">
           <div class="p-2 rounded-xl bg-white dark:bg-stone-800/80 border border-stone-200/70 dark:border-stone-700/60">
             <span class="text-[10px] text-stone-500 dark:text-stone-400 block font-medium">Số dư điểm:</span>
@@ -929,6 +972,7 @@ const VibeApp = {
             ${this.state.streakInfo ? this.state.streakInfo.current_streak + ' ngày' : 'Điểm danh'}
           </span>
         </div>
+        `}
       </div>
 
       <!-- Security & Free Trial Verification Badges -->
@@ -2649,6 +2693,10 @@ const VibeApp = {
    */
   async openStreakModal() {
     this.haptic('light');
+    if (this.isEnterpriseUser()) {
+      this.showToast('Chương trình điểm danh nhận thưởng chỉ áp dụng cho Người Điền', 'info');
+      return;
+    }
     if (!this.state.currentUser) {
       this.openAuthModal('login');
       return;
@@ -2859,6 +2907,10 @@ const VibeApp = {
    */
   async performCheckin() {
     this.haptic('medium');
+    if (this.isEnterpriseUser()) {
+      this.showToast('Chương trình điểm danh nhận thưởng chỉ áp dụng cho Người Điền', 'info');
+      return;
+    }
     const btn = document.getElementById('streak-modal-action-btn');
     if (btn) {
       btn.disabled = true;
@@ -3157,12 +3209,11 @@ const VibeApp = {
           { id: 'wallet', label: 'Ví & Rút Tiền', icon: 'wallet' }
         ];
       } else if (mode === 'CREATOR') {
-        // Góc nhìn Doanh Nghiệp - Nút Tạo Khảo Sát NẰM CHÍNH GIỮA (vị trí số 3 trên 5 nút, cân đối hoàn hảo)
+        // Góc nhìn Doanh Nghiệp: 4 tabs chuyên biệt (Không có Chợ Voucher do không tích lũy điểm thưởng)
         tabs = [
           { id: 'surveys', label: 'Khám Phá', icon: 'compass' },
+          { id: 'create-survey', label: 'Tạo Khảo Sát', icon: 'plus-circle' },
           { id: 'creator-surveys', label: 'Khảo Sát Của Tôi', icon: 'folder-kanban' },
-          { id: 'create-survey', label: 'Tạo Khảo Sát', icon: 'plus-circle', isCenterAction: true },
-          { id: 'voucher-market', label: 'Chợ Voucher', icon: 'gift' },
           { id: 'wallet', label: 'Ví & Nạp Quỹ', icon: 'wallet' }
         ];
       } else {
@@ -3179,15 +3230,15 @@ const VibeApp = {
     } else {
       // Dành cho cả Người Điền (RESPONDENT) và Doanh Nghiệp (CREATOR)
       if (user.role === 'CREATOR') {
+        // Doanh Nghiệp: 4 tabs phẳng cân xứng 100%
         tabs = [
           { id: 'surveys', label: 'Khám Phá', icon: 'compass' },
+          { id: 'create-survey', label: 'Tạo Khảo Sát', icon: 'plus-circle' },
           { id: 'creator-surveys', label: 'Khảo Sát Của Tôi', icon: 'folder-kanban' },
-          { id: 'create-survey', label: 'Tạo Khảo Sát', icon: 'plus-circle', isCenterAction: true },
-          { id: 'voucher-market', label: 'Chợ Voucher', icon: 'gift' },
           { id: 'wallet', label: 'Ví & Nạp Quỹ', icon: 'wallet' }
         ];
       } else {
-        // Người Điền: Tạo Khảo Sát NẰM CHÍNH GIỮA
+        // Người Điền: Tạo Khảo Sát NẰM CHÍNH GIỮA (5 tabs)
         tabs = [
           { id: 'surveys', label: 'Khảo Sát', icon: 'compass' },
           { id: 'creator-surveys', label: 'Khảo Sát Của Tôi', icon: 'folder-kanban' },
@@ -3570,8 +3621,8 @@ const VibeApp = {
           `}
         </div>
 
-        <!-- ==================== DAILY STREAK CARD ==================== -->
-        ${user && this.state.streakInfo ? `
+        <!-- ==================== DAILY STREAK CARD (Chỉ hiển thị cho Người Điền) ==================== -->
+        ${user && this.state.streakInfo && !this.isEnterpriseUser() ? `
           <div class="bg-white dark:bg-[#18181B] rounded-2xl border border-stone-200 dark:border-stone-800 p-4 sm:p-5 shadow-xs mb-3 transition-all">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3.5">
               
@@ -5505,6 +5556,7 @@ const VibeApp = {
     this.state.voucherCatalog = vouchers;
 
     const user = this.state.currentUser;
+    const isEnterprise = this.isEnterpriseUser();
     const userPoints = user ? user.point_balance : 0;
 
     root.innerHTML = `
@@ -5515,10 +5567,25 @@ const VibeApp = {
             <h1 class="text-xl sm:text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white">Chợ Đổi E-Voucher Quà Tặng</h1>
             <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Quy đổi điểm thưởng khảo sát lấy mã ưu đãi Shopee, Grab, Highlands Coffee, Phúc Long, CGV Cinemas, Starbucks.</p>
           </div>
-          <div class="text-xs font-bold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-700/80 px-3.5 py-2 rounded-xl shadow-2xs self-start font-mono">
-            Số dư khả dụng: <strong class="text-orange-600 dark:text-orange-400 font-bold">${userPoints.toLocaleString()}</strong> Điểm
-          </div>
+          ${!isEnterprise ? `
+            <div class="text-xs font-bold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-700/80 px-3.5 py-2 rounded-xl shadow-2xs self-start font-mono">
+              Số dư khả dụng: <strong class="text-orange-600 dark:text-orange-400 font-bold">${userPoints.toLocaleString()}</strong> Điểm
+            </div>
+          ` : `
+            <div class="text-xs font-bold text-stone-600 dark:text-stone-300 bg-stone-100 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 px-3.5 py-2 rounded-xl self-start">
+              Góc nhìn Doanh Nghiệp
+            </div>
+          `}
         </div>
+
+        ${isEnterprise ? `
+          <div class="p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 text-xs text-amber-900 dark:text-amber-200 flex items-center gap-3">
+            <i data-lucide="info" class="w-5 h-5 text-amber-600 shrink-0"></i>
+            <div>
+              <strong class="font-bold">Lưu ý cho Doanh Nghiệp:</strong> Tài khoản Doanh Nghiệp không tích lũy điểm thưởng khảo sát. Chợ E-Voucher quy đổi điểm chỉ dành riêng cho Người Điền hoàn thành bài khảo sát.
+            </div>
+          </div>
+        ` : ''}
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
           ${vouchers.map(v => {
@@ -5527,7 +5594,10 @@ const VibeApp = {
             let btnText = 'Đổi Voucher';
             let btnClass = 'bg-orange-600 hover:bg-orange-700 text-white shadow-xs active:scale-95';
 
-            if (isOutOfStock) {
+            if (isEnterprise) {
+              btnText = 'Dành cho Người Điền';
+              btnClass = 'bg-stone-100 dark:bg-stone-800 text-stone-400 dark:text-stone-500 cursor-not-allowed border border-stone-200/60 dark:border-stone-700/60';
+            } else if (isOutOfStock) {
               btnText = 'Hết Mã';
               btnClass = 'bg-stone-100 dark:bg-stone-800 text-stone-400 dark:text-stone-500 cursor-not-allowed border border-stone-200/60 dark:border-stone-700/60';
             } else if (!canAfford) {
@@ -5572,7 +5642,7 @@ const VibeApp = {
                     <strong class="text-sm sm:text-base font-bold text-orange-600 dark:text-orange-500 font-mono">${(v.points_cost || 0).toLocaleString()} Điểm</strong>
                   </div>
                   <button onclick="VibeApp.redeemVoucher('${v.id}')" 
-                          ${(isOutOfStock || !canAfford) ? 'disabled' : ''}
+                          ${(isEnterprise || isOutOfStock || !canAfford) ? 'disabled' : ''}
                           class="h-9 px-4 rounded-lg text-xs font-bold transition-all ${btnClass}">
                     ${btnText}
                   </button>
@@ -5589,6 +5659,10 @@ const VibeApp = {
   },
 
   async redeemVoucher(campaignId) {
+    if (this.isEnterpriseUser()) {
+      this.showToast('Tài khoản Doanh Nghiệp không sử dụng điểm thưởng để đổi E-Voucher', 'info');
+      return;
+    }
     if (!this.state.currentUser) {
       this.showToast('Vui lòng đăng nhập để đổi voucher!', 'info');
       this.openAuthModal('login');
@@ -5735,18 +5809,26 @@ const VibeApp = {
     const curPoints = wallet.point_balance || 0;
     const minPayout = 10000; // Mốc đổi thưởng tối thiểu từ 10.000 điểm (10.000đ quy đổi 1:1)
     const canPayout = curPoints >= minPayout;
+    const isEnterprise = this.isEnterpriseUser();
 
     root.innerHTML = `
       <div class="space-y-7">
         
         <div class="pb-4 border-b border-stone-200 dark:border-stone-800">
-          <h1 class="text-xl sm:text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white">Ví & Rút Tiền</h1>
-          <p class="text-xs text-stone-500 dark:text-stone-400 mt-0.5 font-normal">Bảo toàn số dư với Double-Entry Ledger, kiểm toán ACID và nguyên tắc tài chính minh bạch.</p>
+          <h1 class="text-xl sm:text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+            ${isEnterprise ? 'Ví & Quỹ Doanh Nghiệp' : 'Ví & Rút Tiền'}
+          </h1>
+          <p class="text-xs text-stone-500 dark:text-stone-400 mt-0.5 font-normal">
+            ${isEnterprise 
+              ? 'Quản lý số dư ký quỹ Escrow, ngân sách khảo sát và nạp Credit tự động qua VietQR.' 
+              : 'Bảo toàn số dư với Double-Entry Ledger, kiểm toán ACID và nguyên tắc tài chính minh bạch.'}
+          </p>
         </div>
 
-        <!-- 2 Modern Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <!-- Modern Cards -->
+        <div class="grid grid-cols-1 ${isEnterprise ? 'max-w-2xl' : 'md:grid-cols-2'} gap-5">
           
+          ${!isEnterprise ? `
           <!-- Card 1: Sunset Orange Rewards Points Card (Respondent) -->
           <div class="fintech-card-bg rounded-3xl p-6 sm:p-7 text-white flex flex-col justify-between space-y-5 relative overflow-hidden">
             <div>
@@ -5780,6 +5862,7 @@ const VibeApp = {
               </button>
             </div>
           </div>
+          ` : ''}
 
           <!-- Card 2: Creator Credit Card -->
           <div class="bento-card p-6 sm:p-7 flex flex-col justify-between space-y-5 bg-white dark:bg-[#18181B] border border-stone-200 dark:border-stone-800 rounded-3xl shadow-xs">
@@ -5812,7 +5895,8 @@ const VibeApp = {
 
         </div>
 
-        <!-- Payout Requests Table -->
+        <!-- Payout Requests Table (Chỉ hiển thị cho Người Điền) -->
+        ${!isEnterprise ? `
         <div class="bento-card p-6 space-y-4 bg-white dark:bg-[#18181B] border border-stone-200 dark:border-stone-800 rounded-2xl shadow-xs">
           <div class="flex justify-between items-center">
             <h3 class="text-sm font-extrabold text-stone-900 dark:text-white">Lịch Sử Yêu Cầu Đổi Thưởng & Rút Tiền</h3>
@@ -5879,6 +5963,7 @@ const VibeApp = {
             </table>
           </div>
         </div>
+        ` : ''}
 
         <!-- Transaction Table -->
         <div class="bento-card p-6 space-y-4 bg-white dark:bg-[#18181B] border border-stone-200 dark:border-stone-800 rounded-2xl shadow-xs">
