@@ -71,9 +71,9 @@ c:\Users\Lenovo\Downloads\Linh\
 - **Tối ưu Mobile Navigation & User Profile Menu (v3.3.2)**:
   - **Khắc phục lỗi menu tài khoản bị cắt phần đáy**: Thêm `max-h-[calc(100vh-80px)] overflow-y-auto overscroll-contain` và `max-w-[calc(100vw-20px)]` vào `#user-profile-dropdown`, thiết kế lại khối số dư Bento 2 cột tinh gọn giúp menu hiển thị trọn vẹn và cuộn mượt mà trên mọi loại màn hình laptop thấp hoặc điện thoại.
   - **Tối ưu thanh Mobile Bottom Dock**:
-    + Đưa nút `Tạo Khảo Sát` vào chính giữa (vị trí số 3) của Người Điền và Doanh Nghiệp.
+    + Đưa nút `Tạo Khảo Sát` vào chính giữa (vị trí số 3) của cả Người Điền và Doanh Nghiệp (đồng bộ 5 tabs cân xứng: 2 icon bên trái - nút Tạo Khảo Sát ở giữa - 2 icon bên phải).
     + Ẩn toàn bộ chữ, chỉ giữ lại icon to rõ nét `w-5 h-5` trong khung tròn `w-10 h-10` thanh lịch.
-    + Nút Tạo Khảo Sát ở giữa được thiết kế nổi bật dạng Action Button tròn cam (`w-11 h-11 bg-orange-600 text-white`), loại bỏ triệt để lỗi chèn ép và cắt cụt chữ `Khảo Sát C...`.
+    + Nút Tạo Khảo Sát ở giữa được thiết kế nổi bật dạng Action Button tròn cam (`w-11 h-11 bg-orange-600 text-white`), nằm cân đối 100% không còn bị lệch sang phải.
 - **Thống nhất định danh & Khắc phục lỗi thông báo kép**:
   - Thống nhất 100% thuật ngữ tiếng Việt hiển thị trên UI: dùng `Doanh Nghiệp` thay cho `Creator` (`(Doanh Nghiệp Boost)`, `Sổ cái nạp Doanh Nghiệp`, Quy chuẩn minh bạch Doanh nghiệp).
   - Khắc phục triệt để lỗi nhảy 2 thông báo toast cùng lúc khi chuyển góc nhìn sang Doanh Nghiệp bằng cờ `silent: true` trong `switchAdminTier`.

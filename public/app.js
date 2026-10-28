@@ -1562,7 +1562,7 @@ const VibeApp = {
       this.showToast('Đã chuyển sang góc nhìn Doanh Nghiệp', 'info');
       // Tự động chuyển gói tài khoản sang Doanh Nghiệp (ENTERPRISE) nhưng tắt toast thứ 2 để không bị thông báo kép
       this.switchAdminTier('ENTERPRISE', true);
-      if (['admin-overview', 'admin-payouts', 'admin-fraud', 'voucher-market'].includes(this.state.currentTab)) {
+      if (['admin-overview', 'admin-payouts', 'admin-fraud'].includes(this.state.currentTab)) {
         this.navigate('creator-surveys');
       } else if (this.state.currentTab === 'profile') {
         this.state.profileTab = 'ENTERPRISE';
@@ -3157,11 +3157,12 @@ const VibeApp = {
           { id: 'wallet', label: 'Ví & Rút Tiền', icon: 'wallet' }
         ];
       } else if (mode === 'CREATOR') {
-        // Góc nhìn Doanh Nghiệp
+        // Góc nhìn Doanh Nghiệp - Nút Tạo Khảo Sát NẰM CHÍNH GIỮA (vị trí số 3 trên 5 nút, cân đối hoàn hảo)
         tabs = [
           { id: 'surveys', label: 'Khám Phá', icon: 'compass' },
           { id: 'creator-surveys', label: 'Khảo Sát Của Tôi', icon: 'folder-kanban' },
           { id: 'create-survey', label: 'Tạo Khảo Sát', icon: 'plus-circle', isCenterAction: true },
+          { id: 'voucher-market', label: 'Chợ Voucher', icon: 'gift' },
           { id: 'wallet', label: 'Ví & Nạp Quỹ', icon: 'wallet' }
         ];
       } else {
@@ -3182,6 +3183,7 @@ const VibeApp = {
           { id: 'surveys', label: 'Khám Phá', icon: 'compass' },
           { id: 'creator-surveys', label: 'Khảo Sát Của Tôi', icon: 'folder-kanban' },
           { id: 'create-survey', label: 'Tạo Khảo Sát', icon: 'plus-circle', isCenterAction: true },
+          { id: 'voucher-market', label: 'Chợ Voucher', icon: 'gift' },
           { id: 'wallet', label: 'Ví & Nạp Quỹ', icon: 'wallet' }
         ];
       } else {
