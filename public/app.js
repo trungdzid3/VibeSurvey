@@ -1139,19 +1139,11 @@ const VibeApp = window.VibeApp = Object.assign(window.VibeApp, {
       }
     }
 
+    // Karma không hiển thị trên thanh menu theo yêu cầu người dùng
     const karmaBtn = document.getElementById('header-edu-karma-btn');
-    const karmaText = document.getElementById('header-edu-karma-text');
     if (karmaBtn) {
-      if (user && user.is_student_verified === 1) {
-        karmaBtn.classList.remove('hidden');
-        karmaBtn.classList.add('flex');
-        karmaBtn.style.display = 'flex';
-        if (karmaText) karmaText.textContent = `${user.student_karma || 0} Karma`;
-      } else {
-        karmaBtn.classList.add('hidden');
-        karmaBtn.classList.remove('flex');
-        karmaBtn.style.display = 'none';
-      }
+      karmaBtn.classList.add('hidden');
+      karmaBtn.style.display = 'none';
     }
     if (!isEnterprise) {
       this.fetchStreakInfo();
@@ -7930,6 +7922,7 @@ if (totalCount === 0) {
     const payoutPercentRaw = (curPoints / payoutGoal) * 100;
     const payoutPercent = Math.min(100, Math.max(0.5, payoutPercentRaw)).toFixed(1).replace('.', ',');
     const progressWidth = Math.min(100, Math.max(2, payoutPercentRaw));
+    const isStudent = this.isStudentUser(this.state.currentUser);
 
     root.innerHTML = `
       <div class="space-y-6 max-w-5xl mx-auto">
@@ -7951,58 +7944,25 @@ if (totalCount === 0) {
             <span class="text-stone-600 dark:text-stone-300 font-semibold">Ví & Rút Tiền</span>
           </div>
         </div>
-
-        ${this.state.currentUser && this.state.currentUser.is_student_verified === 1 ? `
-        <!-- THẺ EDU KARMA: DÀNH RIÊNG CHO SINH VIÊN ĐÃ XÁC THỰC -->
-        <div class="bg-white dark:bg-[#18181B] rounded-3xl p-5 sm:p-6 border border-stone-200/80 dark:border-stone-800 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div class="flex items-center gap-3.5">
-            <div class="w-12 h-12 rounded-2xl bg-orange-50 dark:bg-orange-950/40 text-orange-600 flex items-center justify-center shrink-0">
-              <i data-lucide="graduation-cap" class="w-6 h-6 stroke-[2.2]"></i>
-            </div>
-            <div>
-              <div class="text-sm font-bold text-stone-900 dark:text-white flex items-center gap-2 flex-wrap">
-                <span>Khảo Sát Trao Đổi Sinh Viên (Edu Karma)</span>
-                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-orange-600 text-white">Chỉ Sinh Viên</span>
-              </div>
-              <p class="text-xs text-stone-500 dark:text-stone-400 mt-0.5">Làm khảo sát Edu để nhận +1 Karma. Dùng 1 Karma để tạo & xuất bản khảo sát mới với 0đ chi phí.</p>
-            </div>
-          </div>
-          <div class="flex items-center gap-3 self-end sm:self-center shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-stone-100 dark:border-stone-800 w-full sm:w-auto justify-between sm:justify-end">
-            <div class="text-left sm:text-right">
-              <div class="text-2xl font-black font-mono text-orange-600 dark:text-orange-400 leading-none">
-                ${Number(this.state.currentUser.student_karma || 0)}
-              </div>
-              <div class="text-[11px] text-stone-400 font-medium mt-0.5">lượt tạo form</div>
-            </div>
-            <button onclick="VibeApp.navigate('surveys'); VibeApp.setCategoryFilter('STUDENT_EXCHANGE')" class="px-3.5 py-2 rounded-xl bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold transition-all shadow-xs active:scale-95 flex items-center gap-1.5 cursor-pointer">
-              <i data-lucide="graduation-cap" class="w-3.5 h-3.5"></i>
-              <span>Sàn Trao Đổi Edu</span>
-            </button>
-          </div>
-        </div>
-        ` : ''}
-
-        <!-- 2 THẺ BENTO LỚN TRÊN CÙNG: POINT CỦA BẠN (CAM SUNSET) & CREDIT (TRẮNG TINH TẾ) -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <!-- HÀNG THẺ BENTO SỐ DƯ: SINH VIÊN 3 CỘT NGANG HÀNG NHAU (ẨN SVG), NGƯỜI DÙNG THƯỜNG 2 CỘT -->
+        <div class="grid grid-cols-1 ${isStudent ? 'md:grid-cols-3' : 'md:grid-cols-2'} gap-5">
           
-          <!-- THẺ 1 (TRÁI): POINT CỦA BẠN (SUNSET ORANGE GRADIENT CARD) -->
+          <!-- THẺ 1: POINT CỦA BẠN (SUNSET ORANGE GRADIENT CARD) -->
           <div class="rounded-3xl p-6 sm:p-7 text-white flex flex-col justify-between shadow-sm relative overflow-hidden bg-gradient-to-br from-orange-500 via-orange-500 to-amber-500 min-h-[260px]">
-            <img src="/assets/3d/wallet_3d_master.svg" class="absolute right-1.5 sm:right-3 top-1.5 sm:top-2.5 w-38 sm:w-44 h-auto object-contain pointer-events-none select-none z-0 opacity-40 dark:opacity-20 drop-shadow-sm" alt="3D Orange Wallet" />
+            ${!isStudent ? '<img src="/assets/3d/wallet_3d_master.svg" class="absolute right-1.5 sm:right-3 top-1.5 sm:top-2.5 w-38 sm:w-44 h-auto object-contain pointer-events-none select-none z-0 opacity-40 dark:opacity-20 drop-shadow-sm" alt="3D Orange Wallet" />' : ''}
             <!-- Nội dung Thẻ Point -->
             <div class="relative z-10">
-              <!-- Badge Point của bạn -->
               <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-white/20 backdrop-blur-xs text-white border border-white/25 shadow-2xs">
                 ${this.getLucideSvg("star", "w-3.5 h-3.5 fill-white text-white")}
                 <span class="tracking-wide uppercase text-[11px]">POINT CỦA BẠN</span>
               </div>
 
-              <!-- Số dư lớn -->
               <div class="mt-4">
                 <div class="flex items-baseline gap-2">
-                  <span class="text-4xl sm:text-5xl font-black font-mono text-white tracking-tight drop-shadow-xs">${curPoints.toLocaleString('vi-VN')}</span>
-                  <span class="text-2xl font-bold text-white drop-shadow-xs">Point</span>
+                  <span class="text-3xl sm:text-4xl font-black font-mono text-white tracking-tight drop-shadow-xs">${curPoints.toLocaleString('vi-VN')}</span>
+                  <span class="text-xl sm:text-2xl font-bold text-white drop-shadow-xs">Point</span>
                 </div>
-                <div class="text-sm font-medium text-white/95 mt-0.5 font-mono">
+                <div class="text-xs sm:text-sm font-medium text-white/95 mt-0.5 font-mono">
                   ≈ ${curPoints.toLocaleString('vi-VN')} VNĐ
                 </div>
               </div>
@@ -8011,23 +7971,23 @@ if (totalCount === 0) {
             <!-- Thanh tiến độ & Nút CTA -->
             <div class="relative z-10 pt-4">
               <div class="flex items-center justify-between text-xs font-semibold text-white/95">
-                <span class="flex items-center gap-1.5">
-                  ${this.getLucideSvg("flag", "w-3.5 h-3.5 stroke-[2.2]")}
-                  <span>Mục tiêu rút tiền: 10.000 Point</span>
+                <span class="flex items-center gap-1.5 truncate">
+                  ${this.getLucideSvg("flag", "w-3.5 h-3.5 stroke-[2.2] shrink-0")}
+                  <span class="truncate">Mục tiêu: 10.000 Point</span>
                 </span>
-                <span class="font-mono font-bold text-xs">${payoutPercent}%</span>
+                <span class="font-mono font-bold text-xs shrink-0">${payoutPercent}%</span>
               </div>
 
               <div class="w-full bg-white/25 h-2 rounded-full overflow-hidden mt-2 p-0.5">
                 <div class="bg-white h-full rounded-full transition-all duration-500 relative" style="width: ${progressWidth}%"></div>
               </div>
 
-              <div class="text-[11px] text-white/85 mt-1 font-medium">
+              <div class="text-[11px] text-white/85 mt-1 font-medium truncate">
                 Đạt ${payoutPercent}% điều kiện rút tiền
               </div>
 
               <button type="button" onclick="VibeApp.openPayoutModal()" 
-                      class="w-full py-3 px-5 rounded-2xl bg-white/20 hover:bg-white/30 backdrop-blur-md text-white font-bold text-xs flex items-center justify-center gap-2 mt-4 transition-all active:scale-98 cursor-pointer border border-white/25 shadow-xs">
+                      class="w-full py-3 px-4 rounded-2xl bg-white/20 hover:bg-white/30 backdrop-blur-md text-white font-bold text-xs flex items-center justify-center gap-2 mt-4 transition-all active:scale-98 cursor-pointer border border-white/25 shadow-xs">
                 ${this.getLucideSvg("gift", "w-4 h-4")}
                 <span>Đổi thưởng / Rút tiền</span>
                 ${this.getLucideSvg("chevron-right", "w-3.5 h-3.5")}
@@ -8035,9 +7995,9 @@ if (totalCount === 0) {
             </div>
           </div>
 
-          <!-- THẺ 2 (PHẢI): CREDIT DOANH NGHIỆP (WHITE MODERN CARD) -->
+          <!-- THẺ 2: CREDIT CỦA BẠN (WHITE MODERN CARD) -->
           <div class="bg-white dark:bg-[#18181B] rounded-3xl p-6 sm:p-7 border border-stone-200/80 dark:border-stone-800 shadow-sm flex flex-col justify-between relative overflow-hidden min-h-[260px]">
-            <img src="/assets/3d/coins_coupon_3d_master.svg" class="absolute -right-2 sm:-right-4 top-1 sm:top-2.5 w-36 sm:w-44 h-auto object-contain pointer-events-none select-none z-0 opacity-40 dark:opacity-20" alt="3D Coins and Coupon" />
+            ${!isStudent ? '<img src="/assets/3d/coins_coupon_3d_master.svg" class="absolute -right-2 sm:-right-4 top-1 sm:top-2.5 w-36 sm:w-44 h-auto object-contain pointer-events-none select-none z-0 opacity-40 dark:opacity-20" alt="3D Coins and Coupon" />' : ''}
             <!-- Nội dung Thẻ Credit -->
             <div class="relative z-10">
               <div class="flex items-center gap-2">
@@ -8054,7 +8014,7 @@ if (totalCount === 0) {
                 </div>
                 <div class="flex items-center gap-1.5 text-xs text-stone-400 dark:text-stone-500 mt-2 font-medium">
                   ${this.getLucideSvg("info", "w-3.5 h-3.5 text-stone-400 shrink-0")}
-                  <span>Dùng tạo khảo sát và tài trợ voucher.</span>
+                  <span class="truncate">Dùng tạo khảo sát & tài trợ voucher.</span>
                 </div>
               </div>
             </div>
@@ -8062,12 +8022,50 @@ if (totalCount === 0) {
             <!-- Nút CTA Nạp Credit -->
             <div class="relative z-10 pt-4">
               <button type="button" onclick="VibeApp.openDepositModal()" 
-                      class="w-full py-3 px-5 rounded-2xl bg-orange-50 dark:bg-orange-950/40 hover:bg-orange-100 dark:hover:bg-orange-900/40 text-orange-600 dark:text-orange-400 font-bold text-xs flex items-center justify-center gap-2 mt-4 transition-all active:scale-98 cursor-pointer border border-orange-200/60 dark:border-orange-800/60 shadow-xs">
+                      class="w-full py-3 px-4 rounded-2xl bg-orange-50 dark:bg-orange-950/40 hover:bg-orange-100 dark:hover:bg-orange-900/40 text-orange-600 dark:text-orange-400 font-bold text-xs flex items-center justify-center gap-2 mt-4 transition-all active:scale-98 cursor-pointer border border-orange-200/60 dark:border-orange-800/60 shadow-xs">
                 ${this.getLucideSvg("plus", "w-4 h-4 stroke-[2.5]")}
                 <span>Nạp Credit</span>
               </button>
             </div>
           </div>
+
+          ${isStudent ? `
+          <!-- THẺ 3: EDU KARMA (DÀNH RIÊNG CHO SINH VIÊN, NGANG HÀNG POINT & CREDIT) -->
+          <div class="bg-white dark:bg-[#18181B] rounded-3xl p-6 sm:p-7 border border-stone-200/80 dark:border-stone-800 shadow-sm flex flex-col justify-between relative overflow-hidden min-h-[260px]">
+            <!-- Nội dung Thẻ Edu Karma -->
+            <div class="relative z-10">
+              <div class="flex items-center justify-between gap-2">
+                <div class="flex items-center gap-2">
+                  <div class="w-7 h-7 rounded-lg bg-orange-50 dark:bg-orange-950/40 text-orange-600 flex items-center justify-center shrink-0">
+                    <i data-lucide="graduation-cap" class="w-4 h-4 stroke-[2.2]"></i>
+                  </div>
+                  <span class="text-xs font-bold text-stone-700 dark:text-stone-300 uppercase tracking-wider">EDU KARMA</span>
+                </div>
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-orange-600 text-white shrink-0">Chỉ Sinh Viên</span>
+              </div>
+
+              <div class="mt-4">
+                <div class="flex items-baseline gap-2">
+                  <span class="text-3xl sm:text-4xl font-extrabold font-mono text-orange-600 dark:text-orange-400 tracking-tight">${Number(this.state.currentUser?.student_karma || 0)}</span>
+                  <span class="text-sm font-bold text-stone-500 dark:text-stone-400">Karma</span>
+                </div>
+                <div class="flex items-center gap-1.5 text-xs text-stone-400 dark:text-stone-500 mt-2 font-medium">
+                  ${this.getLucideSvg("info", "w-3.5 h-3.5 text-stone-400 shrink-0")}
+                  <span class="truncate">Làm khảo sát +1 Karma. Dùng tạo form 0đ.</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Nút CTA Sàn Trao Đổi Edu -->
+            <div class="relative z-10 pt-4">
+              <button type="button" onclick="VibeApp.navigate('surveys'); VibeApp.setCategoryFilter('STUDENT_EXCHANGE')" 
+                      class="w-full py-3 px-4 rounded-2xl bg-orange-600 hover:bg-orange-700 text-white font-bold text-xs flex items-center justify-center gap-2 mt-4 transition-all active:scale-98 cursor-pointer shadow-xs">
+                <i data-lucide="graduation-cap" class="w-4 h-4"></i>
+                <span>Sàn Trao Đổi Edu</span>
+              </button>
+            </div>
+          </div>
+          ` : ''}
 
         </div>
 
