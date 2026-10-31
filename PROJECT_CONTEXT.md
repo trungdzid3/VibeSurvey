@@ -101,10 +101,12 @@ c:\Users\Lenovo\Downloads\Linh\
     + Xóa bỏ hiển thị "Số dư điểm", "Quy đổi VNĐ" và "Chuỗi điểm danh" trong Dropdown tài khoản; Doanh Nghiệp chỉ quản lý Credit tạo form và Vé VIP hỏa tốc.
     + Không hỗ trợ điểm danh cho Doanh Nghiệp: Ẩn widget ngọn lửa trên Header, ẩn thẻ Daily Streak Card trên Dashboard, chặn hành động điểm danh.
     + Trang Ví Doanh Nghiệp (`Ví & Quỹ Doanh Nghiệp`): Ẩn Card điểm thưởng đổi thẻ cào 10K và bảng yêu cầu rút tiền; mở rộng Card Credit tạo form và nạp quỹ VietQR full width.
-  - **Tối ưu thanh Mobile Bottom Dock**:
-    + Người Điền: 5 tabs, nút `Tạo Khảo Sát` ở chính giữa (vị trí số 3) làm nút tròn cam nổi bật (`w-11 h-11`), cân đối hoàn hảo (2 nút trái, 2 nút phải).
-    + Doanh Nghiệp: 4 tabs chuyên biệt (`Khám Phá`, `Tạo Khảo Sát`, `Khảo Sát Của Tôi`, `Ví & Nạp Quỹ`) chia đều 25% phẳng, đối xứng hoàn hảo 100%, không bị lệch sang phải.
-    + Toàn bộ thanh dock ẩn chữ, chỉ giữ icon to rõ nét `w-5 h-5` trong khung tròn `w-10 h-10` thanh lịch.
+  - **Tối ưu thanh Mobile Bottom Dock đa vai trò (v3.3.6)**:
+    + Người Điền (Respondent): 5 tabs cân đối (`Khảo Sát`, `Diễn Đàn`, `Tạo Khảo Sát` ở chính giữa làm nút tròn cam nổi bật `w-11 h-11`, `Chợ Voucher`, `Ví & Rút Tiền`).
+    + Doanh Nghiệp (Creator): 5 tabs cân đối (`Khám Phá`, `Khảo Sát Của Tôi`, `Tạo Khảo Sát` tô đậm nổi bật ở chính giữa dạng nút tròn cam `isCenterAction`, `Diễn Đàn`, `Ví & Nạp Quỹ`).
+    + Quản Trị Viên (Admin): 5 tabs cân đối (`Khảo Sát`, `Khảo Sát Của Tôi`, `Quản Trị` cho ra chính giữa in đậm nổi bật với icon layout-dashboard dạng `isCenterAction`, `Tạo Khảo Sát`, `Diễn Đàn`); lược bớt tab Ví hoàn toàn khỏi thanh điều hướng điện thoại.
+    + Khách chưa đăng nhập: 5 tabs cân đối (`Trang Chủ`, `Khảo Sát`, `Tạo Khảo Sát` nổi bật ở giữa, `Diễn Đàn`, `Đăng Nhập`).
+    + Toàn bộ thanh dock ẩn chữ, chỉ giữ icon to rõ nét `w-5 h-5` trong khung tròn `w-10 h-10` thanh lịch, nút trung tâm `w-11 h-11` nổi bật.
   - **Khắc phục lỗi menu tài khoản bị cắt phần đáy**: Thêm `max-h-[calc(100vh-80px)] overflow-y-auto overscroll-contain` và `max-w-[calc(100vw-20px)]` vào `#user-profile-dropdown`, thiết kế lại khối số dư Bento 2 cột tinh gọn giúp menu hiển thị trọn vẹn và cuộn mượt mà trên mọi loại màn hình laptop thấp hoặc điện thoại.
 - **Thống nhất định danh & Khắc phục lỗi thông báo kép**:
   - Thống nhất 100% thuật ngữ tiếng Việt hiển thị trên UI: dùng `Doanh Nghiệp` thay cho `Creator` (`(Doanh Nghiệp Boost)`, `Sổ cái nạp Doanh Nghiệp`, Quy chuẩn minh bạch Doanh nghiệp).

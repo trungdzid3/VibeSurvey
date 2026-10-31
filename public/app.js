@@ -3954,36 +3954,66 @@ const VibeApp = window.VibeApp = Object.assign(window.VibeApp, {
 
     // Mobile Bottom Floating Nav (Kiểu Bong Bóng Nổi Bo Tròn Đẳng Cấp, Chỉ Giữ Icon - Ẩn Toàn Bộ Chữ Theo Yêu Cầu)
     if (mobileNav) {
-      let mobileItems = [...tabs];
-      // Nếu là Admin góc nhìn Quản trị toàn quyền
-      if (user && user.role === 'ADMIN' && (this.state.adminViewMode || 'ADMIN') === 'ADMIN') {
+      let mobileItems = [];
+      const effectiveRole = user ? (user.role === 'ADMIN' ? (this.state.adminViewMode || 'ADMIN') : user.role) : 'GUEST';
+
+      if (effectiveRole === 'ADMIN') {
+        // Góc nhìn Quản Trị Viên Toàn Quyền:
+        // Lược bớt ví (không hiện ví), Quản trị cho ra giữa in đậm nổi bật (isCenterAction: true)
         mobileItems = [
-          { id: 'admin-overview', label: 'Quản Trị', icon: 'layout-dashboard' },
+          { id: 'surveys', label: 'Khảo Sát', icon: 'compass' },
+          { id: 'creator-surveys', label: 'Khảo Sát Của Tôi', icon: 'folder-kanban' },
+          { id: 'admin-overview', label: 'Quản Trị', icon: 'layout-dashboard', centerIcon: 'layout-dashboard', isCenterAction: true },
+          { id: 'create-survey', label: 'Tạo Khảo Sát', icon: 'plus-circle' },
+          { id: 'forum', label: 'Diễn Đàn', icon: 'messages-square' }
+        ];
+      } else if (effectiveRole === 'CREATOR') {
+        // Góc nhìn Doanh Nghiệp (Creator / Enterprise):
+        // Tô đậm phần Tạo Khảo Sát Mới (isCenterAction: true) ở chính giữa
+        mobileItems = [
+          { id: 'surveys', label: 'Khám Phá', icon: 'compass' },
+          { id: 'creator-surveys', label: 'Khảo Sát Của Tôi', icon: 'folder-kanban' },
+          { id: 'create-survey', label: 'Tạo Khảo Sát', icon: 'plus-circle', centerIcon: 'plus', isCenterAction: true },
+          { id: 'forum', label: 'Diễn Đàn', icon: 'messages-square' },
+          { id: 'wallet', label: 'Ví & Nạp Quỹ', icon: 'wallet' }
+        ];
+      } else if (effectiveRole === 'RESPONDENT') {
+        // Góc nhìn Người Điền (Đáp Viên / Người Dùng Thường):
+        // Nút Tạo Khảo Sát ở chính giữa dạng tròn cam nổi bật
+        mobileItems = [
           { id: 'surveys', label: 'Khảo Sát', icon: 'compass' },
           { id: 'forum', label: 'Diễn Đàn', icon: 'messages-square' },
-          { id: 'create-survey', label: 'Tạo Khảo Sát', icon: 'plus-circle', isCenterAction: true },
-          { id: 'creator-surveys', label: 'Khảo Sát Của Tôi', icon: 'folder-kanban' },
-          { id: 'wallet', label: 'Ví & Quỹ Sàn', icon: 'wallet' }
+          { id: 'create-survey', label: 'Tạo Khảo Sát', icon: 'plus-circle', centerIcon: 'plus', isCenterAction: true },
+          { id: 'voucher-market', label: 'Chợ Voucher', icon: 'gift' },
+          { id: 'wallet', label: 'Ví & Rút Tiền', icon: 'wallet' }
         ];
-      }
-      if (!user) {
-        mobileItems.push({ id: 'auth-login', label: 'Đăng Nhập', icon: 'log-in', isAuthAction: true });
+      } else {
+        // Khách chưa đăng nhập:
+        mobileItems = [
+          { id: 'home', label: 'Trang Chủ', icon: 'home' },
+          { id: 'surveys', label: 'Khảo Sát', icon: 'compass' },
+          { id: 'create-survey', label: 'Tạo Khảo Sát', icon: 'plus-circle', centerIcon: 'plus', isCenterAction: true },
+          { id: 'forum', label: 'Diễn Đàn', icon: 'messages-square' },
+          { id: 'auth-login', label: 'Đăng Nhập', icon: 'log-in', isAuthAction: true }
+        ];
       }
 
       mobileNav.innerHTML = mobileItems.map(tab => {
         const isActive = (tab.id === 'admin-overview' && adminSubTabs.includes(this.state.currentTab)) || (this.state.currentTab === tab.id);
         const clickAction = tab.isAuthAction ? `VibeApp.openAuthModal('login')` : `VibeApp.navigate('${tab.id}')`;
 
-        // Nút Tạo Khảo Sát ở giữa: Action Button dạng tròn cam nổi bật trung tâm (chuẩn phong cách TikTok/Instagram)
+        // Nút hành động chính ở giữa: Action Button dạng tròn cam nổi bật trung tâm (chuẩn phong cách TikTok/Instagram)
         if (tab.isCenterAction) {
+          const centerIcon = tab.centerIcon || tab.icon || 'plus';
+          const iconSizeClass = centerIcon === 'plus' ? 'w-6 h-6 stroke-[2.8]' : 'w-5.5 h-5.5 stroke-[2.4]';
           return `
             <div class="flex-1 min-w-0 flex justify-center items-center">
               <button onclick="${clickAction}" 
                       title="${tab.label}" 
                       aria-label="${tab.label}"
-                      class="relative -my-1 flex-shrink-0 flex items-center justify-center w-11 h-11 rounded-full bg-orange-600 hover:bg-orange-700 text-white shadow-lg shadow-orange-600/30 active:scale-90 transition-all ${isActive ? 'ring-2 ring-orange-500 ring-offset-2 dark:ring-offset-stone-900' : ''
+                      class="relative -my-1 flex-shrink-0 flex items-center justify-center w-11 h-11 rounded-full bg-orange-600 hover:bg-orange-700 text-white shadow-lg shadow-orange-600/30 active:scale-90 transition-all ${isActive ? 'ring-2 ring-orange-500 ring-offset-2 dark:ring-offset-stone-900 shadow-orange-600/50' : ''
             }">
-                <i data-lucide="plus" class="w-6 h-6 stroke-[2.8]"></i>
+                <i data-lucide="${centerIcon}" class="${iconSizeClass}"></i>
               </button>
             </div>
           `;
