@@ -898,6 +898,10 @@ const VibeApp = window.VibeApp = Object.assign(window.VibeApp, {
     if (this.state.token && cachedUserJson) {
       try {
         this.state.currentUser = JSON.parse(cachedUserJson);
+        if (this.isStudentUser(this.state.currentUser)) {
+          this.state.currentUser.is_student_verified = 1;
+          this.state.currentUser.account_tier = 'STUDENT';
+        }
         this.state.currentTab = savedTab;
         this.applyUserInterface(true); // silent restore
       } catch (err) {
@@ -911,7 +915,11 @@ const VibeApp = window.VibeApp = Object.assign(window.VibeApp, {
         const meRes = await this.api('/auth/me');
         if (meRes.success && meRes.user) {
           this.state.currentUser = meRes.user;
-          localStorage.setItem('survhub_cached_user', JSON.stringify(meRes.user));
+          if (this.isStudentUser(this.state.currentUser)) {
+            this.state.currentUser.is_student_verified = 1;
+            this.state.currentUser.account_tier = 'STUDENT';
+          }
+          localStorage.setItem('survhub_cached_user', JSON.stringify(this.state.currentUser));
           // Kiểm tra xem có phiên làm bài khảo sát dở dang cần khôi phục khi người dùng đang làm mà F5
           const cachedSessionJson = (localStorage.getItem('survhub_active_session') || localStorage.getItem('vibesurvey_active_session'));
           if (cachedSessionJson) {
@@ -16326,7 +16334,22 @@ if (totalCount === 0) {
     return icons[name] || `<i data-lucide="${name}" class="${cls}"></i>`;
   },
 
-escapeHtml(str) {
+  isStudentUser(user = this.state.currentUser) {
+    if (!user) return false;
+    if (user.role === 'ADMIN') return true;
+    if (user.is_student_verified === 1 || user.is_student_verified === '1' || user.is_student_verified === true) return true;
+    if (user.account_tier === 'STUDENT') return true;
+    if (user.role === 'STUDENT') return true;
+    if (user.student_email && (user.student_email.toLowerCase().includes('.edu.vn') || user.student_email.toLowerCase().includes('.ac.vn') || user.student_email.length > 5)) return true;
+    if (user.email && (user.email.toLowerCase().includes('.edu.vn') || user.email.toLowerCase().includes('.ac.vn'))) return true;
+    if (user.demographics) {
+      const demo = typeof user.demographics === 'string' ? (() => { try { return JSON.parse(user.demographics); } catch(e) { return {}; } })() : user.demographics;
+      if (demo && (demo.occupation === 'Sinh viên' || demo.university)) return true;
+    }
+    return false;
+  },
+
+  escapeHtml(str) {
     if (str === null || str === undefined) return '';
     return String(str)
       .replace(/&/g, '&amp;')
@@ -17520,7 +17543,7 @@ escapeHtml(str) {
 
   _renderForumLayout(root) {
     const user = this.state.currentUser;
-    const isStudent = !!(user && (user.is_student_verified === 1 || user.role === 'STUDENT' || (user.email && user.email.toLowerCase().includes('.edu.vn'))));
+    const isStudent = this.isStudentUser(user);
     const posts = this.state.forumPosts || [];
     const surveys = this.state.surveys || [];
     const filter = this.state.forumFilter || { category: 'ALL', scope: 'ALL', status: 'ALL', sort: 'NEWEST', search: '' };
@@ -17551,11 +17574,9 @@ escapeHtml(str) {
               <div class="space-y-1">
                 <div class="flex items-center gap-2.5 flex-wrap">
                   <h1 class="text-xl sm:text-2xl font-black tracking-tight text-stone-900 dark:text-white">Diễn Đàn</h1>
-                  <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-orange-100 dark:bg-orange-950/60 text-orange-600 dark:text-orange-400 border border-orange-200/60 dark:border-orange-800/60 uppercase">Góc Thảo Luận & Đề Tài</span>
+                  <span id="forum-current-hub-badge" class="px-2.5 py-0.5 rounded-full text-[10px] font-bold ${filter.hub === 'STUDENT' ? 'bg-orange-600 text-white shadow-xs' : 'bg-orange-100 dark:bg-orange-950/60 text-orange-600 dark:text-orange-400 border border-orange-200/60 dark:border-orange-800/60'} uppercase">${filter.hub === 'STUDENT' ? 'Diễn Đàn Sinh Viên' : 'Góc Thảo Luận & Đề Tài'}</span>
                 </div>
-                <p class="text-xs sm:text-sm text-stone-500 dark:text-stone-400 leading-relaxed max-w-2xl">
-                  Không gian chia sẻ bối cảnh đề tài, trao đổi đáp viên tương hỗ và phản biện học thuật đa trường viện.
-                </p>
+                <p id="forum-hub-description" class="text-xs sm:text-sm text-stone-500 dark:text-stone-400 leading-relaxed max-w-2xl">${filter.hub === 'STUDENT' ? 'Không gian thảo luận học thuật, trao đổi đáp viên chéo (Edu Karma) và hỗ trợ hoàn thành khóa luận tốt nghiệp.' : 'Không gian chia sẻ bối cảnh đề tài, trao đổi đáp viên tương hỗ và phản biện học thuật đa trường viện.'}</p>
               </div>
             </div>
 
@@ -17980,11 +18001,33 @@ escapeHtml(str) {
         const comIcon = comBtn.querySelector('i');
         if (comIcon) comIcon.classList.add('text-orange-600');
         const stuIcon = stuBtn.querySelector('i');
-        if (stuIcon) stuIcon.classList.add('text-orange-600');
+        if (stuIcon) stuIcon.classList.remove('text-orange-600');
+      }
+    }
+
+    // Cập nhật tiêu đề phân khu trên header
+    const hubBadge = document.getElementById('forum-current-hub-badge');
+    if (hubBadge) {
+      if (hubId === 'STUDENT') {
+        hubBadge.className = 'px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-orange-600 text-white uppercase shadow-xs';
+        hubBadge.textContent = 'Diễn Đàn Sinh Viên';
+      } else {
+        hubBadge.className = 'px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-orange-100 dark:bg-orange-950/60 text-orange-600 dark:text-orange-400 border border-orange-200/60 dark:border-orange-800/60 uppercase';
+        hubBadge.textContent = 'Góc Thảo Luận & Đề Tài';
+      }
+    }
+
+    const hubDesc = document.getElementById('forum-hub-description');
+    if (hubDesc) {
+      if (hubId === 'STUDENT') {
+        hubDesc.textContent = 'Không gian thảo luận học thuật, trao đổi đáp viên chéo (Edu Karma) và hỗ trợ hoàn thành khóa luận tốt nghiệp.';
+      } else {
+        hubDesc.textContent = 'Không gian chia sẻ bối cảnh đề tài, trao đổi đáp viên tương hỗ và phản biện học thuật đa trường viện.';
       }
     }
 
     this._updateForumFeedInPlace();
+    if (window.lucide) window.lucide.createIcons();
   },
 
   handleForumSearchInPlace(val) {
@@ -18283,7 +18326,7 @@ escapeHtml(str) {
     }
 
     const user = this.state.currentUser;
-    const isEduUser = user.is_student_verified === 1 || user.role === 'ADMIN';
+    const isEduUser = this.isStudentUser(user);
 
     let activeSurveys = [];
     try {

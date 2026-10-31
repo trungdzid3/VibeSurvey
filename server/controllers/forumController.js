@@ -1,3 +1,15 @@
+// Helper xac thuc nguoi dung Sinh Vien / Quan Tri Vien toan dien
+function isEduUser(user) {
+  if (!user) return false;
+  if (user.role === 'ADMIN') return true;
+  if (user.is_student_verified === 1 || user.is_student_verified === '1' || user.is_student_verified === true) return true;
+  if (user.account_tier === 'STUDENT') return true;
+  if (user.role === 'STUDENT') return true;
+  if (user.student_email && (user.student_email.toLowerCase().includes('.edu.vn') || user.student_email.toLowerCase().includes('.ac.vn') || user.student_email.length > 5)) return true;
+  if (user.email && (user.email.toLowerCase().includes('.edu.vn') || user.email.toLowerCase().includes('.ac.vn'))) return true;
+  return false;
+}
+
 /**
  * Controller Quan Ly Dien Dan Thao Luan & Chia Se Khao Sat Noi Bo (Forum Controller)
  * SurvHub Community Board - Hỗ trợ Thảo luận tự do & Phân khu Sinh viên
@@ -120,7 +132,7 @@ class ForumController {
         conditions.push('(s.is_student_exchange IS NULL OR s.is_student_exchange = 0)');
       } else if (user.role === 'ADMIN') {
         // Admin xem duoc tat ca
-      } else if (user.is_student_verified === 1) {
+      } else if (isEduUser(user)) {
         // Sinh vien da xac thuc xem duoc tat ca (ca bai thuong va bai exchange/student)
       } else {
         // Nguoi dung thuong chua xac thuc edu: chi xem bai cong dong HOAC bai do chinh minh dang
@@ -252,7 +264,7 @@ class ForumController {
       // RÀNG BUỘC CỐT LÕI: Kiem tra quyen truy cap khao sat Trao Doi Sinh Vien / Post Type Student
       const isEduRestricted = postRow.post_type === 'STUDENT' || postRow.is_student_exchange === 1;
       if (isEduRestricted) {
-        const isVerifiedStudent = user && user.is_student_verified === 1;
+        const isVerifiedStudent = isEduUser(user);
 
         if (!isOwner && !isAdmin && !isVerifiedStudent) {
           return res.status(403).json({
@@ -405,7 +417,7 @@ class ForumController {
 
         // Neu khao sat la exchange ma user chua xac thuc sinh vien -> chan
         if (survey.is_student_exchange === 1) {
-          if (user.is_student_verified !== 1) {
+        if (!isEduUser(user)) {
             return res.status(403).json({
               success: false,
               message: 'Chỉ tài khoản sinh viên đã xác thực email trường (.edu) mới được chia sẻ khảo sát trao đổi sinh viên.'
@@ -418,7 +430,7 @@ class ForumController {
       }
 
       // 4. Kiem tra quyen dang bai vao Phan khu Sinh Vien
-      if (effectivePostType === 'STUDENT' && user.is_student_verified !== 1 && user.role !== 'ADMIN') {
+      if (effectivePostType === 'STUDENT' && !isEduUser(user)) {
         return res.status(403).json({
           success: false,
           message: 'Phân khu Góc Sinh Viên chỉ dành riêng cho sinh viên đã xác thực email trường (.edu).'

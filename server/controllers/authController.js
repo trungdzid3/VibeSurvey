@@ -394,6 +394,21 @@ class AuthController {
   }
 
   getMe(req, res) {
+    // Tự động nhận diện quyền sinh viên cho Admin và tài khoản trường
+    const isStudent = req.user.role === 'ADMIN' || 
+                      req.user.account_tier === 'STUDENT' || 
+                      req.user.is_student_verified === 1 || 
+                      (req.user.student_email && (req.user.student_email.includes('.edu.vn') || req.user.student_email.includes('.ac.vn'))) ||
+                      (req.user.email && (req.user.email.includes('.edu.vn') || req.user.email.includes('.ac.vn')));
+
+    if (isStudent && req.user.is_student_verified !== 1) {
+      req.user.is_student_verified = 1;
+      req.user.account_tier = 'STUDENT';
+      try {
+        db.prepare("UPDATE users SET is_student_verified = 1, account_tier = 'STUDENT' WHERE id = ?").run(req.user.id);
+      } catch (e) {}
+    }
+
     let demographics = null;
     if (req.user.demographics_json) {
       try { demographics = JSON.parse(req.user.demographics_json); } catch (e) {}
@@ -402,6 +417,8 @@ class AuthController {
       success: true,
       user: {
         ...req.user,
+        is_student_verified: isStudent ? 1 : (req.user.is_student_verified || 0),
+        account_tier: isStudent ? 'STUDENT' : (req.user.account_tier || 'PERSONAL'),
         demographics
       }
     });

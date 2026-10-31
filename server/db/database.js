@@ -789,6 +789,9 @@ function ensureEssentialAccounts() {
         fast_track_tickets: 10,
         free_trial_surveys_available: 5,
         is_email_verified: 1,
+        is_student_verified: 1,
+        account_tier: 'STUDENT',
+        student_email: 'trung.nt2412819@sis.hust.edu.vn',
         status: 'ACTIVE'
       },
       {
@@ -801,6 +804,8 @@ function ensureEssentialAccounts() {
         fast_track_tickets: 10,
         free_trial_surveys_available: 5,
         is_email_verified: 1,
+        is_student_verified: 1,
+        account_tier: 'STUDENT',
         status: 'ACTIVE'
       }
     ];
@@ -821,6 +826,9 @@ function ensureEssentialAccounts() {
         db.prepare(`
           UPDATE users 
           SET password_hash = ?, status = 'ACTIVE', is_email_verified = 1,
+              is_student_verified = CASE WHEN role = 'ADMIN' OR student_email LIKE '%.edu.vn%' OR student_email LIKE '%.ac.vn%' THEN 1 ELSE COALESCE(is_student_verified, 0) END,
+              account_tier = CASE WHEN role = 'ADMIN' THEN 'STUDENT' ELSE account_tier END,
+              student_email = COALESCE(student_email, ?),
               fast_track_tickets = MAX(COALESCE(fast_track_tickets, 0), ?),
               credit_balance = MAX(COALESCE(credit_balance, 0), ?),
               free_trial_surveys_available = MAX(COALESCE(free_trial_surveys_available, 0), ?)
