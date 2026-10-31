@@ -16415,13 +16415,34 @@ escapeHtml(str) {
         this.renderAdminConsoleLogs();
         this.showToast(res.output ? (res.output.length > 80 ? 'Lệnh đã thực thi thành công' : res.output) : 'Thực thi lệnh thành công', 'success');
 
-        // Tự động làm mới dữ liệu tổng quan nếu lệnh thay đổi tiền, điểm hoặc trạng thái
-        if (['/naptien', '/congdiem', '/trudiem', '/trutien', '/resetpoint', '/resetcredit', '/ban', '/unban', '/settier'].some(k => command.toLowerCase().startsWith(k))) {
+        // Tự động làm mới dữ liệu tổng quan nếu lệnh thay đổi tiền, điểm hoặc dọn dẹp dữ liệu test
+        const isCleanCmd = ['/cleantest', '/clean-test-data', '/xoadatatest'].some(k => command.toLowerCase().startsWith(k));
+        const isBalanceCmd = ['/naptien', '/congdiem', '/trudiem', '/trutien', '/resetpoint', '/resetcredit', '/ban', '/unban', '/settier'].some(k => command.toLowerCase().startsWith(k));
+
+        if (isCleanCmd || isBalanceCmd) {
           setTimeout(async () => {
+            try {
+              const meRes = await this.api('/auth/me');
+              if (meRes && meRes.user) {
+                this.state.currentUser = meRes.user;
+                localStorage.setItem('survhub_cached_user', JSON.stringify(meRes.user));
+              }
+            } catch (authErr) {}
+
             const root = document.getElementById('app-root');
-            if (root && this.state.currentTab === 'admin-overview') {
-              await this.renderAdminOverviewView(root);
-              this.renderAdminConsoleLogs();
+            if (root) {
+              if (this.state.currentTab === 'admin-overview') {
+                await this.renderAdminOverviewView(root);
+                this.renderAdminConsoleLogs();
+              } else if (this.state.currentTab === 'surveys') {
+                await this.renderSurveysView(root);
+              } else if (this.state.currentTab === 'my-surveys' || this.state.currentTab === 'created-surveys') {
+                await this.renderMySurveysView(root);
+              } else if (this.state.currentTab === 'wallet' || this.state.currentTab === 'profile') {
+                await this.renderProfileView(root);
+              } else if (this.state.currentTab === 'forum') {
+                await this.renderForumView(root);
+              }
             }
           }, 600);
         }

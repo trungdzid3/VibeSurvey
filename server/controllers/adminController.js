@@ -1057,12 +1057,18 @@ class AdminController {
             return res.status(500).json({ success: false, message: `Lỗi khi dọn dẹp data test: ${resCleanup.error}` });
           }
           const outText = [
-            'DỌN DẸP DỮ LIỆU KIỂM THỬ THÀNH CÔNG:',
-            `  Đã xóa sạch: ${resCleanup.cleanedUsers} tài khoản test`,
-            `  Đã xóa sạch: ${resCleanup.cleanedSurveys} khảo sát test`,
-            '  Cơ sở dữ liệu đã được thanh lọc tinh khiết 100%!'
+            'DỌN DẸP DỮ LIỆU KIỂM THỬ TOÀN DIỆN THÀNH CÔNG (100% CLEAN):',
+            `  Tài khoản test       : Đã xóa ${resCleanup.cleanedUsers} tài khoản`,
+            `  Khảo sát test        : Đã xóa ${resCleanup.cleanedSurveys} bài khảo sát rác`,
+            `  Duyệt tiền test      : Đã xóa ${resCleanup.cleanedDepositOrders} đơn nạp + ${resCleanup.cleanedPayouts} yêu cầu rút`,
+            `  Gian lận test        : Đã xóa ${resCleanup.cleanedFraudLogs} nhật ký gian lận + ${resCleanup.cleanedDeviceLogs} log thiết bị`,
+            `  Báo lỗi test         : Đã xóa ${resCleanup.cleanedBugReports} báo cáo lỗi kiểm thử`,
+            `  Kiểm toán test       : Đã xóa ${resCleanup.cleanedAuditLogs} log thao tác kiểm toán test`,
+            `  Sổ cái & Giao dịch   : Đã xóa ${resCleanup.cleanedTransactions} giao dịch nạp ảo, ký quỹ & điểm danh test`,
+            `  Diễn đàn thảo luận   : Đã xóa ${resCleanup.cleanedForumPosts} bài thảo luận test rác`,
+            '  Đã cân bằng lại số dư Sổ cái Ledger và Ví tài khoản Quản trị sạch sẽ 100%!'
           ].join('\n');
-          return res.json({ success: true, command: rawCommand, output: outText, type: 'CLEANUP' });
+          return res.json({ success: true, command: rawCommand, output: outText, type: 'CLEANUP', details: resCleanup });
         }
 
         default:

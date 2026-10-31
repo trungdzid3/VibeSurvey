@@ -219,12 +219,23 @@ c:\Users\Lenovo\Downloads\Linh\
 - Giao tiếp: Toàn bộ bằng tiếng Việt, tuyệt đối không dùng emoji/icon màu sắc trong mã nguồn, văn bản và giao diện.
 
 
-### Cơ Chế Tự Động Thanh Lọc 100% Dữ Liệu Kiểm Thử (Auto-Cleanup Test Data - v3.1.1)
-- **Vấn đề đã xử lý**: Khi chạy test hoặc tạo test, hàng chục tài khoản test và khảo sát rác bị lưu lại trong cơ sở dữ liệu làm ô nhiễm môi trường thật.
+### Cơ Chế Tự Động Thanh Lọc 100% Dữ Liệu Kiểm Thử (Auto-Cleanup Test Data Engine - v3.6.0)
+- **Vấn đề đã xử lý**: Lệnh `/cleantest` trước đây chỉ lọc các tài khoản test với một số domain hạn chế, bỏ sót tài khoản giả lập quick-login (`personal_user_...`, `respondent_edu_...`), các bài khảo sát demo/test phát sinh trong quá trình thử nghiệm, toàn bộ đơn nạp tiền VietQR mô phỏng dev/staging (`deposit_orders`), yêu cầu rút tiền test (`payout_requests`), log gian lận (`fraud_logs`), báo lỗi (`bug_reports`), log kiểm toán thao tác test (`admin_audit_logs`), các bài viết test trên diễn đàn (`forum_posts`), và các giao dịch nạp tiền ảo, ký quỹ demo, thưởng ảo làm sai lệch Sổ Cái Sàn Ledger Stream và số dư ví.
 - **Giải pháp toàn diện**:
-  1. Xây dựng module dùng chung 	ests/test_cleanup_helper.js: Tự động nhận diện và xóa sạch 100% tài khoản test (@api-test.com, @test.local, cheater_, student_, spammer_, hybrid_,...) và các bài khảo sát test, câu hỏi, phản hồi, voucher rác, bảo vệ an toàn tuyệt đối các tài khoản người dùng thật.
-  2. Tích hợp cleanAllTestData vào 	ests/run_all_tests.js: Chạy tự động cả trước (pre-cleanup) và sau khi kết thúc toàn bộ test (post-cleanup trong khối finally).
-  3. Bổ sung lệnh Admin Console /cleantest và nút bấm nhanh trong giao diện Admin để người dùng có thể dọn sạch dữ liệu test bất kỳ lúc nào.
+  1. Nâng cấp toàn diện `tests/test_cleanup_helper.js`:
+     - Nhận diện toàn diện tài khoản test (@api-test.com, @test.local, personal_user_, respondent_edu_, creator_del_, cheater_, student_, spammer_, hybrid_, mock, fake,...) đồng thời bảo vệ tuyệt đối các tài khoản thật (`admin@vibesurvey.com`, `admin@survhub.com`, `trungdzid3@gmail.com`, `linharmykxbnvn@gmail.com`,...).
+     - Xóa triệt để các bài khảo sát test và demo dùng thử, câu hỏi, phản hồi giả lập.
+     - Xóa toàn bộ đơn nạp tiền mô phỏng dev/staging (`deposit_orders`) và yêu cầu rút tiền test (`payout_requests`).
+     - Dọn sạch nhật ký gian lận test (`fraud_logs`), IP cấm test (`banned_ips`), và hàng nghìn log thiết bị test (`device_ip_logs`).
+     - Dọn sạch báo cáo lỗi test (`bug_reports`), khiếu nại bảo hành (`warranty_claims`), và log kiểm toán thao tác test (`admin_audit_logs`).
+     - Dọn sạch các bài thảo luận và bình luận test trên Diễn Đàn (`forum_posts`, `forum_comments`, `forum_post_likes`).
+     - Thanh lọc 100% giao dịch nạp ảo, thưởng ảo, ký quỹ demo và điểm danh test trong Sổ Cái Sàn (`point_transactions`).
+     - Tự động cân bằng và đồng bộ lại số dư ví Admin về hạn mức chuẩn (100.000.000 Credit, 0 Point), loại bỏ hoàn toàn lạm phát số dư ảo.
+     - Tự động thực thi `VACUUM` giải phóng dung lượng đĩa SQLite.
+  2. Nâng cấp bộ điều khiển Admin Console (`server/controllers/adminController.js`):
+     - Định dạng báo cáo nghiệm thu chi tiết 8 hạng mục dữ liệu sau khi chạy `/cleantest`.
+  3. Cập nhật Frontend (`public/app.js` và Android assets):
+     - Khi chạy `/cleantest`, tự động fetch lại thông tin người dùng và tự động làm mới giao diện view hiện tại (Admin Overview, Khảo sát, Khảo sát của tôi, Ví tiền, Diễn đàn).
 
 
 ### Khôi Phục Đầy Đủ 5 Bộ Lọc Đối Tượng & Cơ Chế Escrow Hoàn Tiền (v3.1.4)
