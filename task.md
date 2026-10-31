@@ -46,3 +46,8 @@
   - [x] Ghi nhận cờ đồng bộ GitHub vào `PROJECT_CONTEXT.md`.
   - [x] Tự động commit các thay đổi hoàn tất thương hiệu SurvHub và tích hợp Stitch.
   - [x] Tự động push code lên kho lưu trữ GitHub (`origin/main`).
+- [x] 5. **Tối ưu hóa Giao diện Diễn Đàn & Trang Mở Đầu Chuẩn DESIGN.MD (Phản hồi Người dùng)**
+  - [x] Áp dụng màu nền ấm Stitch `#FFF8F5` cùng các khối ambient atmospheric glow cho toàn bộ trang ở Light mode.
+  - [x] Diễn đàn: Loại bỏ 100% icon sticker/emoji màu sắc, chuẩn hóa tiêu đề tinh gọn "Diễn Đàn", xóa sạch toàn bộ bài viết mock cứng, kết nối 100% dữ liệu bài viết thật từ API backend.
+  - [x] Thẻ mẫu tương tác Trang Mở Đầu: Bỏ đơn vị "Xu", chuẩn hóa sang Điểm thưởng SurvHub, nút bấm dẫn sang đăng ký/đăng nhập làm bài thật.
+  - [x] Widget Điểm Danh (Streak): Màu xám trung tính khi chưa điểm danh, bỏ chấm đỏ nhấp nháy, ngọn lửa bừng sáng phong cách TikTok khi đã điểm danh.

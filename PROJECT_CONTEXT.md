@@ -1531,6 +1531,21 @@ c:\Users\Lenovo\Downloads\Linh\
      + Remote: `origin https://github.com/trungdzid3/VibeSurvey.git` (nhánh `main`).
      + Đã tự động commit và đẩy mã nguồn hoàn chỉnh lên GitHub.
 
+4. **Tối ưu hóa Giao diện Diễn Đàn & Trang Mở Đầu Chuẩn DESIGN.MD (01/11/2026)**:
+   - **Nền ứng dụng Light Mode**: Chuyển sang màu nền surface ấm nhẹ nhàng của Stitch (`#FFF8F5`) kèm các khối ambient atmospheric glow gradient mờ tinh tế cho toàn bộ hệ thống.
+   - **Diễn Đàn**:
+     + Chuẩn hóa tiêu đề tinh gọn thành "Diễn Đàn" (loại bỏ từ ngữ rườm rà).
+     + Loại bỏ 100% icon sticker/emoji màu sắc lòe loẹt, chỉ sử dụng icon Lucide nét mảnh đơn sắc đồng bộ.
+     + Xóa sạch toàn bộ các bài viết mock cứng và số liệu ảo.
+     + Kết nối 100% dữ liệu bài viết thật từ backend SQLite (`/api/forum/posts`), số liệu thực tế theo số bài trong cơ sở dữ liệu.
+     + Kích hoạt đầy đủ các nút tương tác: Đăng bài mới, Thích bài viết, Xem & Gửi bình luận, Sao chép liên kết chia sẻ, Tham gia khảo sát đính kèm.
+   - **Thẻ Mẫu Tương Tác Trang Mở Đầu**:
+     + Chuẩn hóa đơn vị tiền tệ sang Điểm thưởng SurvHub (loại bỏ "Xu").
+     + Nút hành động chuyển hướng mở modal Đăng ký / Đăng nhập để tham gia làm bài khảo sát thật thay vì giả lập hoàn thành.
+   - **Widget Điểm Danh (Streak Header)**:
+     + Khi chưa điểm danh: Hiển thị màu xám trung tính, ngọn lửa nét mỏng màu xám, loại bỏ hoàn toàn chấm đỏ nhấp nháy.
+     + Khi đã điểm danh: Bừng sáng ngọn lửa rực rỡ phong cách TikTok (tô màu cam-đỏ, viền phát sáng gradient).
+
 
 ---
 
