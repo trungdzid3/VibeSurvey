@@ -2646,6 +2646,45 @@ class SurveyController {
       return res.status(500).json({ success: false, message: 'Lỗi kiểm tra benchmark: ' + err.message });
     }
   }
+
+  getMyCreatedSurveys(req, res) {
+    try {
+      const userId = req.user.id;
+      const surveys = db.prepare(`
+        SELECT s.*, 
+               (SELECT COUNT(*) FROM questions q WHERE q.survey_id = s.id) AS question_count
+        FROM surveys s
+        WHERE s.creator_id = ?
+        ORDER BY s.created_at DESC
+      `).all(userId);
+      return res.json({ success: true, surveys });
+    } catch (err) {
+      console.error('Lỗi getMyCreatedSurveys:', err);
+      return res.status(500).json({ success: false, message: 'Lỗi tải danh sách khảo sát của bạn' });
+    }
+  }
+
+  getMySurveyHistory(req, res) {
+    try {
+      const userId = req.user.id;
+      const history = db.prepare(`
+        SELECT r.id AS response_id, r.survey_id, r.status AS response_status,
+               r.started_at, r.submitted_at, r.duration_sec, r.points_rewarded, r.quality_score,
+               s.title AS survey_title, s.category AS survey_category, s.reward_points_per_response,
+               s.target_responses, s.collected_responses, u.name AS creator_name,
+               u.brand_name, u.account_tier AS creator_tier
+        FROM responses r
+        JOIN surveys s ON r.survey_id = s.id
+        LEFT JOIN users u ON s.creator_id = u.id
+        WHERE r.respondent_id = ?
+        ORDER BY r.submitted_at DESC, r.started_at DESC
+      `).all(userId);
+      return res.json({ success: true, history });
+    } catch (err) {
+      console.error('Lỗi getMySurveyHistory:', err);
+      return res.status(500).json({ success: false, message: 'Lỗi tải lịch sử khảo sát' });
+    }
+  }
 }
 
 module.exports = new SurveyController();

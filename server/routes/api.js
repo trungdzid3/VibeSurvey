@@ -48,6 +48,8 @@ router.post('/users/checkin', authenticateToken, (req, res) => userController.ch
 // Hỗ trợ khách chưa đăng nhập vẫn xem được danh sách và nội dung khảo sát công khai
 router.get('/surveys', optionalAuthenticateToken, (req, res) => surveyController.listSurveys(req, res));
 router.get('/surveys/velocity-benchmark', optionalAuthenticateToken, (req, res) => surveyController.getVelocityBenchmark(req, res));
+router.get('/surveys/creator', authenticateToken, (req, res) => surveyController.getMyCreatedSurveys(req, res));
+router.get('/surveys/history', authenticateToken, (req, res) => surveyController.getMySurveyHistory(req, res));
 router.get('/surveys/:id', optionalAuthenticateToken, (req, res) => surveyController.getSurvey(req, res));
 router.post('/surveys', authenticateToken, requireRole(['RESPONDENT', 'CREATOR', 'ADMIN']), (req, res) => surveyController.createSurvey(req, res));
 router.put('/surveys/:id', authenticateToken, requireRole(['RESPONDENT', 'CREATOR', 'ADMIN']), (req, res) => surveyController.updateSurvey(req, res));

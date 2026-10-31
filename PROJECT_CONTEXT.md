@@ -75,6 +75,17 @@ c:\Users\Lenovo\Downloads\Linh\
   - Bảo toàn tính liên tục: Nếu người dùng đang làm dở từ câu 1 trở đi hoặc ở chế độ chỉnh sửa phản hồi (`isEditing`), hệ thống đưa thẳng vào câu đang làm, không bắt xem lại màn hình mở đầu.
   - Phân vùng hiển thị chuẩn xác: Chỉ hiển thị ảnh bìa khi người dùng click vào bài test (Màn hình mở đầu bài làm Welcome Screen, Modal xem trước, và Màn hình xem lại); hoàn toàn ẩn ảnh bìa trên thẻ danh sách ngoài trang chủ (`renderCompactSurveyCard`) để giữ bố cục Bento phẳng, đều hàng và tối giản.
   - Backend `createSurvey`, `listSurveys` và `getSurvey` lưu trữ và truy xuất đầy đủ trường `cover_image_url`.
+- **Trình làm bài Phân đoạn Đa câu hỏi (Section-based Multi-question Runner chuẩn Google Forms & Microsoft Forms - v3.3.5)**:
+  - **Mô hình Phân đoạn Đa câu hỏi**: Gom nhóm danh sách câu hỏi thành các Section độc lập qua `buildSurveySections(questions, surveyMeta)`. Mỗi khối `SECTION_HEADER` đóng vai trò là một Điểm Ngắt Phần (Page Break), không phải câu hỏi để trả lời.
+  - **Hiển thị đồng thời toàn bộ câu hỏi trong Section**: Tất cả câu hỏi nằm giữa 2 `SECTION_HEADER` (hoặc từ đầu bài đến `SECTION_HEADER` đầu tiên) thuộc về cùng một Section Page và được hiển thị đồng thời trên cùng một trang làm bài.
+  - **Thẻ Section Header Card**: Hiển thị dải Accent Cam Vibe (`#EA580C`, chiều cao `h-2.5`), huy hiệu chỉ số mục `Mục X trên Y`, tiêu đề Section, mô tả chi tiết và ghi chú `* Biểu thị câu hỏi bắt buộc`.
+  - **Đánh số câu hỏi & Xác thực nội dòng**: Đánh số thứ tự liên tục toàn bài (1., 2., 3....), hiển thị placeholder mờ lấy từ `RestrictionEngine.getMeta`, gắn sự kiện kiểm tra realtime `handleSurveyInputRealtime`, và thẻ cảnh báo lỗi nội dòng `#val-err-{id}` dưới từng câu hỏi.
+  - **Xác thực toàn diện trước khi chuyển phần (`validateCurrentSection`)**: Duyệt qua toàn bộ câu hỏi trong Section, kiểm tra bắt buộc và ràng buộc định dạng (Email, Số trong khoảng, v.v.). Nếu có lỗi, tự động cuộn mượt (smooth scroll) đến câu hỏi lỗi đầu tiên, focus ô nhập và báo toast.
+  - **Điều hướng Rẽ nhánh 2 Tầng (2-Tier Routing - `nextSection` & `prevSection`)**:
+    + Cấp 1 (Option-level): Ưu tiên rẽ nhánh theo lựa chọn trắc nghiệm/dropdown của câu hỏi trong Section (`logic.options`).
+    + Cấp 2 (Section default): Rẽ nhánh theo thiết lập mặc định của Section (`curSec.defaultAction`).
+    + Mặc định: Chuyển sang Section kế tiếp, hoặc nộp bài (`submitSurvey`) khi ở Section cuối cùng.
+    + Nút 'Quay lại' (`prevSection`) tự động khôi phục Section trước đó từ lịch sử `session.sectionHistory`. Phím tắt Enter hỗ trợ chuyển Section nhanh.
 
 ### C. Phân Hệ Quản Trị Hệ Thống (Admin Overview & Console)
 - **Dashboard Tổng quan 2 cột cân xứng (Split Grid 12 Cột)**: Cột trái chứa Sổ cái giao dịch gần nhất; Cột phải chứa Fast Command Console; đáy 2 cột ngang bằng nhau 100%.
@@ -1322,3 +1333,126 @@ c:\Users\Lenovo\Downloads\Linh\
 4. **Kết quả kiểm chuẩn**:
    - Bộ kiểm thử mới `tests/test_delete_survey_fk.js` đạt chuẩn 6/6 PASS (100%).
    - Toàn bộ 15/15 tầng kiểm thử `npm test` đạt 100% PASS.
+
+---
+
+## Đồng Bộ & Xuất Màn Hình Giao Diện Từ Dự Án Stitch (31/10/2026)
+1. **Dự án Stitch**: `SurvHub Community Portal` (ID: `16683499495864488318`).
+2. **Các màn hình đã trích xuất mã HTML và ảnh chụp màn hình (PNG)**:
+   - **Màn hình 1** (`fe33e17c90f24b3d8094e754850f5c31`): `SurvHub - Thông tin tài khoản & Quản lý khảo sát`
+     + File HTML: `stitch_screens/fe33e17c90f24b3d8094e754850f5c31_thong_tin_tai_khoan_quan_ly_khao_sat.html` (55.7 KB)
+     + File PNG: `stitch_screens/fe33e17c90f24b3d8094e754850f5c31_thong_tin_tai_khoan_quan_ly_khao_sat.png` (1.88 MB, 2560x7586)
+   - **Màn hình 2** (`1b986c90f52b4f1a85a3c6767b002623`): `SurvHub - Diễn đàn & Góc Đề Tài`
+     + File HTML: `stitch_screens/1b986c90f52b4f1a85a3c6767b002623_dien_dan_goc_de_tai.html` (46.7 KB)
+     + File PNG: `stitch_screens/1b986c90f52b4f1a85a3c6767b002623_dien_dan_goc_de_tai.png` (2.34 MB, 2560x5602)
+   - **Màn hình 3** (`a8f703e9f38c4f6db80c09f21abf1012`): `SurvHub - Trang chủ Mở đầu`
+     + File HTML: `stitch_screens/a8f703e9f38c4f6db80c09f21abf1012_trang_chu_mo_dau.html` (28.9 KB)
+     + File PNG: `stitch_screens/a8f703e9f38c4f6db80c09f21abf1012_trang_chu_mo_dau.png` (2.43 MB, 2560x5132)
+3. **Thư mục lưu trữ**: `stitch_screens/` ngay tại gốc dự án.
+
+---
+
+## Chuẩn Hóa Creator Studio & Thanh Giới Hạn Chuẩn Microsoft Forms (31/10/2026)
+1. **Phân tích đối sánh 3 ảnh thực tế**:
+   - **Ảnh 1 (Email)**:
+     + Ô input trả lời ngắn xem trước màu xám nhạt disabled, placeholder: 'Vui lòng nhập email'.
+     + Thanh Action Bar chân câu hỏi: Nhãn 'Giới hạn' [ Email ⌵ ].
+     + Popup dropdown menu phẳng nổi lên với các tùy chọn: 'Số', 'Văn bản', 'Độ dài', '✓ Email', 'URL' (tùy chọn đang chọn có dấu tích `✓` ở đầu).
+     + Chân câu hỏi bên phải: Toggle 'Câu trả lời dài', Toggle 'Bắt buộc', Menu '...'.
+   - **Ảnh 2 (Số thoại / Số)**:
+     + Ô input xem trước có placeholder: 'Giá trị phải là một số'.
+     + Action Bar: 'Giới hạn' [ Số ⌵ ] [ Là số ⌵ ].
+   - **Ảnh 3 (Mã số sinh viên)**:
+     + Ô input xem trước có placeholder: 'Số phải nằm trong khoảng từ 20000000 ~ 20270000'.
+     + Action Bar: 'Giới hạn' [ Số ⌵ ] [ Trong khoảng ⌵ ] [ 20000000 ] đến [ 20270000 ].
+2. **Triển khai kỹ thuật tại `public/app.js`**:
+   - Hoàn thiện `renderStudioQuestionValidationConfig(q, qIdx)` với thiết kế dropdown popover phẳng nổi lên (`bottom-full mb-1.5`), có dấu tích `✓` cho lựa chọn hiện tại.
+   - Hỗ trợ đầy đủ các loại giới hạn: Số, Văn bản, Độ dài, Email, URL và Không có.
+   - Khi chọn Số: Dropdown phụ [ Là số, Trong khoảng, Lớn hơn, Nhỏ hơn ]. Khi chọn Trong khoảng: 2 ô input min đến max với chữ "đến" ở giữa. Khi chọn Lớn hơn/Nhỏ hơn: 1 ô input tương ứng.
+   - Khi chọn Độ dài: Dropdown phụ [ Tối đa ký tự, Tối thiểu ký tự ] và ô nhập số ký tự.
+   - Thêm Toggle `Câu trả lời dài` tại chân câu hỏi phía bên phải (`toggleStudioLongAnswer`) để hoán đổi giữa Trả lời ngắn (`SHORT_TEXT`) và Đoạn văn dài (`PARAGRAPH`).
+   - Tự động cập nhật `q.validation` và `q.logic.validation`, đồng thời cập nhật tức thời placeholder mờ trên ô preview câu hỏi trong Creator Studio khi thay đổi loại hoặc quy tắc/giá trị giới hạn.
+3. **Kết quả kiểm chuẩn**:
+   - `node -c public/app.js` đạt 100% cú pháp hợp lệ.
+   - Placeholder engine trả về chính xác 100% theo đặc tả.
+
+---
+
+## Tích Hợp Toàn Diện 3 Màn Hình Stitch Vào Nền Tảng VibeSurvey (31/10/2026)
+1. **Mục tiêu & Tôn chỉ**:
+   - Tôn trọng và giữ nguyên 100% nhận diện thương hiệu **VibeSurvey**, logo chính thức (`/logo-light.svg`, `/logo-dark.svg`, `/favicon.svg`), các logic nghiệp vụ kinh tế và tiền tệ (Point, Credit, Karma, VNĐ).
+   - Áp dụng triệt để bộ quy chuẩn [DESIGN.md](file:///c:/Users/Lenovo/Downloads/Linh/DESIGN.md): Bộ 3 màu chủ đạo Cam `#EA580C`, Trắng `#FFFFFF`, Đen than `#121214` / `#1C1C20`, font Montserrat 100%, bộ biểu tượng Lucide Icons (`data-lucide="..."`), không emoji hay màu sắc dị biệt.
+   - Triển khai theo mô hình Subagent-Driven Execution Model (Rule 14) với subagent chuyên biệt `ui_integrator`.
+
+2. **Nội dung 3 màn hình đã tích hợp**:
+   - **Màn hình 1: Trang Chủ Mở Đầu (`case 'home':` - `renderHomeView`)**:
+     + Chuyển đổi mã từ `stitch_screens/a8f703e9f38c4f6db80c09f21abf1012_trang_chu_mo_dau.html`.
+     + Hero Banner: Tiêu đề "VibeSurvey - Nền tảng Khảo Sát & Phân Tích Dữ Liệu Học Thuật & Thị Trường", thanh tìm kiếm khảo sát (`searchFromHome`), các pills danh mục tương tác nhanh (Công nghệ, Kinh doanh, Xã hội, Y tế, Tài chính, UX/UI).
+     + Showcase Card: Mẫu câu hỏi tương tác trắc nghiệm, thanh tiến độ 90%, cam kết khử gian lận AI (Speed trap, Attention check, Cronbach Alpha).
+     + Bento Feature Cards: 3 thẻ tính năng nổi bật (Dữ liệu xác thực 99.4% & khử bot AI; Đổi thưởng uy tín thẻ cào / MoMo / ngân hàng 1:1 VNĐ; Bảo trợ học thuật & Xuất file SPSS/Excel).
+     + Khảo sát tiêu biểu đang mở (Trending Surveys): Nạp tự động từ danh sách khảo sát đang hoạt động (`this.state.surveys`).
+     + Mạng lưới nghiên cứu đối tác (ĐHBK HN, NEU, FTU, ĐHQG TP.HCM, RMIT, ĐH Y Hà Nội) và Testimonials phản hồi sinh viên / giảng viên.
+     + Điều hướng: Tab "Trang Chủ" (`home`) được ghim vị trí đầu tiên trên Desktop Nav và Mobile Bottom Nav; nhấp logo VibeSurvey gọi `VibeApp.navigate('home')`.
+
+   - **Màn hình 2: Diễn Đàn & Góc Đề Tài (`case 'forum':` - `renderForumView`)**:
+     + Chuyển đổi mã từ `stitch_screens/1b986c90f52b4f1a85a3c6767b002623_dien_dan_goc_de_tai.html`.
+     + Cột Feed bài viết chính (8 cột): Header Banner Bento với nút "+ Đăng Bài Mới / Kêu Gọi Mẫu" (`openCreateForumPostModal`); thanh chỉ số nhanh bài viết; bộ lọc danh mục (Góc Đề Tài, Hỗ trợ điền chéo, Phương pháp NCKH & SPSS, Thảo luận chung); danh sách bài viết Bento với Author header (trường ĐH, vai trò), Mini Survey Card đính kèm với nút "Làm bài ngay", các nút Thích, Bình luận, Chia sẻ, Lượt xem và luồng bình luận tương tác thật.
+     + Cột Sidebar (4 cột): Bảng Xếp Hạng Đáp Viên Uy Tín (Top 5 thành viên đóng góp, điểm 100/100); Chủ Đề Đang Thảo Luận (Trending tags: #KhaoSatKhoaLuan, #DuLieuSPSS, #GenZChiTieu, #HanhViTieuDung, #AIinEducation); Quy Chuẩn Đạo Đức Học Thuật.
+
+   - **Màn hình 3: Thông Tin Tài Khoản & Quản Lý Khảo Sát (`case 'profile':` - `renderProfileView`)**:
+     + Chuyển đổi mã từ `stitch_screens/fe33e17c90f24b3d8094e754850f5c31_thong_tin_tai_khoan_quan_ly_khao_sat.html`.
+     + Top Profile Hero Banner: Avatar người dùng với viền gradient cam, tên thật, email, badge xác thực; thẻ gói tài khoản (Sinh Viên / Cá Nhân / Doanh Nghiệp); 3 Thẻ Bento chỉ số nhanh (Điểm Uy Tín 100/100, Mẫu Khảo Sát Miễn Phí, Ví Điểm Point & Quỹ Credit VNĐ).
+     + 5 Tab chức năng chuyển đổi mượt mà (`switchAccountTab`):
+       1. `demographics`: Hồ sơ nhân khẩu học (8 trường thông tin, dropdown 34 tỉnh thành mới, autocomplete 293 trường ĐH, lưu API `/auth/profile`), bảo toàn khối xác thực sinh viên edu và Enterprise KYC Cấp 1 & 2.
+       2. `reputation`: Circular SVG Gauge 99.8% chính trực, đánh giá sao 4.9/5, thanh tiến độ Attention-check (100%) và thời gian chuẩn (98.5%), nhận xét thực tế từ chủ nhiệm đề tài.
+       3. `created-forms`: Danh sách khảo sát do user tạo (`/api/surveys/creator`), thanh tiến độ số mẫu, nút Sửa, Báo cáo, Ghim VIP, Xuất dữ liệu Excel/SPSS, Nạp Quỹ Mẫu và "+ Tạo Khảo Sát Mới".
+       4. `filled-forms`: Lịch sử các khảo sát đã tham gia (`/api/surveys/history`), thời gian nộp bài, điểm thưởng nhận được, trạng thái duyệt.
+       5. `forum-posts`: Danh sách bài viết trên diễn đàn do chính user đăng tải, số lượt thích, bình luận và nút tạo bài mới.
+
+3. **Backend API Endpoints Bổ Sung**:
+   - `GET /api/surveys/creator`: Trả về danh sách khảo sát của chính tài khoản người tạo đang đăng nhập.
+   - `GET /api/surveys/history`: Trả về lịch sử phản hồi khảo sát của tài khoản kèm thông tin khảo sát và trạng thái duyệt.
+
+4. **Kết quả kiểm chuẩn & nghiệm thu**:
+   - Kiểm tra cú pháp JavaScript: `node -c public/app.js` đạt 100% hợp lệ.
+   - Kiểm thử tự động toàn diện: Toàn bộ 15/15 tầng kiểm thử `npm test` đạt 100.0% PASS.
+   - Đồng bộ Capacitor Android: `npm run sync:android` hoàn tất sao chép sang `android/app/src/main/assets/public`.
+   - Bảo toàn cấu hình workspace: Tệp `survey-platform.code-workspace` nguyên vẹn.
+
+---
+
+## Chuẩn Hóa Ràng Buộc Định Dạng & Trình Làm Bài Phân Đoạn Đa Câu Hỏi Chuẩn Google Forms & Microsoft Forms (31/10/2026)
+1. **Bối cảnh & Yêu cầu Người dùng**:
+   - Ràng buộc định dạng theo lựa chọn (Email, Số, Khoảng số min~max, Độ dài, URL) chuẩn Microsoft Forms chưa hoạt động đầy đủ trên giao diện và khi làm bài.
+   - Thanh công cụ hành động (Action Bar) dưới chân câu hỏi trong Creator Studio cần chuẩn giao diện phẳng Microsoft Forms (dropdown popup có dấu tích `✓`, toggle `Câu trả lời dài`, toggle `Bắt buộc`).
+   - Trình làm bài phải tuân thủ chuẩn Google Forms & Microsoft Forms: Toàn bộ câu hỏi trong cùng một Phân đoạn (Section) cùng hiển thị trên 1 trang màn hình cuộn; `SECTION_HEADER` là điểm ngắt phần (Page Break), không phải câu hỏi đơn lẻ.
+   - Phải có điều hướng chuyển phần (`nextSection`, `prevSection`), rẽ nhánh 2 tầng (Option-level và Section-level), và ngăn xếp lịch sử phân đoạn.
+
+2. **Chi tiết Kỹ thuật Triển khai**:
+   - **Restriction Engine (`window.RestrictionEngine`)**:
+     + `EMAIL`: Kiểm tra regex email hợp lệ, báo lỗi nội dòng "Vui lòng nhập địa chỉ email hợp lệ (vd: name@example.com)".
+     + `NUMBER`: Hỗ trợ quy tắc `IS_NUMBER` ("Giá trị phải là một số"), `BETWEEN` ("Số phải nằm trong khoảng từ min đến max"), `GREATER_THAN` ("Số phải lớn hơn min"), `LESS_THAN` ("Số phải nhỏ hơn max").
+     + `LENGTH`: `MAX_LENGTH` ("Số ký tự không được vượt quá X ký tự"), `MIN_LENGTH` ("Độ dài ký tự tối thiểu là X").
+     + `URL`: Kiểm tra giao thức http:// hoặc https://.
+     + Phương thức `validateQuestionInput(q, val)` và `handleSurveyInputRealtime(qId, inputEl)` gắn trực tiếp vào sự kiện nhập liệu (`oninput`, `onblur`), đổi viền ô nhập sang đỏ `border-red-500` và hiển thị thẻ lỗi nội dòng `#val-err-{id}` ngay dưới ô nhập.
+   - **Thanh Action Bar Phẳng Chuẩn Microsoft Forms trong Creator Studio**:
+     + Dropdown popup nổi lên trên (`bottom-full mb-1.5 z-50 shadow-xl border border-stone-200`) có dấu tích `✓` cho lựa chọn hiện tại: Số, Văn bản, Độ dài, Email, URL, Không có.
+     + Menu phụ điều kiện số: Là số, Trong khoảng (2 ô input min - max với chữ 'đến' ở giữa), Lớn hơn, Nhỏ hơn.
+     + Toggle `Câu trả lời dài` (chuyển đổi qua lại giữa SHORT_TEXT và PARAGRAPH), Toggle `Bắt buộc`, Nút `...`.
+     + Xem trước placeholder mờ tự động đồng bộ trên thẻ câu hỏi.
+   - **Trình Làm Bài Phân Đoạn Đa Câu Hỏi (Section Runner)**:
+     + Hàm `buildSurveySections(questions, surveyMeta)` gom các câu hỏi thành các nhóm Section độc lập dựa trên các khối `SECTION_HEADER`.
+     + `renderTakeSurveyView`: Render toàn bộ câu hỏi của Section hiện tại trên 1 trang màn hình cuộn; thẻ tiêu đề Phân đoạn hiển thị dải màu Cam Vibe, số mục "Mục X trên Y", tiêu đề và mô tả.
+     + Đánh số câu hỏi liên tục toàn bài (1., 2., 3....), hiển thị placeholder mờ mẫu tương ứng.
+     + Chân trang hiển thị nút `Quay lại` (nếu không phải mục đầu tiên) và nút `Tiếp tục` (hoặc `Gửi biểu mẫu & Nhận thưởng` nếu là mục cuối cùng).
+     + Hàm `validateCurrentSection(curSection)`: Tự động đồng bộ DOM inputs vào answers, kiểm tra toàn bộ câu hỏi bắt buộc (CHOICE_GRID, CHECKBOX_GRID, MULTIPLE_CHOICE, text, v.v.) và kiểm tra ràng buộc định dạng của từng câu hỏi; tự động scroll smooth đến câu hỏi lỗi đầu tiên, focus ô nhập và báo toast.
+     + Hàm `nextSection()` & `prevSection()`: Điều hướng rẽ nhánh 2 tầng (ưu tiên lựa chọn câu hỏi trước, sau đó đến mặc định của Section), ghi nhận lịch sử vào `session.sectionHistory`. Bảo toàn tương thích ngược qua alias `nextQuestion` và `prevQuestion`.
+     + Phím tắt Enter hỗ trợ chuyển nhanh qua Section.
+
+3. **Kết quả Kiểm chuẩn & Nghiệm thu**:
+   - `node -c public/app.js`: 100% cú pháp JavaScript hợp lệ.
+   - `node tests/test_short_text_answers.js`: 100% PASS (5/5 assertions).
+   - `node tests/test_section_runner.js`: 100% PASS (11/11 assertions kiểm thử RestrictionEngine, Section Builder và Section Validation).
+   - `npm test`: Toàn bộ 15/15 tầng kiểm thử đạt 100.0% PASS.
+   - `npm run sync:android`: Hoàn tất đồng bộ mã nguồn sang Capacitor Android.
+   - Đẩy toàn bộ thay đổi lên nhánh chính GitHub (`origin/main`).
