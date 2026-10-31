@@ -7973,7 +7973,7 @@ if (totalCount === 0) {
           
           <!-- THẺ 1 (TRÁI): POINT CỦA BẠN (SUNSET ORANGE GRADIENT CARD) -->
           <div class="rounded-3xl p-6 sm:p-7 text-white flex flex-col justify-between shadow-sm relative overflow-hidden bg-gradient-to-br from-orange-500 via-orange-500 to-amber-500 min-h-[260px]">
-            <img src="/assets/3d/wallet_3d_master.svg" class="absolute right-1 sm:right-3 top-1 sm:top-2 w-44 sm:w-52 h-auto object-contain pointer-events-none select-none z-0 opacity-40 dark:opacity-20 drop-shadow-sm" alt="3D Orange Wallet" />
+            <img src="/assets/3d/wallet_3d_master.svg" class="absolute -right-1 sm:-right-3 top-1 sm:top-2.5 w-38 sm:w-46 h-auto object-contain pointer-events-none select-none z-0 opacity-40 dark:opacity-20 drop-shadow-sm" alt="3D Orange Wallet" />
             <!-- Nội dung Thẻ Point -->
             <div class="relative z-10">
               <!-- Badge Point của bạn -->
@@ -8023,7 +8023,7 @@ if (totalCount === 0) {
 
           <!-- THẺ 2 (PHẢI): CREDIT DOANH NGHIỆP (WHITE MODERN CARD) -->
           <div class="bg-white dark:bg-[#18181B] rounded-3xl p-6 sm:p-7 border border-stone-200/80 dark:border-stone-800 shadow-sm flex flex-col justify-between relative overflow-hidden min-h-[260px]">
-            <img src="/assets/3d/coins_coupon_3d_master.svg" class="absolute right-1 sm:right-3 top-1 sm:top-2 w-44 sm:w-52 h-auto object-contain pointer-events-none select-none z-0 opacity-40 dark:opacity-20" alt="3D Coins and Coupon" />
+            <img src="/assets/3d/coins_coupon_3d_master.svg" class="absolute -right-2 sm:-right-4 top-1 sm:top-2.5 w-36 sm:w-44 h-auto object-contain pointer-events-none select-none z-0 opacity-40 dark:opacity-20" alt="3D Coins and Coupon" />
             <!-- Nội dung Thẻ Credit -->
             <div class="relative z-10">
               <div class="flex items-center gap-2">

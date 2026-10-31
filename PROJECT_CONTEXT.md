@@ -1731,3 +1731,25 @@ c:\Users\Lenovo\Downloads\Linh\
      + Toàn bộ 15 tầng kiểm thử tự hành `npm test`: 100% PASS.
      + Cú pháp JavaScript `node -c`: 100% PASS.
      + Đồng bộ hoàn tất sang Capacitor Android qua `npm run sync:android`.
+
+
+---
+
+## Tinh Chỉnh Vị Trí và Khoảng Cách Cụm Xu & Voucher Tránh Va Chạm Với Số Dư Credit (01/11/2026)
+1. **Bối cảnh & Yêu cầu Người dùng**:
+   - Khi tăng kích thước lên `w-44 sm:w-52` ở góc trên bên phải, chồng đồng xu bên trái của cụm hình ảnh bị đẩy sát chạm vào chữ "100.000.000 Credit" gây cảm giác chật chội.
+   - Người dùng phản hồi: "coind and voucher sát quá rồi".
+
+2. **Chi tiết Kỹ thuật Triển khai**:
+   - **Tối ưu vị trí và kích thước cân đối trong `public/app.js`**:
+     + Thẻ Credit: Đổi class từ `right-1 sm:right-3 top-1 sm:top-2 w-44 sm:w-52` sang `absolute -right-2 sm:-right-4 top-1 sm:top-2.5 w-36 sm:w-44 h-auto object-contain pointer-events-none select-none z-0 opacity-40 dark:opacity-20`.
+     + Thẻ Point: Đổi class từ `right-1 sm:right-3 top-1 sm:top-2 w-44 sm:w-52` sang `absolute -right-1 sm:-right-3 top-1 sm:top-2.5 w-38 sm:w-46 h-auto object-contain pointer-events-none select-none z-0 opacity-40 dark:opacity-20 drop-shadow-sm`.
+   - **Hiệu ứng thị giác**:
+     + Dịch chuyển hình ảnh sang phía biên phải thêm 24px-30px và giảm độ rộng vừa vặn (144px trên di động, 176px trên máy tính/tablet).
+     + Mở rộng khoảng thở đệm an toàn giữa chữ "Credit" và chồng đồng xu thêm hơn 50px, triệt tiêu hoàn toàn hiện tượng va chạm chữ, trong khi hình ảnh vẫn giữ được độ sắc nét và tính thẩm mỹ cao.
+
+3. **Kiểm chuẩn & Đồng bộ**:
+   - `node -c public/app.js`: 100% cú pháp JavaScript hợp lệ.
+   - Nâng cache-buster trong `public/index.html`.
+   - Đồng bộ hoàn tất sang Capacitor Android: `npm run sync:android`.
+   - Commit và push trực tiếp lên kho lưu trữ GitHub (`origin/main`).
