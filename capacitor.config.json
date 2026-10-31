@@ -1,6 +1,6 @@
 {
-  "appId": "com.vibesurvey.app",
-  "appName": "VibeSurvey",
+  "appId": "com.survhub.app",
+  "appName": "SurvHub",
   "webDir": "public",
   "bundledWebRuntime": false,
   "server": {
@@ -10,7 +10,7 @@
   "plugins": {
     "SplashScreen": {
       "launchShowDuration": 1500,
-      "backgroundColor": "#0D9488",
+      "backgroundColor": "#EA580C",
       "showSpinner": false
     },
     "Haptics": {

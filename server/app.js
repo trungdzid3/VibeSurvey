@@ -86,7 +86,7 @@ app.get('/health', (req, res) => {
     status: 'healthy',
     timestamp: new Date().toISOString(),
     environment: config.NODE_ENV,
-    service: 'VibeSurvey Platform Backend'
+    service: 'SurvHub Platform Backend'
   });
 });
 
@@ -109,7 +109,7 @@ if (require.main === module) {
   const PORT = config.PORT;
   app.listen(PORT, () => {
     console.log(`=======================================================`);
-    console.log(`[MAY CHU] VibeSurvey Server dang chay tai: http://localhost:${PORT}`);
+    console.log(`[MAY CHU] SurvHub Server dang chay tai: http://localhost:${PORT}`);
     console.log(`[THIET BI] Hybrid Mobile App san sang qua Capacitor Android`);
     console.log(`[BAO MAT] Anti-Fraud Engine va Double-Entry Ledger: KICH HOAT`);
     console.log(`=======================================================`);

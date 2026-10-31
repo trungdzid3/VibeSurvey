@@ -44,14 +44,22 @@ Thumbs.db
 Desktop.ini
 
 # Scratch and temporary testing assets
+scratch/
+scripts/__pycache__/
+*.pyc
 scratch_*.js
 scripts/*.png
+extract_stitch.js
 patch_*.txt
 test_calc.xlsx
 apply_patches.js
 apply_surveys_update.js
 public/test_*.html
 android/app/src/main/assets/public/test_*.html
+public/test_*.svg
+public/test_*.png
+android/app/src/main/assets/public/test_*.png
+scripts/test_*.py
 public/assets/test_crop_*.png
 android/app/src/main/assets/public/assets/test_crop_*.png
 

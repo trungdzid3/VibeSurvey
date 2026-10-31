@@ -1504,3 +1504,29 @@ c:\Users\Lenovo\Downloads\Linh\
      - `public/logo-light.svg`, `public/logo-dark.svg`, `public/logo.svg`, `public/favicon.svg`: Định dạng SVG nhúng lossless.
   5. Đồng bộ toàn bộ tài nguyên logo và bộ icon mipmap (mdpi, hdpi, xhdpi, xxhdpi, xxxhdpi) sang dự án Android (`android/app/src/main/res/` và `android/app/src/main/assets/public/`).
 - **Kiểm thử**: Syntax check Node.js và Python đều PASS 100%.
+
+---
+
+## CHÍNH THỨC CHUYỂN ĐỔI THƯƠNG HIỆU SANG SURVHUB & TÍCH HỢP TRANG MỞ ĐẦU CHO KHÁCH (31/10/2026)
+1. **Mục tiêu**:
+   - Chính thức đổi tên thương hiệu toàn bộ hệ thống từ VibeSurvey thành **SurvHub**.
+   - Tạo bộ logo SVG mới vector hóa từ ảnh người dùng (chữ S cách điệu gồm 4 dải ruy băng màu cam gradient rực rỡ, loại bỏ chữ bên dưới), xuất 2 bản cho theme sáng (`logo-light.svg`) và tối (`logo-dark.svg`), cùng các file favicon, icon, PNG; xóa sạch các logo cũ liên quan.
+   - Lấy lại y hệt nội dung văn bản và bố cục của 3 trang từ dự án Stitch (`a8f703e9f38c4f6db80c09f21abf1012_trang_chu_mo_dau.html`, `1b986c90f52b4f1a85a3c6767b002623_dien_dan_goc_de_tai.html`, `fe33e17c90f24b3d8094e754850f5c31_thong_tin_tai_khoan_quan_ly_khao_sat.html`).
+   - Cấu hình Trang Chủ Mở Đầu (`home`) hiển thị mặc định cho khách chưa đăng nhập (thay thế cho màn hình khảo sát khách cũ).
+
+2. **Đội ngũ 5 Subagents chuyên biệt vận hành song song**:
+   - `UI Integrator`: Cấu hình router `home`, cập nhật thanh điều hướng cho khách (`home`, `surveys`, `forum`, `create-survey`, `voucher-market`), xử lý chuyển hướng khi đăng xuất và sự kiện nhấp logo về trang chủ.
+   - `Logo & Asset Specialist`: Vector hóa logo chữ S (2 bản theme sáng và tối), xuất các định dạng PNG/Favicon, dọn sạch logo cũ/chó robot trong web và android assets.
+   - `Stitch Content Specialist`: Đồng bộ câu từ trên cả 3 trang lấy lại y hệt văn bản gốc từ Stitch (Slogan "Share form, share your insights", thẻ mẫu tương tác, 3 khối bento, bảng xếp hạng diễn đàn, 5 tab hồ sơ).
+   - `Brand Sweep Specialist`: Rà soát toàn bộ dự án (web, backend, email, config, android), chuyển đổi triệt để các chuỗi "vibesurvey" sang "SurvHub", hỗ trợ đọc fallback localStorage key cũ/mới và JWT key.
+   - `Autonomous QA Bot`: Kiểm tra cú pháp tất cả các tệp JavaScript, chạy toàn bộ bộ kiểm thử tự động `npm test` (15/15 tầng PASS) và đồng bộ Android Capacitor.
+
+3. **Kết quả kiểm chuẩn & bàn giao**:
+   - Cú pháp: `node -c public/app.js` đạt 100% hợp lệ.
+   - Kiểm thử tự động: 15/15 tầng kiểm thử `npm test` đều PASS 100% (thời gian: 23.33s).
+   - Android Capacitor: Đồng bộ hoàn tất qua `npm run sync:android`.
+   - Cấu hình workspace: Bảo toàn nguyên vẹn `survey-platform.code-workspace`.
+   - **Đồng bộ Git & GitHub (Rule 16)**:
+     + `auto_github_sync: true`
+     + Remote: `origin https://github.com/trungdzid3/VibeSurvey.git` (nhánh `main`).
+     + Đã tự động commit và đẩy mã nguồn hoàn chỉnh lên GitHub.

@@ -1,51 +1,48 @@
-# Kế hoạch Thực thi: Tích hợp 3 Trang Giao diện từ Stitch vào Nền tảng VibeSurvey
+# Kế hoạch Thực thi: Chuyển Đổi Thương Hiệu SurvHub, Logo SVG Chuẩn Mực & Tích Hợp Trang Mở Đầu Cho Khách
 
 ## Yêu cầu Chi tiết
-1. **Giữ nguyên nhận diện & thông tin nền tảng**:
-   - Tên thương hiệu: **VibeSurvey** (không dùng SurvHub).
-   - Logo: Sử dụng logo hiện tại của VibeSurvey (`/logo-light.svg`, `/logo-dark.svg`, `/favicon.svg`).
-   - Bảng màu: Tuân thủ nghiêm ngặt [DESIGN.md](file:///c:/Users/Lenovo/Downloads/Linh/DESIGN.md) với bộ 3 màu chủ đạo Cam `#EA580C`, Trắng `#FFFFFF`, Đen than `#121214` / `#1C1C20`.
-   - Hệ thống Icon: Sử dụng chuẩn Lucide Icons (`data-lucide="..."`), tuyệt đối không emoji.
-   - Kiểu chữ: Montserrat 100%.
+1. **Chính thức đổi tên hệ thống thành SurvHub**:
+   - Thay thế toàn bộ "VibeSurvey" / "vibesurvey" trên UI thành **SurvHub**.
+   - Cập nhật tiêu đề trang `<title>`, meta tags, văn bản bản quyền footer, các modal xác thực/đăng nhập, điều khoản dịch vụ, thông báo toast sang SurvHub.
+   - Cập nhật `capacitor.config.json` sang `"appName": "SurvHub"`.
 
-2. **Tích hợp 3 màn hình từ Stitch**:
-   - **Màn hình 1: Trang chủ Mở đầu (`case 'home':`)**:
-     + Chuyển đổi mã HTML từ `stitch_screens/a8f703e9f38c4f6db80c09f21abf1012_trang_chu_mo_dau.html`.
-     + Tạo view `renderHomeView(root)` chuyên nghiệp với Hero section, số liệu Bento, tính năng nổi bật, danh sách khảo sát tiêu biểu đang mở, và các nút CTA dẫn vào hệ thống.
-     + Bổ sung tab "Trang Chủ" vào Navbar điều hướng `desktopNav` và `mobileBottomNav`.
-   - **Màn hình 2: Diễn đàn & Góc Đề Tài (`case 'forum':`)**:
-     + Chuyển đổi mã HTML từ `stitch_screens/1b986c90f52b4f1a85a3c6767b002623_dien_dan_goc_de_tai.html`.
-     + Nâng cấp view `renderForumView(root)` với giao diện 2 cột: Feed bài viết (8 cột) + Sidebar (4 cột).
-     + Giữ nguyên 100% logic API thật của VibeSurvey (`/forum/posts`, like, bình luận, đăng bài, lọc theo danh mục, khảo sát đính kèm).
-   - **Màn hình 3: Thông tin tài khoản & Quản lý khảo sát (`case 'profile':`)**:
-     + Chuyển đổi mã HTML từ `stitch_screens/fe33e17c90f24b3d8094e754850f5c31_thong_tin_tai_khoan_quan_ly_khao_sat.html`.
-     + Nâng cấp view `renderProfileView(root)` với Banner hồ sơ người dùng, 3 thẻ bento chỉ số (Điểm Uy Tín, Mẫu Miễn Phí, Ví Điểm/Xu), và 5 tab chức năng:
-       1. `demographics`: Thông tin nhân khẩu học (liên kết form cập nhật `/auth/profile`).
-       2. `reputation`: Đánh giá & Mức độ uy tín (Attention-check, thời gian chuẩn, nhận xét chủ đề tài).
-       3. `created-forms`: Khảo sát đã tạo (tiến độ mẫu, sửa, báo cáo, ghim VIP, xuất SPSS).
-       4. `filled-forms`: Khảo sát đã tham gia (lịch sử, trạng thái duyệt, nhận thưởng).
-       5. `forum-posts`: Bài viết của tôi trên diễn đàn.
+2. **Tạo Logo SVG chuẩn như ảnh mẫu người dùng cung cấp**:
+   - Vector hóa biểu tượng chữ S cách điệu gồm 4 dải ruy băng màu cam gradient rực rỡ (không chứa chữ bên dưới như yêu cầu).
+   - Tạo 2 bản riêng biệt:
+     + `public/logo-light.svg` (Dành cho nền sáng / Light mode).
+     + `public/logo-dark.svg` (Dành cho nền tối / Dark mode Obsidian Charcoal).
+     + Cập nhật đồng bộ `public/logo.svg`, `public/favicon.svg`, `public/logo.png`, `public/icon-192.png`, `public/icon-512.png`, `public/favicon.png`.
+   - Loại bỏ/xóa các file logo cũ liên quan.
+
+3. **Giao diện lấy y hệt văn bản và bố cục trên Stitch**:
+   - Trang 1 (Trang Chủ Mở Đầu): Lấy lại y hệt tiêu đề, slogan, nội dung từ Stitch `stitch_screens/a8f703e9f38c4f6db80c09f21abf1012_trang_chu_mo_dau.html`:
+     + "SurvHub - Share form, share your insights"
+     + "Nền tảng khảo sát học thuật tín nhiệm"
+     + Thẻ mẫu tương tác: "Khảo sát chuẩn xác, tích lũy điểm thưởng. Đổi ngàn Voucher hấp dẫn"
+     + 3 Khối Bento: Khử gian lận AI, Đổi thưởng linh hoạt 1:1, Bảo trợ học thuật & Doanh nghiệp.
+     + Testimonials & Mạng lưới 6 trường ĐH.
+   - Trang 2 (Diễn đàn & Góc Đề Tài): "SurvHub - Diễn đàn & Góc Đề Tài", Community Board.
+   - Trang 3 (Hồ sơ cá nhân & Quản lý khảo sát): "SurvHub - Thông tin tài khoản & Quản lý khảo sát".
+
+4. **Trang Mở Đầu Hiển Thị Mặc Định Cho Khách Chưa Đăng Nhập**:
+   - Khi người dùng chưa đăng nhập (`!this.state.currentUser`), hệ thống mặc định mở Trang Chủ Mở Đầu (thay thế cho màn hình khảo sát khách cũ).
+   - Nhấp vào logo SurvHub luôn dẫn về Trang Chủ Mở Đầu (`home`).
+   - Đăng xuất tự động chuyển hướng về Trang Chủ Mở Đầu (`home`).
 
 ## Danh sách Công việc (Tasks)
-- [x] 1. **Tạo & Tích hợp Trang Chủ Mở Đầu (`renderHomeView` & Navbar)**
-  - [x] Thiết lập hàm `renderHomeView(root)` trong `public/app.js` với layout chuẩn từ Stitch và màu sắc VibeSurvey.
-  - [x] Cập nhật switch-case định tuyến và thanh điều hướng `renderNavigation` hiển thị tab "Trang Chủ".
-- [x] 2. **Tích hợp & Nâng Cấp Trang Diễn Đàn & Góc Đề Tài (`renderForumView`)**
-  - [x] Chuyển đổi giao diện Diễn đàn từ Stitch sang Bento layout VibeSurvey (Feed 8 cột + Sidebar 4 cột).
-  - [x] Kết nối toàn diện logic bài viết, đính kèm khảo sát, bình luận và thả tim API thật.
-- [x] 3. **Tích hợp & Nâng Cấp Trang Thông Tin Tài Khoản & Quản Lý Khảo Sát (`renderProfileView`)**
-  - [x] Tích hợp Header hồ sơ, điểm uy tín, thẻ bento số dư ví.
-  - [x] Xây dựng hệ thống 5 tab tương tác chuyển đổi mượt mà và kết nối dữ liệu user/surveys/responses thật.
-- [x] 4. **Kiểm tra, Xác minh Cú pháp, Đồng bộ & Bàn giao**
-  - [x] Chạy kiểm tra cú pháp `node -c public/app.js`.
-  - [x] Chạy bộ kiểm thử tự động của dự án `npm test`.
+- [x] 1. **Cập nhật nhận diện SurvHub trên `index.html` và `capacitor.config.json`**
+  - [x] Đổi tên brand, title, footer, meta, modal sang SurvHub.
+  - [x] Cập nhật tệp cấu hình Android Capacitor sang SurvHub.
+- [x] 2. **Cập nhật `public/app.js` sang thương hiệu SurvHub & Văn bản chuẩn Stitch**
+  - [x] Thay thế các chuỗi hiển thị thương hiệu VibeSurvey sang SurvHub.
+  - [x] Hoàn thiện văn bản và các phân khu trên 3 trang bám sát 100% tệp Stitch gốc.
+  - [x] Thiết lập Trang Chủ Mở Đầu (`home`) làm view mặc định cho khách chưa đăng nhập.
+- [x] 3. **Kiểm tra, Xác minh Cú pháp, Chạy Test Suite, Đồng bộ Android & Bàn giao**
+  - [x] Kiểm tra cú pháp `node -c public/app.js`.
+  - [x] Chạy bộ kiểm thử tự động `npm test` 15/15 tầng PASS.
   - [x] Đồng bộ Capacitor Android qua `npm run sync:android`.
   - [x] Cập nhật `PROJECT_CONTEXT.md` và bảo toàn `survey-platform.code-workspace`.
-
-- [x] 5. **Chuẩn hóa Ràng buộc Định dạng, Thanh Công cụ Phẳng & Trình làm bài Đa câu hỏi theo Phân đoạn (Chuẩn Google Forms & Microsoft Forms)**
-  - [x] Xây dựng `window.RestrictionEngine` hỗ trợ đầy đủ Email, Số (Là số, Trong khoảng min~max), Độ dài (Tối đa, Tối thiểu), URL kèm kiểm tra tức thì (Realtime Validation) và thông báo lỗi nội dòng đỏ.
-  - [x] Thiết kế lại thanh Action Bar dưới chân câu hỏi trong Creator Studio phẳng hoàn toàn theo chuẩn Microsoft Forms với menu popup nổi lên (`bottom-full mb-1.5 z-50`) có dấu tích `✓`, toggle `Câu trả lời dài`, toggle `Bắt buộc`.
-  - [x] Thiết lập `buildSurveySections` và cấu trúc Trình làm bài Đa câu hỏi theo Phân đoạn (`renderTakeSurveyView` dạng cuộn tất cả câu hỏi trong một Section, không coi `SECTION_HEADER` là câu hỏi đơn lẻ).
-  - [x] Triển khai điều hướng Phân đoạn (`nextSection`, `prevSection`) với xác thực hợp lệ toàn diện (`validateCurrentSection`) và rẽ nhánh 2 tầng (Option-level và Section-level).
-  - [x] Chạy kiểm thử tự hành 15/15 test suites `npm test`, kiểm thử `tests/test_short_text_answers.js`, kiểm thử `tests/test_section_runner.js` đạt 100% PASS.
-  - [x] Đồng bộ toàn diện sang Android Capacitor `npm run sync:android` và đẩy lên kho mã nguồn GitHub.
+- [x] 4. **Thực thi Quy chế Tự động hóa Đồng bộ Git & GitHub (Git Auto-Sync Protocol theo Rule 16)**
+  - [x] Ghi nhận cờ đồng bộ GitHub vào `PROJECT_CONTEXT.md`.
+  - [x] Tự động commit các thay đổi hoàn tất thương hiệu SurvHub và tích hợp Stitch.
+  - [x] Tự động push code lên kho lưu trữ GitHub (`origin/main`).

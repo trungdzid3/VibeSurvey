@@ -5,7 +5,7 @@ module.exports = {
   PORT: process.env.PORT || 3000,
   APP_URL: process.env.APP_URL || 'http://localhost:3000',
   NODE_ENV: process.env.NODE_ENV || 'development',
-  JWT_SECRET: process.env.JWT_SECRET || 'vibesurvey_default_secret_key_2026',
+  JWT_SECRET: process.env.JWT_SECRET || 'survhub_default_secret_key_2026',
   DB_PATH: process.env.DB_PATH || path.join(__dirname, '../db/vibesurvey.db'),
   
   // Cấu hình Cổng Thanh Toán & VietQR Napas247
@@ -13,9 +13,9 @@ module.exports = {
     BANK_ID: process.env.PAYMENT_BANK_ID || 'MB',
     BANK_NAME: process.env.PAYMENT_BANK_NAME || 'Ngân hàng Quân Đội (MBBank)',
     ACCOUNT_NUMBER: process.env.PAYMENT_ACCOUNT_NUMBER || '0335888888',
-    ACCOUNT_NAME: process.env.PAYMENT_ACCOUNT_NAME || 'VIBESURVEY PLATFORM',
+    ACCOUNT_NAME: process.env.PAYMENT_ACCOUNT_NAME || 'SURVHUB PLATFORM',
     TEMPLATE: process.env.PAYMENT_QR_TEMPLATE || 'compact',
-    WEBHOOK_SECRET: process.env.PAYMENT_WEBHOOK_SECRET || 'vibesurvey_payment_secret_2026',
+    WEBHOOK_SECRET: process.env.PAYMENT_WEBHOOK_SECRET || 'survhub_payment_secret_2026',
     ORDER_EXPIRE_MINUTES: 15
   },
 
@@ -208,8 +208,8 @@ module.exports = {
   // Cấu hình dịch vụ Email Brevo (Sendinblue)
   BREVO: {
     API_KEY: process.env.BREVO_API_KEY || '',
-    SENDER_EMAIL: process.env.BREVO_SENDER_EMAIL || 'no-reply@vibesurvey.com',
-    SENDER_NAME: process.env.BREVO_SENDER_NAME || 'VibeSurvey Platform'
+    SENDER_EMAIL: process.env.BREVO_SENDER_EMAIL || 'no-reply@survhub.com',
+    SENDER_NAME: process.env.BREVO_SENDER_NAME || 'SurvHub Platform'
   },
 
   // Cấu hình dịch vụ Email Gmail SMTP SSL (Cổng 465)
@@ -219,7 +219,7 @@ module.exports = {
     USER: process.env.SMTP_USER || '',
     PASS: process.env.SMTP_PASS || '',
     FROM_EMAIL: process.env.SMTP_FROM_EMAIL || process.env.SMTP_USER || '',
-    FROM_NAME: process.env.SMTP_FROM_NAME || 'VibeSurvey Platform'
+    FROM_NAME: process.env.SMTP_FROM_NAME || 'SurvHub Platform'
   },
 
   // Cấu hình dịch vụ Email Outlook / Hotmail SMTP (Cổng 587 STARTTLS)
@@ -229,6 +229,6 @@ module.exports = {
     USER: process.env.OUTLOOK_USER || '',
     PASS: process.env.OUTLOOK_PASS || '',
     FROM_EMAIL: process.env.OUTLOOK_FROM_EMAIL || process.env.OUTLOOK_USER || '',
-    FROM_NAME: process.env.OUTLOOK_FROM_NAME || 'VibeSurvey Platform'
+    FROM_NAME: process.env.OUTLOOK_FROM_NAME || 'SurvHub Platform'
   }
 };

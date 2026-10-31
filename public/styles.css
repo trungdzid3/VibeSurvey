@@ -1,5 +1,5 @@
 /* ==========================================================================
-   VibeSurvey - Minimalist Unique Design System & Typography
+   SurvHub - Minimalist Unique Design System & Typography
    Phong cách: Tối giản màu sắc lạ (Nordic Slate & Cobalt Noir, Deep Minimalist),
    Font chữ: Montserrat (Tiêu đề Bold, Chữ nhỏ Light, Phân cấp thị giác mạch lạc)
    ========================================================================== */
@@ -991,7 +991,7 @@ html.dark .dark\:hover\:bg-stone-700:hover {
   color: #FFFFFF !important;
 }
 
-/* Primary Action CTA (Cam VibeSurvey) - Giữ trọn độ rực rỡ và sắc nét */
+/* Primary Action CTA (Cam SurvHub) - Giữ trọn độ rực rỡ và sắc nét */
 html.dark .bg-orange-600 {
   background-color: #EA580C !important;
   color: #FFFFFF !important;

@@ -1,6 +1,6 @@
 /**
  * matchingService.js - Thuật toán Đẩy Khảo sát Mục tiêu & Xếp hạng Bảng tin
- * Theo chỉ đạo chiến lược Gemini 4 Argon (VibeSurvey v2.0)
+ * Theo chỉ đạo chiến lược Gemini 4 Argon (SurvHub v2.0)
  */
 
 class MatchingService {

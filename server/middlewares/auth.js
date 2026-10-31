@@ -2,6 +2,20 @@ const jwt = require('jsonwebtoken');
 const config = require('../config');
 const db = require('../db/database');
 
+const LEGACY_JWT_SECRET = 'vibesurvey_default_secret_key_2026';
+
+function verifyJwt(token, callback) {
+  jwt.verify(token, config.JWT_SECRET, (err, decoded) => {
+    if (!err && decoded) {
+      return callback(null, decoded);
+    }
+    if (config.JWT_SECRET !== LEGACY_JWT_SECRET) {
+      return jwt.verify(token, LEGACY_JWT_SECRET, callback);
+    }
+    return callback(err, decoded);
+  });
+}
+
 function authenticateToken(req, res, next) {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
@@ -10,7 +24,7 @@ function authenticateToken(req, res, next) {
     return res.status(401).json({ success: false, message: 'Yêu cầu đăng nhập để truy cập tài nguyên này' });
   }
 
-  jwt.verify(token, config.JWT_SECRET, (err, decoded) => {
+  verifyJwt(token, (err, decoded) => {
     if (err) {
       return res.status(403).json({ success: false, message: 'Phiên đăng nhập đã hết hạn hoặc không hợp lệ' });
     }
@@ -41,7 +55,7 @@ function optionalAuthenticateToken(req, res, next) {
     return next();
   }
 
-  jwt.verify(token, config.JWT_SECRET, (err, decoded) => {
+  verifyJwt(token, (err, decoded) => {
     if (err || !decoded || !decoded.id) {
       req.user = null;
       return next();

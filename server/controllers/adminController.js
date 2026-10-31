@@ -633,10 +633,10 @@ class AdminController {
         case '/help': {
           const helpText = [
             'DANH SÁCH LỆNH ADMIN CONSOLE HỖ TRỢ:',
-            '  /naptien <email|id> <số_tiền>     : Nạp tiền Credit cho tài khoản (Ví dụ: /naptien user@vibesurvey.com 100k)',
-            '  /trutien <email|id> <số_tiền>     : Trừ tiền Credit của tài khoản (Ví dụ: /trutien user@vibesurvey.com 50000)',
-            '  /congdiem <email|id> <số_điểm>   : Cộng điểm Point cho tài khoản (Ví dụ: /congdiem user@vibesurvey.com 1000)',
-            '  /trudiem <email|id> <số_điểm>    : Trừ điểm Point của tài khoản (Ví dụ: /trudiem user@vibesurvey.com 500)',
+            '  /naptien <email|id> <số_tiền>     : Nạp tiền Credit cho tài khoản (Ví dụ: /naptien user@survhub.com 100k)',
+            '  /trutien <email|id> <số_tiền>     : Trừ tiền Credit của tài khoản (Ví dụ: /trutien user@survhub.com 50000)',
+            '  /congdiem <email|id> <số_điểm>   : Cộng điểm Point cho tài khoản (Ví dụ: /congdiem user@survhub.com 1000)',
+            '  /trudiem <email|id> <số_điểm>    : Trừ điểm Point của tài khoản (Ví dụ: /trudiem user@survhub.com 500)',
             '  /resetpoint <email|id|all>       : Reset điểm về 0 cho 1 tài khoản hoặc /resetpoint all xóa sạch thị trường',
             '  /resetcredit <email|id>          : Reset tiền Credit của tài khoản về 0 đ',
             '  /ban <email|id> [lý_do]          : Khóa tài khoản người dùng ngay lập tức',
@@ -658,7 +658,7 @@ class AdminController {
         case '/napcredit':
         case '/topup': {
           if (args.length < 2) {
-            return res.status(400).json({ success: false, message: 'Cú pháp: /naptien <email_hoặc_id> <số_tiền>. Ví dụ: /naptien user@vibesurvey.com 100000' });
+            return res.status(400).json({ success: false, message: 'Cú pháp: /naptien <email_hoặc_id> <số_tiền>. Ví dụ: /naptien user@survhub.com 100000' });
           }
           const user = this._findTargetUser(args[0], req.user);
           if (!user) {
@@ -689,7 +689,7 @@ class AdminController {
         case '/trutien':
         case '/trucredit': {
           if (args.length < 2) {
-            return res.status(400).json({ success: false, message: 'Cú pháp: /trutien <email_hoặc_id> <số_tiền>. Ví dụ: /trutien user@vibesurvey.com 50000' });
+            return res.status(400).json({ success: false, message: 'Cú pháp: /trutien <email_hoặc_id> <số_tiền>. Ví dụ: /trutien user@survhub.com 50000' });
           }
           const user = this._findTargetUser(args[0], req.user);
           if (!user) {
@@ -715,7 +715,7 @@ class AdminController {
         case '/addpoint':
         case '/point': {
           if (args.length < 2) {
-            return res.status(400).json({ success: false, message: 'Cú pháp: /congdiem <email_hoặc_id> <số_điểm>. Ví dụ: /congdiem user@vibesurvey.com 1000' });
+            return res.status(400).json({ success: false, message: 'Cú pháp: /congdiem <email_hoặc_id> <số_điểm>. Ví dụ: /congdiem user@survhub.com 1000' });
           }
           const user = this._findTargetUser(args[0], req.user);
           if (!user) {
@@ -746,7 +746,7 @@ class AdminController {
         case '/trudiem':
         case '/subpoint': {
           if (args.length < 2) {
-            return res.status(400).json({ success: false, message: 'Cú pháp: /trudiem <email_hoặc_id> <số_điểm>. Ví dụ: /trudiem user@vibesurvey.com 500' });
+            return res.status(400).json({ success: false, message: 'Cú pháp: /trudiem <email_hoặc_id> <số_điểm>. Ví dụ: /trudiem user@survhub.com 500' });
           }
           const user = this._findTargetUser(args[0], req.user);
           if (!user) {
@@ -799,7 +799,7 @@ class AdminController {
 
         case '/resetcredit': {
           if (args.length < 1) {
-            return res.status(400).json({ success: false, message: 'Cú pháp: /resetcredit <email_hoặc_id>. Ví dụ: /resetcredit user@vibesurvey.com' });
+            return res.status(400).json({ success: false, message: 'Cú pháp: /resetcredit <email_hoặc_id>. Ví dụ: /resetcredit user@survhub.com' });
           }
           const user = this._findTargetUser(args[0], req.user);
           if (!user) {
@@ -1180,7 +1180,7 @@ class AdminController {
     }
 
     if (lower === 'acc1' || lower === 'user' || lower === 'user1' || lower === 'respondent') {
-      let u = db.prepare('SELECT id, name, email, role, status, credit_balance, point_balance, trust_score, account_tier FROM users WHERE LOWER(email) = ?').get('user@vibesurvey.com');
+      let u = db.prepare('SELECT id, name, email, role, status, credit_balance, point_balance, trust_score, account_tier FROM users WHERE LOWER(email) = ? OR LOWER(email) = ?').get('user@survhub.com', 'user@vibesurvey.com');
       if (!u) {
         u = db.prepare("SELECT id, name, email, role, status, credit_balance, point_balance, trust_score, account_tier FROM users WHERE role = 'RESPONDENT' LIMIT 1").get();
       }
@@ -1188,7 +1188,7 @@ class AdminController {
     }
 
     if (lower === 'acc2' || lower === 'creator' || lower === 'creator1') {
-      let u = db.prepare('SELECT id, name, email, role, status, credit_balance, point_balance, trust_score, account_tier FROM users WHERE LOWER(email) = ?').get('creator@vibesurvey.com');
+      let u = db.prepare('SELECT id, name, email, role, status, credit_balance, point_balance, trust_score, account_tier FROM users WHERE LOWER(email) = ? OR LOWER(email) = ?').get('creator@survhub.com', 'creator@vibesurvey.com');
       if (!u) {
         u = db.prepare("SELECT id, name, email, role, status, credit_balance, point_balance, trust_score, account_tier FROM users WHERE role = 'CREATOR' LIMIT 1").get();
       }
@@ -1196,7 +1196,7 @@ class AdminController {
     }
 
     if (lower === 'acc3') {
-      const u = db.prepare('SELECT id, name, email, role, status, credit_balance, point_balance, trust_score, account_tier FROM users WHERE LOWER(email) = ?').get('admin@vibesurvey.com');
+      const u = db.prepare('SELECT id, name, email, role, status, credit_balance, point_balance, trust_score, account_tier FROM users WHERE LOWER(email) = ? OR LOWER(email) = ?').get('admin@survhub.com', 'admin@vibesurvey.com');
       if (u) return u;
     }
 

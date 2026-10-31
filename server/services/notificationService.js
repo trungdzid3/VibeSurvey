@@ -40,7 +40,7 @@ class NotificationService {
     const rewardVnd = rewardPoints * 10;
     const title = `⚡ [HỎA TỐC] Khảo sát mới: ${survey.title}`;
     const pushMessage = `Làm khảo sát nhận ngay +${rewardPoints.toLocaleString()} Điểm (~${rewardVnd.toLocaleString()}đ). Số lượng có hạn, bấm để làm ngay!`;
-    const emailSubject = `[VibeSurvey] ⚡ Khảo sát Hỏa Tốc cần thu thập gấp: ${survey.title}`;
+    const emailSubject = `[SurvHub] ⚡ Khảo sát Hỏa Tốc cần thu thập gấp: ${survey.title}`;
 
     const appBaseUrl = config.APP_URL || 'http://localhost:3000';
     const surveyUrl = `${appBaseUrl}/?survey=${survey.id}`;
@@ -117,7 +117,7 @@ class NotificationService {
           <div style="display: inline-block; padding: 6px 14px; background: rgba(0, 86, 210, 0.4); border: 1px solid rgba(59, 130, 246, 0.5); border-radius: 20px; font-size: 12px; font-weight: 700; color: #60a5fa; margin-bottom: 10px;">
             ⚡ THÔNG BÁO KHẢO SÁT MỚI
           </div>
-          <h2 style="margin: 0; font-size: 22px; font-weight: 800; letter-spacing: -0.5px; color: #ffffff;">VIBESURVEY KHẢO SÁT HỎA TỐC</h2>
+          <h2 style="margin: 0; font-size: 22px; font-weight: 800; letter-spacing: -0.5px; color: #ffffff;">SURVHUB KHẢO SÁT HỎA TỐC</h2>
           <p style="margin: 6px 0 0; font-size: 13px; color: #94a3b8;">Ưu tiên đáp viên hoàn thành sớm để nhận thù lao cao nhất</p>
         </div>
 
@@ -166,7 +166,7 @@ class NotificationService {
 
         <!-- Footer -->
         <div style="background: #f8fafc; border-top: 1px solid #e2e8f0; padding: 16px; text-align: center; font-size: 11px; color: #94a3b8;">
-          © 2026 VibeSurvey Platform • Nền tảng khảo sát và đổi thưởng uy tín
+          © 2026 SurvHub Platform • Nền tảng khảo sát và đổi thưởng uy tín
         </div>
       </div>
     `;
@@ -196,13 +196,13 @@ class NotificationService {
         },
         body: JSON.stringify({
           sender: {
-            name: config.BREVO.SENDER_NAME || 'VibeSurvey Platform',
-            email: config.BREVO.SENDER_EMAIL || 'no-reply@vibesurvey.com'
+            name: config.BREVO.SENDER_NAME || 'SurvHub Platform',
+            email: config.BREVO.SENDER_EMAIL || 'no-reply@survhub.com'
           },
           to: [
             {
               email: toEmail,
-              name: toName || 'Thành viên VibeSurvey'
+              name: toName || 'Thành viên SurvHub'
             }
           ],
           subject: subject,
@@ -233,7 +233,7 @@ class NotificationService {
     const user = config.SMTP && config.SMTP.USER;
     const pass = config.SMTP && config.SMTP.PASS;
     const fromEmail = (config.SMTP && config.SMTP.FROM_EMAIL) || user;
-    const fromName = (config.SMTP && config.SMTP.FROM_NAME) || 'VibeSurvey Platform';
+    const fromName = (config.SMTP && config.SMTP.FROM_NAME) || 'SurvHub Platform';
 
     if (!user || !pass) {
       return { success: false, reason: 'SMTP chưa được cấu hình USER hoặc PASS trong .env' };
@@ -332,7 +332,7 @@ class NotificationService {
     const user = config.OUTLOOK && config.OUTLOOK.USER;
     const pass = config.OUTLOOK && config.OUTLOOK.PASS;
     const fromEmail = (config.OUTLOOK && config.OUTLOOK.FROM_EMAIL) || user;
-    const fromName = (config.OUTLOOK && config.OUTLOOK.FROM_NAME) || 'VibeSurvey Platform';
+    const fromName = (config.OUTLOOK && config.OUTLOOK.FROM_NAME) || 'SurvHub Platform';
 
     if (!user || !pass) {
       return { success: false, reason: 'Outlook chưa được cấu hình USER hoặc PASS trong .env' };
@@ -633,7 +633,7 @@ class NotificationService {
   buildOtpEmailTemplate(options = {}) {
     const {
       title = 'XÁC THỰC TÀI KHOẢN',
-      subtitle = 'Bảo mật tài khoản VibeSurvey',
+      subtitle = 'Bảo mật tài khoản SurvHub',
       name = 'bạn',
       otp,
       validMinutes = 10,
@@ -678,7 +678,7 @@ class NotificationService {
           <!-- Header Thương hiệu: Đen Obsidian #09090B -->
           <tr>
             <td style="background: ${brandDark}; padding: 28px 24px; text-align: center;">
-              <h1 style="margin: 0; font-size: 22px; font-weight: 900; letter-spacing: 0.5px; color: #ffffff; font-family: 'Montserrat', sans-serif;">VIBESURVEY</h1>
+              <h1 style="margin: 0; font-size: 22px; font-weight: 900; letter-spacing: 0.5px; color: #ffffff; font-family: 'Montserrat', sans-serif;">SURVHUB</h1>
               <p style="margin: 6px 0 0; font-size: 13px; font-weight: 700; color: #A1A1AA; text-transform: uppercase; letter-spacing: 1px; font-family: 'Montserrat', sans-serif;">${title}</p>
             </td>
           </tr>
@@ -690,7 +690,7 @@ class NotificationService {
                 Xin chào <strong>${name}</strong>,
               </p>
               <p style="font-size: 14px; color: #52525B; line-height: 1.6; text-align: left; margin: 12px 0 24px; font-family: 'Montserrat', sans-serif;">
-                Bạn vừa yêu cầu ${actionDescription} trên nền tảng VibeSurvey. Dưới đây là mã xác thực One-Time Password (OTP) của bạn:
+                Bạn vừa yêu cầu ${actionDescription} trên nền tảng SurvHub. Dưới đây là mã xác thực One-Time Password (OTP) của bạn:
               </p>
 
               <!-- Khung Mã OTP Chuẩn DESIGN.md: Nền Kem Cam Sứ #FFF7ED + Viền nét đứt Cam Vibe #EA580C -->
@@ -711,7 +711,7 @@ class NotificationService {
           <tr>
             <td style="background: #FAFAFA; border-top: 1px solid ${brandBorder}; padding: 20px 24px; text-align: center; font-size: 11px; color: #71717A; line-height: 1.6; font-family: 'Montserrat', sans-serif;">
               <p style="margin: 0 0 6px; font-weight: 700; color: #09090B;">
-                VibeSurvey Platform • Nền tảng khảo sát trực tuyến & đổi thưởng uy tín
+                SurvHub Platform • Nền tảng khảo sát trực tuyến & đổi thưởng uy tín
               </p>
               <p style="margin: 0; color: #A1A1AA;">
                 Email này được gửi tự động từ hệ thống bảo mật. Nếu bạn không thực hiện yêu cầu này, vui lòng liên hệ trung tâm hỗ trợ.

@@ -100,7 +100,7 @@ class AuthController {
       let emailMode = null;
       const notificationService = require('../services/notificationService');
 
-      const emailSubject = `[VibeSurvey] Mã xác thực đăng ký tài khoản của bạn: ${otp}`;
+      const emailSubject = `[SurvHub] Mã xác thực đăng ký tài khoản của bạn: ${otp}`;
       const emailHtml = notificationService.buildOtpEmailTemplate({
         title: 'XÁC THỰC ĐĂNG KÝ TÀI KHOẢN',
         name: name || 'Bạn',
@@ -116,7 +116,7 @@ class AuthController {
           toName: name || 'Người dùng mới',
           subject: emailSubject,
           htmlContent: emailHtml,
-          textContent: `Mã OTP xác thực đăng ký tài khoản VibeSurvey của bạn là: ${otp}. Có hiệu lực trong 10 phút.`
+          textContent: `Mã OTP xác thực đăng ký tài khoản SurvHub của bạn là: ${otp}. Có hiệu lực trong 10 phút.`
         });
         emailSent = sendResult && sendResult.success;
         emailMode = sendResult && sendResult.mode;
@@ -545,7 +545,7 @@ class AuthController {
       // Bắn email thật qua bộ điều phối thông minh đa kênh (Resend -> Brevo -> SMTP)
       if (user.email) {
         const notificationService = require('../services/notificationService');
-        const emailSubject = `[VibeSurvey] Mã xác thực tài khoản của bạn: ${otp}`;
+        const emailSubject = `[SurvHub] Mã xác thực tài khoản của bạn: ${otp}`;
         const emailHtml = notificationService.buildOtpEmailTemplate({
           title: 'XÁC THỰC TÀI KHOẢN & ĐẶT LẠI MẬT KHẨU',
           name: user.name || 'Bạn',
@@ -1025,7 +1025,7 @@ class AuthController {
 
       // Gửi email qua sendSmartEmail
       const notificationService = require('../services/notificationService');
-      const emailSubject = `[VibeSurvey] Mã xác thực email sinh viên của bạn: ${otp}`;
+      const emailSubject = `[SurvHub] Mã xác thực email sinh viên của bạn: ${otp}`;
       const emailHtml = notificationService.buildOtpEmailTemplate({
         title: 'XÁC THỰC EMAIL SINH VIÊN',
         name: user.name || 'Bạn sinh viên',

@@ -186,7 +186,7 @@ class PushNotificationService {
 
     const notificationTitle = `[HỎA TỐC] Khảo sát mới: ${survey.title}`;
     const pushBody = `Khảo sát thù lao cao: nhận ngay +${rewardPoints.toLocaleString('vi-VN')} Điểm (~${rewardVnd.toLocaleString('vi-VN')} đ). Bấm để tham gia ngay!`;
-    const emailSubject = `[VibeSurvey] [HỎA TỐC] Khảo sát mới thưởng cao: ${survey.title}`;
+    const emailSubject = `[SurvHub] [HỎA TỐC] Khảo sát mới thưởng cao: ${survey.title}`;
 
     // Xac thuc surveyId ton tai trong bang surveys de bao dam rang buoc khoa ngoai
     let validSurveyId = null;

@@ -757,7 +757,7 @@ class FormParserService {
   }
 
   /**
-   * Bóc tách dữ liệu JSON từ Google Forms API v1 sang cấu trúc chuẩn 12 câu hỏi của VibeSurvey
+   * Bóc tách dữ liệu JSON từ Google Forms API v1 sang cấu trúc chuẩn 12 câu hỏi của SurvHub
    */
   parseGoogleFormsApiResponse(apiData, originalUrl) {
     if (!apiData) {

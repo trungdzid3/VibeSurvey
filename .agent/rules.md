@@ -1,6 +1,6 @@
-# CÁC QUY TẮC CỐT LÕI (CORE RULES) - VIBE CODING STUDIO
+# CÁC QUY TẮC CỐT LÕI (CORE RULES) - SURVHUB VIBE CODING STUDIO
 
-Dự Án: Nền tảng Khảo sát Trực tuyến Kiếm Điểm & Kiếm Lợi Nhuận (Web & Android App).
+Dự Án: Nền tảng Khảo sát Trực tuyến & Nghiên cứu Học thuật SurvHub (Web & Android App).
 
 ## 1. Ngôn ngữ & Giao tiếp
 - Luôn phản hồi, giải thích và viết tài liệu bằng **tiếng Việt**.
@@ -40,3 +40,6 @@ Dự Án: Nền tảng Khảo sát Trực tuyến Kiếm Điểm & Kiếm Lợi 
   1. Phân rã nhiệm vụ và tạo Subagent chuyên trách (Frontend Specialist, Backend Architect, QA Specialist, DevOps Specialist,...).
   2. Subagent thực thi khép kín và tự kiểm tra cú pháp (`node -c`).
   3. Subagent báo cáo kết quả lại cho Parent Agent để cập nhật `task.md` và `PROJECT_CONTEXT.md`.
+
+## 7. Quy chế Tự động hóa Đồng bộ Git & GitHub (Git Auto-Sync Protocol)
+auto_github_sync: true # Dự án đã kết nối GitHub. Tự động commit và push sau mỗi task hoàn tất.

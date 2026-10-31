@@ -1,5 +1,5 @@
 /**
- * VibeSurvey - In-App Image Lightbox Viewer Module
+ * SurvHub - In-App Image Lightbox Viewer Module
  * Tuan thu DESIGN.md Muc 5.4: Quy Chuan Xem Anh Minh Chung & Hinh Anh Bao Loi
  * Khong dung the <a> tai file roi rac, phong to truc tiep tren nen toi mo cao cap.
  * TUYET DOI KHONG DUNG EMOJI.

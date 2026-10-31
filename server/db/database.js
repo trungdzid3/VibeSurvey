@@ -699,6 +699,17 @@ function ensureEssentialAccounts() {
     const salt = bcrypt.genSaltSync(10);
 
     const essentialUsers = [
+      { email: 'admin@survhub.com',
+        password: 'admin123',
+        name: 'Quản Trị Viên SurvHub',
+        role: 'ADMIN',
+        credit_balance: 100000000,
+        point_balance: 0,
+        fast_track_tickets: 10,
+        free_trial_surveys_available: 5,
+        is_email_verified: 1,
+        status: 'ACTIVE'
+      },
       { email: 'admin@vibesurvey.com',
         password: 'admin123',
         name: 'Quản Trị Viên Hệ Thống',

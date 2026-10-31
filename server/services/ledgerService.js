@@ -875,7 +875,7 @@ class LedgerService {
       BANK_ID: 'MB',
       BANK_NAME: 'Ngan hang Quan Doi (MBBank)',
       ACCOUNT_NUMBER: '0335888888',
-      ACCOUNT_NAME: 'VIBESURVEY PLATFORM',
+      ACCOUNT_NAME: 'SURVHUB PLATFORM',
       TEMPLATE: 'compact',
       ORDER_EXPIRE_MINUTES: 15
     };
@@ -884,7 +884,7 @@ class LedgerService {
     const expiresAt = new Date(Date.now() + expireMinutes * 60 * 1000).toISOString();
 
     // URL anh VietQR dong chuan Napas247
-    const encodedAccountName = encodeURIComponent(gatewayConfig.ACCOUNT_NAME || 'VIBESURVEY PLATFORM');
+    const encodedAccountName = encodeURIComponent(gatewayConfig.ACCOUNT_NAME || 'SURVHUB PLATFORM');
     const qrUrl = `https://api.vietqr.io/image/${gatewayConfig.BANK_ID}-${gatewayConfig.ACCOUNT_NUMBER}-${gatewayConfig.TEMPLATE || 'compact'}.jpg?amount=${amount}&addInfo=${orderCode}&accountName=${encodedAccountName}`;
 
     const bankAccountInfo = {
@@ -973,10 +973,10 @@ class LedgerService {
     const gatewayConfig = config.PAYMENT_GATEWAY || {
       BANK_ID: 'MB',
       ACCOUNT_NUMBER: '0335888888',
-      ACCOUNT_NAME: 'VIBESURVEY PLATFORM',
+      ACCOUNT_NAME: 'SURVHUB PLATFORM',
       TEMPLATE: 'compact'
     };
-    const encodedAccountName = encodeURIComponent(gatewayConfig.ACCOUNT_NAME || 'VIBESURVEY PLATFORM');
+    const encodedAccountName = encodeURIComponent(gatewayConfig.ACCOUNT_NAME || 'SURVHUB PLATFORM');
     const qrUrl = `https://api.vietqr.io/image/${gatewayConfig.BANK_ID}-${gatewayConfig.ACCOUNT_NUMBER}-${gatewayConfig.TEMPLATE || 'compact'}.jpg?amount=${order.amount_vnd}&addInfo=${order.order_code}&accountName=${encodedAccountName}`;
 
     return {

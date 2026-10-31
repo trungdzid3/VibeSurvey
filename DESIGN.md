@@ -1,5 +1,5 @@
-# BỘ QUY CHUẨN THIẾT KẾ GIAO DIỆN VIBESURVEY (DESIGN.MD)
-> **Single Source of Truth (SSOT) cho toàn bộ UI/UX của VibeSurvey (Web SPA & Android Native App)**  
+# BỘ QUY CHUẨN THIẾT KẾ GIAO DIỆN SURVHUB (DESIGN.MD)
+> **Single Source of Truth (SSOT) cho toàn bộ UI/UX của SurvHub (Web SPA & Android Native App)**  
 > *Áp dụng bắt buộc cho tất cả các AI Agent và Developer tiếp quản hoặc phát triển tính năng mới.*
 
 ---

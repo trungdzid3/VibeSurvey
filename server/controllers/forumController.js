@@ -1,6 +1,6 @@
 /**
  * Controller Quan Ly Dien Dan Thao Luan & Chia Se Khao Sat Noi Bo (Forum Controller)
- * VibeSurvey Community Board
+ * SurvHub Community Board
  */
 
 const crypto = require('crypto');
@@ -308,7 +308,7 @@ class ForumController {
         return res.status(400).json({
           success: false,
           code: 'EXTERNAL_LINKS_PROHIBITED',
-          message: 'Diễn đàn không cho phép chia sẻ liên kết ngoài. Bạn chỉ có thể đính kèm bài khảo sát hợp lệ trên hệ thống VibeSurvey.'
+          message: 'Diễn đàn không cho phép chia sẻ liên kết ngoài. Bạn chỉ có thể đính kèm bài khảo sát hợp lệ trên hệ thống SurvHub.'
         });
       }
 
@@ -384,7 +384,7 @@ class ForumController {
         return res.status(400).json({
           success: false,
           code: 'EXTERNAL_LINKS_PROHIBITED',
-          message: 'Diễn đàn không cho phép chia sẻ liên kết ngoài. Bạn chỉ có thể đính kèm bài khảo sát hợp lệ trên hệ thống VibeSurvey.'
+          message: 'Diễn đàn không cho phép chia sẻ liên kết ngoài. Bạn chỉ có thể đính kèm bài khảo sát hợp lệ trên hệ thống SurvHub.'
         });
       }
 

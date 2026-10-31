@@ -64,7 +64,7 @@ class WebhookService {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'User-Agent': 'VibeSurvey-Webhook-Engine/1.0'
+          'User-Agent': 'SurvHub-Webhook-Engine/1.0'
         },
         body: postBody,
         redirect: 'follow',

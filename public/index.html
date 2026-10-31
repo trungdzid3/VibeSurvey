@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#0F172A">
-  <meta name="description" content="VibeSurvey - Nền tảng Khảo sát Trực tuyến & Phân tích Dữ liệu Hàng Đầu">
-  <title>VibeSurvey • Khảo Sát Tích Điểm & Đổi Thưởng</title>
+  <meta name="description" content="SurvHub - Nền tảng Khảo sát Trực tuyến & Phân tích Dữ liệu Học Thuật Hàng Đầu">
+  <title>SurvHub • Nền Tảng Khảo Sát & Nghiên Cứu Học Thuật</title>
 
   <!-- App Favicons & Icons -->
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
@@ -62,7 +62,7 @@
   <script src="https://unpkg.com/lucide@latest"></script>
 
   <!-- Custom Stylesheet -->
-  <link rel="stylesheet" href="/styles.css?v=4.7.6_1793441068568">
+  <link rel="stylesheet" href="/styles.css?v=4.7.6_1793463802744">
 </head>
 <body class="bg-[#F8F9FA] dark:bg-[#121214] text-slate-800 dark:text-stone-100 min-h-screen flex flex-col font-sans selection:bg-orange-500 selection:text-white antialiased safe-bottom">
 
@@ -96,9 +96,9 @@
         <!-- Left: Brand Logo & Navigation -->
         <div class="flex items-center gap-6 lg:gap-8 min-w-0 flex-shrink-0">
           <div class="flex items-center gap-2.5 cursor-pointer select-none group flex-shrink-0" onclick="VibeApp.navigate('home')">
-            <img id="main-brand-logo" src="/logo-light.svg" alt="VibeSurvey Logo" class="w-8 h-8 rounded-lg flex-shrink-0 object-contain transition-transform group-hover:scale-105" style="width: 32px; height: 32px;">
+            <img id="main-brand-logo" src="/logo-light.svg" alt="SurvHub Logo" class="w-8 h-8 rounded-lg flex-shrink-0 object-contain transition-transform group-hover:scale-105" style="width: 32px; height: 32px;">
             <div class="flex items-center whitespace-nowrap">
-              <span class="text-base font-extrabold tracking-tight text-slate-900 dark:text-white">Vibe<span class="text-orange-600">Survey</span></span>
+              <span class="text-base font-extrabold tracking-tight text-slate-900 dark:text-white">Surv<span class="text-orange-600">Hub</span></span>
             </div>
           </div>
 
@@ -194,7 +194,7 @@
     <div id="app-root">
       <div class="flex flex-col items-center justify-center py-20 space-y-3">
         <div class="animate-spin rounded-full h-8 w-8 border-2 border-stone-300 dark:border-stone-700 border-t-orange-600"></div>
-        <p class="text-xs text-slate-500 font-medium">Đang tải VibeSurvey...</p>
+        <p class="text-xs text-slate-500 font-medium">Đang tải SurvHub...</p>
       </div>
     </div>
   </main>
@@ -207,14 +207,14 @@
         <!-- Cột 1: Thông tin Doanh Nghiệp -->
         <div class="space-y-3">
           <div class="flex items-center gap-2">
-            <img id="footer-brand-logo" src="/logo-light.svg" alt="VibeSurvey Logo" class="w-7 h-7 rounded-lg object-contain">
-            <span class="font-black text-base tracking-tight text-slate-900 dark:text-white">Vibe<span class="text-orange-600">Survey</span></span>
+            <img id="footer-brand-logo" src="/logo-light.svg" alt="SurvHub Logo" class="w-7 h-7 rounded-lg object-contain">
+            <span class="font-black text-base tracking-tight text-slate-900 dark:text-white">Surv<span class="text-orange-600">Hub</span></span>
           </div>
           <p class="text-xs text-stone-500 dark:text-stone-400 leading-relaxed">
             Nền tảng nghiên cứu thị trường, khảo sát trực tuyến và phân tích dữ liệu hành vi người tiêu dùng hàng đầu Việt Nam.
           </p>
           <div class="text-[11px] text-stone-500 dark:text-stone-400 space-y-1 pt-1 border-t border-stone-100 dark:border-stone-800/80">
-            <p class="font-bold text-stone-800 dark:text-stone-200">Công ty Cổ phần Công nghệ VibeSurvey</p>
+            <p class="font-bold text-stone-800 dark:text-stone-200">Công ty Cổ phần Công nghệ SurvHub</p>
             <p>Mã số doanh nghiệp: <span class="font-mono font-semibold text-stone-700 dark:text-stone-300">0110824688</span></p>
             <p>Sở Kế hoạch & Đầu tư TP. Hà Nội cấp phép</p>
           </div>
@@ -226,7 +226,7 @@
           <div class="space-y-2.5 text-xs text-stone-500 dark:text-stone-400 leading-relaxed">
             <div>
               <p class="font-bold text-stone-800 dark:text-stone-200">Trụ sở chính (Hà Nội):</p>
-              <p>Tầng 8, Tòa nhà VibeTech, Số 68 Đường Cầu Giấy, P. Quan Hoa, Q. Cầu Giấy, TP. Hà Nội</p>
+              <p>Tầng 8, Tòa nhà SurvHub Tech, Số 68 Đường Cầu Giấy, P. Quan Hoa, Q. Cầu Giấy, TP. Hà Nội</p>
             </div>
             <div>
               <p class="font-bold text-stone-800 dark:text-stone-200">Văn phòng đại diện (TP.HCM):</p>
@@ -243,9 +243,9 @@
             <li><a href="javascript:void(0)" onclick="VibeApp.openBugReportModal()" class="font-bold text-orange-600 dark:text-orange-500 hover:underline flex items-center gap-1.5"><i data-lucide="bug" class="w-3.5 h-3.5 inline"></i><span>Báo lỗi & Đăng tải sự cố</span></a></li>
             <li>Tổng đài hỗ trợ: <a href="tel:19006868" class="font-mono font-bold text-orange-600 dark:text-orange-500 hover:underline">1900 6868</a></li>
             <li>Hotline phản ánh: <span class="font-mono font-semibold text-stone-700 dark:text-stone-300">0988.123.456</span></li>
-            <li>Hỗ trợ đáp viên: <a href="mailto:hotro@vibesurvey.vn" class="hover:text-stone-900 dark:hover:text-white underline">hotro@vibesurvey.vn</a></li>
-            <li>Hợp tác doanh nghiệp: <a href="mailto:business@vibesurvey.vn" class="hover:text-stone-900 dark:hover:text-white underline">business@vibesurvey.vn</a></li>
-            <li>Hóa đơn điện tử VAT: <a href="mailto:ketoan@vibesurvey.vn" class="hover:text-stone-900 dark:hover:text-white underline">ketoan@vibesurvey.vn</a></li>
+            <li>Hỗ trợ đáp viên: <a href="mailto:hotro@survhub.vn" class="hover:text-stone-900 dark:hover:text-white underline">hotro@survhub.vn</a></li>
+            <li>Hợp tác doanh nghiệp: <a href="mailto:business@survhub.vn" class="hover:text-stone-900 dark:hover:text-white underline">business@survhub.vn</a></li>
+            <li>Hóa đơn điện tử VAT: <a href="mailto:ketoan@survhub.vn" class="hover:text-stone-900 dark:hover:text-white underline">ketoan@survhub.vn</a></li>
           </ul>
         </div>
 
@@ -253,9 +253,9 @@
         <div class="space-y-2.5">
           <h4 class="font-bold text-slate-900 dark:text-white text-xs uppercase tracking-wider">Kênh truyền thông & Pháp lý</h4>
           <ul class="space-y-2 text-xs text-stone-500 dark:text-stone-400">
-            <li><a href="https://facebook.com" target="_blank" rel="noopener" class="hover:text-orange-600 transition-colors">Fanpage: fb.com/VibeSurveyOfficial</a></li>
-            <li><a href="https://zalo.me" target="_blank" rel="noopener" class="hover:text-orange-600 transition-colors">Zalo OA: VibeSurvey Việt Nam</a></li>
-            <li><a href="https://t.me" target="_blank" rel="noopener" class="hover:text-orange-600 transition-colors">Cộng đồng Telegram: @VibeSurveyVN</a></li>
+            <li><a href="https://facebook.com" target="_blank" rel="noopener" class="hover:text-orange-600 transition-colors">Fanpage: fb.com/SurvHubOfficial</a></li>
+            <li><a href="https://zalo.me" target="_blank" rel="noopener" class="hover:text-orange-600 transition-colors">Zalo OA: SurvHub Việt Nam</a></li>
+            <li><a href="https://t.me" target="_blank" rel="noopener" class="hover:text-orange-600 transition-colors">Cộng đồng Telegram: @SurvHubVN</a></li>
             <li><a href="javascript:void(0)" onclick="VibeApp.openTermsModal(event)" class="hover:text-stone-900 dark:hover:text-white transition-colors">Chính sách bảo mật dữ liệu</a></li>
             <li><a href="javascript:void(0)" onclick="VibeApp.openTermsModal(event)" class="hover:text-stone-900 dark:hover:text-white transition-colors">Quy chế hoạt động & Chống gian lận</a></li>
             <li><a href="javascript:void(0)" onclick="VibeApp.openTermsModal(event)" class="hover:text-stone-900 dark:hover:text-white transition-colors">Điều khoản dịch vụ & Đổi thưởng</a></li>
@@ -266,7 +266,7 @@
 
       <!-- Bottom Bar: Bản quyền & Tiêu chuẩn kỹ thuật -->
       <div class="pt-3.5 border-t border-stone-200 dark:border-stone-800 flex flex-col sm:flex-row items-center justify-between gap-2.5 text-[11px] text-stone-500 dark:text-stone-400">
-        <p>© 2026 VibeSurvey Ecosystem JSC. Giữ toàn bộ bản quyền.</p>
+        <p>© 2026 SurvHub Ecosystem JSC. Giữ toàn bộ bản quyền.</p>
         <div class="flex items-center space-x-4">
           <span class="inline-flex items-center gap-1"><i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-600"></i> Mã hóa SSL 256-bit</span>
           <span class="inline-flex items-center gap-1"><i data-lucide="receipt" class="w-3.5 h-3.5 text-orange-600"></i> Xuất hóa đơn VAT đầy đủ</span>
@@ -326,13 +326,13 @@
                 <span>Đăng nhập bằng Google</span>
               </div>
 
-              <!-- Logo VibeSurvey Tròn & Tiêu Đề -->
+              <!-- Logo SurvHub Tròn & Tiêu Đề -->
               <div class="mt-8 sm:mt-12">
                 <div class="w-14 h-14 rounded-full bg-gradient-to-tr from-emerald-600 via-teal-600 to-cyan-500 text-white font-black text-2xl flex items-center justify-center shadow-lg mb-6 tracking-wider">
                   V
                 </div>
                 <h2 id="google-dialog-heading" class="text-2xl sm:text-3xl font-normal text-white mb-6 tracking-tight leading-tight">
-                  Đăng nhập vào VibeSurvey
+                  Đăng nhập vào SurvHub
                 </h2>
 
                 <!-- Dropdown Chọn Tài Khoản (Account Picker Pill) -->
@@ -379,7 +379,7 @@
           <div class="flex flex-col justify-between">
             <div>
               <p class="text-sm text-[#e3e3e3] mb-6 font-normal">
-                Google sẽ cho phép <span class="text-white font-medium">VibeSurvey</span> truy cập vào thông tin này về bạn
+                Google sẽ cho phép <span class="text-white font-medium">SurvHub</span> truy cập vào thông tin này về bạn
               </p>
 
               <!-- Hai Khối Quyền Truy Cập -->
@@ -417,7 +417,7 @@
               <!-- Chính Sách Quyền Riêng Tư Chuẩn Google -->
               <div class="text-xs text-[#9aa0a6] leading-relaxed space-y-3 pt-4 border-t border-[#303030]/90">
                 <p>
-                  Xem <a href="javascript:void(0)" class="text-[#8ab4f8] hover:underline font-medium">Chính sách quyền riêng tư</a> và <a href="javascript:void(0)" class="text-[#8ab4f8] hover:underline font-medium">Điều khoản dịch vụ</a> của VibeSurvey để hiểu cách VibeSurvey sẽ xử lý và bảo vệ dữ liệu của bạn.
+                  Xem <a href="javascript:void(0)" class="text-[#8ab4f8] hover:underline font-medium">Chính sách quyền riêng tư</a> và <a href="javascript:void(0)" class="text-[#8ab4f8] hover:underline font-medium">Điều khoản dịch vụ</a> của SurvHub để hiểu cách SurvHub sẽ xử lý và bảo vệ dữ liệu của bạn.
                 </p>
                 <p>
                   Nếu bất cứ lúc nào bạn muốn thực hiện thay đổi, hãy truy cập <a href="javascript:void(0)" class="text-[#8ab4f8] hover:underline font-medium">Tài khoản Google</a> của bạn.
@@ -460,7 +460,7 @@
 
   <!-- ==================== FLOATING BUG REPORT TRIGGER ==================== -->
   <div class="fixed bottom-20 md:bottom-6 right-4 md:right-6 z-40">
-    <button onclick="VibeApp.openBugReportModal()" class="px-3.5 py-2 bg-white/95 dark:bg-[#1C1C20]/95 hover:border-orange-500 dark:hover:border-orange-500 border border-stone-200/90 dark:border-[#2E2E36] rounded-full shadow-lg dark:shadow-[0_10px_30px_rgba(0,0,0,0.5)] backdrop-blur-md text-xs font-bold text-stone-700 dark:text-stone-200 hover:text-orange-600 dark:hover:text-orange-400 transition-all active:scale-95 flex items-center gap-2 group cursor-pointer" title="Báo lỗi hoặc góp ý cho VibeSurvey">
+    <button onclick="VibeApp.openBugReportModal()" class="px-3.5 py-2 bg-white/95 dark:bg-[#1C1C20]/95 hover:border-orange-500 dark:hover:border-orange-500 border border-stone-200/90 dark:border-[#2E2E36] rounded-full shadow-lg dark:shadow-[0_10px_30px_rgba(0,0,0,0.5)] backdrop-blur-md text-xs font-bold text-stone-700 dark:text-stone-200 hover:text-orange-600 dark:hover:text-orange-400 transition-all active:scale-95 flex items-center gap-2 group cursor-pointer" title="Báo lỗi hoặc góp ý cho SurvHub">
       <i data-lucide="bug" class="w-4 h-4 text-orange-600 dark:text-orange-500 group-hover:scale-110 transition-transform"></i>
       <span class="font-bold">Báo Lỗi</span>
     </button>
@@ -547,6 +547,6 @@
   <script src="/js/modules/adminAnalyticsModule.js?v=4.0.0_1793300000"></script>
 
   <!-- Application Main Script -->
-  <script src="/app.js?v=4.7.6_1793441068568"></script>
+  <script src="/app.js?v=4.7.6_1793463802744"></script>
 </body>
 </html>

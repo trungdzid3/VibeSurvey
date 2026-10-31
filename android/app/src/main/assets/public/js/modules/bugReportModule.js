@@ -1,5 +1,5 @@
 /**
- * VibeSurvey - Bug Reporting & Support Desk Module
+ * SurvHub - Bug Reporting & Support Desk Module
  * Quan ly toan bo quy trinh tiep nhan bao loi, lich su nguoi dung va ban dieu hanh Admin.
  * Tuan thu DESIGN.md: Custom Dropdown Popover, Bento Grid, In-App Lightbox, chong XSS.
  * TUYET DOI KHONG DUNG EMOJI.
@@ -315,7 +315,7 @@
             </div>
             <h4 class="text-sm font-bold text-stone-900 dark:text-white">Vui Lòng Đăng Nhập</h4>
             <p class="text-xs text-stone-500 max-w-sm mx-auto">
-              Đăng nhập tài khoản VibeSurvey để theo dõi lịch sử các sự cố đã báo và xem phản hồi từ kỹ thuật viên.
+              Đăng nhập tài khoản SurvHub để theo dõi lịch sử các sự cố đã báo và xem phản hồi từ kỹ thuật viên.
             </p>
             <button onclick="VibeApp.closeBugReportModal(); VibeApp.openAuthModal('login')" class="px-5 py-2 bg-orange-600 text-white text-xs font-bold rounded-xl hover:bg-orange-700 shadow-md">
               Đăng Nhập Ngay

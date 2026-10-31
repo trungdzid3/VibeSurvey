@@ -1,5 +1,5 @@
 /**
- * VibeSurvey - Custom Dropdown Popover Module
+ * SurvHub - Custom Dropdown Popover Module
  * Tuan thu DESIGN.md Muc 5.3: Quy Chuan Dropdown & Custom Selection System (Bento Modern)
  * Cam 100% the select nguyen thuy cua trinh duyet trong modal/quan tri.
  * TUYET DOI KHONG DUNG EMOJI.
