@@ -1,12 +1,10 @@
 // Helper xac thuc nguoi dung Sinh Vien / Quan Tri Vien toan dien
 function isEduUser(user) {
   if (!user) return false;
-  if (user.role === 'ADMIN') return true;
-  if (user.is_student_verified === 1 || user.is_student_verified === '1' || user.is_student_verified === true) return true;
-  if (user.account_tier === 'STUDENT') return true;
-  if (user.role === 'STUDENT') return true;
-  if (user.student_email && (user.student_email.toLowerCase().includes('.edu.vn') || user.student_email.toLowerCase().includes('.ac.vn') || user.student_email.length > 5)) return true;
-  if (user.email && (user.email.toLowerCase().includes('.edu.vn') || user.email.toLowerCase().includes('.ac.vn'))) return true;
+  // Nếu ở phân khúc PERSONAL hoặc ENTERPRISE -> chắc chắn là người thường / doanh nghiệp, KHÔNG PHẢI sinh viên
+  if (user.account_tier === 'PERSONAL' || user.account_tier === 'ENTERPRISE') return false;
+  if (user.account_tier === 'STUDENT' || user.role === 'STUDENT') return true;
+  if (user.is_student_verified === 1 && ((user.student_email && (user.student_email.includes('.edu.vn') || user.student_email.includes('.ac.vn'))) || (user.email && (user.email.includes('.edu.vn') || user.email.includes('.ac.vn'))))) return true;
   return false;
 }
 

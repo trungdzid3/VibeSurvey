@@ -898,10 +898,6 @@ const VibeApp = window.VibeApp = Object.assign(window.VibeApp, {
     if (this.state.token && cachedUserJson) {
       try {
         this.state.currentUser = JSON.parse(cachedUserJson);
-        if (this.isStudentUser(this.state.currentUser)) {
-          this.state.currentUser.is_student_verified = 1;
-          this.state.currentUser.account_tier = 'STUDENT';
-        }
         this.state.currentTab = savedTab;
         this.applyUserInterface(true); // silent restore
       } catch (err) {
@@ -915,10 +911,6 @@ const VibeApp = window.VibeApp = Object.assign(window.VibeApp, {
         const meRes = await this.api('/auth/me');
         if (meRes.success && meRes.user) {
           this.state.currentUser = meRes.user;
-          if (this.isStudentUser(this.state.currentUser)) {
-            this.state.currentUser.is_student_verified = 1;
-            this.state.currentUser.account_tier = 'STUDENT';
-          }
           localStorage.setItem('survhub_cached_user', JSON.stringify(this.state.currentUser));
           // Kiểm tra xem có phiên làm bài khảo sát dở dang cần khôi phục khi người dùng đang làm mà F5
           const cachedSessionJson = (localStorage.getItem('survhub_active_session') || localStorage.getItem('vibesurvey_active_session'));
@@ -16334,15 +16326,20 @@ if (totalCount === 0) {
 
   isStudentUser(user = this.state.currentUser) {
     if (!user) return false;
-    if (user.role === 'ADMIN') return true;
-    if (user.is_student_verified === 1 || user.is_student_verified === '1' || user.is_student_verified === true) return true;
-    if (user.account_tier === 'STUDENT') return true;
-    if (user.role === 'STUDENT') return true;
-    if (user.student_email && (user.student_email.toLowerCase().includes('.edu.vn') || user.student_email.toLowerCase().includes('.ac.vn') || user.student_email.length > 5)) return true;
-    if (user.email && (user.email.toLowerCase().includes('.edu.vn') || user.email.toLowerCase().includes('.ac.vn'))) return true;
-    if (user.demographics) {
-      const demo = typeof user.demographics === 'string' ? (() => { try { return JSON.parse(user.demographics); } catch(e) { return {}; } })() : user.demographics;
-      if (demo && (demo.occupation === 'Sinh viên' || demo.university)) return true;
+    // 1. Phân khúc Người Điền Thường / Cá Nhân (PERSONAL) hoặc Doanh Nghiệp (ENTERPRISE)
+    // -> BẮT BUỘC là Người thường / Doanh nghiệp, TUYỆT ĐỐI KHÔNG PHẢI SINH VIÊN
+    if (user.account_tier === 'PERSONAL' || user.account_tier === 'ENTERPRISE') {
+      return false;
+    }
+    // 2. Chỉ là sinh viên khi phân khúc thực tế là STUDENT hoặc role STUDENT
+    if (user.account_tier === 'STUDENT' || user.role === 'STUDENT') {
+      return true;
+    }
+    // 3. Đã xác thực sinh viên kèm email trường hợp lệ
+    if ((user.is_student_verified === 1 || user.is_student_verified === '1' || user.is_student_verified === true) && 
+        ((user.student_email && (user.student_email.includes('.edu.vn') || user.student_email.includes('.ac.vn'))) || 
+         (user.email && (user.email.includes('.edu.vn') || user.email.includes('.ac.vn'))))) {
+      return true;
     }
     return false;
   },
