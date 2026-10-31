@@ -57,6 +57,7 @@ class SurveyRepository {
       rows: rows,
       columns: columns,
       logic: logic,
+      validation: (logic && logic.validation) ? logic.validation : null,
       min_label: q.min_label || null,
       max_label: q.max_label || null,
       image_url: q.image_url || null,
@@ -203,7 +204,21 @@ class SurveyRepository {
         const rowsJson = q.rows && Array.isArray(q.rows) ? JSON.stringify(q.rows) : (q.rows_json || null);
         const colsJson = q.columns && Array.isArray(q.columns) ? JSON.stringify(q.columns) : (q.columns_json || null);
         const optionsJson = q.options ? JSON.stringify(q.options) : (q.options_json || colsJson || null);
-        const logicJson = q.logic ? JSON.stringify(q.logic) : (q.logic_json || null);
+        let logicObj = null;
+        if (q.logic) {
+          try {
+            logicObj = typeof q.logic === 'string' ? JSON.parse(q.logic) : { ...q.logic };
+          } catch(e) {
+            logicObj = {};
+          }
+        } else if (q.logic_json) {
+          try { logicObj = JSON.parse(q.logic_json); } catch(e) {}
+        }
+        if (q.validation) {
+          logicObj = logicObj || {};
+          logicObj.validation = q.validation;
+        }
+        const logicJson = logicObj && Object.keys(logicObj).length > 0 ? JSON.stringify(logicObj) : null;
         const isReq = (q.is_required !== undefined && (q.is_required === 0 || q.is_required === false)) ? 0 : 1;
 
         insertQuestionStmt.run(
@@ -271,7 +286,21 @@ class SurveyRepository {
             const rowsJson = q.rows && Array.isArray(q.rows) ? JSON.stringify(q.rows) : (q.rows_json || null);
             const colsJson = q.columns && Array.isArray(q.columns) ? JSON.stringify(q.columns) : (q.columns_json || null);
             const optionsJson = q.options ? JSON.stringify(q.options) : (q.options_json || colsJson || null);
-            const logicJson = q.logic ? JSON.stringify(q.logic) : (q.logic_json || null);
+            let logicObj = null;
+        if (q.logic) {
+          try {
+            logicObj = typeof q.logic === 'string' ? JSON.parse(q.logic) : { ...q.logic };
+          } catch(e) {
+            logicObj = {};
+          }
+        } else if (q.logic_json) {
+          try { logicObj = JSON.parse(q.logic_json); } catch(e) {}
+        }
+        if (q.validation) {
+          logicObj = logicObj || {};
+          logicObj.validation = q.validation;
+        }
+        const logicJson = logicObj && Object.keys(logicObj).length > 0 ? JSON.stringify(logicObj) : null;
             const isReq = (q.is_required !== undefined && (q.is_required === 0 || q.is_required === false)) ? 0 : 1;
 
             insertQ.run(
@@ -802,13 +831,27 @@ class SurveyRepository {
 
     db.exec('BEGIN IMMEDIATE TRANSACTION');
     try {
+      // 1. Dọn dẹp diễn đàn đính kèm khảo sát (forum_comments, forum_post_likes, forum_posts)
+      db.prepare('DELETE FROM forum_comments WHERE post_id IN (SELECT id FROM forum_posts WHERE survey_id = ?)').run(id);
+      db.prepare('DELETE FROM forum_post_likes WHERE post_id IN (SELECT id FROM forum_posts WHERE survey_id = ?)').run(id);
+      db.prepare('DELETE FROM forum_posts WHERE survey_id = ?').run(id);
+
+      // 2. Gỡ bỏ khóa ngoại voucher_codes trỏ tới responses của khảo sát
+      db.prepare('UPDATE voucher_codes SET claimed_response_id = NULL WHERE claimed_response_id IN (SELECT id FROM responses WHERE survey_id = ?)').run(id);
+
+      // 3. Xử lý voucher_codes gắn với survey_id: bảo toàn mã đã CLAIMED cho người nhận, xóa mã chưa phát
+      db.prepare("UPDATE voucher_codes SET survey_id = NULL WHERE survey_id = ? AND status = 'CLAIMED'").run(id);
+      db.prepare('DELETE FROM voucher_codes WHERE survey_id = ?').run(id);
+
+      // 4. Dọn dẹp logs, thông báo, khiếu nại bảo hành
       db.prepare('DELETE FROM fraud_logs WHERE survey_id = ?').run(id);
       db.prepare('DELETE FROM notifications WHERE survey_id = ?').run(id);
       db.prepare('DELETE FROM email_notifications_log WHERE survey_id = ?').run(id);
-      db.prepare('DELETE FROM voucher_codes WHERE survey_id = ?').run(id);
+      db.prepare('DELETE FROM warranty_claims WHERE survey_id = ?').run(id);
+
+      // 5. Xóa responses và questions
       db.prepare('DELETE FROM responses WHERE survey_id = ?').run(id);
       db.prepare('DELETE FROM questions WHERE survey_id = ?').run(id);
-      db.prepare('DELETE FROM warranty_claims WHERE survey_id = ?').run(id);
       const res = db.prepare('DELETE FROM surveys WHERE id = ?').run(id);
 
       db.exec('COMMIT');

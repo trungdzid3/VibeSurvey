@@ -1269,3 +1269,56 @@ c:\Users\Lenovo\Downloads\Linh\
      - Bảng dòng tiền tích lũy 12 tháng: Nhận diện chính xác tháng dòng tiền chuyển từ Âm sang Dương (thời điểm hoàn vốn thực tế).
      - Bảng ma trận độ nhạy so sánh 3 kịch bản: Thận trọng (Conservative - 50%), Cơ sở (Base - 100%), Lạc quan (Optimistic - 180%).
 - **Kiểm định**: Tệp Excel được tạo bằng \xlsxwriter\, 100% công thức Excel sống (SUM, IF, nhân chia tham chiếu chéo giữa các sheet), định dạng chuẩn tiền tệ VNĐ và tỷ lệ %.
+
+
+---
+
+## Nâng Cấp Hệ Thống Biểu Mẫu: Ràng Buộc Định Dạng (Restrictions), Rẽ Nhánh Điều Hướng 2 Tầng (Branching Logic) & Phím Enter (31/10/2026)
+
+### 1. Cơ Chế Ràng Buộc Định Dạng (Restrictions / Validation Rules) Chuẩn Microsoft Forms & Google Forms
+- **Cơ sở dữ liệu**:
+  + Bổ sung cột `logic_json TEXT` trong bảng `questions` lưu trữ an toàn cấu hình `validation` và `branching`.
+  + Tự động migration an toàn khi khởi động máy chủ tại `server/db/database.js`.
+- **Backend Parser & Repository**:
+  + `server/services/formParserService.js`: Trích xuất 100% các luật giới hạn từ Microsoft Forms (`Restrictions`, `RestrictionType`, `RestrictionOperator`, `RestrictionValue1`, `RestrictionValue2`, `subtitle`, `placeholder`) và Google Forms (`pageBreakItem`, `goToAction`, `goToSectionId`).
+  + Hỗ trợ đầy đủ các dạng định dạng: Email, Số là số, Số trong khoảng (Between min ~ max ví dụ: 20000000 ~ 20270000), Độ dài ký tự, Đường dẫn URL.
+  + `server/repositories/surveyRepository.js` & `server/controllers/surveyController.js`: Trích xuất và bóc tách hai chiều trường `validation` và `logic` cho cả Creator Studio và Survey Runner.
+- **Frontend Creator Studio (`public/app.js`)**:
+  + Bổ sung khối giao diện cấu hình `Giới hạn` (Restrictions) cho các câu hỏi SHORT_TEXT và PARAGRAPH chuẩn giao diện Microsoft Forms: Dropdown Loại (Không giới hạn, Số, Email, Văn bản, Độ dài, URL), Dropdown điều kiện con (Là số, Trong khoảng, Lớn hơn, Nhỏ hơn,...), các ô nhập min/max, và tự động đồng bộ placeholder hướng dẫn.
+- **Frontend Survey Runner (`public/app.js`)**:
+  + Tự động hiển thị placeholder định dạng mẫu (`Vui lòng nhập email`, `Số phải nằm trong khoảng từ 20000000 ~ 20270000`, `Giá trị phải là một số`).
+  + Kiểm toán chặt chẽ trước khi cho phép chuyển câu hỏi: Chặn đứng câu trả lời không đúng định dạng và báo lỗi trực quan ngay dưới ô nhập liệu.
+
+### 2. Cơ Chế Điều Hướng Câu Hỏi 2 Tầng (2-Tier Branching / Skip Logic)
+- **Tầng 1 (Option-Level Branching)**: Rẽ nhánh ngay theo đáp án được chọn (Áp dụng cho SINGLE_CHOICE và DROPDOWN). Hỗ trợ nhảy đến câu hỏi chỉ định, nhảy đến phân đoạn (Mục), nộp bài ngay (SUBMIT), hoặc tiếp tục câu kế tiếp (NEXT).
+- **Tầng 2 (Section-End Routing)**: Khi người dùng đi đến câu hỏi cuối cùng của một Phân đoạn / Mục, hệ thống tự động kích hoạt luật chuyển trang của Phân đoạn đó (Ví dụ: `Sau phần này: Chuyển đến Mục 3` hoặc `Gửi biểu mẫu`), ngăn không cho người làm bài vô tình đi qua các phân đoạn của nhánh khác.
+- **Ngăn xếp lịch sử (Back Stack)**: Lưu vết các bước nhảy câu hỏi vào `session.history` giúp người làm bài bấm nút `Quay lại` (Previous) lùi về chính xác câu hỏi thực tế đã đi qua.
+
+### 3. Trải Nghiệm Thao Tác Phím Tắt Enter
+- Nhấn phím `Enter` trên ô nhập liệu (Input ngắn, Email, Số) hoặc `Ctrl + Enter` trên văn bản dài (Textarea) tự động kích hoạt chuyển câu tiếp theo (`nextQuestion`) hoặc nộp bài (`submitSurvey`).
+
+### 4. Kết Quả Kiểm Chuẩn
+- Bộ kiểm thử chuyên biệt: `tests/test_navigation_and_enter_key.js` đạt chuẩn 4/4 PASS (100%).
+- Bộ kiểm thử toàn diện: `npm test` đạt chuẩn 15/15 Suites PASS (100%).
+- Đồng bộ toàn diện sang Android Capacitor qua `npm run sync:android`.
+
+
+---
+
+## Khắc Phục Lỗi Xóa Khảo Sát: FOREIGN KEY Constraint Failed (31/10/2026)
+1. **Hiện tượng lỗi**:
+   - Khi Creator hoặc Admin bấm "Xóa khảo sát", hệ thống ném ra lỗi: `FOREIGN KEY constraint failed`.
+2. **Nguyên nhân kỹ thuật**:
+   - Khảo sát đính kèm bài viết trên diễn đàn (`forum_posts` có khóa ngoại `survey_id REFERENCES surveys(id)`): Transaction xóa trước đây chưa dọn dẹp các bài đăng diễn đàn (`forum_posts`), dẫn đến khi xóa `surveys`, SQLite ném lỗi khóa ngoại.
+   - Khi đáp viên làm khảo sát và nhận được mã voucher (từ kho voucher sàn hoặc tài trợ), bản ghi trong bảng `voucher_codes` có `claimed_response_id` tham chiếu đến `responses(id)` của bài khảo sát. Lệnh xóa trước đây chỉ xóa `voucher_codes WHERE survey_id = ?`, không gỡ liên kết `claimed_response_id` của các mã voucher khác, dẫn đến khi xóa `responses`, SQLite ném lỗi khóa ngoại.
+3. **Giải pháp đã áp dụng**:
+   - Cập nhật cả `server/controllers/surveyController.js` và `server/repositories/surveyRepository.js`:
+     + Bước 1: Dọn dẹp diễn đàn đính kèm khảo sát: `DELETE FROM forum_comments WHERE post_id IN (SELECT id FROM forum_posts WHERE survey_id = ?)`, `DELETE FROM forum_post_likes ...`, `DELETE FROM forum_posts WHERE survey_id = ?`.
+     + Bước 2: Gỡ liên kết khóa ngoại: `UPDATE voucher_codes SET claimed_response_id = NULL WHERE claimed_response_id IN (SELECT id FROM responses WHERE survey_id = ?)`.
+     + Bước 3: Bảo toàn mã voucher đã nhận (`status = 'CLAIMED'`) cho người dùng trong ví bằng `UPDATE voucher_codes SET survey_id = NULL WHERE survey_id = ? AND status = 'CLAIMED'` và xóa các mã chưa phát `DELETE FROM voucher_codes WHERE survey_id = ?`.
+     + Bước 4: Dọn dẹp logs, thông báo, khiếu nại bảo hành (`fraud_logs`, `notifications`, `email_notifications_log`, `warranty_claims`).
+     + Bước 5: Xóa `responses` và `questions`.
+     + Bước 6: Xóa bản ghi `surveys`.
+4. **Kết quả kiểm chuẩn**:
+   - Bộ kiểm thử mới `tests/test_delete_survey_fk.js` đạt chuẩn 6/6 PASS (100%).
+   - Toàn bộ 15/15 tầng kiểm thử `npm test` đạt 100% PASS.

@@ -39,6 +39,11 @@ class SurveyController {
       } catch (e) {}
     }
 
+    let logic = null;
+    if (q.logic_json) {
+      try { logic = JSON.parse(q.logic_json); } catch (e) {}
+    }
+
     const resObj = {
       id: q.id,
       order_index: q.order_index,
@@ -47,6 +52,8 @@ class SurveyController {
       options: options,
       rows: rows,
       columns: columns,
+      logic: logic,
+      validation: (logic && logic.validation) ? logic.validation : null,
       min_label: q.min_label || null,
       max_label: q.max_label || null,
       image_url: q.image_url || null,
@@ -57,7 +64,7 @@ class SurveyController {
     };
 
     if (isOwnerOrAdmin) {
-      resObj.is_attention_check = q.is_attention_check === 1;
+      resObj.is_attention_check = (q.is_attention_check === 1 || q.is_attention_check === true) ? 1 : 0;
       resObj.expected_answer = q.expected_answer || null;
     }
     return resObj;
@@ -2076,13 +2083,27 @@ class SurveyController {
       // Xóa dữ liệu liên quan trong transaction ACID
       db.exec('BEGIN IMMEDIATE TRANSACTION');
       try {
+        // 1. Dọn dẹp diễn đàn đính kèm khảo sát (forum_comments, forum_post_likes, forum_posts)
+        db.prepare('DELETE FROM forum_comments WHERE post_id IN (SELECT id FROM forum_posts WHERE survey_id = ?)').run(id);
+        db.prepare('DELETE FROM forum_post_likes WHERE post_id IN (SELECT id FROM forum_posts WHERE survey_id = ?)').run(id);
+        db.prepare('DELETE FROM forum_posts WHERE survey_id = ?').run(id);
+
+        // 2. Gỡ bỏ khóa ngoại voucher_codes trỏ tới responses của khảo sát
+        db.prepare('UPDATE voucher_codes SET claimed_response_id = NULL WHERE claimed_response_id IN (SELECT id FROM responses WHERE survey_id = ?)').run(id);
+
+        // 3. Xử lý voucher_codes gắn với survey_id: bảo toàn mã đã CLAIMED cho người nhận, xóa mã chưa phát
+        db.prepare("UPDATE voucher_codes SET survey_id = NULL WHERE survey_id = ? AND status = 'CLAIMED'").run(id);
+        db.prepare('DELETE FROM voucher_codes WHERE survey_id = ?').run(id);
+
+        // 4. Dọn dẹp logs, thông báo, khiếu nại bảo hành
         db.prepare('DELETE FROM fraud_logs WHERE survey_id = ?').run(id);
         db.prepare('DELETE FROM notifications WHERE survey_id = ?').run(id);
         db.prepare('DELETE FROM email_notifications_log WHERE survey_id = ?').run(id);
-        db.prepare('DELETE FROM voucher_codes WHERE survey_id = ?').run(id);
+        db.prepare('DELETE FROM warranty_claims WHERE survey_id = ?').run(id);
+
+        // 5. Xóa responses và questions
         db.prepare('DELETE FROM responses WHERE survey_id = ?').run(id);
         db.prepare('DELETE FROM questions WHERE survey_id = ?').run(id);
-        db.prepare('DELETE FROM warranty_claims WHERE survey_id = ?').run(id);
         db.prepare('DELETE FROM surveys WHERE id = ?').run(id);
         db.exec('COMMIT');
       } catch (dbErr) {

@@ -545,24 +545,48 @@ const VibeApp = window.VibeApp = Object.assign(window.VibeApp, {
       }
 
       // Phím tắt trong Stepper Survey
-      if (this.state.currentTab === 'take-survey' && this.state.activeSession) {
+      if (this.state.currentTab === 'take-survey' && this.state.activeSession && this.state.activeSession.hasStartedQuiz) {
         const session = this.state.activeSession;
-        const curQ = session.questions[session.currentIndex];
-        if (e.target.tagName === 'TEXTAREA' || e.target.tagName === 'INPUT') return;
+        const curQ = session.questions && session.questions[session.currentIndex];
 
-        if (curQ && curQ.options && /^[1-9]$/.test(e.key)) {
-          const optIdx = parseInt(e.key, 10) - 1;
-          if (optIdx < curQ.options.length) {
-            e.preventDefault();
-            const opt = curQ.options[optIdx];
-            this.selectSingleOption(curQ.id, encodeURIComponent(opt));
+        // 1. Phím số 1-9 để chọn nhanh đáp án khi không focus vào input/textarea
+        if (e.target.tagName !== 'TEXTAREA' && e.target.tagName !== 'INPUT') {
+          if (curQ && curQ.options && /^[1-9]$/.test(e.key)) {
+            const optIdx = parseInt(e.key, 10) - 1;
+            if (optIdx < curQ.options.length) {
+              e.preventDefault();
+              const opt = curQ.options[optIdx];
+              this.selectSingleOption(curQ.id, encodeURIComponent(opt));
+              return;
+            }
           }
         }
 
+        // 2. Phím Enter chuyển câu hỏi
         if (e.key === 'Enter') {
-          e.preventDefault();
-          const nextBtn = document.getElementById('stepper-next-btn');
-          if (nextBtn && !nextBtn.disabled) nextBtn.click();
+          // Không kích hoạt nếu đang mở modal hoặc dropdown
+          const hasOpenModal = document.querySelector('.modal-backdrop, [id$="-modal"]:not(.hidden)');
+          const hasOpenDropdown = document.querySelector('.custom-dropdown-menu:not(.hidden)');
+          if (hasOpenModal || hasOpenDropdown) return;
+
+          const isLast = session.currentIndex >= session.questions.length - 1;
+
+          if (e.target.tagName === 'TEXTAREA') {
+            if (e.shiftKey) {
+              // Giữ nguyên mặc định (xuống dòng)
+              return;
+            }
+            if (e.ctrlKey || e.metaKey) {
+              e.preventDefault();
+              this.nextQuestion();
+            }
+          } else if (e.target.tagName === 'INPUT') {
+            e.preventDefault();
+            this.nextQuestion();
+          } else {
+            e.preventDefault();
+            this.nextQuestion();
+          }
         }
       }
     });
@@ -5401,10 +5425,12 @@ if (totalCount === 0) {
             <button id="stepper-next-btn" onclick="VibeApp.submitSurvey()" class="px-7 py-3 rounded-xl bg-orange-600 hover:bg-orange-700 active:scale-95 text-white text-xs font-extrabold shadow-md transition-all flex items-center gap-2">
               <i data-lucide="check" class="w-4 h-4 stroke-[2.5]"></i>
               <span>${session.isEditing ? 'Cập nhật câu trả lời' : 'Nộp bài & Nhận thưởng'}</span>
+              <span class="text-[10px] opacity-75 font-normal ml-1">(Enter ↵)</span>
             </button>
           ` : `
             <button id="stepper-next-btn" onclick="VibeApp.nextQuestion()" class="px-7 py-3 rounded-xl bg-orange-600 hover:bg-orange-700 active:scale-95 text-white text-xs font-extrabold shadow-md transition-all flex items-center gap-2">
               <span>Câu tiếp theo</span>
+              <span class="text-[10px] opacity-75 font-normal ml-1">(Enter ↵)</span>
               <i data-lucide="arrow-right" class="w-4 h-4 stroke-[2.2]"></i>
             </button>
           `}
@@ -5503,14 +5529,17 @@ if (totalCount === 0) {
     // 3. TRẢ LỜI NGẮN (SHORT_TEXT)
     if (q.type === 'SHORT_TEXT') {
       const textVal = currentAnswer || '';
+      const validation = q.validation || (q.logic && q.logic.validation ? q.logic.validation : null);
+      const placeholder = validation?.placeholder || (validation ? this.generateValidationPlaceholder(validation) : '') || 'Nhập câu trả lời ngắn của bạn...';
       return `
         <div class="space-y-2">
           <input type="text" value="${(textVal).replace(/"/g, '&quot;')}" 
+                 id="survey-answer-input-${q.id}"
                  oninput="VibeApp.updateOpenText('${q.id}', this.value)"
                  onchange="VibeApp.updateOpenText('${q.id}', this.value)"
-                 placeholder="Nhập câu trả lời ngắn của bạn..."
+                 placeholder="${placeholder.replace(/"/g, '&quot;')}"
                  class="w-full p-4 rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 text-sm font-medium text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500">
-          <p class="text-[11px] text-stone-400">Nhập câu trả lời 1 dòng</p>
+          <p class="text-[11px] text-stone-400 font-medium">${placeholder}</p>
         </div>
       `;
     }
@@ -5518,14 +5547,17 @@ if (totalCount === 0) {
     // 4. ĐOẠN VĂN (PARAGRAPH / OPEN_TEXT)
     if (['PARAGRAPH', 'OPEN_TEXT'].includes(q.type)) {
       const textVal = currentAnswer || '';
+      const validation = q.validation || (q.logic && q.logic.validation ? q.logic.validation : null);
+      const placeholder = validation?.placeholder || (validation ? this.generateValidationPlaceholder(validation) : '') || 'Nhập câu trả lời chi tiết của bạn...';
       return `
         <div class="space-y-2">
-          <textarea oninput="VibeApp.updateOpenText('${q.id}', this.value)" 
+          <textarea id="survey-answer-input-${q.id}"
+                    oninput="VibeApp.updateOpenText('${q.id}', this.value)" 
                     onchange="VibeApp.updateOpenText('${q.id}', this.value)" 
                     rows="5"
-                    placeholder="Nhập câu trả lời chi tiết của bạn..."
+                    placeholder="${placeholder.replace(/"/g, '&quot;')}"
                     class="w-full p-4 rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 text-xs sm:text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 font-medium leading-relaxed">${textVal}</textarea>
-          <p class="text-[11px] text-stone-400">Nhập câu trả lời tự luận không giới hạn độ dài</p>
+          <p class="text-[11px] text-stone-400 font-medium">${placeholder}</p>
         </div>
       `;
     }
@@ -5894,11 +5926,191 @@ if (totalCount === 0) {
       }
     }
 
+    // XÁC THỰC ĐỊNH DẠNG (RESTRICTIONS / VALIDATIONS) TRƯỚC KHI CHUYỂN CÂU
+    const validation = curQ.validation || (curQ.logic && curQ.logic.validation ? curQ.logic.validation : null);
+    if (validation && validation.type && validation.type !== 'NONE') {
+      const valStr = (ans !== undefined && ans !== null) ? String(ans).trim() : '';
+      const inputEl = document.getElementById(`survey-answer-input-${curQ.id}`) || activeInput;
+
+      if (valStr.length > 0 || isReq) {
+        if (validation.type === 'EMAIL') {
+          const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+          if (!emailRegex.test(valStr)) {
+            this.showToast('Vui lòng nhập đúng định dạng email (VD: name@domain.com)', 'warning');
+            if (inputEl) {
+              inputEl.focus();
+              if (typeof inputEl.select === 'function') inputEl.select();
+            }
+            return;
+          }
+        } else if (validation.type === 'NUMBER') {
+          const rule = validation.rule || 'IS_NUMBER';
+          const numRegex = /^-?\d+(\.\d+)?$/;
+          if (!numRegex.test(valStr)) {
+            this.showToast('Giá trị phải là một số', 'warning');
+            if (inputEl) {
+              inputEl.focus();
+              if (typeof inputEl.select === 'function') inputEl.select();
+            }
+            return;
+          }
+          const num = parseFloat(valStr);
+          const min = (validation.min !== undefined && validation.min !== null && String(validation.min).trim() !== '') ? parseFloat(validation.min) : null;
+          const max = (validation.max !== undefined && validation.max !== null && String(validation.max).trim() !== '') ? parseFloat(validation.max) : null;
+
+          if (rule === 'BETWEEN') {
+            if (min !== null && max !== null && (num < min || num > max)) {
+              this.showToast(`Số phải nằm trong khoảng từ ${validation.min} ~ ${validation.max}`, 'warning');
+              if (inputEl) {
+                inputEl.focus();
+                if (typeof inputEl.select === 'function') inputEl.select();
+              }
+              return;
+            }
+          } else if (rule === 'GREATER_THAN') {
+            if (min !== null && num <= min) {
+              this.showToast(`Số phải lớn hơn ${validation.min}`, 'warning');
+              if (inputEl) {
+                inputEl.focus();
+                if (typeof inputEl.select === 'function') inputEl.select();
+              }
+              return;
+            }
+          } else if (rule === 'LESS_THAN') {
+            if (max !== null && num >= max) {
+              this.showToast(`Số phải nhỏ hơn ${validation.max}`, 'warning');
+              if (inputEl) {
+                inputEl.focus();
+                if (typeof inputEl.select === 'function') inputEl.select();
+              }
+              return;
+            }
+          }
+        } else if (validation.type === 'URL') {
+          const urlRegex = /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/i;
+          if (!urlRegex.test(valStr)) {
+            this.showToast('Vui lòng nhập URL hợp lệ (VD: https://example.com)', 'warning');
+            if (inputEl) {
+              inputEl.focus();
+              if (typeof inputEl.select === 'function') inputEl.select();
+            }
+            return;
+          }
+        } else if (validation.type === 'LENGTH') {
+          const rule = validation.rule || 'MAX_LENGTH';
+          const targetLen = parseInt(validation.min || validation.max || validation.length || 0, 10);
+          if (targetLen > 0) {
+            if (rule === 'MAX_LENGTH' && valStr.length > targetLen) {
+              this.showToast(`Độ dài tối đa là ${targetLen} ký tự (Hiện tại: ${valStr.length})`, 'warning');
+              if (inputEl) {
+                inputEl.focus();
+                if (typeof inputEl.select === 'function') inputEl.select();
+              }
+              return;
+            } else if (rule === 'MIN_LENGTH' && valStr.length < targetLen) {
+              this.showToast(`Độ dài tối thiểu là ${targetLen} ký tự (Hiện tại: ${valStr.length})`, 'warning');
+              if (inputEl) {
+                inputEl.focus();
+                if (typeof inputEl.select === 'function') inputEl.select();
+              }
+              return;
+            }
+          }
+        }
+      }
+    }
+
+    // CƠ CHẾ ĐIỀU HƯỚNG RẼ NHÁNH 2 TẦNG (CHUẨN GOOGLE FORMS & MICROSOFT FORMS)
+    const resolveTarget = (rawTarget) => {
+      if (!rawTarget || rawTarget === 'NEXT') return 'NEXT';
+      let targetVal = rawTarget;
+      if (typeof rawTarget === 'object' && rawTarget !== null) {
+        if (rawTarget.action === 'SUBMIT' || rawTarget.target === 'SUBMIT') return 'SUBMIT';
+        targetVal = rawTarget.target || rawTarget.action;
+      }
+      if (targetVal === 'SUBMIT') return 'SUBMIT';
+      if (targetVal === 'NEXT') return 'NEXT';
+
+      const parsed = parseInt(targetVal, 10);
+      if (!isNaN(parsed) && parsed >= 0 && parsed < session.questions.length && String(parsed) === String(targetVal)) {
+        return parsed;
+      }
+      const foundIdx = session.questions.findIndex(q => String(q.id) === String(targetVal));
+      if (foundIdx !== -1) return foundIdx;
+      return null;
+    };
+
+    // Tầng 1 (Option-level): Rẽ nhánh theo lựa chọn của câu hỏi
+    let branchAction = null;
+    if (['SINGLE_CHOICE', 'DROPDOWN'].includes(curQ.type) && curQ.logic && curQ.logic.enabled && curQ.logic.options) {
+      if (curQ.logic.options[ans] !== undefined) {
+        branchAction = curQ.logic.options[ans];
+      } else {
+        const optIdx = curQ.options ? curQ.options.findIndex(o => String(o).trim() === String(ans).trim()) : -1;
+        if (optIdx !== -1 && curQ.logic.options[optIdx] !== undefined) {
+          branchAction = curQ.logic.options[optIdx];
+        }
+      }
+    } else if (curQ.type === 'SECTION_HEADER' && curQ.logic && curQ.logic.default_action) {
+      branchAction = curQ.logic.default_action;
+    }
+
+    const resolvedBranch = resolveTarget(branchAction);
+    if (resolvedBranch === 'SUBMIT') {
+      await this.submitSurvey();
+      return;
+    }
+    if (typeof resolvedBranch === 'number') {
+      session.history = session.history || [];
+      session.history.push(session.currentIndex);
+      session.currentIndex = resolvedBranch;
+      this._saveActiveSessionToStorage();
+      if (typeof this.triggerPacingLock === 'function') this.triggerPacingLock();
+      this.renderTakeSurveyView(document.getElementById('app-root'), session.surveyId);
+      return;
+    }
+
+    // Tầng 2 (Section-end routing): Nếu câu hỏi không rẽ nhánh, kiểm tra xem có phải câu hỏi cuối cùng của một Phân đoạn không
+    const nextQuestionIdx = session.currentIndex + 1;
+    const isSectionEnd = (nextQuestionIdx >= session.questions.length) || (session.questions[nextQuestionIdx] && session.questions[nextQuestionIdx].type === 'SECTION_HEADER');
+
+    if (isSectionEnd && curQ.type !== 'SECTION_HEADER') {
+      let currentSectionHeader = null;
+      for (let i = session.currentIndex; i >= 0; i--) {
+        if (session.questions[i].type === 'SECTION_HEADER') {
+          currentSectionHeader = session.questions[i];
+          break;
+        }
+      }
+
+      if (currentSectionHeader && currentSectionHeader.logic && currentSectionHeader.logic.default_action) {
+        const resolvedSectionAction = resolveTarget(currentSectionHeader.logic.default_action);
+        if (resolvedSectionAction === 'SUBMIT') {
+          await this.submitSurvey();
+          return;
+        }
+        if (typeof resolvedSectionAction === 'number') {
+          session.history = session.history || [];
+          session.history.push(session.currentIndex);
+          session.currentIndex = resolvedSectionAction;
+          this._saveActiveSessionToStorage();
+          if (typeof this.triggerPacingLock === 'function') this.triggerPacingLock();
+          this.renderTakeSurveyView(document.getElementById('app-root'), session.surveyId);
+          return;
+        }
+      }
+    }
+
+    // Tiếp tục câu tiếp theo bình thường hoặc submit nếu hết bài
+    session.history = session.history || [];
     if (session.currentIndex < session.questions.length - 1) {
+      session.history.push(session.currentIndex);
       session.currentIndex++;
       this._saveActiveSessionToStorage();
       if (typeof this.triggerPacingLock === 'function') this.triggerPacingLock();
       this.renderTakeSurveyView(document.getElementById('app-root'), session.surveyId);
+    } else {
+      await this.submitSurvey();
     }
   },
 
@@ -5916,11 +6128,14 @@ if (totalCount === 0) {
   prevQuestion() {
     this.haptic('light');
     const session = this.state.activeSession;
-    if (session && session.currentIndex > 0) {
+    if (!session) return;
+    if (session.history && session.history.length > 0) {
+      session.currentIndex = session.history.pop();
+    } else if (session.currentIndex > 0) {
       session.currentIndex--;
-      this._saveActiveSessionToStorage();
-      this.renderTakeSurveyView(document.getElementById('app-root'), session.surveyId);
     }
+    this._saveActiveSessionToStorage();
+    this.renderTakeSurveyView(document.getElementById('app-root'), session.surveyId);
   },
 
   confirmExitSurvey() {
@@ -8256,7 +8471,9 @@ if (totalCount === 0) {
             qualifying_answer: q.qualifying_answer || null,
             image_url: q.image_url || null,
             min_label: q.min_label || null,
-            max_label: q.max_label || null
+            max_label: q.max_label || null,
+            logic: (q.logic_json ? (typeof q.logic_json === 'string' ? JSON.parse(q.logic_json) : q.logic_json) : (q.logic || null)),
+            validation: q.validation || ((q.logic_json ? (typeof q.logic_json === 'string' ? JSON.parse(q.logic_json) : q.logic_json) : (q.logic || null))?.validation || null)
           };
         });
       }
@@ -10638,15 +10855,22 @@ if (totalCount === 0) {
           ${this.renderStudioQuestionBody(q, qIdx)}
         </div>
 
-        <!-- Question Footer: Duplicate, Trash, Required Switch, Screener -->
+        <!-- Question Footer: Duplicate, Trash, Required Switch, Screener & Branching -->
         <div class="pt-3 border-t border-stone-100 dark:border-stone-800 flex flex-wrap items-center justify-between gap-3 text-xs" onclick="event.stopPropagation()">
           
-          <!-- Screener option toggle -->
-          <div>
+          <!-- Screener & Logic Branching option toggles -->
+          <div class="flex flex-wrap items-center gap-4">
             <label class="flex items-center gap-1.5 cursor-pointer text-stone-600 dark:text-stone-400 select-none">
               <input type="checkbox" ${q.is_screener ? 'checked' : ''} onchange="VibeApp.toggleStudioScreener(${qIdx}, this.checked)" class="rounded text-orange-600 focus:ring-orange-500">
               <span class="font-medium text-[11px]">Câu hỏi sàng lọc đối tượng (Auto-Screener)</span>
             </label>
+
+            ${['SINGLE_CHOICE', 'DROPDOWN'].includes(q.type) ? `
+              <label class="flex items-center gap-1.5 cursor-pointer text-stone-600 dark:text-stone-400 hover:text-orange-600 select-none transition-colors">
+                <input type="checkbox" ${q.logic && q.logic.enabled ? 'checked' : ''} onchange="VibeApp.toggleStudioLogicBranching(${qIdx}, this.checked)" class="rounded text-orange-600 focus:ring-orange-500">
+                <span class="font-medium text-[11px]">Chuyển tới câu hỏi/phần dựa trên câu trả lời (Rẽ nhánh)</span>
+              </label>
+            ` : ''}
           </div>
 
           <!-- Actions toolbar -->
@@ -10718,6 +10942,9 @@ if (totalCount === 0) {
     if (q.type === 'SECTION_HEADER') {
       const totalSections = (this.state.builderQuestions || []).filter(item => item.type === 'SECTION_HEADER').length;
       const currentSectionNum = (this.state.builderQuestions || []).slice(0, qIdx + 1).filter(item => item.type === 'SECTION_HEADER').length;
+      const curSectionTarget = (q.logic && q.logic.default_action) || 'NEXT';
+      const laterSections = (this.state.builderQuestions || []).map((item, idx) => ({ item, idx }))
+        .filter(entry => entry.idx > qIdx && entry.item.type === 'SECTION_HEADER');
 
       return `
         <div class="p-4 sm:p-5 bg-gradient-to-r from-orange-50/60 to-transparent dark:from-stone-900 dark:to-transparent rounded-2xl border-2 border-orange-500/40 dark:border-stone-800 space-y-3">
@@ -10735,6 +10962,20 @@ if (totalCount === 0) {
                       autocomplete="off" spellcheck="false"
                       placeholder="Nhập phần giải thích, hướng dẫn hoặc lưu ý cho đáp viên khi bắt đầu phần này..." 
                       class="w-full p-2.5 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 text-xs text-stone-800 dark:text-stone-200 focus:border-orange-600 focus:outline-none h-16 resize-none">${(q.rows && q.rows[0]) ? q.rows[0].replace(/"/g, '&quot;') : ''}</textarea>
+          </div>
+          <div class="pt-2 border-t border-orange-200/60 dark:border-stone-800 flex flex-wrap items-center justify-between gap-2 text-xs">
+            <span class="text-[11px] font-bold text-stone-600 dark:text-stone-400">Sau phần này:</span>
+            <select onclick="event.stopPropagation()" 
+                    onchange="VibeApp.setStudioSectionLogicTarget(${qIdx}, this.value)" 
+                    class="h-8 px-2.5 text-xs font-medium bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-lg text-stone-700 dark:text-stone-200 focus:border-orange-500 focus:outline-none max-w-[260px] truncate">
+              <option value="NEXT" ${curSectionTarget === 'NEXT' ? 'selected' : ''}>Tiếp tục đến phần tiếp theo</option>
+              ${laterSections.map(sec => {
+                const secTitle = (sec.item.content || '').trim() || `Mục ${sec.idx + 1}`;
+                const shortSecTitle = secTitle.length > 25 ? secTitle.slice(0, 25) + '...' : secTitle;
+                return `<option value="${sec.idx}" ${String(curSectionTarget) === String(sec.idx) ? 'selected' : ''}>Chuyển đến Phân đoạn: ${shortSecTitle}</option>`;
+              }).join('')}
+              <option value="SUBMIT" ${curSectionTarget === 'SUBMIT' ? 'selected' : ''}>Gửi biểu mẫu (Kết thúc)</option>
+            </select>
           </div>
         </div>
       `;
@@ -10758,10 +10999,15 @@ if (totalCount === 0) {
     if (['SINGLE_CHOICE', 'MULTIPLE_CHOICE', 'DROPDOWN'].includes(q.type)) {
       const opts = q.options || ['Lựa chọn 1', 'Lựa chọn 2', 'Lựa chọn 3'];
       const iconType = q.type === 'SINGLE_CHOICE' ? 'circle' : (q.type === 'MULTIPLE_CHOICE' ? 'square' : 'chevron-down');
+      const isLogicEnabled = ['SINGLE_CHOICE', 'DROPDOWN'].includes(q.type) && q.logic && q.logic.enabled;
+      const allQuestions = this.state.builderQuestions || [];
 
       return `
         <div class="space-y-2 pl-2">
-          ${opts.map((opt, optIdx) => `
+          ${opts.map((opt, optIdx) => {
+            const curTarget = (q.logic && q.logic.options && (q.logic.options[optIdx] !== undefined ? q.logic.options[optIdx] : q.logic.options[opt])) || 'NEXT';
+
+            return `
             <div class="flex items-center gap-2">
               <i data-lucide="${iconType}" class="w-3.5 h-3.5 text-stone-400 shrink-0"></i>
               <input type="text" value="${(opt || '').replace(/"/g, '&quot;')}" 
@@ -10770,13 +11016,33 @@ if (totalCount === 0) {
                      autocomplete="off" spellcheck="false"
                      placeholder="Lựa chọn ${optIdx + 1}..."
                      class="flex-1 p-1.5 bg-transparent border-0 border-b border-stone-200 dark:border-stone-800 focus:border-orange-600 focus:outline-none text-xs text-stone-800 dark:text-stone-200">
+              
+              ${isLogicEnabled ? `
+                <select onclick="event.stopPropagation()" 
+                        onchange="VibeApp.setStudioOptionLogicTarget(${qIdx}, ${optIdx}, this.value)" 
+                        class="h-7 px-2 text-[11px] font-medium bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-lg text-stone-700 dark:text-stone-300 focus:border-orange-500 focus:outline-none max-w-[180px] sm:max-w-[210px] truncate shrink-0">
+                  <option value="NEXT" ${curTarget === 'NEXT' ? 'selected' : ''}>Tiếp tục câu tiếp theo</option>
+                  ${allQuestions.map((tQ, tIdx) => {
+                    if (tIdx === qIdx) return '';
+                    const cleanTitle = (tQ.content || '').trim();
+                    const shortTitle = cleanTitle.length > 20 ? cleanTitle.slice(0, 20) + '...' : (cleanTitle || `(Không tiêu đề)`);
+                    if (tQ.type === 'SECTION_HEADER') {
+                      return `<option value="${tIdx}" ${String(curTarget) === String(tIdx) ? 'selected' : ''}>Chuyển đến Phân đoạn: ${shortTitle}</option>`;
+                    }
+                    return `<option value="${tIdx}" ${String(curTarget) === String(tIdx) ? 'selected' : ''}>Chuyển đến Câu ${tIdx + 1}: ${shortTitle}</option>`;
+                  }).join('')}
+                  <option value="SUBMIT" ${curTarget === 'SUBMIT' ? 'selected' : ''}>Gửi biểu mẫu (Kết thúc)</option>
+                </select>
+              ` : ''}
+
               ${opts.length > 2 ? `
-                <button type="button" onclick="event.stopPropagation(); VibeApp.removeStudioOption(${qIdx}, ${optIdx})" class="p-1 text-stone-400 hover:text-red-500">
+                <button type="button" onclick="event.stopPropagation(); VibeApp.removeStudioOption(${qIdx}, ${optIdx})" class="p-1 text-stone-400 hover:text-red-500 shrink-0" title="Xóa tùy chọn">
                   <i data-lucide="x" class="w-3.5 h-3.5"></i>
                 </button>
               ` : ''}
             </div>
-          `).join('')}
+            `;
+          }).join('')}
 
           <div class="pt-1 flex items-center gap-3 text-[11px]">
             <button type="button" onclick="event.stopPropagation(); VibeApp.addStudioOption(${qIdx})" class="text-orange-600 dark:text-orange-400 font-bold hover:underline flex items-center gap-1">
@@ -10794,19 +11060,25 @@ if (totalCount === 0) {
 
     // 2. Trả lời ngắn
     if (q.type === 'SHORT_TEXT') {
+      const val = q.validation || (q.logic && q.logic.validation ? q.logic.validation : null);
+      const ph = val?.placeholder || (val ? this.generateValidationPlaceholder(val) : '') || 'Văn bản câu trả lời ngắn (1 dòng)';
       return `
-        <div class="p-3 bg-stone-50 dark:bg-stone-900/60 rounded-xl border border-dashed border-stone-200 dark:border-stone-800 text-stone-400 italic text-[11px]">
-          Văn bản câu trả lời ngắn (1 dòng)
+        <div class="p-3 bg-stone-50 dark:bg-stone-900/60 rounded-xl border border-dashed border-stone-200 dark:border-stone-800 text-stone-500 dark:text-stone-400 italic text-[11px]">
+          ${this.escapeHtml(ph)}
         </div>
+        ${this.renderStudioQuestionValidationConfig(q, qIdx)}
       `;
     }
 
     // 3. Đoạn văn
     if (q.type === 'PARAGRAPH') {
+      const val = q.validation || (q.logic && q.logic.validation ? q.logic.validation : null);
+      const ph = val?.placeholder || (val ? this.generateValidationPlaceholder(val) : '') || 'Văn bản câu trả lời dài (Nhiều dòng tự do)';
       return `
-        <div class="p-4 bg-stone-50 dark:bg-stone-900/60 rounded-xl border border-dashed border-stone-200 dark:border-stone-800 text-stone-400 italic text-[11px]">
-          Văn bản câu trả lời dài (Nhiều dòng tự do)
+        <div class="p-4 bg-stone-50 dark:bg-stone-900/60 rounded-xl border border-dashed border-stone-200 dark:border-stone-800 text-stone-500 dark:text-stone-400 italic text-[11px]">
+          ${this.escapeHtml(ph)}
         </div>
+        ${this.renderStudioQuestionValidationConfig(q, qIdx)}
       `;
     }
 
@@ -11151,6 +11423,37 @@ if (totalCount === 0) {
     }
   },
 
+  toggleStudioLogicBranching(qIdx, isChecked) {
+    this.haptic('light');
+    if (this.state.builderQuestions && this.state.builderQuestions[qIdx]) {
+      const q = this.state.builderQuestions[qIdx];
+      if (!q.logic) q.logic = {};
+      q.logic.enabled = !!isChecked;
+      if (!q.logic.options) q.logic.options = {};
+      this.refreshStudioQuestionsView();
+    }
+  },
+
+  setStudioOptionLogicTarget(qIdx, optIdx, target) {
+    if (this.state.builderQuestions && this.state.builderQuestions[qIdx]) {
+      const q = this.state.builderQuestions[qIdx];
+      if (!q.logic) q.logic = { enabled: true, options: {} };
+      if (!q.logic.options) q.logic.options = {};
+      q.logic.options[optIdx] = target;
+      if (q.options && q.options[optIdx]) {
+        q.logic.options[q.options[optIdx]] = target;
+      }
+    }
+  },
+
+  setStudioSectionLogicTarget(qIdx, target) {
+    if (this.state.builderQuestions && this.state.builderQuestions[qIdx]) {
+      const q = this.state.builderQuestions[qIdx];
+      if (!q.logic) q.logic = {};
+      q.logic.default_action = target;
+    }
+  },
+
   updateBuilderQuestionContent(qIdx, val) {
     if (this.state.builderQuestions && this.state.builderQuestions[qIdx]) {
       this.state.builderQuestions[qIdx].content = val;
@@ -11262,6 +11565,205 @@ if (totalCount === 0) {
     if (this.state.builderQuestions && this.state.builderQuestions[qIdx]) {
       if (minLabel !== null) this.state.builderQuestions[qIdx].min_label = minLabel;
       if (maxLabel !== null) this.state.builderQuestions[qIdx].max_label = maxLabel;
+    }
+  },
+
+  generateValidationPlaceholder(v) {
+    if (!v || !v.type || v.type === 'NONE') return '';
+    if (v.type === 'EMAIL') return 'Vui lòng nhập email';
+    if (v.type === 'URL') return 'Vui lòng nhập URL hợp lệ';
+    if (v.type === 'NUMBER') {
+      const rule = v.rule || 'IS_NUMBER';
+      if (rule === 'BETWEEN') {
+        const min = (v.min !== undefined && v.min !== null && String(v.min).trim() !== '') ? v.min : '20000000';
+        const max = (v.max !== undefined && v.max !== null && String(v.max).trim() !== '') ? v.max : '20270000';
+        return `Số phải nằm trong khoảng từ ${min} ~ ${max}`;
+      }
+      if (rule === 'GREATER_THAN') {
+        const min = (v.min !== undefined && v.min !== null && String(v.min).trim() !== '') ? v.min : '0';
+        return `Số phải lớn hơn ${min}`;
+      }
+      if (rule === 'LESS_THAN') {
+        const max = (v.max !== undefined && v.max !== null && String(v.max).trim() !== '') ? v.max : '100';
+        return `Số phải nhỏ hơn ${max}`;
+      }
+      return 'Giá trị phải là một số';
+    }
+    if (v.type === 'LENGTH') {
+      const rule = v.rule || 'MAX_LENGTH';
+      const len = (v.min !== undefined && v.min !== null && String(v.min).trim() !== '') ? v.min : ((v.max !== undefined && v.max !== null && String(v.max).trim() !== '') ? v.max : '100');
+      if (rule === 'MIN_LENGTH') {
+        return len ? `Tối thiểu ${len} ký tự` : 'Tối thiểu ký tự quy định';
+      }
+      return len ? `Tối đa ${len} ký tự` : 'Tối đa ký tự quy định';
+    }
+    return '';
+  },
+
+  renderStudioQuestionValidationConfig(q, qIdx) {
+    const val = q.validation || (q.logic && q.logic.validation ? q.logic.validation : null) || { type: 'NONE' };
+    const valType = val.type || 'NONE';
+    const valRule = val.rule || (valType === 'NUMBER' ? 'IS_NUMBER' : (valType === 'LENGTH' ? 'MAX_LENGTH' : ''));
+    const valMin = (val.min !== undefined && val.min !== null) ? val.min : '';
+    const valMax = (val.max !== undefined && val.max !== null) ? val.max : '';
+    const autoPlaceholder = val.placeholder || this.generateValidationPlaceholder(val);
+
+    return `
+      <div class="mt-3 p-3.5 bg-stone-50 dark:bg-stone-900/60 rounded-xl border border-stone-200 dark:border-stone-800 space-y-2.5">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <div class="flex items-center gap-1.5 text-xs font-bold text-stone-700 dark:text-stone-300">
+            <i data-lucide="shield-check" class="w-3.5 h-3.5 text-orange-600"></i>
+            <span>Giới hạn (Restrictions):</span>
+          </div>
+          <select onclick="event.stopPropagation()" 
+                  onchange="VibeApp.setStudioQuestionValidationType(${qIdx}, this.value)" 
+                  class="h-7 px-2.5 text-xs font-medium bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-lg text-stone-700 dark:text-stone-200 focus:border-orange-500 focus:outline-none">
+            <option value="NONE" ${valType === 'NONE' ? 'selected' : ''}>Không giới hạn</option>
+            <option value="EMAIL" ${valType === 'EMAIL' ? 'selected' : ''}>Email</option>
+            <option value="NUMBER" ${valType === 'NUMBER' ? 'selected' : ''}>Số</option>
+            <option value="URL" ${valType === 'URL' ? 'selected' : ''}>URL</option>
+            <option value="LENGTH" ${valType === 'LENGTH' ? 'selected' : ''}>Độ dài</option>
+          </select>
+        </div>
+
+        ${valType === 'NUMBER' ? `
+          <div class="pt-2 border-t border-stone-200/70 dark:border-stone-800 flex flex-wrap items-center gap-2 text-xs">
+            <span class="text-[11px] font-bold text-stone-500">Điều kiện:</span>
+            <select onclick="event.stopPropagation()" 
+                    onchange="VibeApp.setStudioQuestionValidationRule(${qIdx}, this.value)" 
+                    class="h-7 px-2 text-xs font-medium bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-lg text-stone-700 dark:text-stone-200 focus:border-orange-500 focus:outline-none">
+              <option value="IS_NUMBER" ${valRule === 'IS_NUMBER' ? 'selected' : ''}>Là số</option>
+              <option value="BETWEEN" ${valRule === 'BETWEEN' ? 'selected' : ''}>Trong khoảng</option>
+              <option value="GREATER_THAN" ${valRule === 'GREATER_THAN' ? 'selected' : ''}>Lớn hơn</option>
+              <option value="LESS_THAN" ${valRule === 'LESS_THAN' ? 'selected' : ''}>Nhỏ hơn</option>
+            </select>
+
+            ${valRule === 'BETWEEN' ? `
+              <div class="flex items-center gap-1.5 flex-wrap">
+                <input type="number" value="${valMin}" 
+                       onclick="event.stopPropagation()"
+                       oninput="VibeApp.setStudioQuestionValidationRange(${qIdx}, this.value, document.getElementById('val-max-${qIdx}') ? document.getElementById('val-max-${qIdx}').value : '')"
+                       id="val-min-${qIdx}"
+                       placeholder="Min (VD: 20000000)"
+                       class="w-32 h-7 px-2 text-xs rounded-lg border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 text-stone-800 dark:text-stone-200 focus:border-orange-500 focus:outline-none">
+                <span class="text-stone-400 text-xs">đến</span>
+                <input type="number" value="${valMax}" 
+                       onclick="event.stopPropagation()"
+                       oninput="VibeApp.setStudioQuestionValidationRange(${qIdx}, document.getElementById('val-min-${qIdx}') ? document.getElementById('val-min-${qIdx}').value : '', this.value)"
+                       id="val-max-${qIdx}"
+                       placeholder="Max (VD: 20270000)"
+                       class="w-32 h-7 px-2 text-xs rounded-lg border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 text-stone-800 dark:text-stone-200 focus:border-orange-500 focus:outline-none">
+              </div>
+            ` : ''}
+
+            ${valRule === 'GREATER_THAN' ? `
+              <div class="flex items-center gap-1.5">
+                <span class="text-stone-400 text-xs">></span>
+                <input type="number" value="${valMin}" 
+                       onclick="event.stopPropagation()"
+                       oninput="VibeApp.setStudioQuestionValidationRange(${qIdx}, this.value, null)"
+                       placeholder="Min"
+                       class="w-28 h-7 px-2 text-xs rounded-lg border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 text-stone-800 dark:text-stone-200 focus:border-orange-500 focus:outline-none">
+              </div>
+            ` : ''}
+
+            ${valRule === 'LESS_THAN' ? `
+              <div class="flex items-center gap-1.5">
+                <span class="text-stone-400 text-xs"><</span>
+                <input type="number" value="${valMax}" 
+                       onclick="event.stopPropagation()"
+                       oninput="VibeApp.setStudioQuestionValidationRange(${qIdx}, null, this.value)"
+                       placeholder="Max"
+                       class="w-28 h-7 px-2 text-xs rounded-lg border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 text-stone-800 dark:text-stone-200 focus:border-orange-500 focus:outline-none">
+              </div>
+            ` : ''}
+          </div>
+        ` : ''}
+
+        ${valType === 'LENGTH' ? `
+          <div class="pt-2 border-t border-stone-200/70 dark:border-stone-800 flex flex-wrap items-center gap-2 text-xs">
+            <span class="text-[11px] font-bold text-stone-500">Quy tắc độ dài:</span>
+            <select onclick="event.stopPropagation()" 
+                    onchange="VibeApp.setStudioQuestionValidationRule(${qIdx}, this.value)" 
+                    class="h-7 px-2 text-xs font-medium bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-lg text-stone-700 dark:text-stone-200 focus:border-orange-500 focus:outline-none">
+              <option value="MAX_LENGTH" ${valRule === 'MAX_LENGTH' ? 'selected' : ''}>Tối đa ký tự</option>
+              <option value="MIN_LENGTH" ${valRule === 'MIN_LENGTH' ? 'selected' : ''}>Tối thiểu ký tự</option>
+            </select>
+            <input type="number" value="${valMin || valMax}" 
+                   onclick="event.stopPropagation()"
+                   oninput="VibeApp.setStudioQuestionValidationRange(${qIdx}, this.value, this.value)"
+                   placeholder="Số ký tự (VD: 100)"
+                   class="w-28 h-7 px-2 text-xs rounded-lg border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 text-stone-800 dark:text-stone-200 focus:border-orange-500 focus:outline-none">
+          </div>
+        ` : ''}
+
+        ${valType !== 'NONE' ? `
+          <div class="pt-1 text-[11px] text-stone-500 flex items-center gap-1.5">
+            <span>Gợi ý mẫu:</span>
+            <span id="validation-preview-${qIdx}" class="italic text-stone-700 dark:text-stone-300 font-medium">"${autoPlaceholder}"</span>
+          </div>
+        ` : ''}
+      </div>
+    `;
+  },
+
+  setStudioQuestionValidationType(qIdx, type) {
+    this.haptic('light');
+    const q = this.state.builderQuestions && this.state.builderQuestions[qIdx];
+    if (!q) return;
+    if (!q.validation) q.validation = {};
+    q.validation.type = type;
+    if (type === 'NUMBER') {
+      if (!['IS_NUMBER', 'BETWEEN', 'GREATER_THAN', 'LESS_THAN'].includes(q.validation.rule)) {
+        q.validation.rule = 'IS_NUMBER';
+      }
+    } else if (type === 'LENGTH') {
+      if (!['MAX_LENGTH', 'MIN_LENGTH'].includes(q.validation.rule)) {
+        q.validation.rule = 'MAX_LENGTH';
+      }
+      if (!q.validation.min && !q.validation.max) {
+        q.validation.min = '100';
+        q.validation.max = '100';
+      }
+    }
+    q.validation.placeholder = this.generateValidationPlaceholder(q.validation);
+    if (!q.logic) q.logic = {};
+    q.logic.validation = { ...q.validation };
+    this.refreshStudioQuestionsView();
+  },
+
+  setStudioQuestionValidationRule(qIdx, rule) {
+    this.haptic('light');
+    const q = this.state.builderQuestions && this.state.builderQuestions[qIdx];
+    if (!q) return;
+    if (!q.validation) q.validation = { type: 'NUMBER' };
+    q.validation.rule = rule;
+    if (rule === 'BETWEEN') {
+      if (!q.validation.min) q.validation.min = '20000000';
+      if (!q.validation.max) q.validation.max = '20270000';
+    } else if (rule === 'GREATER_THAN') {
+      if (!q.validation.min) q.validation.min = '0';
+    } else if (rule === 'LESS_THAN') {
+      if (!q.validation.max) q.validation.max = '100';
+    }
+    q.validation.placeholder = this.generateValidationPlaceholder(q.validation);
+    if (!q.logic) q.logic = {};
+    q.logic.validation = { ...q.validation };
+    this.refreshStudioQuestionsView();
+  },
+
+  setStudioQuestionValidationRange(qIdx, min, max) {
+    const q = this.state.builderQuestions && this.state.builderQuestions[qIdx];
+    if (!q) return;
+    if (!q.validation) q.validation = { type: 'NUMBER', rule: 'BETWEEN' };
+    if (min !== undefined && min !== null) q.validation.min = min;
+    if (max !== undefined && max !== null) q.validation.max = max;
+    q.validation.placeholder = this.generateValidationPlaceholder(q.validation);
+    if (!q.logic) q.logic = {};
+    q.logic.validation = { ...q.validation };
+    const previewEl = document.getElementById(`validation-preview-${qIdx}`);
+    if (previewEl) {
+      previewEl.textContent = `"${q.validation.placeholder}"`;
     }
   },
 
@@ -11772,6 +12274,12 @@ if (totalCount === 0) {
           validCols = (q.columns || []).map(c => (c || '').trim()).filter(Boolean);
         }
 
+        const validationPayload = q.validation || (q.logic && q.logic.validation ? q.logic.validation : null);
+        const logicPayload = q.logic ? { ...q.logic } : (validationPayload ? {} : null);
+        if (validationPayload && logicPayload) {
+          logicPayload.validation = validationPayload;
+        }
+
         cleanQuestions.push({
           id: q.id || `q_custom_${i + 1}`,
           type: q.type || 'SINGLE_CHOICE',
@@ -11783,7 +12291,11 @@ if (totalCount === 0) {
           is_screener: q.is_screener === true,
           qualifying_answer: q.qualifying_answer || null,
           min_label: q.min_label || null,
-          max_label: q.max_label || null
+          max_label: q.max_label || null,
+          video_url: q.video_url || null,
+          image_url: q.image_url || null,
+          logic: logicPayload,
+          validation: validationPayload
         });
       }
 

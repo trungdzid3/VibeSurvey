@@ -550,6 +550,22 @@ class FormParserService {
             if (rows && rows.length > 0) qObj.rows = rows;
             if (columns && columns.length > 0) qObj.columns = columns;
 
+            // Trích xuất validation cho câu hỏi Text / Paragraph từ Google Forms
+            if (questionType === 'SHORT_TEXT' || questionType === 'PARAGRAPH') {
+              const rawValidationArray = (qData && Array.isArray(qData[4])) ? qData[4] : null;
+              const validation = this._extractValidationRule({
+                title: qTitle,
+                description: qDesc,
+                subtitle: qDesc,
+                rawValidationArray
+              });
+              if (validation) {
+                qObj.validation = validation;
+                qObj.logic = qObj.logic || {};
+                qObj.logic.validation = validation;
+              }
+            }
+
             questions.push(qObj);
           }
         }
@@ -867,6 +883,20 @@ class FormParserService {
         if (maxLabel) qObj.max_label = maxLabel;
         if (imageUrl) qObj.image_url = imageUrl;
 
+        // Trích xuất validation cho câu hỏi Text / Paragraph từ Google Forms API
+        if (questionType === 'SHORT_TEXT' || questionType === 'PARAGRAPH') {
+          const validation = this._extractValidationRule({
+            title: itemTitle,
+            description: itemDesc,
+            subtitle: itemDesc
+          });
+          if (validation) {
+            qObj.validation = validation;
+            qObj.logic = qObj.logic || {};
+            qObj.logic.validation = validation;
+          }
+        }
+
         questions.push(qObj);
       }
       // 2. Nhóm câu hỏi ma trận Lưới (questionGroupItem)
@@ -1133,6 +1163,306 @@ class FormParserService {
    * Cờ question.required === true -> is_required = 1
    */
   /**
+   * Helper trích xuất các quy tắc giới hạn (Validation / Restrictions)
+   * Áp dụng cho cả Microsoft Forms (q.questionInfo, Subtitle, Placeholder, Restrictions) và Google Forms
+   */
+  _extractValidationRule({ title = '', subtitle = '', placeholder = '', description = '', questionInfoObj = null, rawRestrictions = null, rawValidationArray = null }) {
+    // 1. Nếu có rawValidationArray từ Google Forms (FB_PUBLIC_LOAD_DATA_ qData[4])
+    if (Array.isArray(rawValidationArray) && rawValidationArray.length > 0) {
+      for (const ruleItem of rawValidationArray) {
+        if (!Array.isArray(ruleItem)) continue;
+        const vType = ruleItem[0];
+        const opType = ruleItem[1];
+        const operands = Array.isArray(ruleItem[2]) ? ruleItem[2] : [];
+        const customMsg = typeof ruleItem[3] === 'string' && ruleItem[3].trim() ? ruleItem[3].trim() : '';
+
+        // 1.1 Number
+        if (vType === 1) {
+          if (opType === 7) { // Between
+            const minVal = parseFloat(operands[0]) || 0;
+            const maxVal = parseFloat(operands[1]) || 0;
+            return {
+              type: 'NUMBER',
+              rule: 'BETWEEN',
+              min: minVal,
+              max: maxVal,
+              placeholder: `Số phải nằm trong khoảng từ ${minVal} ~ ${maxVal}`,
+              error_message: customMsg || `Số phải nằm trong khoảng từ ${minVal} ~ ${maxVal}`
+            };
+          }
+          if (opType === 9) { // Is number
+            return {
+              type: 'NUMBER',
+              rule: 'IS_NUMBER',
+              placeholder: 'Giá trị phải là một số',
+              error_message: customMsg || 'Giá trị phải là một số'
+            };
+          }
+          if (opType === 1) { // Greater than
+            const min = parseFloat(operands[0]) || 0;
+            return {
+              type: 'NUMBER',
+              rule: 'GREATER_THAN',
+              min,
+              placeholder: `Lớn hơn ${min}`,
+              error_message: customMsg || `Giá trị phải lớn hơn ${min}`
+            };
+          }
+          if (opType === 2) { // Greater than or equal
+            const min = parseFloat(operands[0]) || 0;
+            return {
+              type: 'NUMBER',
+              rule: 'GREATER_THAN_OR_EQUAL',
+              min,
+              placeholder: `Lớn hơn hoặc bằng ${min}`,
+              error_message: customMsg || `Giá trị phải lớn hơn hoặc bằng ${min}`
+            };
+          }
+          if (opType === 3) { // Less than
+            const max = parseFloat(operands[0]) || 0;
+            return {
+              type: 'NUMBER',
+              rule: 'LESS_THAN',
+              max,
+              placeholder: `Nhỏ hơn ${max}`,
+              error_message: customMsg || `Giá trị phải nhỏ hơn ${max}`
+            };
+          }
+          if (opType === 4) { // Less than or equal
+            const max = parseFloat(operands[0]) || 0;
+            return {
+              type: 'NUMBER',
+              rule: 'LESS_THAN_OR_EQUAL',
+              max,
+              placeholder: `Nhỏ hơn hoặc bằng ${max}`,
+              error_message: customMsg || `Giá trị phải nhỏ hơn hoặc bằng ${max}`
+            };
+          }
+          if (opType === 10) { // Whole number
+            return {
+              type: 'NUMBER',
+              rule: 'INTEGER',
+              placeholder: 'Giá trị phải là số nguyên',
+              error_message: customMsg || 'Giá trị phải là số nguyên'
+            };
+          }
+        }
+
+        // 1.2 Text (Email / URL)
+        if (vType === 2) {
+          if (opType === 3) { // Email
+            return {
+              type: 'EMAIL',
+              placeholder: 'Vui lòng nhập email',
+              error_message: customMsg || 'Vui lòng nhập đúng định dạng email'
+            };
+          }
+          if (opType === 4) { // URL
+            return {
+              type: 'URL',
+              placeholder: 'Vui lòng nhập URL hợp lệ',
+              error_message: customMsg || 'Vui lòng nhập liên kết hợp lệ'
+            };
+          }
+        }
+
+        // 1.3 Length
+        if (vType === 3) {
+          if (opType === 1) { // Max char count
+            const maxLen = parseInt(operands[0], 10) || 500;
+            return {
+              type: 'LENGTH',
+              rule: 'MAX_LENGTH',
+              max: maxLen,
+              placeholder: `Tối đa ${maxLen} ký tự`,
+              error_message: customMsg || `Độ dài không được vượt quá ${maxLen} ký tự`
+            };
+          }
+          if (opType === 2) { // Min char count
+            const minLen = parseInt(operands[0], 10) || 1;
+            return {
+              type: 'LENGTH',
+              rule: 'MIN_LENGTH',
+              min: minLen,
+              placeholder: `Tối thiểu ${minLen} ký tự`,
+              error_message: customMsg || `Độ dài phải có ít nhất ${minLen} ký tự`
+            };
+          }
+        }
+      }
+    }
+
+    // 2. Nếu có cấu trúc Restrictions từ Microsoft Forms
+    const restrictionsList = [];
+    if (questionInfoObj) {
+      if (Array.isArray(questionInfoObj.Restrictions)) {
+        restrictionsList.push(...questionInfoObj.Restrictions);
+      } else if (typeof questionInfoObj.Restrictions === 'string') {
+        try {
+          const parsedR = JSON.parse(questionInfoObj.Restrictions);
+          if (Array.isArray(parsedR)) restrictionsList.push(...parsedR);
+          else if (parsedR && typeof parsedR === 'object') restrictionsList.push(parsedR);
+        } catch (e) {}
+      } else if (questionInfoObj.Restrictions && typeof questionInfoObj.Restrictions === 'object') {
+        restrictionsList.push(questionInfoObj.Restrictions);
+      }
+      if (questionInfoObj.RestrictionOperator || questionInfoObj.RestrictionType) {
+        restrictionsList.push(questionInfoObj);
+      }
+    }
+    if (rawRestrictions) {
+      if (Array.isArray(rawRestrictions)) restrictionsList.push(...rawRestrictions);
+      else if (typeof rawRestrictions === 'object') restrictionsList.push(rawRestrictions);
+    }
+
+    for (const r of restrictionsList) {
+      if (!r) continue;
+      const op = String(r.RestrictionOperator || r.operator || r.Operator || '').toLowerCase();
+      const typeStr = String(r.RestrictionType || r.type || r.Type || '').toLowerCase();
+      const val1 = r.Min !== undefined ? r.Min : (r.Operand1 !== undefined ? r.Operand1 : (r.Value !== undefined ? r.Value : (r.min !== undefined ? r.min : null)));
+      const val2 = r.Max !== undefined ? r.Max : (r.Operand2 !== undefined ? r.Operand2 : (r.max !== undefined ? r.max : null));
+
+      if (op.includes('email') || typeStr.includes('email')) {
+        return {
+          type: 'EMAIL',
+          placeholder: 'Vui lòng nhập email',
+          error_message: 'Vui lòng nhập đúng định dạng email'
+        };
+      }
+      if (op.includes('url') || typeStr.includes('url')) {
+        return {
+          type: 'URL',
+          placeholder: 'Vui lòng nhập URL hợp lệ',
+          error_message: 'Vui lòng nhập liên kết hợp lệ'
+        };
+      }
+      if (op.includes('between')) {
+        const minVal = parseFloat(val1) || 0;
+        const maxVal = parseFloat(val2) || 0;
+        return {
+          type: 'NUMBER',
+          rule: 'BETWEEN',
+          min: minVal,
+          max: maxVal,
+          placeholder: `Số phải nằm trong khoảng từ ${minVal} ~ ${maxVal}`,
+          error_message: `Số phải nằm trong khoảng từ ${minVal} ~ ${maxVal}`
+        };
+      }
+      if (op.includes('isnumber') || op.includes('number') || typeStr.includes('number')) {
+        return {
+          type: 'NUMBER',
+          rule: 'IS_NUMBER',
+          placeholder: 'Giá trị phải là một số',
+          error_message: 'Giá trị phải là một số'
+        };
+      }
+      if (op.includes('maxlength') || op.includes('length')) {
+        const maxLen = parseInt(val1 || val2, 10) || 500;
+        return {
+          type: 'LENGTH',
+          rule: 'MAX_LENGTH',
+          max: maxLen,
+          placeholder: `Tối đa ${maxLen} ký tự`,
+          error_message: `Độ dài không được vượt quá ${maxLen} ký tự`
+        };
+      }
+    }
+
+    // 3. Phân tích ngữ cảnh văn bản (Text / Subtitle / Placeholder / Title / Description)
+    const combinedText = `${title} ${subtitle} ${placeholder} ${description}`.trim();
+    if (!combinedText) return null;
+
+    // 3.1 Email
+    if (/(?:\bemail\b|thư\s*điện\s*tử|địa\s*chỉ\s*email)/i.test(combinedText)) {
+      return {
+        type: 'EMAIL',
+        placeholder: 'Vui lòng nhập email',
+        error_message: 'Vui lòng nhập đúng định dạng email'
+      };
+    }
+
+    // 3.2 URL
+    if (/(?:\burl\b|liên\s*kết|trang\s*web|website|\blink\b|https?:\/\/)/i.test(combinedText)) {
+      return {
+        type: 'URL',
+        placeholder: 'Vui lòng nhập URL hợp lệ',
+        error_message: 'Vui lòng nhập liên kết hợp lệ'
+      };
+    }
+
+    // 3.3 Số nằm trong khoảng từ (Between)
+    const betweenMatch = combinedText.match(/(?:số\s+phải\s+nằm\s+trong\s+khoảng\s+từ|trong\s+khoảng\s+từ|nằm\s+trong\s+khoảng\s+từ)\s*([0-9.,]+)\s*(?:đến|và|~|-)\s*([0-9.,]+)/i);
+    if (betweenMatch) {
+      const minVal = parseFloat(betweenMatch[1].replace(/,/g, ''));
+      const maxVal = parseFloat(betweenMatch[2].replace(/,/g, ''));
+      return {
+        type: 'NUMBER',
+        rule: 'BETWEEN',
+        min: minVal,
+        max: maxVal,
+        placeholder: `Số phải nằm trong khoảng từ ${minVal} ~ ${maxVal}`,
+        error_message: `Số phải nằm trong khoảng từ ${minVal} ~ ${maxVal}`
+      };
+    }
+
+    // 3.4 Mã số sinh viên (MSSV) kèm khoảng hoặc min/max
+    if (/(?:mã\s*số\s*sinh\s*viên|\bmssv\b)/i.test(combinedText)) {
+      const mssvMatch = combinedText.match(/(\d{7,10})\s*(?:đến|và|~|-)\s*(\d{7,10})/);
+      let minVal = 20000000;
+      let maxVal = 20270000;
+      if (mssvMatch) {
+        minVal = parseInt(mssvMatch[1], 10);
+        maxVal = parseInt(mssvMatch[2], 10);
+      }
+      return {
+        type: 'NUMBER',
+        rule: 'BETWEEN',
+        min: minVal,
+        max: maxVal,
+        placeholder: `Số phải nằm trong khoảng từ ${minVal} ~ ${maxVal}`,
+        error_message: `Số phải nằm trong khoảng từ ${minVal} ~ ${maxVal}`
+      };
+    }
+
+    // 3.5 Số là số (IS_NUMBER) / Số điện thoại
+    if (/(?:giá\s*trị\s*phải\s*là\s*một\s*số|phải\s*là\s*(?:một\s*)?số|số\s*điện\s*thoại|\bsđt\b|phone\s*number)/i.test(combinedText)) {
+      return {
+        type: 'NUMBER',
+        rule: 'IS_NUMBER',
+        placeholder: 'Giá trị phải là một số',
+        error_message: 'Giá trị phải là một số'
+      };
+    }
+
+    // 3.6 Độ dài (Length)
+    const maxLenMatch = combinedText.match(/(?:tối\s*đa|không\s*quá|dưới)\s*(\d+)\s*ký\s*tự/i) || combinedText.match(/độ\s*dài\s*(?:tối\s*đa)?\s*(\d+)/i);
+    if (maxLenMatch) {
+      const maxLen = parseInt(maxLenMatch[1], 10);
+      return {
+        type: 'LENGTH',
+        rule: 'MAX_LENGTH',
+        max: maxLen,
+        placeholder: `Tối đa ${maxLen} ký tự`,
+        error_message: `Độ dài không được vượt quá ${maxLen} ký tự`
+      };
+    }
+
+    const minLenMatch = combinedText.match(/(?:ít\s*nhất|tối\s*thiểu|từ)\s*(\d+)\s*ký\s*tự/i);
+    if (minLenMatch) {
+      const minLen = parseInt(minLenMatch[1], 10);
+      return {
+        type: 'LENGTH',
+        rule: 'MIN_LENGTH',
+        min: minLen,
+        placeholder: `Tối thiểu ${minLen} ký tự`,
+        error_message: `Độ dài phải có ít nhất ${minLen} ký tự`
+      };
+    }
+
+    return null;
+  }
+
+  /**
    * Helper ánh xạ một câu hỏi Microsoft Forms
    * Hỗ trợ đầy đủ cả runtimeForms cũ và SPA REST API hiện đại (q.questionInfo JSON & choices displayText)
    */
@@ -1259,6 +1589,9 @@ class FormParserService {
       }
     }
 
+    const subtitle = String(q.subtitle || q.description || questionInfoObj?.Subtitle || '').trim();
+    const placeholder = String(q.placeholder || questionInfoObj?.Placeholder || '').trim();
+
     const res = {
       order_index: orderIndex,
       type: questionType,
@@ -1267,10 +1600,26 @@ class FormParserService {
       options: options && options.length > 0 ? options : null
     };
 
+    if (subtitle) res.description = subtitle;
     if (minLabel) res.min_label = minLabel;
     if (maxLabel) res.max_label = maxLabel;
     if (rows && rows.length > 0) res.rows = rows;
     if (columns && columns.length > 0) res.columns = columns;
+
+    // Trích xuất validation cho câu hỏi Microsoft Forms
+    const validation = this._extractValidationRule({
+      title,
+      subtitle,
+      placeholder,
+      questionInfoObj,
+      rawRestrictions: q.restrictions || q.restriction || null
+    });
+
+    if (validation) {
+      res.validation = validation;
+      res.logic = res.logic || {};
+      res.logic.validation = validation;
+    }
 
     return res;
   }
