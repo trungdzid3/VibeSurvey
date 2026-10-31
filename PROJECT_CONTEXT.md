@@ -1918,3 +1918,24 @@ c:\Users\Lenovo\Downloads\Linh\
      + Toàn bộ 15/15 tầng kiểm thử tự hành vượt qua 100%.
 
 
+
+
+---
+
+## Khôi Phục Lại Chiếc Ví Da Về Vị Trí Ban Đầu Trên Thẻ Point (01/11/2026)
+1. **Bối cảnh & Yêu cầu Người dùng**:
+   - Ở các lượt tinh chỉnh trước, việc đồng bộ thay đổi cả chiếc ví da trên Thẻ Point lên góc trên bên phải khiến ví bị phóng to quá mức, che lấp các khu vực thông tin số dư.
+   - Người dùng phản hồi: "ủa tôi có bảo thay đổi cái ví đâu, sửa lại ví".
+   - Yêu cầu: Khôi phục lại chiếc ví da về trạng thái ban đầu của Thẻ Point, chỉ giữ tinh chỉnh khoảng cách trên cụm Xu & Voucher của Thẻ Credit.
+
+2. **Chi tiết Kỹ thuật Triển khai**:
+   - **Khôi phục vị trí ví da trong `public/app.js`**:
+     + Thẻ Point: Khôi phục chính xác về trạng thái ban đầu: `class="absolute -right-3 sm:-right-5 -bottom-2 sm:-bottom-4 w-38 sm:w-44 h-auto object-contain pointer-events-none select-none z-0 opacity-40 dark:opacity-20 drop-shadow-sm" alt="3D Orange Wallet"`.
+     + Ví da nằm gọn gàng ở góc dưới bên phải, các chi tiết 2 thẻ ATM thò ra và quai bấm hiển thị tự nhiên, không che lấp số dư lớn "0 Point" hay thanh tiến độ.
+     + Thẻ Credit: Giữ nguyên cụm Xu & Voucher ở góc trên bên phải với khoảng đệm thoáng đãng (`-right-2 sm:-right-4 top-1 sm:top-2.5 w-36 sm:w-44`).
+
+3. **Kiểm chuẩn & Đồng bộ**:
+   - `node -c public/app.js`: 100% cú pháp JavaScript hợp lệ.
+   - Nâng cache-buster trong `public/index.html`.
+   - Đồng bộ hoàn tất sang Capacitor Android: `npm run sync:android`.
+   - Commit và push trực tiếp lên kho lưu trữ GitHub (`origin/main`).
