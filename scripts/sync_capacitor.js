@@ -33,31 +33,31 @@ function copyRecursiveSync(src, dest) {
 
 function syncCapacitor() {
   console.log('=======================================================');
-  console.log('📱 VibeSurvey: Đang bắt đầu đồng bộ tài nguyên Web -> Android...');
+  console.log('[DONG BO] VibeSurvey: Dang bat dau dong bo tai nguyen Web -> Android...');
   console.log('=======================================================');
 
   if (!fs.existsSync(SOURCE_DIR)) {
-    console.error('❌ Lỗi: Thư mục public/ nguồn không tồn tại:', SOURCE_DIR);
+    console.error('[LOI] Thu muc public/ nguon khong ton tai:', SOURCE_DIR);
     process.exit(1);
   }
 
-  // 1. Sao chép toàn bộ Web Dir vào Android Assets
-  console.log(`📂 Đang sao chép từ: ${SOURCE_DIR}`);
-  console.log(`🎯 Đến thư mục đích: ${TARGET_ASSETS_DIR}`);
+  // 1. Sao chep toan bo Web Dir vao Android Assets
+  console.log(`[SAO CHEP] Tu thu muc: ${SOURCE_DIR}`);
+  console.log(`[SAO CHEP] Den thu muc: ${TARGET_ASSETS_DIR}`);
   copyRecursiveSync(SOURCE_DIR, TARGET_ASSETS_DIR);
 
-  // 2. Sao chép capacitor.config.json vào Android Assets
+  // 2. Sao chep capacitor.config.json vao Android Assets
   if (fs.existsSync(CONFIG_SOURCE)) {
     const destDir = path.dirname(CONFIG_TARGET);
     if (!fs.existsSync(destDir)) {
       fs.mkdirSync(destDir, { recursive: true });
     }
     fs.copyFileSync(CONFIG_SOURCE, CONFIG_TARGET);
-    console.log('📄 Đã đồng bộ capacitor.config.json sang assets Android.');
+    console.log('[DONG BO] Da dong bo capacitor.config.json sang assets Android.');
   }
 
-  console.log('✅ Đồng bộ tài nguyên Capacitor Android hoàn tất thành công!');
-  console.log('🚀 Sẵn sàng mở Android Studio hoặc build APK với Gradle.');
+  console.log('[THANH CONG] Dong bo tai nguyen Capacitor Android hoan tat!');
+  console.log('[THONG TIN] San sang mo Android Studio hoac build APK voi Gradle.');
 }
 
 if (require.main === module) {

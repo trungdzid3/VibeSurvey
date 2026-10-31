@@ -29,6 +29,7 @@ function initSchema() {
       role TEXT NOT NULL CHECK(role IN ('RESPONDENT', 'CREATOR', 'ADMIN')),
       credit_balance REAL DEFAULT 0.0,
       point_balance INTEGER DEFAULT 0,
+      student_karma INTEGER DEFAULT 0,
       trust_score REAL DEFAULT 100.0,
       status TEXT DEFAULT 'ACTIVE' CHECK(status IN ('ACTIVE', 'SUSPENDED', 'BANNED')),
       free_trial_surveys_available INTEGER DEFAULT 1,
@@ -51,6 +52,7 @@ function initSchema() {
       min_completion_time_sec INTEGER DEFAULT 15,
       google_sheets_webhook_url TEXT,
       is_free_trial INTEGER DEFAULT 0,
+      is_student_exchange INTEGER DEFAULT 0,
       allow_edit_response INTEGER DEFAULT 0,
       allow_view_response INTEGER DEFAULT 1,
       status TEXT DEFAULT 'DRAFT' CHECK(status IN ('DRAFT', 'FUNDED', 'ACTIVE', 'PAUSED', 'COMPLETED', 'CLOSED')),
@@ -66,6 +68,7 @@ function initSchema() {
       type TEXT NOT NULL,
       rows_json TEXT,
       columns_json TEXT,
+      logic_json TEXT,
       is_required INTEGER DEFAULT 1,
       content TEXT NOT NULL,
       options_json TEXT,
@@ -305,6 +308,62 @@ function initSchema() {
     );
 
     CREATE INDEX IF NOT EXISTS idx_daily_streaks_user ON daily_streaks(user_id);
+
+    -- Bang Nhat Ky Hoat Dong Quan Tri Vien (Admin Audit Logs)
+    CREATE TABLE IF NOT EXISTS admin_audit_logs (
+      id TEXT PRIMARY KEY,
+      admin_id TEXT NOT NULL,
+      admin_name TEXT,
+      action TEXT NOT NULL,
+      target_type TEXT,
+      target_id TEXT,
+      details TEXT,
+      ip_address TEXT,
+      created_at TEXT DEFAULT CURRENT_TIMESTAMP
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_audit_admin ON admin_audit_logs(admin_id);
+    CREATE INDEX IF NOT EXISTS idx_audit_action ON admin_audit_logs(action);
+    CREATE INDEX IF NOT EXISTS idx_audit_target ON admin_audit_logs(target_type, target_id);
+    CREATE INDEX IF NOT EXISTS idx_audit_created ON admin_audit_logs(created_at);
+
+    -- Bang Dien Dan Thao Luan & Chia Se Khao Sat Noi Bo (Forum Posts)
+    CREATE TABLE IF NOT EXISTS forum_posts (
+      id TEXT PRIMARY KEY,
+      user_id TEXT NOT NULL REFERENCES users(id),
+      survey_id TEXT NOT NULL REFERENCES surveys(id),
+      title TEXT NOT NULL,
+      content TEXT NOT NULL,
+      views_count INTEGER DEFAULT 0,
+      likes_count INTEGER DEFAULT 0,
+      created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+      updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_forum_posts_user ON forum_posts(user_id);
+    CREATE INDEX IF NOT EXISTS idx_forum_posts_survey ON forum_posts(survey_id);
+    CREATE INDEX IF NOT EXISTS idx_forum_posts_created ON forum_posts(created_at);
+
+    -- Bang Binh Luan Dien Dan (Forum Comments)
+    CREATE TABLE IF NOT EXISTS forum_comments (
+      id TEXT PRIMARY KEY,
+      post_id TEXT NOT NULL REFERENCES forum_posts(id) ON DELETE CASCADE,
+      user_id TEXT NOT NULL REFERENCES users(id),
+      content TEXT NOT NULL,
+      created_at TEXT DEFAULT CURRENT_TIMESTAMP
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_forum_comments_post ON forum_comments(post_id);
+    CREATE INDEX IF NOT EXISTS idx_forum_comments_user ON forum_comments(user_id);
+    CREATE INDEX IF NOT EXISTS idx_forum_comments_created ON forum_comments(created_at);
+
+    -- Bang Luot Thich Bai Viet Dien Dan (Forum Post Likes)
+    CREATE TABLE IF NOT EXISTS forum_post_likes (
+      post_id TEXT NOT NULL REFERENCES forum_posts(id) ON DELETE CASCADE,
+      user_id TEXT NOT NULL REFERENCES users(id),
+      created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+      PRIMARY KEY(post_id, user_id)
+    );
   `);
 
   // Migration v2: Bổ sung các cột mới cho Users, Surveys và Responses
@@ -402,6 +461,7 @@ function initSchema() {
     'ALTER TABLE questions ADD COLUMN is_required INTEGER DEFAULT 1;',
     'ALTER TABLE questions ADD COLUMN rows_json TEXT;',
     'ALTER TABLE questions ADD COLUMN columns_json TEXT;',
+    'ALTER TABLE questions ADD COLUMN logic_json TEXT;',
     'ALTER TABLE surveys ADD COLUMN package_type TEXT DEFAULT \'PERSONAL\';',
     'ALTER TABLE surveys ADD COLUMN pricing_tier TEXT DEFAULT \'STANDARD\';',
     'ALTER TABLE surveys ADD COLUMN completed_at TEXT;',
@@ -415,7 +475,13 @@ function initSchema() {
     'ALTER TABLE surveys ADD COLUMN duration_days INTEGER DEFAULT 14;',
     'ALTER TABLE surveys ADD COLUMN expires_at TEXT;',
     'ALTER TABLE surveys ADD COLUMN voucher_purchase_quantity INTEGER DEFAULT 0;',
+    "ALTER TABLE surveys ADD COLUMN voucher_dist_mode TEXT DEFAULT 'FIRST_COME';",
+    'ALTER TABLE surveys ADD COLUMN voucher_total_slots INTEGER DEFAULT 0;',
     'ALTER TABLE responses ADD COLUMN edited_at TEXT;',
+    'ALTER TABLE users ADD COLUMN google_forms_access_token TEXT;',
+    'ALTER TABLE users ADD COLUMN google_forms_refresh_token TEXT;',
+    'ALTER TABLE users ADD COLUMN google_forms_email TEXT;',
+    'ALTER TABLE users ADD COLUMN google_forms_connected_at TEXT;',
     `CREATE TABLE IF NOT EXISTS warranty_claims (
       id TEXT PRIMARY KEY,
       survey_id TEXT NOT NULL REFERENCES surveys(id),
@@ -439,11 +505,79 @@ function initSchema() {
     );`,
     'CREATE INDEX IF NOT EXISTS idx_push_subs_user ON push_subscriptions(user_id);',
     'CREATE INDEX IF NOT EXISTS idx_push_subs_endpoint ON push_subscriptions(endpoint);',
+    `CREATE TABLE IF NOT EXISTS bug_reports (
+      id TEXT PRIMARY KEY,
+      user_id TEXT REFERENCES users(id),
+      reporter_name TEXT,
+      reporter_email TEXT,
+      category TEXT DEFAULT 'OTHER',
+      severity TEXT DEFAULT 'MEDIUM',
+      title TEXT NOT NULL,
+      description TEXT NOT NULL,
+      image_url TEXT,
+      device_info TEXT,
+      status TEXT DEFAULT 'PENDING',
+      admin_notes TEXT,
+      resolved_at TEXT,
+      created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+      updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+    );`,
+    'CREATE INDEX IF NOT EXISTS idx_bug_reports_user ON bug_reports(user_id);',
+    'CREATE INDEX IF NOT EXISTS idx_bug_reports_status ON bug_reports(status);',
+    'CREATE INDEX IF NOT EXISTS idx_bug_reports_created ON bug_reports(created_at);',
     `CREATE TABLE IF NOT EXISTS registration_otps (
       email TEXT PRIMARY KEY,
       otp TEXT NOT NULL,
       expires_at INTEGER NOT NULL,
       created_at TEXT DEFAULT CURRENT_TIMESTAMP
+    );`,
+    `CREATE TABLE IF NOT EXISTS admin_audit_logs (
+      id TEXT PRIMARY KEY,
+      admin_id TEXT NOT NULL,
+      admin_name TEXT,
+      action TEXT NOT NULL,
+      target_type TEXT,
+      target_id TEXT,
+      details TEXT,
+      ip_address TEXT,
+      created_at TEXT DEFAULT CURRENT_TIMESTAMP
+    );`,
+    'CREATE INDEX IF NOT EXISTS idx_audit_admin ON admin_audit_logs(admin_id);',
+    'CREATE INDEX IF NOT EXISTS idx_audit_action ON admin_audit_logs(action);',
+    'CREATE INDEX IF NOT EXISTS idx_audit_target ON admin_audit_logs(target_type, target_id);',
+    'CREATE INDEX IF NOT EXISTS idx_audit_created ON admin_audit_logs(created_at);',
+    'ALTER TABLE users ADD COLUMN student_karma INTEGER DEFAULT 0;',
+    'ALTER TABLE surveys ADD COLUMN is_student_exchange INTEGER DEFAULT 0;',
+    'CREATE INDEX IF NOT EXISTS idx_surveys_student_exchange ON surveys(is_student_exchange);',
+    `CREATE TABLE IF NOT EXISTS forum_posts (
+      id TEXT PRIMARY KEY,
+      user_id TEXT NOT NULL REFERENCES users(id),
+      survey_id TEXT NOT NULL REFERENCES surveys(id),
+      title TEXT NOT NULL,
+      content TEXT NOT NULL,
+      views_count INTEGER DEFAULT 0,
+      likes_count INTEGER DEFAULT 0,
+      created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+      updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+    );`,
+    'CREATE INDEX IF NOT EXISTS idx_forum_posts_user ON forum_posts(user_id);',
+    'CREATE INDEX IF NOT EXISTS idx_forum_posts_survey ON forum_posts(survey_id);',
+    'CREATE INDEX IF NOT EXISTS idx_forum_posts_created ON forum_posts(created_at);',
+    `CREATE TABLE IF NOT EXISTS forum_comments (
+      id TEXT PRIMARY KEY,
+      post_id TEXT NOT NULL REFERENCES forum_posts(id) ON DELETE CASCADE,
+      user_id TEXT NOT NULL REFERENCES users(id),
+      content TEXT NOT NULL,
+      created_at TEXT DEFAULT CURRENT_TIMESTAMP
+    );`,
+    'CREATE INDEX IF NOT EXISTS idx_forum_comments_post ON forum_comments(post_id);',
+    'CREATE INDEX IF NOT EXISTS idx_forum_comments_user ON forum_comments(user_id);',
+    'CREATE INDEX IF NOT EXISTS idx_forum_comments_created ON forum_comments(created_at);',
+    `CREATE TABLE IF NOT EXISTS forum_post_likes (
+      post_id TEXT NOT NULL REFERENCES forum_posts(id) ON DELETE CASCADE,
+      user_id TEXT NOT NULL REFERENCES users(id),
+      created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+      PRIMARY KEY(post_id, user_id)
     );`
   ];
 
@@ -471,6 +605,7 @@ function initSchema() {
           options_json TEXT,
           rows_json TEXT,
           columns_json TEXT,
+      logic_json TEXT,
           is_required INTEGER DEFAULT 1,
           is_attention_check INTEGER DEFAULT 0,
           expected_answer TEXT,

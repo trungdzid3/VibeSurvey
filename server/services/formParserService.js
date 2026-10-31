@@ -1,6 +1,9 @@
 const url = require('url');
 const net = require('net');
 const dns = require('dns').promises;
+const fs = require('fs');
+const path = require('path');
+const crypto = require('crypto');
 const config = require('../config');
 
 class FormParserService {
@@ -15,6 +18,11 @@ class FormParserService {
       'forms.cloud.microsoft',
       'form.cloud.microsoft'
     ];
+
+    // Bộ nhớ đệm xác thực Google Service Account & OAuth Token
+    this._serviceAccountCache = null;
+    this._accessTokenCache = null;
+    this._accessTokenExpiry = 0;
   }
 
   /**
@@ -225,17 +233,19 @@ class FormParserService {
 
           for (const item of items) {
             if (!item || !Array.isArray(item)) continue;
-            const qTitle = item[1];
+            const qTitle = item[1] || (item[3] === 8 ? 'Mục không có tiêu đề' : '');
+            const qDesc = item[2] ? String(item[2]).trim() : '';
             const qTypeNum = item[3];
             const qSubArray = item[4];
             const qData = qSubArray && qSubArray[0];
 
-            if (!qTitle) continue;
+            if (!qTitle && qTypeNum !== 8 && qTypeNum !== 6) continue;
 
             let questionType = 'SINGLE_CHOICE';
             let options = null;
             let rows = null;
             let columns = null;
+            let logic = null;
             let isRequired = 0;
             let minLabel = null;
             let maxLabel = null;
@@ -259,18 +269,65 @@ class FormParserService {
                 break;
 
               case 2: // SINGLE_CHOICE
-                questionType = 'SINGLE_CHOICE';
+              case 3: { // DROPDOWN
+                questionType = qTypeNum === 2 ? 'SINGLE_CHOICE' : 'DROPDOWN';
+                let rawOpts = null;
                 if (qData && Array.isArray(qData[1])) {
-                  options = qData[1].map(opt => String(opt[0] || '').trim()).filter(Boolean);
+                  rawOpts = qData[1];
+                } else if (qData && Array.isArray(qData[0]) && Array.isArray(qData[0][1])) {
+                  rawOpts = qData[0][1];
+                } else if (Array.isArray(qSubArray)) {
+                  for (const sub of qSubArray) {
+                    if (sub && Array.isArray(sub[1])) {
+                      rawOpts = sub[1];
+                      break;
+                    }
+                  }
                 }
-                break;
 
-              case 3: // DROPDOWN
-                questionType = 'DROPDOWN';
-                if (qData && Array.isArray(qData[1])) {
-                  options = qData[1].map(opt => String(opt[0] || '').trim()).filter(Boolean);
+                if (Array.isArray(rawOpts)) {
+                  const logicOptions = {};
+                  let hasLogic = false;
+
+                  options = rawOpts.map(opt => {
+                    const optVal = Array.isArray(opt) ? String(opt[0] || '').trim() : String(opt || '').trim();
+                    if (Array.isArray(opt)) {
+                      // Trích xuất điều hướng: opt[2] (action) hoặc opt[3] (target)
+                      const rawAction = opt[2];
+                      const rawTarget = opt[3] !== undefined ? opt[3] : null;
+
+                      if (rawAction !== undefined && rawAction !== null && rawAction !== '' && rawAction !== 0) {
+                        let actionStr = rawAction;
+                        if (rawAction === 1 || rawAction === '1') actionStr = 'NEXT_PAGE';
+                        else if (rawAction === 2 || rawAction === '2') actionStr = 'GO_TO_PAGE';
+                        else if (rawAction === 3 || rawAction === '3') actionStr = 'SUBMIT_FORM';
+                        else if (rawAction === 4 || rawAction === '4') actionStr = 'RESTART_FORM';
+
+                        hasLogic = true;
+                        logicOptions[optVal] = {
+                          action: actionStr,
+                          target: rawTarget ? String(rawTarget) : null
+                        };
+                      } else if (rawTarget !== null && rawTarget !== undefined && rawTarget !== '') {
+                        hasLogic = true;
+                        logicOptions[optVal] = {
+                          action: 'GO_TO_PAGE',
+                          target: String(rawTarget)
+                        };
+                      }
+                    }
+                    return optVal;
+                  }).filter(Boolean);
+
+                  if (hasLogic) {
+                    logic = {
+                      enabled: true,
+                      options: logicOptions
+                    };
+                  }
                 }
                 break;
+              }
 
               case 4: // MULTIPLE_CHOICE
                 questionType = 'MULTIPLE_CHOICE';
@@ -388,10 +445,57 @@ class FormParserService {
                 options = null;
                 break;
 
-              case 8: // SECTION HEADER (== Thêm Phần)
+              case 8: { // SECTION HEADER (== Thêm Phần)
                 questionType = 'SECTION_HEADER';
                 options = null;
+                // Trích xuất điều hướng mặc định của phân đoạn nếu có
+                try {
+                  let defaultAction = null;
+                  let targetSection = null;
+                  let secData = qData || (Array.isArray(item[4]) ? item[4][0] : null) || item[5];
+                  while (Array.isArray(secData) && secData.length === 1 && Array.isArray(secData[0])) {
+                    secData = secData[0];
+                  }
+
+                  if (secData) {
+                    if (Array.isArray(secData)) {
+                      let act = null;
+                      let tgt = null;
+                      for (const el of secData) {
+                        if (el === 1 || el === 2 || el === 3 || el === 4 || el === '1' || el === '2' || el === '3' || el === '4') {
+                          act = el;
+                        } else if (typeof el === 'string' && el.length > 0) {
+                          tgt = el;
+                        }
+                      }
+                      if (!act) {
+                        act = (secData[0] !== undefined && secData[0] !== null) ? secData[0] : ((secData[2] !== undefined && secData[2] !== null) ? secData[2] : null);
+                        tgt = tgt || ((secData[1] !== undefined && secData[1] !== null) ? secData[1] : ((secData[3] !== undefined && secData[3] !== null) ? secData[3] : null));
+                      }
+
+                      if (act !== null && act !== undefined && act !== '' && act !== 0) {
+                        let actStr = act;
+                        if (act === 1 || act === '1') actStr = 'NEXT_PAGE';
+                        else if (act === 2 || act === '2') actStr = 'GO_TO_PAGE';
+                        else if (act === 3 || act === '3') actStr = 'SUBMIT_FORM';
+                        else if (act === 4 || act === '4') actStr = 'RESTART_FORM';
+                        defaultAction = actStr;
+                        targetSection = tgt ? String(tgt) : null;
+                      }
+                    } else if (typeof secData === 'object') {
+                      defaultAction = secData.goToAction || secData.action || null;
+                      targetSection = secData.goToSectionId || secData.target || null;
+                    }
+                  }
+                  if (defaultAction || targetSection) {
+                    logic = {
+                      default_action: defaultAction,
+                      target: targetSection
+                    };
+                  }
+                } catch (e) {}
                 break;
+              }
 
               case 11: // IMAGE BLOCK
                 questionType = 'IMAGE_BLOCK';
@@ -432,11 +536,13 @@ class FormParserService {
             const qObj = {
               order_index: qIndex++,
               type: questionType,
-              content: qTitle.trim(),
+              content: (qTitle || (questionType === 'SECTION_HEADER' ? 'Mục' : '')).trim(),
               is_required: isRequired,
               options: options && options.length > 0 ? options : null
             };
 
+            if (qDesc) qObj.description = qDesc;
+            if (logic) qObj.logic = logic;
             if (minLabel) qObj.min_label = minLabel;
             if (maxLabel) qObj.max_label = maxLabel;
             if (videoUrl) qObj.video_url = videoUrl;
@@ -469,6 +575,453 @@ class FormParserService {
       questions,
       questionCount: questions.length
     };
+  }
+
+  /**
+   * 2b. Kiểm tra xem hệ thống đã được cấu hình Google Service Account hay chưa
+   */
+  hasServiceAccountConfigured() {
+    return !!this.getServiceAccountCredentials();
+  }
+
+  /**
+   * Lấy thông tin xác thực Google Service Account từ tệp JSON hoặc biến môi trường
+   */
+  getServiceAccountCredentials() {
+    if (this._serviceAccountCache) {
+      return this._serviceAccountCache;
+    }
+
+    try {
+      // 1. Kiểm tra biến môi trường JSON trực tiếp (dành cho Render / Cloud Host)
+      if (config.GOOGLE && config.GOOGLE.SERVICE_ACCOUNT_JSON && config.GOOGLE.SERVICE_ACCOUNT_JSON.trim()) {
+        const parsed = JSON.parse(config.GOOGLE.SERVICE_ACCOUNT_JSON.trim());
+        if (parsed.client_email && parsed.private_key) {
+          this._serviceAccountCache = parsed;
+          return parsed;
+        }
+      }
+
+      // 2. Kiểm tra đường dẫn tệp cấu hình trên ổ đĩa
+      const possiblePaths = [
+        config.GOOGLE && config.GOOGLE.SERVICE_ACCOUNT_KEY_PATH,
+        path.join(__dirname, '../config/google-service-account.json'),
+        path.join(process.cwd(), 'google-service-account.json'),
+        path.join(process.cwd(), 'server/config/google-service-account.json')
+      ].filter(Boolean);
+
+      for (const p of possiblePaths) {
+        if (fs.existsSync(p)) {
+          const raw = fs.readFileSync(p, 'utf8');
+          const parsed = JSON.parse(raw);
+          if (parsed.client_email && parsed.private_key) {
+            this._serviceAccountCache = parsed;
+            return parsed;
+          }
+        }
+      }
+    } catch (err) {
+      console.warn('[FormParserService] Lỗi đọc tệp Google Service Account:', err.message);
+    }
+
+    return null;
+  }
+
+  /**
+   * Lấy địa chỉ email của Google Service Account (để hiển thị cho người dùng thêm làm cộng tác viên)
+   */
+  getServiceAccountEmail() {
+    const creds = this.getServiceAccountCredentials();
+    if (creds && creds.client_email) {
+      return creds.client_email;
+    }
+    return (config.GOOGLE && config.GOOGLE.SERVICE_ACCOUNT_EMAIL) ? config.GOOGLE.SERVICE_ACCOUNT_EMAIL : null;
+  }
+
+  /**
+   * Tạo Access Token OAuth 2.0 từ Service Account bằng RS256 JWT (Thư viện Node.js thuần, 0 dependency)
+   */
+  async getGoogleServiceAccountAccessToken() {
+    const now = Math.floor(Date.now() / 1000);
+    // Nếu token còn hạn ít nhất 60 giây thì dùng lại bộ nhớ đệm
+    if (this._accessTokenCache && this._accessTokenExpiry > (now + 60)) {
+      return this._accessTokenCache;
+    }
+
+    const creds = this.getServiceAccountCredentials();
+    if (!creds || !creds.client_email || !creds.private_key) {
+      throw new Error('Chưa cấu hình Google Service Account. Vui lòng thêm tệp google-service-account.json hoặc biến môi trường GOOGLE_SERVICE_ACCOUNT_JSON.');
+    }
+
+    const header = {
+      alg: 'RS256',
+      typ: 'JWT'
+    };
+
+    const payload = {
+      iss: creds.client_email,
+      scope: 'https://www.googleapis.com/auth/forms.body.readonly https://www.googleapis.com/auth/drive.readonly',
+      aud: 'https://oauth2.googleapis.com/token',
+      exp: now + 3600,
+      iat: now
+    };
+
+    const base64UrlEncode = (str) => {
+      return Buffer.from(str)
+        .toString('base64')
+        .replace(/=/g, '')
+        .replace(/\+/g, '-')
+        .replace(/\//g, '_');
+    };
+
+    const encodedHeader = base64UrlEncode(JSON.stringify(header));
+    const encodedPayload = base64UrlEncode(JSON.stringify(payload));
+    const signatureInput = `${encodedHeader}.${encodedPayload}`;
+
+    const signer = crypto.createSign('RSA-SHA256');
+    signer.update(signatureInput);
+    signer.end();
+    const signature = signer.sign(creds.private_key);
+    const encodedSignature = signature
+      .toString('base64')
+      .replace(/=/g, '')
+      .replace(/\+/g, '-')
+      .replace(/\//g, '_');
+
+    const jwt = `${signatureInput}.${encodedSignature}`;
+
+    const resp = await fetch('https://oauth2.googleapis.com/token', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      body: `grant_type=urn%3Aietf%3Aparams%3Aoauth%3Agrant-type%3Ajwt-bearer&assertion=${encodeURIComponent(jwt)}`
+    });
+
+    if (!resp.ok) {
+      const errText = await resp.text();
+      throw new Error(`Không thể xác thực Google Service Account (${resp.status}): ${errText}`);
+    }
+
+    const tokenData = await resp.json();
+    if (!tokenData.access_token) {
+      throw new Error('Google OAuth không trả về access_token hợp lệ');
+    }
+
+    this._accessTokenCache = tokenData.access_token;
+    this._accessTokenExpiry = now + (tokenData.expires_in || 3600);
+    return tokenData.access_token;
+  }
+
+  /**
+   * Trích xuất Form ID từ đường dẫn Google Forms (hỗ trợ cả dạng /d/ID, /d/e/ID/viewform hoặc link chỉnh sửa /edit)
+   */
+  extractGoogleFormId(rawUrl) {
+    if (!rawUrl || typeof rawUrl !== 'string') return null;
+    const trimmed = rawUrl.trim();
+
+    // 1. Dạng /forms/d/e/<ID>/viewform
+    const matchPub = trimmed.match(/\/forms\/d\/e\/([a-zA-Z0-9_-]+)/i);
+    if (matchPub && matchPub[1]) {
+      return { formId: matchPub[1], isPublished: true };
+    }
+
+    // 2. Dạng /forms/d/<ID>/edit hoặc /forms/d/<ID>/viewform
+    const matchDoc = trimmed.match(/\/forms\/d\/([a-zA-Z0-9_-]+)/i);
+    if (matchDoc && matchDoc[1] && matchDoc[1] !== 'e') {
+      return { formId: matchDoc[1], isPublished: false };
+    }
+
+    // 3. Chuỗi thuần form ID
+    if (/^[a-zA-Z0-9_-]{20,80}$/.test(trimmed)) {
+      return { formId: trimmed, isPublished: false };
+    }
+
+    return null;
+  }
+
+  /**
+   * Bóc tách dữ liệu JSON từ Google Forms API v1 sang cấu trúc chuẩn 12 câu hỏi của VibeSurvey
+   */
+  parseGoogleFormsApiResponse(apiData, originalUrl) {
+    if (!apiData) {
+      throw new Error('Dữ liệu phản hồi từ Google Forms API không hợp lệ');
+    }
+
+    const title = (apiData.info && apiData.info.title) ? apiData.info.title.trim() : 'Khảo sát Google Forms';
+    const description = (apiData.info && apiData.info.description) ? apiData.info.description.trim() : '';
+    const questions = [];
+    const items = apiData.items || [];
+    let qIndex = 1;
+
+    for (const item of items) {
+      if (!item) continue;
+      const itemTitle = (item.title || '').trim();
+      const itemDesc = (item.description || '').trim();
+
+      // 1. Câu hỏi đơn (questionItem)
+      if (item.questionItem && item.questionItem.question) {
+        const q = item.questionItem.question;
+        const isRequired = q.required ? 1 : 0;
+        let questionType = 'SINGLE_CHOICE';
+        let options = null;
+        let minLabel = null;
+        let maxLabel = null;
+        let imageUrl = null;
+
+        if (item.questionItem.image && item.questionItem.image.sourceUri) {
+          imageUrl = item.questionItem.image.sourceUri;
+        }
+
+        // Choice Question (Radio, Checkbox, Dropdown)
+        let logic = null;
+        if (q.choiceQuestion) {
+          const cType = q.choiceQuestion.type;
+          if (cType === 'CHECKBOX') {
+            questionType = 'MULTIPLE_CHOICE';
+          } else if (cType === 'DROP_DOWN') {
+            questionType = 'DROPDOWN';
+          } else {
+            questionType = 'SINGLE_CHOICE';
+          }
+
+          if (Array.isArray(q.choiceQuestion.options)) {
+            const logicOptions = {};
+            let hasLogic = false;
+
+            options = q.choiceQuestion.options.map(opt => {
+              const optVal = opt.isOther ? 'Khác...' : (opt.value || '').trim();
+              const goToAction = opt.goToAction || null;
+              const goToSectionId = opt.goToSectionId || null;
+              if (goToAction || goToSectionId) {
+                hasLogic = true;
+                logicOptions[optVal] = {
+                  action: goToAction,
+                  target: goToSectionId
+                };
+              }
+              return optVal;
+            }).filter(Boolean);
+
+            if (hasLogic) {
+              logic = {
+                enabled: true,
+                options: logicOptions
+              };
+            }
+          }
+        }
+        // Text Question (Short Text hoặc Paragraph)
+        else if (q.textQuestion) {
+          questionType = q.textQuestion.paragraph ? 'PARAGRAPH' : 'SHORT_TEXT';
+          options = null;
+        }
+        // Scale Question (Linear Scale)
+        else if (q.scaleQuestion) {
+          questionType = 'LINEAR_SCALE';
+          const low = q.scaleQuestion.low !== undefined ? q.scaleQuestion.low : 1;
+          const high = q.scaleQuestion.high !== undefined ? q.scaleQuestion.high : 5;
+          minLabel = q.scaleQuestion.lowLabel || null;
+          maxLabel = q.scaleQuestion.highLabel || null;
+          options = [];
+          for (let n = low; n <= high; n++) {
+            options.push(String(n));
+          }
+        }
+        // Date Question
+        else if (q.dateQuestion) {
+          questionType = 'DATE_INPUT';
+          options = null;
+        }
+        // Time Question
+        else if (q.timeQuestion) {
+          questionType = 'TIME_INPUT';
+          options = null;
+        }
+        // Rating Question
+        else if (q.ratingQuestion) {
+          questionType = 'RATING_STARS';
+          const scale = q.ratingQuestion.ratingScaleLevel || 5;
+          options = [];
+          for (let n = 1; n <= scale; n++) {
+            options.push(String(n));
+          }
+        }
+        // File Upload Question
+        else if (q.fileUploadQuestion) {
+          questionType = 'FILE_UPLOAD';
+          options = null;
+        }
+
+        const qObj = {
+          order_index: qIndex++,
+          type: questionType,
+          content: itemTitle || `Câu hỏi ${qIndex - 1}`,
+          is_required: isRequired,
+          options: (options && options.length > 0) ? options : null
+        };
+
+        if (itemDesc) qObj.description = itemDesc;
+        if (logic) qObj.logic = logic;
+        if (minLabel) qObj.min_label = minLabel;
+        if (maxLabel) qObj.max_label = maxLabel;
+        if (imageUrl) qObj.image_url = imageUrl;
+
+        questions.push(qObj);
+      }
+      // 2. Nhóm câu hỏi ma trận Lưới (questionGroupItem)
+      else if (item.questionGroupItem) {
+        const qGroup = item.questionGroupItem;
+        const grid = qGroup.grid || {};
+        const isCheckbox = grid.columns && grid.columns.type === 'CHECKBOX';
+        const questionType = isCheckbox ? 'CHECKBOX_GRID' : 'CHOICE_GRID';
+
+        let columns = [];
+        if (grid.columns && Array.isArray(grid.columns.options)) {
+          columns = grid.columns.options.map(c => (c.value || '').trim()).filter(Boolean);
+        }
+
+        let rows = [];
+        let isRequired = 0;
+        if (Array.isArray(qGroup.questions)) {
+          rows = qGroup.questions.map(subQ => {
+            if (subQ.required) isRequired = 1;
+            return (subQ.rowQuestion && subQ.rowQuestion.title) ? subQ.rowQuestion.title.trim() : '';
+          }).filter(Boolean);
+        }
+
+        const qObj = {
+          order_index: qIndex++,
+          type: questionType,
+          content: itemTitle || `Bảng câu hỏi lưới ${qIndex - 1}`,
+          is_required: isRequired,
+          options: columns.length > 0 ? columns : null,
+          columns: columns.length > 0 ? columns : null,
+          rows: rows.length > 0 ? rows : null
+        };
+
+        if (itemDesc) qObj.description = itemDesc;
+        questions.push(qObj);
+      }
+      // 3. Phân đoạn trang / Tiêu đề mục chuyển tiếp (pageBreakItem)
+      else if (item.pageBreakItem) {
+        const pb = item.pageBreakItem;
+        const goToAction = pb.goToAction || item.goToAction || null;
+        const goToSectionId = pb.goToSectionId || item.goToSectionId || null;
+
+        let logic = null;
+        if (goToAction || goToSectionId) {
+          logic = {
+            default_action: goToAction,
+            target: goToSectionId
+          };
+        }
+
+        const qObj = {
+          order_index: qIndex++,
+          type: 'SECTION_HEADER',
+          content: itemTitle || `Mục ${qIndex - 1}`,
+          is_required: 0,
+          options: null
+        };
+
+        if (itemDesc) qObj.description = itemDesc;
+        if (logic) qObj.logic = logic;
+
+        questions.push(qObj);
+      }
+      // 4. Khối văn bản / Tiêu đề phụ (textItem)
+      else if (item.textItem) {
+        const qObj = {
+          order_index: qIndex++,
+          type: 'TEXT_BLOCK',
+          content: itemTitle || `Nội dung ${qIndex - 1}`,
+          is_required: 0,
+          options: null
+        };
+
+        if (itemDesc) qObj.description = itemDesc;
+        questions.push(qObj);
+      }
+    }
+
+    // Embed URL
+    let embedUrl = originalUrl || `https://docs.google.com/forms/d/${apiData.formId}/viewform`;
+    if (embedUrl.includes('/viewform')) {
+      embedUrl = embedUrl.replace('/viewform', '/viewform?embedded=true');
+    } else if (!embedUrl.includes('embedded=true')) {
+      embedUrl += (embedUrl.includes('?') ? '&' : '?') + 'embedded=true';
+    }
+
+    return {
+      source: 'GOOGLE_FORMS_API',
+      title,
+      description,
+      originalUrl,
+      embedUrl,
+      questions,
+      questionCount: questions.length
+    };
+  }
+
+  /**
+   * Gọi Google Forms API v1 để lấy cấu trúc biểu mẫu bằng Google Service Account hoặc User OAuth Access Token
+   */
+  async fetchFromGoogleFormsApi(formId, originalUrl, userAccessToken = null) {
+    if (!formId) {
+      throw new Error('Mã biểu mẫu Google Forms (Form ID) không hợp lệ');
+    }
+
+    const token = userAccessToken || (await this.getGoogleServiceAccountAccessToken());
+    const apiUrl = `https://forms.googleapis.com/v1/forms/${encodeURIComponent(formId)}`;
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+    let resp;
+    try {
+      resp = await fetch(apiUrl, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Accept': 'application/json'
+        },
+        signal: controller.signal
+      });
+    } catch (err) {
+      clearTimeout(timeoutId);
+      if (err.name === 'AbortError') {
+        throw new Error('Thời gian kết nối Google Forms API vượt quá 10 giây');
+      }
+      throw new Error(`Lỗi kết nối Google Forms API: ${err.message}`);
+    }
+    clearTimeout(timeoutId);
+
+    if (!resp.ok) {
+      if (userAccessToken && (resp.status === 401 || resp.status === 403)) {
+        const authErr = new Error('Tài khoản Google của bạn chưa được cấp quyền xem biểu mẫu này hoặc phiên làm việc đã hết hạn. Vui lòng kết nối lại tài khoản Google.');
+        authErr.status = 401;
+        authErr.statusCode = 401;
+        authErr.code = 'USER_OAUTH_UNAUTHORIZED';
+        throw authErr;
+      }
+
+      const saEmail = this.getServiceAccountEmail() || 'Service Account';
+      if (resp.status === 403 || resp.status === 404) {
+        const authErr = new Error(`Biểu mẫu Google Forms chưa được cấp quyền cho Service Account (${saEmail}). Vui lòng mở Google Forms > bấm biểu tượng Thêm cộng tác viên (Add collaborators) > Thêm email "${saEmail}" với quyền Biên tập viên (Editor), hoặc kết nối trực tiếp tài khoản Google của bạn.`);
+        authErr.status = 401;
+        authErr.statusCode = 401;
+        authErr.serviceAccountEmail = saEmail;
+        authErr.code = 'SERVICE_ACCOUNT_PERMISSION_DENIED';
+        throw authErr;
+      }
+
+      const errText = await resp.text();
+      throw new Error(`Google Forms API trả về lỗi ${resp.status}: ${errText}`);
+    }
+
+    const apiData = await resp.json();
+    return this.parseGoogleFormsApiResponse(apiData, originalUrl);
   }
 
   /**
@@ -579,10 +1132,37 @@ class FormParserService {
    * DateTime -> DATE_INPUT, FileUpload -> FILE_UPLOAD
    * Cờ question.required === true -> is_required = 1
    */
+  /**
+   * Helper ánh xạ một câu hỏi Microsoft Forms
+   * Hỗ trợ đầy đủ cả runtimeForms cũ và SPA REST API hiện đại (q.questionInfo JSON & choices displayText)
+   */
   _parseMicrosoftQuestion(q, orderIndex) {
     const rawType = String(q.type || q.questionType || '');
     const title = String(q.title || q.name || q.prompt || `Câu hỏi ${orderIndex}`).trim();
     const isRequired = (q.required === true || q.isRequired === true) ? 1 : 0;
+
+    const getChoiceLabel = (c) => {
+      if (!c) return '';
+      if (typeof c === 'string') return c.trim();
+      return String(c.displayText || c.Description || c.description || c.title || c.name || c.text || '').trim();
+    };
+
+    let questionInfoObj = null;
+    if (q.questionInfo) {
+      try {
+        questionInfoObj = typeof q.questionInfo === 'string' ? JSON.parse(q.questionInfo) : q.questionInfo;
+      } catch(e) {}
+    }
+
+    let choicesList = [];
+    if (Array.isArray(q.choices) && q.choices.length > 0) {
+      choicesList = q.choices.map(getChoiceLabel).filter(Boolean);
+    } else if (questionInfoObj && Array.isArray(questionInfoObj.Choices)) {
+      choicesList = questionInfoObj.Choices.map(getChoiceLabel).filter(Boolean);
+    }
+
+    const isMulti = q.allowMultipleValues === true || q.isMultiChoice === true || q.multiSelection === true || q.multiSelect === true || questionInfoObj?.ChoiceType === 2;
+    const isDropdown = q.isDropdown === true || q.subType === 'Dropdown' || q.displayType === 'Dropdown' || questionInfoObj?.OptionDisplayStyle === 'Dropdown';
 
     let questionType = 'SINGLE_CHOICE';
     let options = null;
@@ -593,23 +1173,19 @@ class FormParserService {
 
     const lowerType = rawType.toLowerCase();
 
-    // 1. MatrixChoiceGroup / Likert (Phải kiểm tra trước Choice vì Question.MatrixChoiceGroup có chứa 'choice')
+    // 1. MatrixChoiceGroup / Likert
     if (lowerType.includes('matrix') || lowerType.includes('likert')) {
-      const isMulti = q.isMultiChoice === true || q.multiSelection === true;
       questionType = isMulti ? 'CHECKBOX_GRID' : 'CHOICE_GRID';
 
       const rawRows = q.rows || q.subQuestions || q.questions || [];
-      const rawCols = q.columns || q.choices || q.options || [];
+      const rawCols = q.columns || (choicesList.length > 0 ? choicesList : (q.choices || q.options || []));
 
-      rows = rawRows.map(r => typeof r === 'string' ? r : (r.title || r.name || r.text || String(r))).filter(Boolean);
-      columns = rawCols.map(c => typeof c === 'string' ? c : (c.title || c.name || c.text || c.description || String(c))).filter(Boolean);
+      rows = rawRows.map(r => typeof r === 'string' ? r.trim() : (r.title || r.name || r.text || String(r))).filter(Boolean);
+      columns = rawCols.map(getChoiceLabel).filter(Boolean);
       options = columns;
     }
     // 2. Choice
     else if (lowerType.includes('choice')) {
-      const isMulti = q.isMultiChoice === true || q.multiSelection === true || q.isMultiple === true;
-      const isDropdown = q.isDropdown === true || q.subType === 'Dropdown' || q.displayType === 'Dropdown';
-
       if (isMulti) {
         questionType = 'MULTIPLE_CHOICE';
       } else if (isDropdown) {
@@ -618,14 +1194,11 @@ class FormParserService {
         questionType = 'SINGLE_CHOICE';
       }
 
-      const choices = q.choices || q.options || [];
-      if (Array.isArray(choices)) {
-        options = choices.map(c => typeof c === 'string' ? c : (c.description || c.title || c.name || String(c))).filter(Boolean);
-      }
+      options = choicesList;
     }
     // 3. TextField
     else if (lowerType.includes('text') || lowerType.includes('string')) {
-      const isMultiline = q.isMultiline === true || q.isLongText === true || q.subType === 'MultiLine';
+      const isMultiline = q.isMultiline === true || q.isLongText === true || q.subType === 'MultiLine' || questionInfoObj?.Multiline === true;
       questionType = isMultiline ? 'PARAGRAPH' : 'SHORT_TEXT';
       options = null;
     }
@@ -633,12 +1206,12 @@ class FormParserService {
     else if (lowerType.includes('nps') || lowerType.includes('netpromoter')) {
       questionType = 'LINEAR_SCALE';
       options = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10'];
-      minLabel = 'Cực kỳ không có khả năng';
-      maxLabel = 'Cực kỳ có khả năng';
+      minLabel = questionInfoObj?.LeftDescription || 'Hoàn toàn không có khả năng';
+      maxLabel = questionInfoObj?.RightDescription || 'Rất có khả năng';
     }
     else if (lowerType.includes('rating') || lowerType.includes('score')) {
       const ratingType = String(q.ratingType || q.subType || q.iconType || '').toLowerCase();
-      const maxLevel = parseInt(q.maxRating || q.ratingLevel || q.levelCount || 5, 10);
+      const maxLevel = parseInt(questionInfoObj?.RatingLevel || q.maxRating || q.ratingLevel || q.levelCount || 5, 10);
       const safeMax = Math.min(10, Math.max(2, isNaN(maxLevel) ? 5 : maxLevel));
       
       if (ratingType.includes('number') || ratingType.includes('linear')) {
@@ -654,10 +1227,7 @@ class FormParserService {
     // 5. Ranking (Xếp thứ tự)
     else if (lowerType.includes('ranking') || lowerType.includes('rank') || lowerType.includes('order')) {
       questionType = 'RANKING';
-      const choices = q.choices || q.options || [];
-      if (Array.isArray(choices)) {
-        options = choices.map(c => typeof c === 'string' ? c : (c.description || c.title || c.name || String(c))).filter(Boolean);
-      }
+      options = choicesList;
     }
     // 6. Section / Mục (Phân đoạn)
     else if (lowerType.includes('section') || lowerType.includes('page') || lowerType.includes('group')) {
@@ -681,9 +1251,9 @@ class FormParserService {
     }
     // Fallback
     else {
-      if (Array.isArray(q.choices) && q.choices.length > 0) {
-        questionType = 'SINGLE_CHOICE';
-        options = q.choices.map(c => typeof c === 'string' ? c : (c.description || c.title || c.name || String(c))).filter(Boolean);
+      if (choicesList.length > 0) {
+        questionType = isMulti ? 'MULTIPLE_CHOICE' : 'SINGLE_CHOICE';
+        options = choicesList;
       } else {
         questionType = 'SHORT_TEXT';
       }
@@ -703,6 +1273,200 @@ class FormParserService {
     if (columns && columns.length > 0) res.columns = columns;
 
     return res;
+  }
+
+  /**
+   * 3a. Bóc tách Microsoft Forms hiện đại (Async với SPA API Runtime & prefetchFormUrl)
+   */
+  async parseMicrosoftForms(html, originalUrl) {
+    let title = 'Khảo sát Microsoft Forms';
+    let description = '';
+    const questions = [];
+
+    const titleMatch = html.match(/<meta property="og:title" content="([^"]+)">/i) ||
+                       html.match(/<title>([^<]+)<\/title>/i);
+    if (titleMatch && titleMatch[1]) {
+      const extractedTitle = titleMatch[1].replace(/ - Microsoft Forms$/i, '').trim();
+      if (extractedTitle && extractedTitle !== 'Microsoft Forms') {
+        title = extractedTitle;
+      }
+    }
+
+    const descMatch = html.match(/<meta property="og:description" content="([^"]+)">/i);
+    if (descMatch && descMatch[1]) {
+      description = descMatch[1].trim();
+    }
+
+    // Chuẩn hóa link embed Microsoft Forms
+    let embedUrl = originalUrl;
+    if (!embedUrl.includes('embed=true')) {
+      embedUrl += (embedUrl.includes('?') ? '&' : '?') + 'embed=true';
+    }
+
+    // 1. Kiểm tra cấu hình OfficeFormServerInfo (SPA Runtime của Microsoft Forms hiện đại)
+    const serverInfo = this._extractJsonObject(html, 'OfficeFormServerInfo');
+    if (serverInfo && serverInfo.prefetchFormUrl) {
+      try {
+        await this.validateFormUrlAsync(serverInfo.prefetchFormUrl);
+
+        const headers = {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+          'Accept': 'application/json',
+          'antiForgeryToken': serverInfo.antiForgeryToken || '',
+          'x-ms-form-request-ring': serverInfo.ring || 'business',
+          'x-ms-form-request-datacenter': serverInfo.datacenter || 'sea'
+        };
+
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 6000);
+        const prefetchResp = await fetch(serverInfo.prefetchFormUrl, {
+          method: 'GET',
+          headers,
+          signal: controller.signal
+        });
+        clearTimeout(timeoutId);
+
+        if (prefetchResp.status === 401) {
+          const authErr = new Error("Biểu mẫu Microsoft Forms này đang bật chế độ 'Yêu cầu đăng nhập tài khoản Microsoft' hoặc 'Chỉ người trong tổ chức mới có thể phản hồi'. Vui lòng mở Microsoft Forms > Thu thập phản hồi (Collect responses) > Chọn 'Bất kỳ ai cũng có thể phản hồi' (Anyone can respond) và bỏ chọn 'Ghi lại tên' (Record name), hoặc sử dụng tính năng Dán Văn Bản Thông Minh (Smart Paste).");
+          authErr.status = 401;
+          authErr.statusCode = 401;
+          authErr.isMicrosoft = true;
+          throw authErr;
+        }
+
+        if (prefetchResp.ok) {
+          const apiData = await prefetchResp.json();
+          if (apiData) {
+            if (apiData.error || apiData.code === '701' || (apiData.message && apiData.message.includes('Required user login'))) {
+              const authErr = new Error("Biểu mẫu Microsoft Forms này đang bật chế độ 'Yêu cầu đăng nhập tài khoản Microsoft' hoặc 'Chỉ người trong tổ chức mới có thể phản hồi'. Vui lòng mở Microsoft Forms > Thu thập phản hồi (Collect responses) > Chọn 'Bất kỳ ai cũng có thể phản hồi' (Anyone can respond) và bỏ chọn 'Ghi lại tên' (Record name), hoặc sử dụng tính năng Dán Văn Bản Thông Minh (Smart Paste).");
+              authErr.status = 401;
+              authErr.statusCode = 401;
+              authErr.isMicrosoft = true;
+              throw authErr;
+            }
+
+            if (apiData.title) title = apiData.title;
+            if (apiData.description) description = apiData.description;
+
+            const rawQuestions = [...(apiData.questions || [])].sort((a, b) => (a.order || 0) - (b.order || 0));
+            const getChoiceLabel = (c) => {
+              if (!c) return '';
+              if (typeof c === 'string') return c.trim();
+              return String(c.displayText || c.Description || c.description || c.title || c.name || c.text || '').trim();
+            };
+
+            // Quét trước để gom nhóm Ma trận Lưới Likert (MatrixChoiceGroup + MatrixChoice)
+            const matrixGroups = new Map();
+            for (const q of rawQuestions) {
+              const typeStr = String(q.type || q.questionType || '').toLowerCase();
+              if (typeStr.includes('matrixchoicegroup') || (typeStr.includes('matrix') && !q.groupId)) {
+                const gId = q.id || q.groupId || 'matrix_group';
+                let cols = [];
+                if (Array.isArray(q.choices)) {
+                  cols = q.choices.map(getChoiceLabel).filter(Boolean);
+                }
+                if (cols.length === 0 && q.questionInfo) {
+                  try {
+                    const qi = typeof q.questionInfo === 'string' ? JSON.parse(q.questionInfo) : q.questionInfo;
+                    if (Array.isArray(qi.Choices)) {
+                      cols = qi.Choices.map(getChoiceLabel).filter(Boolean);
+                    }
+                  } catch(e) {}
+                }
+                matrixGroups.set(gId, {
+                  id: gId,
+                  title: (q.title || 'Ma trận đánh giá').trim(),
+                  columns: cols,
+                  rows: [],
+                  required: q.required === true,
+                  isMultiChoice: q.isMultiChoice === true || q.allowMultipleValues === true
+                });
+              }
+            }
+
+            for (const q of rawQuestions) {
+              const typeStr = String(q.type || q.questionType || '').toLowerCase();
+              if (q.groupId && (typeStr.includes('matrix') || typeStr.includes('likert'))) {
+                if (!matrixGroups.has(q.groupId)) {
+                  matrixGroups.set(q.groupId, {
+                    id: q.groupId,
+                    title: 'Ma trận đánh giá',
+                    columns: [],
+                    rows: [],
+                    required: false,
+                    isMultiChoice: false
+                  });
+                }
+                const grp = matrixGroups.get(q.groupId);
+                const rowName = (q.title || q.name || '').trim();
+                if (rowName && !grp.rows.includes(rowName)) {
+                  grp.rows.push(rowName);
+                }
+                if (q.required) grp.required = true;
+              }
+            }
+
+            let qIndex = 1;
+            const processedMatrixGroupIds = new Set();
+
+            for (const q of rawQuestions) {
+              if (!q) continue;
+
+              const typeStr = String(q.type || q.questionType || '').toLowerCase();
+              const gId = q.groupId || (typeStr.includes('matrixchoicegroup') ? q.id : null);
+
+              if (gId && matrixGroups.has(gId)) {
+                if (!processedMatrixGroupIds.has(gId)) {
+                  processedMatrixGroupIds.add(gId);
+                  const grp = matrixGroups.get(gId);
+                  questions.push({
+                    order_index: qIndex++,
+                    type: grp.isMultiChoice ? 'CHECKBOX_GRID' : 'CHOICE_GRID',
+                    content: grp.title || 'Ma trận đánh giá',
+                    is_required: grp.required ? 1 : 0,
+                    rows: grp.rows.length > 0 ? grp.rows : ['Tiêu chí 1'],
+                    columns: grp.columns.length > 0 ? grp.columns : ['Mức 1', 'Mức 2', 'Mức 3'],
+                    options: grp.columns.length > 0 ? grp.columns : ['Mức 1', 'Mức 2', 'Mức 3']
+                  });
+                }
+                continue;
+              }
+
+              const parsedQ = this._parseMicrosoftQuestion(q, qIndex++);
+              if (parsedQ) {
+                questions.push(parsedQ);
+              }
+            }
+
+            if (questions.length > 0) {
+              return {
+                source: 'MICROSOFT_FORM',
+                title,
+                description,
+                originalUrl,
+                embedUrl,
+                questions,
+                questionCount: questions.length,
+                note: `Đã bóc tách thành công ${questions.length} câu hỏi từ Microsoft Forms.`
+              };
+            }
+          }
+        }
+      } catch (err) {
+        if (err.status === 401 || err.statusCode === 401) {
+          throw err;
+        }
+        console.warn('[FormParserService] Lỗi khi gọi prefetchFormUrl của Microsoft Forms:', err.message);
+      }
+    }
+
+    // 2. Fallback sang parse tĩnh từ HTML (runtimeForms nhúng cũ hoặc mock test)
+    const fallbackResult = this.parseMicrosoftFormsHtml(html, originalUrl);
+    if (fallbackResult.questionCount > 0) {
+      return fallbackResult;
+    }
+
+    return fallbackResult;
   }
 
   /**
@@ -801,8 +1565,37 @@ class FormParserService {
    * 4. Bóc tách biểu mẫu từ URL ngoại vi (Google Forms / Microsoft Forms)
    * Chống SSRF toàn diện: Giám sát từng bước chuyển hướng (Redirect Validation), chặn IP nội bộ & giới hạn dung lượng
    */
-  async parseFromUrl(rawUrl, customCookie = null) {
+  async parseFromUrl(rawUrl, customCookie = null, userAccessToken = null) {
     let currentUrl = (rawUrl || '').trim();
+
+    const formIdInfo = this.extractGoogleFormId(currentUrl);
+
+    // 0. Nếu người dùng đã cấp quyền OAuth cá nhân, ưu tiên gọi thẳng Google Forms API
+    if (formIdInfo && formIdInfo.formId && userAccessToken) {
+      try {
+        return await this.fetchFromGoogleFormsApi(formIdInfo.formId, currentUrl, userAccessToken);
+      } catch (userOAuthErr) {
+        if (userOAuthErr.code === 'USER_OAUTH_UNAUTHORIZED' || userOAuthErr.code === 'SERVICE_ACCOUNT_PERMISSION_DENIED') {
+          throw userOAuthErr;
+        }
+        console.warn('[FormParserService] User OAuth Forms API thất bại, chuyển sang quét fallback:', userOAuthErr.message);
+      }
+    }
+
+    // 1. Nếu là Google Forms và URL ở dạng chỉnh sửa (/edit), ưu tiên dùng Google Forms API nếu có Service Account
+    if (formIdInfo && formIdInfo.formId && (this.hasServiceAccountConfigured() || userAccessToken)) {
+      if (currentUrl.includes('/edit')) {
+        try {
+          return await this.fetchFromGoogleFormsApi(formIdInfo.formId, currentUrl, userAccessToken);
+        } catch (saErr) {
+          if (saErr.code === 'SERVICE_ACCOUNT_PERMISSION_DENIED' || saErr.code === 'USER_OAUTH_UNAUTHORIZED' || saErr.status === 401) {
+            throw saErr;
+          }
+          console.warn('[FormParserService] Gọi Google Forms API thất bại cho link /edit, chuyển sang fallback:', saErr.message);
+        }
+      }
+    }
+
     let redirectCount = 0;
     const MAX_REDIRECTS = 3;
     let finalHtml = '';
@@ -849,9 +1642,33 @@ class FormParserService {
 
           // Phát hiện biểu mẫu Google Forms bật chế độ đăng nhập hoặc giới hạn tổ chức chuyển hướng đến Accounts
           if (location.includes('accounts.google.com') || location.includes('ServiceLogin')) {
-            const authErr = new Error("Biểu mẫu Google Forms này đang bật chế độ 'Yêu cầu đăng nhập tài khoản Google' hoặc 'Giới hạn trong tổ chức'. Vui lòng mở Google Forms > Cài đặt (Settings) > Tắt 'Giới hạn ở 1 câu trả lời' và cấp quyền công khai, hoặc sử dụng tính năng Đồng bộ qua Google Apps Script / Dán Text Nhanh.");
+            // Thử đồng bộ trực tiếp qua Google Forms API bằng Service Account hoặc User OAuth
+            if (this.hasServiceAccountConfigured() || userAccessToken) {
+              const fInfo = this.extractGoogleFormId(currentUrl) || this.extractGoogleFormId(rawUrl);
+              if (fInfo && fInfo.formId) {
+                try {
+                  return await this.fetchFromGoogleFormsApi(fInfo.formId, currentUrl, userAccessToken);
+                } catch (saErr) {
+                  if (saErr.code === 'SERVICE_ACCOUNT_PERMISSION_DENIED' || saErr.code === 'USER_OAUTH_UNAUTHORIZED' || saErr.status === 401) {
+                    throw saErr;
+                  }
+                }
+              }
+            }
+
+            const saEmail = this.getServiceAccountEmail();
+            let msg = "Biểu mẫu Google Forms này đang bật chế độ 'Yêu cầu đăng nhập tài khoản Google' hoặc 'Giới hạn trong tổ chức'.";
+            if (saEmail) {
+              msg += ` Vui lòng mở Google Forms > Thêm cộng tác viên (Add collaborators) > Thêm email: "${saEmail}" với quyền Biên tập viên, hoặc ủy quyền tài khoản Google để đồng bộ.`;
+            } else {
+              msg += " Vui lòng mở Google Forms > Cài đặt (Settings) > Tắt 'Giới hạn ở 1 câu trả lời' và cấp quyền công khai, hoặc ủy quyền tài khoản Google.";
+            }
+
+            const authErr = new Error(msg);
             authErr.status = 401;
             authErr.statusCode = 401;
+            authErr.serviceAccountEmail = saEmail;
+            authErr.code = 'SERVICE_ACCOUNT_PERMISSION_DENIED';
             throw authErr;
           }
 
@@ -868,9 +1685,32 @@ class FormParserService {
 
         if (!resp.ok) {
           if (resp.status === 401) {
-            const authErr = new Error("Biểu mẫu Google Forms này đang bật chế độ 'Yêu cầu đăng nhập tài khoản Google' hoặc 'Giới hạn trong tổ chức'. Vui lòng mở Google Forms > Cài đặt (Settings) > Tắt 'Giới hạn ở 1 câu trả lời' và cấp quyền công khai, hoặc sử dụng tính năng Đồng bộ qua Google Apps Script / Dán Text Nhanh.");
+            if (this.hasServiceAccountConfigured() || userAccessToken) {
+              const fInfo = this.extractGoogleFormId(currentUrl) || this.extractGoogleFormId(rawUrl);
+              if (fInfo && fInfo.formId) {
+                try {
+                  return await this.fetchFromGoogleFormsApi(fInfo.formId, currentUrl, userAccessToken);
+                } catch (saErr) {
+                  if (saErr.code === 'SERVICE_ACCOUNT_PERMISSION_DENIED' || saErr.code === 'USER_OAUTH_UNAUTHORIZED' || saErr.status === 401) {
+                    throw saErr;
+                  }
+                }
+              }
+            }
+
+            const saEmail = this.getServiceAccountEmail();
+            let msg = "Biểu mẫu Google Forms này đang bật chế độ 'Yêu cầu đăng nhập tài khoản Google' hoặc 'Giới hạn trong tổ chức'.";
+            if (saEmail) {
+              msg += ` Vui lòng mở Google Forms > Thêm cộng tác viên (Add collaborators) > Thêm email: "${saEmail}" với quyền Biên tập viên, hoặc ủy quyền tài khoản Google để đồng bộ.`;
+            } else {
+              msg += " Vui lòng mở Google Forms > Cài đặt (Settings) > Tắt 'Giới hạn ở 1 câu trả lời' và cấp quyền công khai, hoặc ủy quyền tài khoản Google.";
+            }
+
+            const authErr = new Error(msg);
             authErr.status = 401;
             authErr.statusCode = 401;
+            authErr.serviceAccountEmail = saEmail;
+            authErr.code = 'SERVICE_ACCOUNT_PERMISSION_DENIED';
             throw authErr;
           }
           throw new Error(`Máy chủ biểu mẫu trả về mã phản hồi ${resp.status}`);
@@ -892,6 +1732,9 @@ class FormParserService {
         if (err.name === 'AbortError') {
           throw new Error('Thời gian tải biểu mẫu vượt quá 8 giây. Vui lòng kiểm tra lại URL hoặc dùng tính năng Dán Văn Bản Thông Minh (Smart Paste).');
         }
+        if (err.status === 401 || err.statusCode === 401 || err.code === 'SERVICE_ACCOUNT_PERMISSION_DENIED' || err.code === 'USER_OAUTH_UNAUTHORIZED' || err.isAuthRequired) {
+          throw err;
+        }
         throw new Error('Không thể tải nội dung biểu mẫu từ URL: ' + err.message);
       }
     }
@@ -899,7 +1742,7 @@ class FormParserService {
     if (finalValid.isGoogle) {
       return this.parseGoogleFormsHtml(finalHtml, currentUrl);
     } else {
-      return this.parseMicrosoftFormsHtml(finalHtml, currentUrl);
+      return await this.parseMicrosoftForms(finalHtml, currentUrl);
     }
   }
 

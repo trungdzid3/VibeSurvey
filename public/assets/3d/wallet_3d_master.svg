@@ -1,0 +1,138 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 160" fill="none">
+  <defs>
+    <!-- Gradient thân ví cam Sunset ấm áp -->
+    <linearGradient id="walletSunset" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FF9E42" />
+      <stop offset="55%" stop-color="#EA580C" />
+      <stop offset="100%" stop-color="#C2410C" />
+    </linearGradient>
+
+    <!-- Gradient nắp ví uốn lượn chéo -->
+    <linearGradient id="walletFlapGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFAE68" />
+      <stop offset="60%" stop-color="#F97316" />
+      <stop offset="100%" stop-color="#EA580C" />
+    </linearGradient>
+
+    <!-- Gradient viền kim loại vàng kim sang trọng -->
+    <linearGradient id="metalRingGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FEF08A" />
+      <stop offset="50%" stop-color="#FACC15" />
+      <stop offset="100%" stop-color="#CA8A04" />
+    </linearGradient>
+
+    <!-- Gradient lõi cúc vàng kim dập nổi 3D -->
+    <linearGradient id="metalCoreGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#EAB308" />
+      <stop offset="100%" stop-color="#A16207" />
+    </linearGradient>
+
+    <!-- Gradient bóng mềm thân ví -->
+    <linearGradient id="walletInnerShadow" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#000000" stop-opacity="0" />
+      <stop offset="100%" stop-color="#000000" stop-opacity="0.18" />
+    </linearGradient>
+  </defs>
+
+  <g>
+    <!-- Bóng đổ tiếp xúc mặt đất nhẹ nhàng, hoạt động hoàn hảo cả trên Dark & Light Mode -->
+    <ellipse cx="114" cy="148" rx="76" ry="7" fill="#000000" fill-opacity="0.14" />
+
+    <!-- KHỐI VÍ DA NGHIÊNG CHÉO TỰ NHIÊN (-11 ĐỘ) -->
+    <g transform="translate(110, 85) rotate(-11) translate(-110, -85)">
+      <!-- 1. THÂN VÍ DA GẤP CẦM TAY BO TRÒN 4 GÓC MỀM MẠI (KHÔNG CÓ QUAI XÁCH CẶP TÁP) -->
+      <rect x="32" y="38" width="156" height="94" rx="18" fill="url(#walletSunset)" />
+      <!-- Lớp đổ bóng 3D nhẹ ở chân thân ví -->
+      <rect x="32" y="38" width="156" height="94" rx="18" fill="url(#walletInnerShadow)" />
+
+      <!-- Vệt phản quang ánh sáng mép trên thân ví -->
+      <rect x="44" y="43" width="132" height="10" rx="5" fill="#FFFFFF" fill-opacity="0.22" />
+
+      <!-- 2. NẮP VÍ DA GẤP UỐN LƯỢN CHÉO MỀM MẠI ÔM THÂN VÍ -->
+      <path d="M 32 38
+               L 188 38
+               A 18 18 0 0 1 188 76
+               L 188 88
+               C 188 103, 170 107, 152 107
+               C 128 107, 96 84, 32 82
+               Z" 
+            fill="url(#walletFlapGrad)" />
+
+      <!-- Vệt bóng đổ dưới nắp ví tạo chiều sâu Claymorphism -->
+      <path d="M 32 82
+               C 96 84, 128 107, 152 107
+               C 170 107, 188 103, 188 88
+               L 188 91
+               C 188 106, 170 110, 152 110
+               C 128 110, 96 87, 32 85
+               Z" 
+            fill="#000000" fill-opacity="0.12" />
+
+      <!-- Đường may khâu thủ công tinh tế (stitching line) -->
+      <path d="M 38 44
+               L 182 44
+               A 12 12 0 0 1 182 76
+               L 182 86
+               C 182 98, 168 102, 151 102
+               C 128 102, 97 80, 38 78"
+            stroke="#FED7AA" 
+            stroke-width="1.2" 
+            stroke-dasharray="3.5 2.5" 
+            stroke-linecap="round" 
+            fill="none" 
+            opacity="0.75" />
+
+      <!-- 3. CÚC BẤM KIM LOẠI TRÒN SAO VÀNG Ở GÓC PHẢI NẮP GẬP -->
+      <g transform="translate(154, 87)">
+        <!-- Viền tròn trắng bóng ngoài cùng -->
+        <circle cx="0" cy="0" r="11" fill="#FFFFFF" fill-opacity="0.95" />
+        <circle cx="0" cy="0" r="11" stroke="#000000" stroke-opacity="0.08" stroke-width="0.5" />
+        
+        <!-- Vòng viền kim loại vàng kim -->
+        <circle cx="0" cy="0" r="9.5" fill="url(#metalRingGrad)" />
+        
+        <!-- Lõi kim loại vàng đậm dập nổi -->
+        <circle cx="0" cy="0" r="7.5" fill="url(#metalCoreGrad)" />
+        
+        <!-- Ngôi sao 5 cánh màu trắng dập nổi ở trung tâm cúc bấm -->
+        <path d="M 0 -5
+                 L 1.45 -1.6
+                 L 5 -1.3
+                 L 2.35 1.15
+                 L 3.15 4.65
+                 L 0 2.75
+                 L -3.15 4.65
+                 L -2.35 1.15
+                 L -5 -1.3
+                 L -1.45 -1.6
+                 Z" 
+              fill="#FFFFFF" />
+      </g>
+    </g>
+
+    <!-- 4. VỆT SAO SPARKLE VÀNG NHỎ LẤP LÁNH TINH TẾ -->
+    <!-- Ngôi sao 4 cánh lơ lửng góc trên bên trái -->
+    <path d="M 22 28
+             C 22 23, 22 23, 17 23
+             C 22 23, 22 23, 22 18
+             C 22 23, 22 23, 27 23
+             C 22 23, 22 23, 22 28 Z" 
+          fill="#FDE047" fill-opacity="0.85" />
+
+    <!-- Ngôi sao 4 cánh nhỏ góc trên bên phải -->
+    <path d="M 202 24
+             C 202 20, 202 20, 198 20
+             C 202 20, 202 20, 202 16
+             C 202 20, 202 20, 206 20
+             C 202 20, 202 20, 202 24 Z" 
+          fill="#FDE047" fill-opacity="0.75" />
+
+    <!-- Ngôi sao 4 cánh nhỏ góc dưới bên phải -->
+    <path d="M 200 120
+             C 200 116, 200 116, 196 116
+             C 200 116, 200 116, 200 112
+             C 200 116, 200 116, 204 116
+             C 200 116, 200 116, 200 120 Z" 
+          fill="#FDE047" fill-opacity="0.7" />
+  </g>
+</svg>

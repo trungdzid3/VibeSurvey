@@ -25,7 +25,10 @@ module.exports = {
     CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET || '',
     CALLBACK_URL: process.env.GOOGLE_CALLBACK_URL || `${process.env.APP_URL || 'http://localhost:3000'}/api/v1/auth/google/callback`,
     SYNC_EMAIL: process.env.GOOGLE_SYNC_EMAIL || '',
-    SYNC_COOKIE: process.env.GOOGLE_SYNC_COOKIE || process.env.GOOGLE_SESSION_COOKIE || ''
+    SYNC_COOKIE: process.env.GOOGLE_SYNC_COOKIE || process.env.GOOGLE_SESSION_COOKIE || '',
+    SERVICE_ACCOUNT_KEY_PATH: process.env.GOOGLE_SERVICE_ACCOUNT_KEY_PATH || path.join(__dirname, 'google-service-account.json'),
+    SERVICE_ACCOUNT_EMAIL: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL || '',
+    SERVICE_ACCOUNT_JSON: process.env.GOOGLE_SERVICE_ACCOUNT_JSON || ''
   },
 
   // Mô hình kinh tế (Unit Economics) theo chỉ đạo Argon Chief Visionary & KE_HOACH_TONG_THE.md
@@ -37,8 +40,8 @@ module.exports = {
     BANK_TRANSFER_FEE_UNDER_100K_VND: 2000, // Phí ngân hàng rút < 100k: thu 2,000đ
     BANK_TRANSFER_FEE_FROM_100K_VND: 0, // Phí ngân hàng rút >= 100k: miễn phí
     SWAP_DISCOUNT_RATE: 0.70, // Đổi điểm sang credit nhận ít hơn (giữ lại cho tương thích ngược)
-    SWAP_BONUS_RATE: 1.05, // Chuẩn mới: Đổi Point sang Credit nhận thưởng +5% (1.000 Point -> 1.050 Credit)
-    MIN_SWAP_POINTS: 1000, // Ngưỡng tối thiểu đổi Point sang Credit: 1.000 Point (1.000đ)
+    SWAP_BONUS_RATE: 1.05, // Chuẩn mới: Đổi Point sang Credit nhận thưởng +5% (5.000 Point -> 5.250 Credit)
+    MIN_SWAP_POINTS: 1000, // Ngưỡng tối thiểu đổi Point sang Credit: 5.000 Point (5.000đ)
     PLATFORM_TAKE_RATE: parseFloat(process.env.PLATFORM_TAKE_RATE) || 0.40, // 40% biên lợi nhuận sàn cơ sở
     PAYOUT_FIXED_FEE_VND: parseInt(process.env.PAYOUT_FEE_VND, 10) || 2000, // Phí rút tiền tiêu chuẩn 2,000 VND
     BASE_COST_PER_WEIGHT_VND: 500, // 500 VND cơ sở cho mỗi trọng số câu hỏi

@@ -404,6 +404,30 @@ class VoucherService {
         }
       }
 
+      // 1c. Kiểm tra cơ chế Rút Thăm Ngẫu Nhiên (Lucky Drop) theo kế hoạch gốc
+      if (surveyId) {
+        const surveyInfo = db.prepare('SELECT target_responses, collected_responses, voucher_dist_mode FROM surveys WHERE id = ?').get(surveyId);
+        if (surveyInfo && surveyInfo.voucher_dist_mode === 'LUCKY_DROP') {
+          const availCountRow = db.prepare(`
+            SELECT COUNT(*) as cnt FROM voucher_codes 
+            WHERE (survey_id = ? OR (campaign_id = ? AND survey_id IS NULL)) AND status IN ('AVAILABLE', 'RESERVED_FOR_SURVEY')
+          `).get(surveyId, campaignId);
+          const availCount = availCountRow ? availCountRow.cnt : 0;
+          const remainingNeeded = Math.max(1, (surveyInfo.target_responses || 100) - (surveyInfo.collected_responses || 0));
+          const winProb = Math.min(1.0, availCount / remainingNeeded);
+
+          if (availCount <= 0 || Math.random() > winProb) {
+            db.exec('COMMIT');
+            return {
+              claimed: false,
+              isLuckyDropMiss: true,
+              message: 'Rất tiếc bạn chưa trúng giải thưởng Voucher may mắn trong lần rút thăm này.',
+              voucher: null
+            };
+          }
+        }
+      }
+
       // 2. Tìm 1 mã còn khả dụng (ưu tiên mã của khảo sát hoặc mã chung của chiến dịch tài trợ)
       let availableCode = null;
       if (surveyId && campaignId) {

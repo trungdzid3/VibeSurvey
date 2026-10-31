@@ -7,6 +7,8 @@ const walletController = require('../controllers/walletController');
 const voucherController = require('../controllers/voucherController');
 const adminController = require('../controllers/adminController');
 const userController = require('../controllers/userController');
+const bugReportController = require('../controllers/bugReportController');
+const forumController = require('../controllers/forumController');
 const { authenticateToken, optionalAuthenticateToken, requireRole } = require('../middlewares/auth');
 const { checkIpBannedMiddleware } = require('../middlewares/ipBan');
 
@@ -20,6 +22,9 @@ router.post('/auth/login', (req, res) => authController.login(req, res));
 router.post('/auth/google-auth', (req, res) => authController.googleAuth(req, res));
 router.get('/auth/google', (req, res) => authController.initiateGoogleOAuth(req, res));
 router.get('/auth/google/callback', (req, res) => authController.handleGoogleOAuthCallback(req, res));
+router.get('/auth/google/forms-connect', optionalAuthenticateToken, (req, res) => authController.initiateGoogleFormsConnect(req, res));
+router.post('/auth/google/forms-disconnect', authenticateToken, (req, res) => authController.disconnectGoogleForms(req, res));
+router.get('/auth/google/forms-status', authenticateToken, (req, res) => authController.getGoogleFormsStatus(req, res));
 router.get('/auth/me', authenticateToken, (req, res) => authController.getMe(req, res));
 router.put('/auth/profile', authenticateToken, (req, res) => authController.updateProfile(req, res));
 router.post('/auth/link-google', authenticateToken, (req, res) => authController.linkGoogle(req, res));
@@ -56,6 +61,7 @@ router.get('/surveys/:id/export', authenticateToken, requireRole(['RESPONDENT', 
 router.post('/surveys/:id/close', authenticateToken, requireRole(['RESPONDENT', 'CREATOR', 'ADMIN']), (req, res) => surveyController.closeSurvey(req, res));
 router.delete('/surveys/:id', authenticateToken, requireRole(['RESPONDENT', 'CREATOR', 'ADMIN']), (req, res) => surveyController.deleteSurvey(req, res));
 router.post('/surveys/parse-external', authenticateToken, requireRole(['RESPONDENT', 'CREATOR', 'ADMIN']), (req, res) => surveyController.parseExternalForm(req, res));
+router.get('/surveys/service-account-info', authenticateToken, (req, res) => surveyController.getServiceAccountInfo(req, res));
 router.post('/surveys/:id/sponsor-vouchers', authenticateToken, requireRole(['RESPONDENT', 'CREATOR', 'ADMIN']), (req, res) => surveyController.addSponsorVouchers(req, res));
 router.post('/surveys/:id/boost-fast-track', authenticateToken, requireRole(['RESPONDENT', 'CREATOR', 'ADMIN']), (req, res) => surveyController.boostFastTrack(req, res));
 router.post('/surveys/:id/pin', authenticateToken, requireRole(['RESPONDENT', 'CREATOR', 'ADMIN']), (req, res) => surveyController.pinSurvey(req, res));
@@ -94,6 +100,8 @@ router.get('/vouchers/my-vouchers', authenticateToken, (req, res) => voucherCont
 
 // === 5. Tuyến Đường Quản Trị Hệ Thống (Admin) ===
 router.get('/admin/overview', authenticateToken, requireRole(['ADMIN']), (req, res) => adminController.getOverview(req, res));
+router.get('/admin/analytics/trends', authenticateToken, requireRole(['ADMIN']), (req, res) => adminController.getAnalyticsTrends(req, res));
+router.get('/admin/audit-logs', authenticateToken, requireRole(['ADMIN']), (req, res) => adminController.getAuditLogs(req, res));
 router.get('/admin/payouts', authenticateToken, requireRole(['ADMIN']), (req, res) => adminController.listPayouts(req, res));
 router.post('/admin/payouts/:id/action', authenticateToken, requireRole(['ADMIN']), (req, res) => adminController.handlePayout(req, res));
 router.get('/admin/fraud-stats', authenticateToken, requireRole(['ADMIN']), (req, res) => adminController.getFraudStats(req, res));
@@ -108,5 +116,22 @@ router.post('/admin/switch-tier', authenticateToken, requireRole(['ADMIN']), (re
 // === 6. Tuyến Đường Tải Ảnh Siêu Nhẹ (Lightweight Image Upload) ===
 router.post('/upload/image', optionalAuthenticateToken, (req, res) => surveyController.uploadImage(req, res));
 
+
+
+// === 7. Tuyến Đường Báo Cáo Sự Cố & Đăng Tải Lỗi (Bug Reports & Feedback) ===
+router.post('/bug-reports', optionalAuthenticateToken, (req, res) => bugReportController.createBugReport(req, res));
+router.get('/bug-reports/my', authenticateToken, (req, res) => bugReportController.getMyBugReports(req, res));
+router.get('/admin/bug-reports', authenticateToken, requireRole(['ADMIN']), (req, res) => bugReportController.getAdminBugReports(req, res));
+router.get('/admin/bug-reports/:id', authenticateToken, requireRole(['ADMIN']), (req, res) => bugReportController.getBugReportById(req, res));
+router.patch('/admin/bug-reports/:id', authenticateToken, requireRole(['ADMIN']), (req, res) => bugReportController.updateBugReportStatus(req, res));
+router.delete('/admin/bug-reports/:id', authenticateToken, requireRole(['ADMIN']), (req, res) => bugReportController.deleteBugReport(req, res));
+
+// === 8. Tuyến Đường Diễn Đàn Thảo Luận & Chia Sẻ Khảo Sát (Forum Community Board) ===
+router.get('/forum/posts', optionalAuthenticateToken, (req, res) => forumController.listPosts(req, res));
+router.post('/forum/posts', authenticateToken, (req, res) => forumController.createPost(req, res));
+router.get('/forum/posts/:id', optionalAuthenticateToken, (req, res) => forumController.getPost(req, res));
+router.post('/forum/posts/:id/comments', authenticateToken, (req, res) => forumController.addComment(req, res));
+router.post('/forum/posts/:id/like', authenticateToken, (req, res) => forumController.toggleLike(req, res));
+router.delete('/forum/posts/:id', authenticateToken, (req, res) => forumController.deletePost(req, res));
 
 module.exports = router;

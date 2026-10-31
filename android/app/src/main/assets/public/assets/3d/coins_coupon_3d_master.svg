@@ -1,0 +1,119 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 160" fill="none">
+  <defs>
+    <!-- Gradient mặt đồng xu vàng kim 3D -->
+    <linearGradient id="coinGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FEF08A" />
+      <stop offset="45%" stop-color="#FACC15" />
+      <stop offset="100%" stop-color="#CA8A04" />
+    </linearGradient>
+
+    <!-- Gradient thành dày đồng xu vàng kim 3D -->
+    <linearGradient id="coinSideGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#EAB308" />
+      <stop offset="100%" stop-color="#A16207" />
+    </linearGradient>
+
+    <!-- Gradient vé coupon cam Sunset nổi bật -->
+    <linearGradient id="couponSunsetGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FB923C" />
+      <stop offset="60%" stop-color="#F97316" />
+      <stop offset="100%" stop-color="#EA580C" />
+    </linearGradient>
+  </defs>
+
+  <g>
+    <!-- Bóng đổ tiếp xúc mặt đất trong suốt cho toàn bộ cụm tài sản, hoạt động tốt trên cả Dark & Light Mode -->
+    <ellipse cx="128" cy="146" rx="66" ry="7" fill="#000000" fill-opacity="0.14" />
+
+    <!-- 1. CHỒNG 3 ĐỒNG XU KIM LOẠI VÀNG BO TRÒN ĐẶT PHÍA SAU BÊN PHẢI -->
+    <!-- Đồng xu 1 (dưới cùng) -->
+    <g>
+      <!-- Thành cạnh 3D đồng xu 1 -->
+      <path d="M 136 100 C 136 112, 180 112, 180 100 L 180 112 C 180 124, 136 124, 136 112 Z" fill="url(#coinSideGrad)" />
+      <!-- Mặt trên đồng xu 1 -->
+      <ellipse cx="158" cy="100" rx="22" ry="10" fill="url(#coinGrad)" />
+    </g>
+
+    <!-- Đồng xu 2 (ở giữa) -->
+    <g>
+      <!-- Thành cạnh 3D đồng xu 2 -->
+      <path d="M 136 80 C 136 92, 180 92, 180 80 L 180 92 C 180 104, 136 104, 136 92 Z" fill="url(#coinSideGrad)" />
+      <!-- Mặt trên đồng xu 2 -->
+      <ellipse cx="158" cy="80" rx="22" ry="10" fill="url(#coinGrad)" />
+    </g>
+
+    <!-- Đồng xu 3 (trên cùng) -->
+    <g>
+      <!-- Thành cạnh 3D đồng xu 3 -->
+      <path d="M 136 60 C 136 72, 180 72, 180 60 L 180 72 C 180 84, 136 84, 136 72 Z" fill="url(#coinSideGrad)" />
+      <!-- Mặt trên đồng xu 3 -->
+      <ellipse cx="158" cy="60" rx="22" ry="10" fill="url(#coinGrad)" />
+      <!-- Vành gờ kim loại dập nổi bên trong -->
+      <ellipse cx="158" cy="60" rx="16.5" ry="7.2" stroke="#FEF08A" stroke-width="1.2" fill="none" opacity="0.65" />
+    </g>
+
+    <!-- 2. VÉ COUPON % NHỎ GỌN, XOAY CHÉO RÕ RỆT (-26 ĐỘ) ĐAN PHÍA TRƯỚC -->
+    <!-- Tâm vé đặt tại (102, 94), kích thước 80x46px -->
+    <g transform="translate(102, 94) rotate(-26)">
+      <!-- Bóng đổ nhẹ của vé coupon lên đồng xu và sàn phía sau -->
+      <path d="M -34 -21
+               L 34 -21
+               A 6.5 6.5 0 0 1 40 -14.5
+               L 40 -4.5
+               A 6.5 6.5 0 0 0 40 8.5
+               L 40 18.5
+               A 6.5 6.5 0 0 1 34 25
+               L -34 25
+               A 6.5 6.5 0 0 1 -40 18.5
+               L -40 8.5
+               A 6.5 6.5 0 0 0 -40 -4.5
+               L -40 -14.5
+               A 6.5 6.5 0 0 1 -34 -21 Z" 
+            fill="#000000" 
+            fill-opacity="0.15" 
+            transform="translate(2, 3)" />
+
+      <!-- Thân vé cam 3D có 2 khuyết bán nguyệt đối xứng ở 2 mép cạnh ngắn -->
+      <path d="M -34 -23
+               L 34 -23
+               A 6.5 6.5 0 0 1 40 -16.5
+               L 40 -6.5
+               A 6.5 6.5 0 0 0 40 6.5
+               L 40 16.5
+               A 6.5 6.5 0 0 1 34 23
+               L -34 23
+               A 6.5 6.5 0 0 1 -40 16.5
+               L -40 6.5
+               A 6.5 6.5 0 0 0 -40 -6.5
+               L -40 -16.5
+               A 6.5 6.5 0 0 1 -34 -23 Z" 
+            fill="url(#couponSunsetGrad)" />
+
+      <!-- Vệt phản quang ánh sáng mép trên thân vé -->
+      <path d="M -34 -21 L 34 -21" stroke="#FFFFFF" stroke-width="1.5" stroke-linecap="round" opacity="0.35" />
+
+      <!-- Thẻ trắng bo góc bên trong -->
+      <rect x="-26" y="-16.5" width="52" height="33" rx="5.5" fill="#FFFFFF" />
+
+      <!-- Ký hiệu % màu cam đậm nổi bật -->
+      <text x="0" y="8" font-family="Montserrat, -apple-system, sans-serif" font-size="24" font-weight="900" fill="#EA580C" text-anchor="middle">%</text>
+    </g>
+
+    <!-- 3. CÁC NGÔI SAO VÀNG 4 CÁNH LẤP LÁNH TINH TẾ -->
+    <!-- Ngôi sao nhỏ phía trên bên phải chồng xu -->
+    <path d="M 198 40
+             C 198 35, 198 35, 193 35
+             C 198 35, 198 35, 198 30
+             C 198 35, 198 35, 203 35
+             C 198 35, 198 35, 198 40 Z" 
+          fill="#FDE047" fill-opacity="0.85" />
+
+    <!-- Ngôi sao nhỏ lơ lửng phía trên bên trái -->
+    <path d="M 38 48
+             C 38 43, 38 43, 33 43
+             C 38 43, 38 43, 38 38
+             C 38 43, 38 43, 43 43
+             C 38 43, 38 43, 38 48 Z" 
+          fill="#FDE047" fill-opacity="0.75" />
+  </g>
+</svg>

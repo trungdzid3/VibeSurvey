@@ -1,5 +1,6 @@
 const db = require('../db/database');
 const ledgerService = require('../services/ledgerService');
+const auditLogService = require('../services/auditLogService');
 const config = require('../config');
 
 class WalletController {
@@ -61,6 +62,18 @@ class WalletController {
 
       const safeDescription = String(description || 'Nạp tiền vào tài khoản').trim().substring(0, 200);
       const result = ledgerService.depositCredit(user.id, amount, safeDescription);
+
+      if (req.user && req.user.role === 'ADMIN') {
+        auditLogService.logAction({
+          admin_id: req.user.id,
+          admin_name: req.user.name || req.user.email,
+          action: 'ADMIN_DEPOSIT_CREDIT',
+          target_type: 'WALLET',
+          target_id: user.id,
+          details: { amount, new_balance: result.newBalance, description: safeDescription },
+          ip_address: req.ip || req.headers['x-forwarded-for'] || null
+        });
+      }
 
       const bonusMsg = result.bonusCreditVnd > 0 
         ? ` (Tặng thêm +${result.bonusCreditVnd.toLocaleString('vi-VN')} Credit tạo form bậc ${result.tier})` 
@@ -311,6 +324,16 @@ class WalletController {
       }
       const userId = req.user ? req.user.id : null;
       const result = ledgerService.simulatePaymentSuccess(order_code, userId);
+
+      auditLogService.logAction({
+        admin_id: req.user ? req.user.id : 'SYSTEM',
+        admin_name: req.user ? (req.user.name || req.user.email) : 'Hệ thống mô phỏng',
+        action: 'SIMULATE_PAYMENT_SUCCESS',
+        target_type: 'DEPOSIT_ORDER',
+        target_id: order_code,
+        details: { result, order_code },
+        ip_address: req.ip || req.headers['x-forwarded-for'] || null
+      });
       return res.json(result);
     } catch (err) {
       console.error('Lỗi simulatePaymentSuccess:', err);

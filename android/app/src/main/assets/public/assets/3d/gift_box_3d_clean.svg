@@ -1,0 +1,172 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="100%" height="100%" fill="none">
+  <defs>
+    <!-- Filter bong do mem Claymorphism 3D -->
+    <filter id="gift-shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="8" stdDeviation="6" flood-color="#000000" flood-opacity="0.14" />
+      <feDropShadow dx="0" dy="3" stdDeviation="3" flood-color="#C2410C" flood-opacity="0.2" />
+    </filter>
+    <filter id="bow-shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="3" stdDeviation="2.5" flood-color="#000000" flood-opacity="0.15" />
+    </filter>
+    <filter id="star-glow-gift" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="1.8" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+
+    <!-- Gradients Hop Qua Pastel Peach / Cam Nhat (#FFB380 -> #FF8C00 -> #EA580C) -->
+    <linearGradient id="box-front-left" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFBD99" />
+      <stop offset="50%" stop-color="#FFA066" />
+      <stop offset="100%" stop-color="#FF7A29" />
+    </linearGradient>
+
+    <linearGradient id="box-front-right" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FF7A29" />
+      <stop offset="60%" stop-color="#EA580C" />
+      <stop offset="100%" stop-color="#C2410C" />
+    </linearGradient>
+
+    <linearGradient id="lid-top" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#FFE4D6" />
+      <stop offset="50%" stop-color="#FFF5EE" />
+      <stop offset="100%" stop-color="#FED7AA" />
+    </linearGradient>
+
+    <linearGradient id="lid-rim-left" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFBD99" />
+      <stop offset="100%" stop-color="#FF7A29" />
+    </linearGradient>
+
+    <linearGradient id="lid-rim-right" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FF7A29" />
+      <stop offset="100%" stop-color="#9A3412" />
+    </linearGradient>
+
+    <!-- Gradients Ruy Bang Va No Trang Kem Mem Mai -->
+    <linearGradient id="ribbon-white" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" />
+      <stop offset="65%" stop-color="#FFFDF8" />
+      <stop offset="100%" stop-color="#FFEEDD" />
+    </linearGradient>
+
+    <linearGradient id="ribbon-shade" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFF0E6" />
+      <stop offset="100%" stop-color="#FED7AA" />
+    </linearGradient>
+
+    <linearGradient id="gold-bright-gift" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" />
+      <stop offset="35%" stop-color="#FDE68A" />
+      <stop offset="75%" stop-color="#F59E0B" />
+      <stop offset="100%" stop-color="#B45309" />
+    </linearGradient>
+  </defs>
+
+  <!-- ================= BONG DO TIEP XUC MAT SAN ================= -->
+  <ellipse cx="80" cy="144" rx="54" ry="9" fill="#000000" opacity="0.14" />
+  <ellipse cx="80" cy="143" rx="34" ry="5.5" fill="#000000" opacity="0.08" />
+
+  <!-- ================= THAN HOP QUA 3D MAU CAM PASTEL BO GOC ================= -->
+  <g id="gift-box-body" filter="url(#gift-shadow)">
+    <!-- Mat trai than hop bo goc tron -->
+    <path d="M 38 88 L 80 102 L 80 134 C 80 137, 78 139, 74 138 L 42 127 C 39 126, 38 123, 38 120 Z" fill="url(#box-front-left)" />
+
+    <!-- Mat phai than hop bo goc tron -->
+    <path d="M 80 102 L 122 88 L 122 120 C 122 123, 121 126, 118 127 L 86 138 C 82 139, 80 137, 80 134 Z" fill="url(#box-front-right)" />
+
+    <!-- Duong song giua tao do sau cho hop -->
+    <line x1="80" y1="102" x2="80" y2="135" stroke="#FFA066" stroke-width="1.2" opacity="0.6" />
+
+    <!-- Ruy bang doc than hop mat trai -->
+    <path d="M 57 94 L 63 96 L 63 131 L 57 129 Z" fill="url(#ribbon-white)" />
+
+    <!-- Ruy bang doc than hop mat phai -->
+    <path d="M 97 96 L 103 94 L 103 129 L 97 131 Z" fill="url(#ribbon-white)" />
+
+    <!-- Ruy bang ngang than hop mat trai -->
+    <path d="M 38 104 L 80 118 L 80 124 L 38 110 Z" fill="url(#ribbon-white)" opacity="0.95" />
+
+    <!-- Ruy bang ngang than hop mat phai -->
+    <path d="M 80 118 L 122 104 L 122 110 L 80 124 Z" fill="url(#ribbon-shade)" opacity="0.95" />
+  </g>
+
+  <!-- ================= ANH SANG VANG PHAT RA TU KHE HOP MO ================= -->
+  <polygon points="40 85, 80 97, 120 85, 80 75" fill="#FDE68A" opacity="0.5" />
+
+  <!-- ================= VIEN AMBIENT OCCLUSION VA NAP HOP MO NHE ================= -->
+  <!-- Bong do ambient occlusion cua nap hop do xuong than hop -->
+  <polygon points="35 88, 80 102, 125 88, 80 84" fill="#000000" opacity="0.18" />
+
+  <!-- Nap hop 3D mo nhe va nghieng bo goc -->
+  <g id="gift-box-lid" transform="translate(0, -6) rotate(-3 80 80)" filter="url(#gift-shadow)">
+    <!-- Vanh nap ben trai -->
+    <path d="M 34 78 L 80 91 L 80 98 L 34 85 Z" fill="url(#lid-rim-left)" />
+
+    <!-- Vanh nap ben phai -->
+    <path d="M 80 91 L 126 78 L 126 85 L 80 98 Z" fill="url(#lid-rim-right)" />
+
+    <!-- Mat tren nap hop phang pastel peach bong nhe -->
+    <path d="M 34 78 C 33 76, 35 74, 38 73 L 77 62 C 79 61, 81 61, 83 62 L 122 73 C 125 74, 127 76, 126 78 L 83 91 C 81 92, 79 92, 77 91 Z" fill="url(#lid-top)" />
+
+    <!-- Ruy bang tren mat nap hop: vach cheo 1 -->
+    <path d="M 55 68 L 61 66 L 105 85 L 99 87 Z" fill="url(#ribbon-white)" />
+
+    <!-- Ruy bang tren mat nap hop: vach cheo 2 -->
+    <path d="M 102 68 L 106 70 L 60 87 L 55 85 Z" fill="url(#ribbon-white)" />
+
+    <!-- Vanh ruy bang mat truoc nap trai -->
+    <path d="M 58 86 L 64 88 L 64 95 L 58 93 Z" fill="url(#ribbon-white)" />
+    <!-- Vanh ruy bang mat truoc nap phai -->
+    <path d="M 96 88 L 102 86 L 102 93 L 96 95 Z" fill="url(#ribbon-shade)" />
+  </g>
+
+  <!-- ================= RUY BANG VA NO THAT 2 CANH TRON MEM MAI ================= -->
+  <g id="gift-bow" transform="translate(0, -6) rotate(-3 80 80)" filter="url(#bow-shadow)">
+    <!-- Duoi ruy bang ru ben trai -->
+    <path d="M 76 80 C 70 87, 62 94, 56 99 C 62 97, 70 93, 77 84 Z" fill="url(#ribbon-shade)" />
+    <!-- Duoi ruy bang ru ben phai -->
+    <path d="M 84 80 C 90 87, 98 94, 104 99 C 98 97, 90 93, 83 84 Z" fill="url(#ribbon-shade)" />
+
+    <!-- Canh no trai tron tria mem mai bo 3D -->
+    <path d="M 78 77 C 68 62, 50 56, 52 47 C 54 40, 68 42, 77 68 Z" fill="url(#ribbon-white)" />
+    <path d="M 78 75 C 66 58, 51 52, 55 45 C 62 38, 77 52, 79 75 Z" fill="url(#ribbon-white)" />
+    <!-- Long trong canh no trai tao chieu sau -->
+    <ellipse cx="64" cy="54" rx="5" ry="8" fill="#FED7AA" opacity="0.6" transform="rotate(-30 64 54)" />
+
+    <!-- Canh no phai tron tria mem mai bo 3D -->
+    <path d="M 82 77 C 92 62, 110 56, 108 47 C 106 40, 92 42, 83 68 Z" fill="url(#ribbon-shade)" />
+    <path d="M 82 75 C 94 58, 109 52, 105 45 C 98 38, 83 52, 81 75 Z" fill="url(#ribbon-shade)" />
+    <!-- Long trong canh no phai tao chieu sau -->
+    <ellipse cx="96" cy="54" rx="5" ry="8" fill="#FED7AA" opacity="0.6" transform="rotate(30 96 54)" />
+
+    <!-- Nut that no o giua tron tria 3D co highlight -->
+    <circle cx="80" cy="76" r="6.5" fill="url(#ribbon-white)" />
+    <ellipse cx="78.5" cy="74.5" rx="2.8" ry="2" fill="#FFFFFF" opacity="0.85" />
+  </g>
+
+  <!-- ================= NGOI SAO VANG NHO LAP LANH (SPARKLES) ================= -->
+  <!-- Ngoi sao 1: goc tren phai -->
+  <g filter="url(#star-glow-gift)">
+    <path d="M 132 38 Q 132 46 140 46 Q 132 46 132 54 Q 132 46 124 46 Q 132 46 132 38 Z" fill="url(#gold-bright-gift)" />
+    <circle cx="132" cy="46" r="1.8" fill="#FFFFFF" />
+  </g>
+
+  <!-- Ngoi sao 2: ben trai giua -->
+  <g filter="url(#star-glow-gift)">
+    <path d="M 28 66 Q 28 73 35 73 Q 28 73 28 80 Q 28 73 21 73 Q 28 73 28 66 Z" fill="url(#gold-bright-gift)" />
+    <circle cx="28" cy="73" r="1.4" fill="#FFFFFF" />
+  </g>
+
+  <!-- Ngoi sao 3: tren cao ben trai -->
+  <g filter="url(#star-glow-gift)">
+    <path d="M 44 32 Q 44 37 49 37 Q 44 37 44 42 Q 44 37 39 37 Q 44 37 44 32 Z" fill="url(#gold-bright-gift)" />
+    <circle cx="44" cy="37" r="1" fill="#FFFFFF" />
+  </g>
+
+  <!-- Cac hat sang vang li ti phat sang -->
+  <circle cx="138" cy="74" r="2" fill="#FBBF24" opacity="0.8" />
+  <circle cx="26" cy="48" r="1.8" fill="#FDE68A" opacity="0.75" />
+  <circle cx="118" cy="26" r="1.5" fill="#F59E0B" opacity="0.7" />
+  <circle cx="58" cy="128" r="1.8" fill="#FBBF24" opacity="0.6" />
+  <circle cx="134" cy="112" r="1.6" fill="#FDBA74" opacity="0.75" />
+</svg>

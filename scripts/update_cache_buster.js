@@ -1,6 +1,7 @@
 const fs = require('fs');
 let html = fs.readFileSync('public/index.html', 'utf8');
-html = html.replace(/styles\.css(\?v=[^"']*)?/g, 'styles.css?v=3.5.5');
-html = html.replace(/app\.js(\?v=[^"']*)?/g, 'app.js?v=3.5.5');
+const now = Date.now();
+html = html.replace(/app\.js\?v=[^"'\s>]+/g, 'app.js?v=4.7.6_' + now);
+html = html.replace(/styles\.css\?v=[^"'\s>]+/g, 'styles.css?v=4.7.6_' + now);
 fs.writeFileSync('public/index.html', html, 'utf8');
-console.log('✅ Đã cập nhật cache buster v=3.5.5 trong index.html');
+console.log('Updated cache-buster in public/index.html to 4.7.6_' + now);

@@ -7,11 +7,59 @@ const apiRoutes = require('./routes/api');
 
 const app = express();
 
-// Bảo mật với Helmet (cấu hình cho phép SPA và nhúng assets an toàn)
+// Bao mat voi Helmet (cau hinh cho phep SPA, CDN va nhung assets/iframe an toan)
 app.use(
   helmet({
-    contentSecurityPolicy: false,
-    crossOriginEmbedderPolicy: false
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: [
+          "'self'",
+          "'unsafe-inline'",
+          "'unsafe-eval'",
+          'https://accounts.google.com',
+          'https://cdn.tailwindcss.com',
+          'https://unpkg.com'
+        ],
+        scriptSrcAttr: ["'unsafe-inline'"],
+        styleSrc: [
+          "'self'",
+          "'unsafe-inline'",
+          'https://fonts.googleapis.com'
+        ],
+        fontSrc: [
+          "'self'",
+          'data:',
+          'https://fonts.gstatic.com'
+        ],
+        imgSrc: [
+          "'self'",
+          'data:',
+          'blob:',
+          'https:'
+        ],
+        mediaSrc: [
+          "'self'",
+          'data:',
+          'blob:',
+          'https:'
+        ],
+        frameSrc: [
+          "'self'",
+          'https://accounts.google.com',
+          'https://docs.google.com',
+          'https://www.youtube.com',
+          'https://www.youtube-nocookie.com'
+        ],
+        connectSrc: [
+          "'self'",
+          'https://accounts.google.com',
+          'https:'
+        ]
+      }
+    },
+    crossOriginEmbedderPolicy: false,
+    crossOriginResourcePolicy: { policy: 'cross-origin' }
   })
 );
 
@@ -61,9 +109,9 @@ if (require.main === module) {
   const PORT = config.PORT;
   app.listen(PORT, () => {
     console.log(`=======================================================`);
-    console.log(`🚀 VibeSurvey Server is running on: http://localhost:${PORT}`);
-    console.log(`📱 Hybrid Mobile App ready via Capacitor Android`);
-    console.log(`🛡️ Anti-Fraud Engine & Double-Entry Ledger: ACTIVE`);
+    console.log(`[MAY CHU] VibeSurvey Server dang chay tai: http://localhost:${PORT}`);
+    console.log(`[THIET BI] Hybrid Mobile App san sang qua Capacitor Android`);
+    console.log(`[BAO MAT] Anti-Fraud Engine va Double-Entry Ledger: KICH HOAT`);
     console.log(`=======================================================`);
   });
 }

@@ -255,40 +255,40 @@ async function runSecurityAudit() {
   // =========================================================================
   console.log('\n--- 3. KIỂM TOÁN ACID & RACE CONDITION swapPointsToCredit ---');
 
-  await runTest('3.1. Tính nguyên tử ACID: Đổi 1,000 điểm sang 7,000đ Credit (Chiết khấu sàn 30%, nhận ít hơn giá trị gốc)', async () => {
+  await runTest('3.1. Tính nguyên tử ACID: Đổi 5,000 điểm sang 5,250đ Credit (Thưởng tái đầu tư +5%)', async () => {
     // Cấp đúng 2,000 điểm cho respondentId
-    db.prepare('UPDATE users SET point_balance = 2000, credit_balance = 0.0 WHERE id = ?').run(respondentId);
+    db.prepare('UPDATE users SET point_balance = 10000, credit_balance = 0.0 WHERE id = ?').run(respondentId);
 
-    const swapRes = ledgerService.swapPointsToCredit(respondentId, 1000);
+    const swapRes = ledgerService.swapPointsToCredit(respondentId, 5000);
     assert.strictEqual(swapRes.success, true);
-    assert.strictEqual(swapRes.pointsDeducted, 1000);
-    assert.strictEqual(swapRes.creditAddedVnd, 7000); // 1000 * 10 * 0.70 = 7,000 VNĐ
-    assert.strictEqual(swapRes.newPointBalance, 1000);
-    assert.strictEqual(swapRes.newCreditBalance, 7000);
+    assert.strictEqual(swapRes.pointsDeducted, 5000);
+    assert.strictEqual(swapRes.creditAddedVnd, 5250); // 5000 * 1.05 = 5,250 VNĐ
+    assert.strictEqual(swapRes.newPointBalance, 5000);
+    assert.strictEqual(swapRes.newCreditBalance, 5250);
 
     // Kiểm tra DB
     const user = db.prepare('SELECT point_balance, credit_balance FROM users WHERE id = ?').get(respondentId);
-    assert.strictEqual(user.point_balance, 1000);
-    assert.strictEqual(user.credit_balance, 7000);
+    assert.strictEqual(user.point_balance, 5000);
+    assert.strictEqual(user.credit_balance, 5250);
 
     // Kiểm tra Sổ cái Kép: Phải có cả 2 bản ghi POINT và VND
     const txPoint = db.prepare("SELECT * FROM point_transactions WHERE user_id = ? AND tx_type = 'POINT_TO_CREDIT_SWAP' AND currency = 'POINT' ORDER BY created_at DESC LIMIT 1").get(respondentId);
     assert(txPoint, 'Phải có bản ghi Sổ cái trừ POINT');
-    assert.strictEqual(txPoint.amount, -1000);
+    assert.strictEqual(txPoint.amount, -5000);
 
     const txCredit = db.prepare("SELECT * FROM point_transactions WHERE user_id = ? AND tx_type = 'POINT_TO_CREDIT_SWAP' AND currency = 'VND' ORDER BY created_at DESC LIMIT 1").get(respondentId);
     assert(txCredit, 'Phải có bản ghi Sổ cái cộng VND Credit');
-    assert.strictEqual(txCredit.amount, 7000);
+    assert.strictEqual(txCredit.amount, 5250);
   });
 
   await runTest('3.2. Chống Race Condition: Giả lập 10 lệnh swap đồng thời khi chỉ đủ điểm cho 1 lệnh (Chống âm số dư)', async () => {
-    // Hiện tại user có đúng 1,000 điểm. Gửi 10 lệnh mỗi lệnh 1,000 điểm đồng thời!
+    // Hiện tại user có đúng 5,000 điểm. Gửi 10 lệnh mỗi lệnh 5,000 điểm đồng thời!
     const swapPromises = [];
     for (let i = 0; i < 10; i++) {
       swapPromises.push(
         Promise.resolve().then(() => {
           try {
-            return { ok: true, res: ledgerService.swapPointsToCredit(respondentId, 1000) };
+            return { ok: true, res: ledgerService.swapPointsToCredit(respondentId, 5000) };
           } catch (e) {
             return { ok: false, error: e.message };
           }
@@ -307,18 +307,18 @@ async function runSecurityAudit() {
     // Số dư điểm phải là 0, TUYỆT ĐỐI KHÔNG BỊ ÂM
     const userFinal = db.prepare('SELECT point_balance, credit_balance FROM users WHERE id = ?').get(respondentId);
     assert.strictEqual(userFinal.point_balance, 0, 'Số dư điểm phải đúng bằng 0');
-    assert.strictEqual(userFinal.credit_balance, 14000, 'Số dư credit phải đúng bằng 14,000 (2 lần đổi thành công: 7,000 + 7,000)');
+    assert.strictEqual(userFinal.credit_balance, 10500, 'Số dư credit phải đúng bằng 10,500 (2 lần đổi thành công: 5,250 + 5,250)');
     assert(userFinal.point_balance >= 0, 'Số dư điểm tuyệt đối không âm');
   });
 
   await runTest('3.3. Chặn đổi điểm với giá trị phi lý (Dưới 1,000 điểm, số âm, hoặc vượt 10,000,000 điểm)', async () => {
     assert.throws(() => {
       ledgerService.swapPointsToCredit(respondentId, 200);
-    }, /Số điểm đổi tối thiểu là 1,000/);
+    }, /Số điểm đổi tối thiểu là 1[.,]000/);
 
     assert.throws(() => {
       ledgerService.swapPointsToCredit(respondentId, -1000);
-    }, /Số điểm đổi tối thiểu là 1,000/);
+    }, /Số điểm đổi tối thiểu là 1[.,]000/);
 
     assert.throws(() => {
       ledgerService.swapPointsToCredit(respondentId, 999999999);

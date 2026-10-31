@@ -213,7 +213,7 @@ class LedgerService {
         const userPaidAmount = paidResponses * costPerResp;
 
         if (userPaidAmount > 0 && user.credit_balance < userPaidAmount) {
-          throw new Error(`Bạn được tặng 25 lượt miễn phí, ${paidResponses} lượt còn lại cần ${userPaidAmount.toLocaleString('vi-VN')} đ (Số dư hiện tại: ${user.credit_balance.toLocaleString('vi-VN')} đ). Vui lòng nạp thêm quỹ.`);
+          throw new Error(`Gói dùng thử miễn phí chỉ tài trợ tối đa 25 lượt phản hồi đầu tay. Với bài khảo sát ${target} mẫu, bạn được tặng 25 lượt miễn phí, ${paidResponses} lượt còn lại cần ${userPaidAmount.toLocaleString('vi-VN')} đ (Số dư hiện tại: ${user.credit_balance.toLocaleString('vi-VN')} đ). Vui lòng nạp thêm quỹ.`);
         }
 
         // Trừ 1 lượt dùng thử và trừ tiền phần vượt quá (nếu có)

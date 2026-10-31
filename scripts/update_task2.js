@@ -85,7 +85,7 @@ const newDepositBlock = `  /**
       : 'Không hỗ trợ xuất hóa đơn VAT';
 
     if (bonusInfo.bonusTickets > 0) {
-      perkSummary += ` + Tặng ${bonusInfo.bonusTickets} Vé Ghim VIP (Ghim Top + Push App APK + Email)`;
+      perkSummary += \` + Tặng \${bonusInfo.bonusTickets} Vé Ghim VIP (Ghim Top + Push App APK + Email)\`;
     }
 
     return {

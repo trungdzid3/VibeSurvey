@@ -109,7 +109,7 @@ const testSuites = [
 function runScript(scriptPath) {
   return new Promise((resolve, reject) => {
     const startTime = Date.now();
-    const child = fork(scriptPath, [], { stdio: 'inherit' });
+    const child = fork(scriptPath, [], { stdio: 'inherit', env: { ...process.env, NODE_ENV: 'test', DISABLE_REAL_EMAIL: 'true' } });
 
     child.on('error', (err) => {
       reject(err);

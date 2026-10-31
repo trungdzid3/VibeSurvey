@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 200" fill="none">
+  <defs>
+    <linearGradient id="emptyBoardGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FB923C" />
+      <stop offset="100%" stop-color="#EA580C" />
+    </linearGradient>
+    <linearGradient id="magGlassGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FDE047" />
+      <stop offset="100%" stop-color="#EAB308" />
+    </linearGradient>
+  </defs>
+
+  <g>
+    <!-- Cụm mây kem bồng bềnh phía sau (Soft Cream Clouds) -->
+    <path d="M60 145 C50 145, 45 135, 52 126 C50 115, 62 105, 74 110 C82 98, 102 98, 110 110 C120 106, 130 115, 128 126 C136 132, 132 145, 120 145 Z" fill="#FFEDD5" fill-opacity="0.5" />
+    <path d="M200 150 C190 150, 185 140, 192 132 C190 122, 202 112, 214 116 C222 105, 242 105, 250 116 C260 112, 270 122, 268 132 C276 138, 272 150, 260 150 Z" fill="#FFEDD5" fill-opacity="0.5" />
+
+    <!-- 3 Tia sáng cam tỏa ra phía trên -->
+    <line x1="160" y1="20" x2="160" y2="32" stroke="#F97316" stroke-width="3" stroke-linecap="round" />
+    <line x1="178" y1="25" x2="170" y2="35" stroke="#F97316" stroke-width="3" stroke-linecap="round" />
+    <line x1="142" y1="25" x2="150" y2="35" stroke="#F97316" stroke-width="3" stroke-linecap="round" />
+
+    <!-- Bảng kẹp tài liệu màu cam viền trắng -->
+    <g transform="translate(100, 40) rotate(-6)">
+      <!-- Lưng bảng cam bo góc -->
+      <rect x="0" y="0" width="100" height="125" rx="14" fill="url(#emptyBoardGrad)" />
+      <!-- Viền sáng -->
+      <rect x="2" y="2" width="96" height="121" rx="12" stroke="#FFFFFF" stroke-width="2" fill="none" opacity="0.6" />
+
+      <!-- Tờ giấy trắng kẹp trên bảng -->
+      <rect x="10" y="16" width="80" height="98" rx="6" fill="#FFFFFF" />
+
+      <!-- Dòng kẻ và dấu tích trên giấy -->
+      <!-- Hàng 1: Checkbox cam + Dòng kẻ -->
+      <rect x="18" y="28" width="8" height="8" rx="2" fill="#FED7AA" />
+      <path d="M20 32 L22 34 L25 29" stroke="#EA580C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none" />
+      <rect x="30" y="30" width="50" height="4" rx="2" fill="#E7E5E4" />
+
+      <!-- Hàng 2: Checkbox cam + Dòng kẻ -->
+      <rect x="18" y="44" width="8" height="8" rx="2" fill="#FED7AA" />
+      <path d="M20 48 L22 50 L25 45" stroke="#EA580C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none" />
+      <rect x="30" y="46" width="42" height="4" rx="2" fill="#E7E5E4" />
+
+      <!-- Hàng 3: Checkbox xám + Dòng kẻ -->
+      <rect x="18" y="60" width="8" height="8" rx="2" fill="#F5F5F4" stroke="#D6D3D1" stroke-width="1" />
+      <rect x="30" y="62" width="46" height="4" rx="2" fill="#E7E5E4" />
+
+      <!-- Hàng 4: Checkbox xám + Dòng kẻ -->
+      <rect x="18" y="76" width="8" height="8" rx="2" fill="#F5F5F4" stroke="#D6D3D1" stroke-width="1" />
+      <rect x="30" y="78" width="38" height="4" rx="2" fill="#E7E5E4" />
+
+      <!-- Kẹp kim loại ở đỉnh bảng -->
+      <rect x="32" y="-6" width="36" height="16" rx="4" fill="#D97706" />
+      <circle cx="50" cy="2" r="3" fill="#FFFFFF" />
+    </g>
+
+    <!-- Kính lúp 3D tay cầm cam viền vàng kim loại -->
+    <g transform="translate(165, 90)">
+      <!-- Cán kính lúp màu cam -->
+      <path d="M28 28 L50 50" stroke="#EA580C" stroke-width="9" stroke-linecap="round" />
+      <path d="M28 28 L50 50" stroke="#FDBA74" stroke-width="3" stroke-linecap="round" />
+      
+      <!-- Vành kim loại vàng của kính lúp -->
+      <circle cx="15" cy="15" r="24" fill="none" stroke="url(#magGlassGrad)" stroke-width="7" />
+      
+      <!-- Mặt kính lúp trong suốt bóng bẩy -->
+      <circle cx="15" cy="15" r="20" fill="#FFFFFF" fill-opacity="0.6" />
+      <path d="M4 8 C8 4, 18 4, 24 8" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round" fill="none" opacity="0.8" />
+    </g>
+  </g>
+</svg>

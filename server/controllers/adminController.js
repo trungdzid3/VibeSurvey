@@ -1,6 +1,7 @@
 const db = require('../db/database');
 const ledgerService = require('../services/ledgerService');
 const antiFraudService = require('../services/antiFraudService');
+const auditLogService = require('../services/auditLogService');
 const config = require('../config');
 
 class AdminController {
@@ -350,6 +351,20 @@ class AdminController {
       const safeAdminNote = String(admin_note || (approved ? 'Đã duyệt chi trả' : 'Từ chối')).trim().substring(0, 500);
       const result = ledgerService.processPayout(id, approved, safeAdminNote);
 
+      // Ghi vết nhật ký kiểm toán cho Quản trị viên
+      auditLogService.logAction({
+        admin_id: req.user ? req.user.id : 'ADMIN',
+        admin_name: req.user ? req.user.name : 'Quản trị viên',
+        action: approved ? 'APPROVE_PAYOUT' : 'REJECT_PAYOUT',
+        target_type: 'PAYOUT',
+        target_id: id,
+        details: {
+          status: result.status,
+          admin_note: safeAdminNote
+        },
+        ip_address: req.ip || req.headers['x-forwarded-for'] || null
+      });
+
       return res.json({
         success: true,
         message: approved ? 'Đã phê duyệt lệnh rút thưởng thành công' : 'Đã từ chối lệnh rút thưởng và hoàn lại điểm cho người dùng',
@@ -499,6 +514,20 @@ class AdminController {
         WHERE id = ?
       `).run(newTrustScore, id);
 
+      auditLogService.logAction({
+        admin_id: req.user ? req.user.id : 'ADMIN',
+        admin_name: req.user ? req.user.name : 'Quản trị viên',
+        action: 'UNBAN_USER',
+        target_type: 'USER',
+        target_id: id,
+        details: {
+          email: user.email,
+          previous_status: user.status,
+          restored_trust_score: newTrustScore
+        },
+        ip_address: req.ip || req.headers['x-forwarded-for'] || null
+      });
+
       return res.json({
         success: true,
         message: `Đã mở khóa tài khoản ${user.email} thành công. Điểm uy tín được phục hồi về ${newTrustScore}.`,
@@ -560,6 +589,17 @@ class AdminController {
       }
 
       antiFraudService.unbanIp(ip_address);
+
+      auditLogService.logAction({
+        admin_id: req.user ? req.user.id : 'ADMIN',
+        admin_name: req.user ? req.user.name : 'Quản trị viên',
+        action: 'UNBAN_IP',
+        target_type: 'IP',
+        target_id: ip_address,
+        details: { ip_address },
+        ip_address: req.ip || req.headers['x-forwarded-for'] || null
+      });
+
       return res.json({ success: true, message: `Đã gỡ cấm thành công cho địa chỉ IP ${ip_address}` });
     } catch (err) {
       console.error('Lỗi unbanIp:', err);
@@ -787,6 +827,15 @@ class AdminController {
           }
           const reason = args.slice(1).join(' ') || 'Bị khóa bởi Quản trị viên qua Command Console';
           db.prepare("UPDATE users SET status = 'BANNED', ban_reason = ?, banned_at = CURRENT_TIMESTAMP WHERE id = ?").run(reason, user.id);
+          auditLogService.logAction({
+            admin_id: req.user ? req.user.id : 'ADMIN',
+            admin_name: req.user ? req.user.name : 'Quản trị viên',
+            action: 'BAN_USER',
+            target_type: 'USER',
+            target_id: user.id,
+            details: { email: user.email, reason, command: rawCommand },
+            ip_address: req.ip || req.headers['x-forwarded-for'] || null
+          });
           return res.json({
             success: true,
             command: rawCommand,
@@ -804,6 +853,15 @@ class AdminController {
             return res.status(404).json({ success: false, message: `Không tìm thấy tài khoản nào khớp với "${args[0]}"` });
           }
           db.prepare("UPDATE users SET status = 'ACTIVE', ban_reason = NULL, banned_at = NULL, trust_score = 85 WHERE id = ?").run(user.id);
+          auditLogService.logAction({
+            admin_id: req.user ? req.user.id : 'ADMIN',
+            admin_name: req.user ? req.user.name : 'Quản trị viên',
+            action: 'UNBAN_USER',
+            target_type: 'USER',
+            target_id: user.id,
+            details: { email: user.email, command: rawCommand },
+            ip_address: req.ip || req.headers['x-forwarded-for'] || null
+          });
           return res.json({
             success: true,
             command: rawCommand,
@@ -819,6 +877,15 @@ class AdminController {
           const ip = args[0];
           const reason = args.slice(1).join(' ') || 'Bị cấm bởi Quản trị viên qua Console';
           antiFraudService.banIp(ip, reason);
+          auditLogService.logAction({
+            admin_id: req.user ? req.user.id : 'ADMIN',
+            admin_name: req.user ? req.user.name : 'Quản trị viên',
+            action: 'BAN_IP',
+            target_type: 'IP',
+            target_id: ip,
+            details: { ip, reason, command: rawCommand },
+            ip_address: req.ip || req.headers['x-forwarded-for'] || null
+          });
           return res.json({
             success: true,
             command: rawCommand,
@@ -833,6 +900,15 @@ class AdminController {
           }
           const ip = args[0];
           antiFraudService.unbanIp(ip);
+          auditLogService.logAction({
+            admin_id: req.user ? req.user.id : 'ADMIN',
+            admin_name: req.user ? req.user.name : 'Quản trị viên',
+            action: 'UNBAN_IP',
+            target_type: 'IP',
+            target_id: ip,
+            details: { ip, command: rawCommand },
+            ip_address: req.ip || req.headers['x-forwarded-for'] || null
+          });
           return res.json({
             success: true,
             command: rawCommand,
@@ -854,6 +930,15 @@ class AdminController {
             return res.status(400).json({ success: false, message: 'Vai trò chỉ được là một trong các giá trị: ADMIN, CREATOR, RESPONDENT' });
           }
           db.prepare('UPDATE users SET role = ? WHERE id = ?').run(role, user.id);
+          auditLogService.logAction({
+            admin_id: req.user ? req.user.id : 'ADMIN',
+            admin_name: req.user ? req.user.name : 'Quản trị viên',
+            action: 'SET_USER_ROLE',
+            target_type: 'USER',
+            target_id: user.id,
+            details: { email: user.email, role, command: rawCommand },
+            ip_address: req.ip || req.headers['x-forwarded-for'] || null
+          });
           return res.json({
             success: true,
             command: rawCommand,
@@ -873,6 +958,15 @@ class AdminController {
           let tier = args[1].toUpperCase();
           if (tier === 'REGULAR') tier = 'PERSONAL';
           db.prepare('UPDATE users SET account_tier = ? WHERE id = ?').run(tier, user.id);
+          auditLogService.logAction({
+            admin_id: req.user ? req.user.id : 'ADMIN',
+            admin_name: req.user ? req.user.name : 'Quản trị viên',
+            action: 'SET_USER_TIER',
+            target_type: 'USER',
+            target_id: user.id,
+            details: { email: user.email, tier, command: rawCommand },
+            ip_address: req.ip || req.headers['x-forwarded-for'] || null
+          });
           return res.json({
             success: true,
             command: rawCommand,
@@ -891,6 +985,15 @@ class AdminController {
           }
           const score = Math.min(100, Math.max(0, parseFloat(args[1]) || 85));
           db.prepare('UPDATE users SET trust_score = ? WHERE id = ?').run(score, user.id);
+          auditLogService.logAction({
+            admin_id: req.user ? req.user.id : 'ADMIN',
+            admin_name: req.user ? req.user.name : 'Quản trị viên',
+            action: 'SET_TRUST_SCORE',
+            target_type: 'USER',
+            target_id: user.id,
+            details: { email: user.email, trust_score: score, command: rawCommand },
+            ip_address: req.ip || req.headers['x-forwarded-for'] || null
+          });
           return res.json({
             success: true,
             command: rawCommand,
@@ -1034,6 +1137,16 @@ class AdminController {
       db.prepare('UPDATE users SET account_tier = ? WHERE id = ?').run(normalized, req.user.id);
       const updatedUser = db.prepare('SELECT id, name, email, role, status, credit_balance, point_balance, account_tier, fast_track_tickets, enterprise_verify_level FROM users WHERE id = ?').get(req.user.id);
 
+      auditLogService.logAction({
+        admin_id: req.user ? req.user.id : 'ADMIN',
+        admin_name: req.user ? req.user.name : 'Quản trị viên',
+        action: 'SWITCH_ADMIN_TIER',
+        target_type: 'USER',
+        target_id: req.user.id,
+        details: { new_tier: normalized },
+        ip_address: req.ip || req.headers['x-forwarded-for'] || null
+      });
+
       const label = normalized === 'STUDENT' ? 'Sinh Viên (Ưu đãi học thuật)' : (normalized === 'ENTERPRISE' ? 'Doanh Nghiệp' : 'Cá Nhân (Nghiên cứu tiêu chuẩn)');
 
       return res.json({
@@ -1103,6 +1216,122 @@ class AdminController {
       throw new Error(`Tìm thấy ${matches.length} tài khoản khớp với "${raw}": [${listStr}]. Vui lòng nhập chính xác Email hoặc ID.`);
     }
     return null;
+  }
+
+  /**
+   * GET /api/v1/admin/analytics/trends
+   * Dữ liệu chuỗi thời gian xu hướng tài chính và khảo sát
+   */
+  getAnalyticsTrends(req, res) {
+    try {
+      const days = Math.max(7, Math.min(parseInt(req.query.days, 10) || 14, 30));
+      const list = [];
+      let totalDeposits = 0;
+      let totalPayouts = 0;
+      let totalResponses = 0;
+      let totalPoints = 0;
+      let totalNewUsers = 0;
+
+      for (let i = days - 1; i >= 0; i--) {
+        const d = new Date();
+        d.setDate(d.getDate() - i);
+        const dateStr = d.toISOString().split('T')[0];
+
+        const dep = db.prepare(`
+          SELECT COALESCE(SUM(amount_vnd), 0) as total 
+          FROM deposit_orders 
+          WHERE status = 'COMPLETED' AND (DATE(paid_at) = ? OR (paid_at IS NULL AND DATE(created_at) = ?))
+        `).get(dateStr, dateStr).total;
+
+        const pay = db.prepare(`
+          SELECT COALESCE(SUM(fiat_amount_vnd), 0) as total 
+          FROM payout_requests 
+          WHERE status = 'COMPLETED' AND (DATE(completed_at) = ? OR (completed_at IS NULL AND DATE(created_at) = ?))
+        `).get(dateStr, dateStr).total;
+
+        const resp = db.prepare(`
+          SELECT COUNT(*) as count, COALESCE(SUM(points_rewarded), 0) as points 
+          FROM responses 
+          WHERE status = 'COMPLETED' AND (DATE(submitted_at) = ? OR (submitted_at IS NULL AND DATE(started_at) = ?))
+        `).get(dateStr, dateStr);
+
+        const users = db.prepare(`
+          SELECT COUNT(*) as count 
+          FROM users 
+          WHERE DATE(created_at) = ?
+        `).get(dateStr).count;
+
+        totalDeposits += dep;
+        totalPayouts += pay;
+        totalResponses += resp.count;
+        totalPoints += resp.points;
+        totalNewUsers += users;
+
+        list.push({
+          date: dateStr,
+          deposits: dep,
+          payouts: pay,
+          responses: resp.count,
+          points: resp.points,
+          newUsers: users
+        });
+      }
+
+      return res.json({
+        success: true,
+        days,
+        trends: list,
+        summary: {
+          totalDeposits,
+          totalPayouts,
+          totalResponses,
+          totalPoints,
+          totalNewUsers
+        }
+      });
+    } catch (err) {
+      console.error('Lỗi getAnalyticsTrends:', err);
+      return res.status(500).json({ success: false, message: 'Lỗi tải dữ liệu xu hướng: ' + err.message });
+    }
+  }
+
+  /**
+   * GET /api/v1/admin/audit-logs
+   * Danh sách nhật ký kiểm toán có phân trang và bộ lọc
+   */
+  getAuditLogs(req, res) {
+    try {
+      const { page = 1, limit = 20, action = null, target_type = null, admin_id = null, search = null } = req.query;
+      const pageNum = Math.max(1, parseInt(page, 10) || 1);
+      const limitNum = Math.max(1, Math.min(parseInt(limit, 10) || 20, 100));
+      const offset = (pageNum - 1) * limitNum;
+
+      const filter = {
+        limit: limitNum,
+        offset,
+        action: action && action !== 'ALL' ? action : null,
+        target_type: target_type && target_type !== 'ALL' ? target_type : null,
+        admin_id: admin_id && admin_id !== 'ALL' ? admin_id : null,
+        search: search ? search.trim() : null
+      };
+
+      const logs = auditLogService.getRecentLogs(filter);
+      const total = auditLogService.countLogs(filter);
+
+      return res.json({
+        success: true,
+        logs,
+        pagination: {
+          page: pageNum,
+          limit: limitNum,
+          total,
+          totalPages: Math.ceil(total / limitNum) || 1
+        }
+      });
+    } catch (err) {
+      console.error('Lỗi getAuditLogs:', err);
+      return res.status(500).json({ success: false, message: 'Lỗi tải nhật ký kiểm toán: ' + err.message });
+    }
   }
 }
 

@@ -9,6 +9,10 @@ package-lock.json
 *.pem
 *.key
 *.crx
+*service-account*.json
+*service_account*.json
+credentials*.json
+google-service-account.json
 
 # Logs & Temporary files
 *.log
@@ -25,6 +29,7 @@ tests/reports/
 *.db-journal
 *.db-wal
 *.db-shm
+backups/
 
 # Android build outputs
 android/.gradle/
@@ -38,4 +43,15 @@ android/local.properties
 Thumbs.db
 Desktop.ini
 
+# Scratch and temporary testing assets
 scratch_*.js
+scripts/*.png
+patch_*.txt
+test_calc.xlsx
+apply_patches.js
+apply_surveys_update.js
+public/test_*.html
+android/app/src/main/assets/public/test_*.html
+public/assets/test_crop_*.png
+android/app/src/main/assets/public/assets/test_crop_*.png
+

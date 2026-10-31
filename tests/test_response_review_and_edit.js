@@ -12,8 +12,16 @@ console.log('BẮT ĐẦU KIỂM THỬ: XEM LẠI VÀ CHỈNH SỬA CÂU TRẢ L
 console.log('===============================================================');
 
 async function runTests() {
-  const creator = db.prepare("SELECT * FROM users WHERE email = 'creator@vibesurvey.com'").get();
-  const respondent = db.prepare("SELECT * FROM users WHERE email = 'user@vibesurvey.com'").get();
+  let creator = db.prepare("SELECT * FROM users WHERE email = 'creator@vibesurvey.com'").get();
+  if (!creator) {
+    db.prepare("INSERT INTO users (id, email, password_hash, name, role, credit_balance) VALUES ('test_creator_fixed', 'creator@vibesurvey.com', 'hash', 'Test Creator', 'CREATOR', 1000000)").run();
+    creator = db.prepare("SELECT * FROM users WHERE email = 'creator@vibesurvey.com'").get();
+  }
+  let respondent = db.prepare("SELECT * FROM users WHERE email = 'user@vibesurvey.com'").get();
+  if (!respondent) {
+    db.prepare("INSERT INTO users (id, email, password_hash, name, role, point_balance) VALUES ('test_resp_fixed', 'user@vibesurvey.com', 'hash', 'Test Respondent', 'RESPONDENT', 50000)").run();
+    respondent = db.prepare("SELECT * FROM users WHERE email = 'user@vibesurvey.com'").get();
+  }
 
   assert.ok(creator, 'Creator phải tồn tại');
   assert.ok(respondent, 'Respondent phải tồn tại');

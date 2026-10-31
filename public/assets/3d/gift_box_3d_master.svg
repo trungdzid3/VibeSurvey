@@ -1,0 +1,129 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 160" fill="none">
+  <defs>
+    <!-- Gradient thân hộp quà to cam pastel ngọt ngào -->
+    <linearGradient id="giftBodyBig" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FED7AA" stop-opacity="0.9" />
+      <stop offset="60%" stop-color="#FDBA74" stop-opacity="0.85" />
+      <stop offset="100%" stop-color="#FB923C" stop-opacity="0.8" />
+    </linearGradient>
+
+    <!-- Gradient nắp hộp quà to -->
+    <linearGradient id="giftLidBig" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFEDD5" stop-opacity="0.95" />
+      <stop offset="50%" stop-color="#FED7AA" stop-opacity="0.9" />
+      <stop offset="100%" stop-color="#FDBA74" stop-opacity="0.88" />
+    </linearGradient>
+
+    <!-- Gradient thân hộp quà bé -->
+    <linearGradient id="giftBodySmall" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FED7AA" stop-opacity="0.82" />
+      <stop offset="60%" stop-color="#FDBA74" stop-opacity="0.78" />
+      <stop offset="100%" stop-color="#FB923C" stop-opacity="0.72" />
+    </linearGradient>
+
+    <!-- Gradient ruy băng trắng kem sang trọng -->
+    <linearGradient id="ribbonWhiteGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.95" />
+      <stop offset="100%" stop-color="#F8FAFC" stop-opacity="0.82" />
+    </linearGradient>
+
+    <!-- Gradient cánh nơ cam mềm mại -->
+    <linearGradient id="bowGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FED7AA" stop-opacity="0.95" />
+      <stop offset="70%" stop-color="#FB923C" stop-opacity="0.9" />
+      <stop offset="100%" stop-color="#EA580C" stop-opacity="0.85" />
+    </linearGradient>
+  </defs>
+
+  <g>
+    <!-- Bóng đổ tiếp xúc mặt sàn mờ nhẹ nhàng ở đáy y=158 -->
+    <ellipse cx="120" cy="157" rx="88" ry="6" fill="#000000" fill-opacity="0.08" />
+
+    <!-- 1. HỘP QUÀ BÉ BÊN TRÁI (Đầy đặn hơn, nghiêng nhẹ -8 độ, chân chạm sàn y=158) -->
+    <g transform="rotate(-8, 55, 158)">
+      <!-- Bóng tiếp xúc riêng của hộp bé -->
+      <ellipse cx="52" cy="157" rx="34" ry="4" fill="#000000" fill-opacity="0.07" />
+
+      <!-- Thân hộp quà bé cam pastel -->
+      <rect x="18" y="94" width="70" height="64" rx="11" fill="url(#giftBodySmall)" />
+      <!-- Phản quang cạnh trái thân hộp -->
+      <rect x="22" y="97" width="5" height="58" rx="2.5" fill="#FFFFFF" fill-opacity="0.25" />
+      
+      <!-- Dải ruy băng dọc thân hộp bé màu trắng kem -->
+      <rect x="45" y="94" width="16" height="64" rx="2.5" fill="url(#ribbonWhiteGrad)" />
+      
+      <!-- Nắp hộp quà bé bo tròn nhô ra 2 bên -->
+      <rect x="12" y="75" width="82" height="21" rx="7" fill="url(#giftLidBig)" />
+      <!-- Highlight cạnh trên nắp hộp bé -->
+      <rect x="16" y="77" width="74" height="3" rx="1.5" fill="#FFFFFF" fill-opacity="0.45" />
+      
+      <!-- Dải ruy băng dọc nắp hộp bé -->
+      <rect x="45" y="75" width="16" height="21" rx="2" fill="url(#ribbonWhiteGrad)" />
+      
+      <!-- Nơ thắt 2 cánh tròn mềm mại hộp bé -->
+      <!-- Cánh nơ trái -->
+      <path d="M 49 75 C 38 54, 18 58, 26 70 C 33 79, 44 77, 49 75 Z" fill="url(#bowGrad)" />
+      <path d="M 48 74 C 39 58, 25 61, 31 69 C 36 74, 44 74, 48 74 Z" fill="#FED7AA" fill-opacity="0.75" />
+      
+      <!-- Cánh nơ phải -->
+      <path d="M 57 75 C 68 54, 88 58, 80 70 C 73 79, 62 77, 57 75 Z" fill="url(#bowGrad)" />
+      <path d="M 58 74 C 67 58, 81 61, 75 69 C 70 74, 62 74, 58 74 Z" fill="#FED7AA" fill-opacity="0.75" />
+      
+      <!-- Nút thắt nơ tròn trung tâm hộp bé -->
+      <circle cx="53" cy="75" r="6.5" fill="#FFFFFF" fill-opacity="0.95" />
+      <circle cx="53" cy="75" r="4.2" fill="#FB923C" fill-opacity="0.85" />
+    </g>
+
+    <!-- 2. HỘP QUÀ TO BÊN PHẢI (To đầy đặn, chân bám sát đáy y=158, cạnh bám sát mép phải) -->
+    <g>
+      <!-- Bóng tiếp xúc riêng của hộp to -->
+      <ellipse cx="154" cy="157" rx="52" ry="5" fill="#000000" fill-opacity="0.08" />
+
+      <!-- Thân hộp quà to cam pastel mềm mại -->
+      <rect x="100" y="72" width="108" height="86" rx="14" fill="url(#giftBodyBig)" />
+      <!-- Phản quang cạnh trái thân hộp to -->
+      <rect x="105" y="76" width="7" height="78" rx="3.5" fill="#FFFFFF" fill-opacity="0.28" />
+      
+      <!-- Dải ruy băng dọc thân hộp to màu trắng kem -->
+      <rect x="142" y="72" width="24" height="86" rx="3.5" fill="url(#ribbonWhiteGrad)" />
+      
+      <!-- Nắp hộp quà to nhô ra 2 bên ôm trọn thân -->
+      <rect x="90" y="44" width="128" height="30" rx="9" fill="url(#giftLidBig)" />
+      <!-- Highlight cạnh trên nắp hộp to -->
+      <rect x="95" y="46" width="118" height="4" rx="2" fill="#FFFFFF" fill-opacity="0.5" />
+      
+      <!-- Dải ruy băng nắp hộp to -->
+      <rect x="142" y="44" width="24" height="30" rx="2.5" fill="url(#ribbonWhiteGrad)" />
+      
+      <!-- Nơ thắt 2 cánh tròn thanh thoát trên nắp hộp to -->
+      <!-- Cánh nơ trái -->
+      <path d="M 148 44 C 131 16, 100 21, 112 38 C 122 51, 141 47, 148 44 Z" fill="url(#bowGrad)" />
+      <path d="M 146 43 C 133 23, 109 25, 118 37 C 125 45, 140 44, 146 43 Z" fill="#FED7AA" fill-opacity="0.85" />
+      
+      <!-- Cánh nơ phải -->
+      <path d="M 160 44 C 177 16, 208 21, 196 38 C 186 51, 167 47, 160 44 Z" fill="url(#bowGrad)" />
+      <path d="M 162 43 C 175 23, 199 25, 190 37 C 183 45, 168 44, 162 43 Z" fill="#FED7AA" fill-opacity="0.85" />
+      
+      <!-- Nút thắt nơ tròn trung tâm hộp to -->
+      <circle cx="154" cy="44" r="9.5" fill="#FFFFFF" fill-opacity="0.95" />
+      <circle cx="154" cy="44" r="6.5" fill="#FB923C" fill-opacity="0.9" />
+    </g>
+
+    <!-- 3. NGÔI SAO 4 CÁNH MỜ ẢO NHẸ NHÀNG LƠ LỬNG -->
+    <!-- Ngôi sao mờ phía trên bên trái -->
+    <path d="M 24 44
+             C 24 38, 24 38, 18 38
+             C 24 38, 24 38, 24 32
+             C 24 38, 24 38, 30 38
+             C 24 38, 24 38, 24 44 Z" 
+          fill="#FBBF24" fill-opacity="0.55" />
+
+    <!-- Ngôi sao nhỏ mờ phía trên bên phải -->
+    <path d="M 206 36
+             C 206 31, 206 31, 201 31
+             C 206 31, 206 31, 206 26
+             C 206 31, 206 31, 211 31
+             C 206 31, 206 31, 206 36 Z" 
+          fill="#FBBF24" fill-opacity="0.45" />
+  </g>
+</svg>

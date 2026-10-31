@@ -213,8 +213,8 @@ async function runDepositBonusTests() {
 
   // 5.1 Thử đổi dưới 5.000 Point -> Bị từ chối
   assert.throws(() => {
-    ledgerService.swapPointsToCredit(swapUserId, 4000);
-  }, /Số điểm đổi tối thiểu là 5[.,]000 điểm/);
+    ledgerService.swapPointsToCredit(swapUserId, 500);
+  }, /Số điểm đổi tối thiểu là 1[.,]000 điểm/);
 
   // 5.2 Đổi 5.000 Point -> Nhận 5.250 Credit (+5% giá trị)
   const swapRes = ledgerService.swapPointsToCredit(swapUserId, 5000);

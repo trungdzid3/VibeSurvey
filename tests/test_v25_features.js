@@ -168,7 +168,7 @@ async function runV25Tests() {
       assert.strictEqual(textResult.questions[0].options.length, 4);
       assert.strictEqual(textResult.questions[1].type, 'MULTIPLE_CHOICE');
       assert.strictEqual(textResult.questions[1].options.length, 4);
-      assert.ok(['LINEAR_SCALE', 'LIKERT_SCALE'].includes(textResult.questions[2].type));
+      assert.ok(['LINEAR_SCALE', 'LIKERT_SCALE', 'RATING_STARS'].includes(textResult.questions[2].type));
       assert.ok(['SHORT_TEXT', 'OPEN_TEXT'].includes(textResult.questions[3].type));
     });
 
@@ -274,6 +274,9 @@ async function runV25Tests() {
     // TEST 4: Voucher Tài Trợ (Sponsor Vouchers) Concurrency Safe
     // =========================================================================
     await runTest('4. Voucher Tài Trợ: Creator nạp 10 mã, 10 người nộp bài đồng thời -> 10 mã khác nhau (0% trùng lặp)', async () => {
+      // 4.0 Nâng cấp creator lên Doanh nghiệp Cấp độ 2 để đáp ứng chốt chặn tải mã voucher riêng
+      db.prepare('UPDATE users SET enterprise_verify_level = 2, tax_id = ? WHERE id = ?').run('0101234567', creatorId);
+
       // 4.1 Creator tạo bài khảo sát có quà tặng tài trợ
       const sponsorCodes = [
         'VOUCHER-SPON-001', 'VOUCHER-SPON-002', 'VOUCHER-SPON-003', 'VOUCHER-SPON-004', 'VOUCHER-SPON-005',
@@ -413,7 +416,7 @@ async function runV25Tests() {
     // =========================================================================
     // TEST 5: Đổi Điểm Sang Credit (Chiết khấu sàn 30%, nhận ít hơn giá trị gốc: 1 Point = 7 VND Credit)
     // =========================================================================
-    await runTest('5. Đổi Điểm Sang Credit: 1,000 điểm đổi thành 7,000đ Credit tạo khảo sát (Chiết khấu sàn 30%)', async () => {
+    await runTest('5. Đổi Điểm Sang Credit: 1,000 điểm đổi thành 1,050đ Credit tạo khảo sát (+5% thưởng tái đầu tư)', async () => {
       // Cấp thêm 5,000 điểm cho Respondent
       db.prepare('UPDATE users SET point_balance = point_balance + 5000 WHERE id = ?').run(respondentId);
 
@@ -435,12 +438,12 @@ async function runV25Tests() {
       assert.strictEqual(dataSwap.success, true);
       assert.strictEqual(dataSwap.pointsDeducted, 1000);
       // 1,000 điểm * 10 * 0.70 = 7,000 VNĐ Credit
-      assert.strictEqual(dataSwap.creditAddedVnd, 7000);
+      assert.strictEqual(dataSwap.creditAddedVnd, 1050);
 
       // Kiểm tra trong DB
       const afterUser = db.prepare('SELECT point_balance, credit_balance FROM users WHERE id = ?').get(respondentId);
       assert.strictEqual(afterUser.point_balance, beforeUser.point_balance - 1000);
-      assert.strictEqual(afterUser.credit_balance, beforeUser.credit_balance + 7000);
+      assert.strictEqual(afterUser.credit_balance, beforeUser.credit_balance + 1050);
 
       // Kiểm tra Sổ cái kế toán ghi nhận
       const tx = db.prepare(`
@@ -449,13 +452,13 @@ async function runV25Tests() {
         ORDER BY created_at DESC LIMIT 1
       `).get(respondentId);
       assert.ok(tx, 'Sổ cái phải ghi nhận giao dịch POINT_TO_CREDIT_SWAP');
-      assert.ok(tx.description.includes('Chiết khấu sàn 30%') || tx.description.includes('nhận 70%'));
+      assert.ok(tx.description.includes('thưởng tái đầu tư') || tx.description.includes('Credit tạo khảo sát'));
     });
 
     // =========================================================================
     // TEST 6: Thuật toán Gợi ý Mục tiêu (Matching Engine - HUST / NEU)
     // =========================================================================
-    await runTest('6. Matching Engine: Người dùng chọn trường HUST/NEU thấy huy hiệu "🔥 Phù hợp 100%"', async () => {
+    await runTest('6. Matching Engine: Người dùng chọn trường HUST/NEU thấy huy hiệu "Phù hợp 100%"', async () => {
       // 6.1 Tạo một khảo sát nhắm đích trường Bách Khoa (HUST) và Kinh Tế Quốc Dân (NEU)
       const resCreateTarget = await fetch(`${baseUrl}/surveys`, {
         method: 'POST',
@@ -530,7 +533,7 @@ async function runV25Tests() {
       );
       assert.strictEqual(
         hustSurvey.matchLabel,
-        '🔥 Phù hợp 100%',
+        'Phù hợp 100%',
         `Sinh viên HUST phải nhìn thấy huy hiệu '🔥 Phù hợp 100%', hiện tại là: ${hustSurvey.matchLabel}`
       );
 
@@ -562,7 +565,7 @@ async function runV25Tests() {
       const neuSurvey = dataListNeu.surveys.find(s => s.id === targetSurveyId);
       assert.ok(neuSurvey, 'Khảo sát phải hiển thị cho sinh viên NEU');
       assert.strictEqual(neuSurvey.matchScore, 100);
-      assert.strictEqual(neuSurvey.matchLabel, '🔥 Phù hợp 100%');
+      assert.strictEqual(neuSurvey.matchLabel, 'Phù hợp 100%');
 
       // 6.4 Kiểm tra sinh viên trường khác (không phải HUST/NEU)
       const otherEmail = `fpt_student_${uniqueSuffix}@vibetest.vn`;
@@ -588,7 +591,7 @@ async function runV25Tests() {
       const dataListFpt = await resListFpt.json();
       const fptSurvey = dataListFpt.surveys.find(s => s.id === targetSurveyId);
       assert.ok(fptSurvey);
-      assert.notStrictEqual(fptSurvey.matchLabel, '🔥 Phù hợp 100%', 'Sinh viên FPT không được hiển thị Phù hợp 100%');
+      assert.notStrictEqual(fptSurvey.matchLabel, 'Phù hợp 100%', 'Sinh viên FPT không được hiển thị Phù hợp 100%');
     });
 
   } finally {

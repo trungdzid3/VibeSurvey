@@ -674,47 +674,84 @@ class AntiFraudService {
       }
     }
 
-    // 4. THEO DÕI IP (Chỉ ghi log cảnh báo nhẹ nếu có số lượng lớn tài khoản, TUYỆT ĐỐI KHÔNG KHÓA IP TRƯỜNG HỌC)
+    // 4. THEO DÕI & XỬ LÝ AN NINH IP (CHỐNG SPAM ĐĂNG KÝ NHIỀU TÀI KHOẢN MỚI TRÊN 1 IP)
+    // Bảo vệ tuyệt đối sinh viên dùng chung mạng Wi-Fi trường học / ký túc xá khi đăng nhập (LOGIN / ACTIVITY)
     if (!this.isLocalhost(ip)) {
-      const ipQuery = `
-        SELECT COUNT(DISTINCT user_id) AS distinct_users
-        FROM device_ip_logs 
-        WHERE ip_address = ?
-          AND user_id IS NOT NULL
-          AND created_at >= datetime('now', '-24 hours')
-      `;
-      const ipStats = db.prepare(ipQuery).get(ip);
-      const ipDistinctUsers = ipStats ? (ipStats.distinct_users || 0) : 0;
+      const isRegisterAction = String(action || '').toUpperCase().includes('REGISTER');
 
-      // Nếu >= 10 tài khoản trên 1 IP trong 24h, ghi log cảnh báo mức INFO/WARNING cho Admin biết (ví dụ IP trường ĐH lớn)
-      if (ipDistinctUsers >= 10) {
-        const recentAlert = db.prepare(`
-          SELECT id FROM fraud_logs 
-          WHERE ip_address = ? AND reason = 'CANH_BAO_IP_DONG_NGUOI_DUNG'
-            AND created_at >= datetime('now', '-2 hours')
-        `).get(ip);
+      if (isRegisterAction) {
+        const ipQuery = `
+          SELECT COUNT(DISTINCT user_id) AS distinct_users, GROUP_CONCAT(DISTINCT user_id) AS user_ids
+          FROM device_ip_logs 
+          WHERE ip_address = ?
+            AND user_id IS NOT NULL
+            AND action LIKE '%REGISTER%'
+            AND created_at >= datetime('now', '-24 hours')
+        `;
+        const ipStats = db.prepare(ipQuery).get(ip);
+        const ipDistinctUsers = ipStats ? (ipStats.distinct_users || 0) : 0;
+        const ipUserIds = ipStats && ipStats.user_ids ? ipStats.user_ids.split(',') : [];
 
-        if (!recentAlert) {
+        // Ngưỡng 2: TỰ ĐỘNG BAN IP nếu >= 5 tài khoản đăng ký mới trong 24h
+        const banThreshold = action === 'REGISTER_PRECHECK' ? 4 : 5;
+        if (ipDistinctUsers >= banThreshold) {
+          const countForMsg = ipDistinctUsers + (action === 'REGISTER_PRECHECK' ? 1 : 0);
+          const banReason = `Tự động Ban: Phát hiện ${countForMsg} tài khoản đăng ký mới trên cùng một IP trong 24h (Tấn công Sybil / Cày lượt dùng thử)`;
+          db.prepare('INSERT OR IGNORE INTO banned_ips (ip_address, reason) VALUES (?, ?)').run(ip, banReason);
+
+          if (ipUserIds.length > 0) {
+            const placeholders = ipUserIds.map(() => '?').join(',');
+            db.prepare(`UPDATE users SET status = 'BANNED' WHERE id IN (${placeholders}) AND role != 'ADMIN'`).run(...ipUserIds);
+          }
+
           const fraudLogId = crypto.randomUUID();
           db.prepare(`
             INSERT INTO fraud_logs (id, user_id, ip_address, device_fingerprint, reason, score_details_json)
-            VALUES (?, ?, ?, ?, 'CANH_BAO_IP_DONG_NGUOI_DUNG', ?)
+            VALUES (?, ?, ?, ?, 'AUTO_BAN_IP_MULTI_ACCOUNT_BREACH', ?)
           `).run(
             fraudLogId,
-            userId || null,
+            userId || (ipUserIds[0] || null),
             ip,
             safeFingerprint,
-            JSON.stringify({
-              ipDistinctUsers,
-              action,
-              alert_level: 'INFO',
-              note: 'IP đông người dùng (có thể là Wi-Fi trường đại học / ký túc xá). Không thực hiện khóa tự động.'
-            })
+            JSON.stringify({ ipDistinctUsers: countForMsg, ipUserIds, action, alert_level: 'CRITICAL', banReason })
           );
+
+          throw new Error(`Địa chỉ IP của bạn (${ip}) đã bị khóa tự động do phát hiện ${countForMsg} tài khoản tạo bất thường trên cùng một địa chỉ.`);
+        }
+
+        // Ngưỡng 1: CẢNH BÁO KHẢ NGHI CHO ADMIN nếu >= 3 tài khoản đăng ký mới trong 24h
+        if (ipDistinctUsers >= 3) {
+          const recentAlert = db.prepare(`
+            SELECT id FROM fraud_logs 
+            WHERE ip_address = ? AND reason = 'CANH_BAO_KHA_NGHI_MULTI_ACCOUNT'
+              AND created_at >= datetime('now', '-1 hour')
+          `).get(ip);
+
+          if (!recentAlert) {
+            const fraudLogId = crypto.randomUUID();
+            db.prepare(`
+              INSERT INTO fraud_logs (id, user_id, ip_address, device_fingerprint, reason, score_details_json)
+              VALUES (?, ?, ?, ?, 'CANH_BAO_KHA_NGHI_MULTI_ACCOUNT', ?)
+            `).run(
+              fraudLogId,
+              userId || null,
+              ip,
+              safeFingerprint,
+              JSON.stringify({
+                ipDistinctUsers,
+                ipUserIds,
+                action,
+                alert_level: 'WARNING',
+                message: `Phát hiện ${ipDistinctUsers} tài khoản đăng ký mới dùng chung một địa chỉ IP trong 24h`
+              })
+            );
+          }
+
+          return { isSuspicious: true, ipDistinctUsers, alertLevel: 'WARNING' };
         }
       }
 
-      return { isSuspicious: false, ipDistinctUsers };
+      return { isSuspicious: false };
     }
 
     return { isSuspicious: false };

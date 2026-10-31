@@ -583,6 +583,255 @@ Hàng: Quán A, Quán B | Cột: Giao hàng tận nơi, Chỗ đậu xe, Wi-Fi m
     assert.strictEqual(tx.amount, -5000);
   });
 
+  // ==========================================
+  // KHOI 5: GOOGLE SERVICE ACCOUNT & FORMS API
+  // ==========================================
+  console.log('\n--- KHOI 5: GOOGLE SERVICE ACCOUNT & FORMS API ---');
+
+  await runTest('12. Google Forms API: Trich xuat Form ID & Anh xa toan dien 12 dang cau hoi API sang VibeSurvey', async () => {
+    // 1. Kiem tra trich xuat Form ID tu link edit va viewform
+    const editUrl = 'https://docs.google.com/forms/d/1FAIpQLSeNTKCYnhI6QFOE5tFRuYG2-rjD545ohxnJpzSAwNaeCYejIg/edit?usp=drivesdk';
+    const editExtracted = formParserService.extractGoogleFormId(editUrl);
+    assert(editExtracted, 'Phai trich xuat duoc form ID tu link edit');
+    assert.strictEqual(editExtracted.formId, '1FAIpQLSeNTKCYnhI6QFOE5tFRuYG2-rjD545ohxnJpzSAwNaeCYejIg');
+    assert.strictEqual(editExtracted.isPublished, false);
+
+    const pubUrl = 'https://docs.google.com/forms/d/e/1FAIpQLSeNTKCYnhI6QFOE5tFRuYG2-rjD545ohxnJpzSAwNaeCYejIg/viewform';
+    const pubExtracted = formParserService.extractGoogleFormId(pubUrl);
+    assert(pubExtracted, 'Phai trich xuat duoc form ID tu link /d/e/viewform');
+    assert.strictEqual(pubExtracted.formId, '1FAIpQLSeNTKCYnhI6QFOE5tFRuYG2-rjD545ohxnJpzSAwNaeCYejIg');
+    assert.strictEqual(pubExtracted.isPublished, true);
+
+    // 2. Kiem tra bóc tách cấu trúc JSON chuẩn Google Forms API v1
+    const mockApiResponse = {
+      formId: '1FAIpQLSeNTKCYnhI6QFOE5tFRuYG2-rjD545ohxnJpzSAwNaeCYejIg',
+      info: {
+        title: 'Khảo sát Thị hiếu Tiêu dùng 2026',
+        description: 'Đo lường hành vi mua sắm trực tuyến của người tiêu dùng'
+      },
+      items: [
+        {
+          itemId: 'item_1',
+          title: 'Họ và tên của bạn?',
+          questionItem: {
+            question: {
+              required: true,
+              textQuestion: { paragraph: false }
+            }
+          }
+        },
+        {
+          itemId: 'item_2',
+          title: 'Ý kiến đóng góp chi tiết',
+          questionItem: {
+            question: {
+              required: false,
+              textQuestion: { paragraph: true }
+            }
+          }
+        },
+        {
+          itemId: 'item_3',
+          title: 'Bạn thuộc nhóm tuổi nào?',
+          questionItem: {
+            question: {
+              required: true,
+              choiceQuestion: {
+                type: 'RADIO',
+                options: [
+                  { value: 'Dưới 18' },
+                  { value: '18 - 24' },
+                  { value: '25 - 34' },
+                  { isOther: true }
+                ]
+              }
+            }
+          }
+        },
+        {
+          itemId: 'item_4',
+          title: 'Các ứng dụng bạn thường xuyên sử dụng?',
+          questionItem: {
+            question: {
+              required: false,
+              choiceQuestion: {
+                type: 'CHECKBOX',
+                options: [
+                  { value: 'Shopee' },
+                  { value: 'TikTok Shop' },
+                  { value: 'Lazada' }
+                ]
+              }
+            }
+          }
+        },
+        {
+          itemId: 'item_5',
+          title: 'Mức thu nhập bình quân',
+          questionItem: {
+            question: {
+              required: true,
+              choiceQuestion: {
+                type: 'DROP_DOWN',
+                options: [
+                  { value: '< 5 triệu' },
+                  { value: '5 - 10 triệu' },
+                  { value: '> 10 triệu' }
+                ]
+              }
+            }
+          }
+        },
+        {
+          itemId: 'item_6',
+          title: 'Mức độ hài lòng với dịch vụ giao hàng',
+          questionItem: {
+            question: {
+              required: true,
+              scaleQuestion: {
+                low: 1,
+                high: 5,
+                lowLabel: 'Rất không hài lòng',
+                highLabel: 'Cực kỳ hài lòng'
+              }
+            }
+          }
+        },
+        {
+          itemId: 'item_7',
+          title: 'Đánh giá các khía cạnh dịch vụ',
+          questionGroupItem: {
+            grid: {
+              columns: {
+                type: 'RADIO',
+                options: [
+                  { value: 'Kém' },
+                  { value: 'Bình thường' },
+                  { value: 'Tốt' }
+                ]
+              }
+            },
+            questions: [
+              { questionId: 'r1', required: true, rowQuestion: { title: 'Tốc độ phản hồi' } },
+              { questionId: 'r2', required: true, rowQuestion: { title: 'Thái độ tư vấn' } }
+            ]
+          }
+        },
+        {
+          itemId: 'item_8',
+          title: 'Các kênh thanh toán hỗ trợ theo từng sàn',
+          questionGroupItem: {
+            grid: {
+              columns: {
+                type: 'CHECKBOX',
+                options: [
+                  { value: 'Ví điện tử' },
+                  { value: 'Chuyển khoản' },
+                  { value: 'COD' }
+                ]
+              }
+            },
+            questions: [
+              { questionId: 'r3', required: false, rowQuestion: { title: 'Sàn A' } },
+              { questionId: 'r4', required: false, rowQuestion: { title: 'Sàn B' } }
+            ]
+          }
+        },
+        {
+          itemId: 'item_9',
+          title: 'Ngày bạn mua hàng gần nhất',
+          questionItem: {
+            question: {
+              required: true,
+              dateQuestion: { includeYear: true }
+            }
+          }
+        },
+        {
+          itemId: 'item_10',
+          title: 'Khung giờ bạn thường đặt đồ ăn',
+          questionItem: {
+            question: {
+              required: false,
+              timeQuestion: { duration: false }
+            }
+          }
+        },
+        {
+          itemId: 'item_11',
+          title: 'Đánh giá ứng dụng theo số sao',
+          questionItem: {
+            question: {
+              required: true,
+              ratingQuestion: { ratingScaleLevel: 5 }
+            }
+          }
+        },
+        {
+          itemId: 'item_12',
+          title: 'Đính kèm ảnh chụp biên lai giao dịch',
+          questionItem: {
+            question: {
+              required: false,
+              fileUploadQuestion: {}
+            }
+          }
+        }
+      ]
+    };
+
+    const parsed = formParserService.parseGoogleFormsApiResponse(mockApiResponse, editUrl);
+    assert.strictEqual(parsed.source, 'GOOGLE_FORMS_API');
+    assert.strictEqual(parsed.title, 'Khảo sát Thị hiếu Tiêu dùng 2026');
+    assert.strictEqual(parsed.questionCount, 12);
+
+    // Kiem tra 12 loai cau hoi
+    assert.strictEqual(parsed.questions[0].type, 'SHORT_TEXT');
+    assert.strictEqual(parsed.questions[0].is_required, 1);
+
+    assert.strictEqual(parsed.questions[1].type, 'PARAGRAPH');
+    assert.strictEqual(parsed.questions[1].is_required, 0);
+
+    assert.strictEqual(parsed.questions[2].type, 'SINGLE_CHOICE');
+    assert.strictEqual(parsed.questions[2].is_required, 1);
+    assert.deepStrictEqual(parsed.questions[2].options, ['Dưới 18', '18 - 24', '25 - 34', 'Khác...']);
+
+    assert.strictEqual(parsed.questions[3].type, 'MULTIPLE_CHOICE');
+    assert.strictEqual(parsed.questions[3].is_required, 0);
+    assert.strictEqual(parsed.questions[3].options.length, 3);
+
+    assert.strictEqual(parsed.questions[4].type, 'DROPDOWN');
+    assert.strictEqual(parsed.questions[4].is_required, 1);
+
+    assert.strictEqual(parsed.questions[5].type, 'LINEAR_SCALE');
+    assert.strictEqual(parsed.questions[5].is_required, 1);
+    assert.strictEqual(parsed.questions[5].min_label, 'Rất không hài lòng');
+    assert.strictEqual(parsed.questions[5].max_label, 'Cực kỳ hài lòng');
+    assert.deepStrictEqual(parsed.questions[5].options, ['1', '2', '3', '4', '5']);
+
+    assert.strictEqual(parsed.questions[6].type, 'CHOICE_GRID');
+    assert.strictEqual(parsed.questions[6].is_required, 1);
+    assert.deepStrictEqual(parsed.questions[6].rows, ['Tốc độ phản hồi', 'Thái độ tư vấn']);
+    assert.deepStrictEqual(parsed.questions[6].columns, ['Kém', 'Bình thường', 'Tốt']);
+
+    assert.strictEqual(parsed.questions[7].type, 'CHECKBOX_GRID');
+    assert.strictEqual(parsed.questions[7].is_required, 0);
+    assert.deepStrictEqual(parsed.questions[7].rows, ['Sàn A', 'Sàn B']);
+    assert.deepStrictEqual(parsed.questions[7].columns, ['Ví điện tử', 'Chuyển khoản', 'COD']);
+
+    assert.strictEqual(parsed.questions[8].type, 'DATE_INPUT');
+    assert.strictEqual(parsed.questions[8].is_required, 1);
+
+    assert.strictEqual(parsed.questions[9].type, 'TIME_INPUT');
+    assert.strictEqual(parsed.questions[9].is_required, 0);
+
+    assert.strictEqual(parsed.questions[10].type, 'RATING_STARS');
+    assert.strictEqual(parsed.questions[10].is_required, 1);
+
+    assert.strictEqual(parsed.questions[11].type, 'FILE_UPLOAD');
+    assert.strictEqual(parsed.questions[11].is_required, 0);
+  });
+
   console.log('\n===============================================================');
   console.log(`TAT CA ${passedTests}/${totalTests} BAI KIEM THU DA VUOT QUA XUAT SAC!`);
   console.log('===============================================================\n');

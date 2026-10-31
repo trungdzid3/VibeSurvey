@@ -4,6 +4,49 @@
    Font chữ: Montserrat (Tiêu đề Bold, Chữ nhỏ Light, Phân cấp thị giác mạch lạc)
    ========================================================================== */
 
+/* ==================== PHÒNG VỆ HIỂN THỊ CỐT LÕI (CORE DISPLAY GUARDRAILS) ==================== */
+.hidden,
+[hidden] {
+  display: none !important;
+}
+
+/* Bảo toàn các lớp tiện ích hiển thị thích ứng (Responsive Display Overrides) của Tailwind */
+@media (min-width: 640px) {
+  .sm\:inline { display: inline !important; }
+  .sm\:inline-block { display: inline-block !important; }
+  .sm\:inline-flex { display: inline-flex !important; }
+  .sm\:block { display: block !important; }
+  .sm\:flex { display: flex !important; }
+  .sm\:grid { display: grid !important; }
+}
+
+@media (min-width: 768px) {
+  .md\:inline { display: inline !important; }
+  .md\:inline-block { display: inline-block !important; }
+  .md\:inline-flex { display: inline-flex !important; }
+  .md\:block { display: block !important; }
+  .md\:flex { display: flex !important; }
+  .md\:grid { display: grid !important; }
+}
+
+@media (min-width: 1024px) {
+  .lg\:inline { display: inline !important; }
+  .lg\:inline-block { display: inline-block !important; }
+  .lg\:inline-flex { display: inline-flex !important; }
+  .lg\:block { display: block !important; }
+  .lg\:flex { display: flex !important; }
+  .lg\:grid { display: grid !important; }
+}
+
+/* Bảo toàn các lớp tiện ích hiển thị Dark Mode (Dark Mode Display Overrides) của Tailwind */
+.dark .dark\:block { display: block !important; }
+.dark .dark\:inline { display: inline !important; }
+.dark .dark\:inline-block { display: inline-block !important; }
+.dark .dark\:flex { display: flex !important; }
+.dark .dark\:inline-flex { display: inline-flex !important; }
+.dark .dark\:grid { display: grid !important; }
+.dark .dark\:hidden { display: none !important; }
+
 /* ==================== MONTSERRAT LOCAL FONT FACES ==================== */
 @font-face {
   font-family: 'Montserrat';
@@ -154,26 +197,26 @@
   --card-shadow-hover: 0 12px 28px -4px rgba(15, 23, 42, 0.08), 0 4px 10px -2px rgba(15, 23, 42, 0.04);
 }
 
-/* ==================== DARK MODE TOKENS: TỐI GIẢN PHẲNG (MONOCHROME & ORANGE ACCENT) ==================== */
+/* ==================== DARK MODE TOKENS: CHUẨN ĐỒNG BỘ FORCE-DARK THAN ẤM CAO CẤP ==================== */
 html.dark {
-  --bg-page: #09090B;
-  --bg-card: #18181B;
-  --bg-card-subtle: #27272A;
+  --bg-page: #121214;
+  --bg-card: #1C1C20;
+  --bg-card-subtle: #24242A;
   
-  --border-subtle: #27272A;
-  --border-hover: #3F3F46;
+  --border-subtle: #2E2E36;
+  --border-hover: #42424E;
   --border-focus: #EA580C;
   
-  --text-main: #FAFAFA;
-  --text-body: #D4D4D8;
+  --text-main: #FFFFFF;
+  --text-body: #E4E4E7;
   --text-muted: #A1A1AA;
-  --text-subtle: #71717A;
+  --text-subtle: #8A8A96;
 
   --brand-primary: #EA580C;
-  --brand-secondary: #FAFAFA;
+  --brand-secondary: #FFFFFF;
 
-  --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
-  --card-shadow-hover: 0 14px 30px -4px rgba(0, 0, 0, 0.8), 0 4px 10px -2px rgba(0, 0, 0, 0.5);
+  --card-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  --card-shadow-hover: 0 12px 28px rgba(0, 0, 0, 0.6);
 }
 
 html, body, *, *::before, *::after, input, button, textarea, select, code, pre {
@@ -188,25 +231,36 @@ html, body {
   line-height: 1.55;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  scrollbar-gutter: stable;
 }
 
 /* ==================== TYPOGRAPHIC HIERARCHY (MONTSERRAT PHÂN CẤP) ==================== */
-/* 1. Tiêu đề lớn nhất: Black (900) */
+/* 1. Tiêu đề lớn nhất: Black (900) - CHỈ DÀNH CHO TIÊU ĐỀ DISPLAY LỚN (>= 24px) */
 h1,
 .hero-title,
 .page-title-main,
 .display-title,
-.font-black,
 #greeting-text,
 h1.font-black,
 .text-2xl.font-black,
 .text-3xl.font-black,
 .text-4xl.font-black,
+.text-5xl.font-black,
+.text-6xl.font-black,
 .text-3xl.font-extrabold,
-.text-4xl.font-extrabold {
+.text-4xl.font-extrabold,
+.text-5xl.font-extrabold,
+.text-6xl.font-extrabold {
   font-weight: 900 !important;
   font-style: normal !important;
   letter-spacing: -0.025em;
+}
+
+/* Class font-black cho các khối tiêu đề lớn thông thường */
+.font-black:not(.text-xs):not(.text-sm):not(.text-\[9px\]):not(.text-\[9\.5px\]):not(.text-\[10px\]):not(.text-\[10\.5px\]):not(.text-\[11px\]):not(.text-\[12px\]):not(.studio-card-title):not(.card-title-sm) {
+  font-weight: 900 !important;
+  font-style: normal !important;
+  letter-spacing: -0.02em;
 }
 
 /* 2. Tiêu đề phụ: ExtraBold (800) */
@@ -215,11 +269,61 @@ h2, h3, h4, h5, h6,
 .card-title,
 .heading-bold,
 .title-bold,
-.font-extrabold,
-.font-bold {
+.font-extrabold {
   font-weight: 800 !important;
   font-style: normal !important;
   letter-spacing: -0.015em;
+}
+
+.font-bold:not(.text-xs):not(.text-sm):not(.text-\[9px\]):not(.text-\[9\.5px\]):not(.text-\[10px\]):not(.text-\[10\.5px\]):not(.text-\[11px\]):not(.text-\[12px\]):not(.studio-card-title):not(.card-title-sm) {
+  font-weight: 700 !important;
+  font-style: normal !important;
+  letter-spacing: -0.01em;
+}
+
+/* ==================== TỐI ƯU TYPOGRAPHY CHO NHÃN, BADGE, CARD HEADINGS NHỎ ==================== */
+/* Ngăn chặn bết nét và bít lỗ chữ tiếng Việt có dấu ở phông Montserrat */
+.text-xs.font-black,
+.text-sm.font-black,
+.text-\[9px\].font-black,
+.text-\[9\.5px\].font-black,
+.text-\[10px\].font-black,
+.text-\[10\.5px\].font-black,
+.text-\[11px\].font-black,
+.text-\[12px\].font-black,
+.text-xs.font-extrabold,
+.text-sm.font-extrabold,
+.text-\[9px\].font-extrabold,
+.text-\[9\.5px\].font-extrabold,
+.text-\[10px\].font-extrabold,
+.text-\[10\.5px\].font-extrabold,
+.text-\[11px\].font-extrabold,
+.text-\[12px\].font-extrabold {
+  font-weight: 700 !important;
+  letter-spacing: 0.03em !important;
+}
+
+/* Với các tiêu đề chữ in hoa (uppercase) nhỏ: nới lỏng letter-spacing để nét chữ thông thoáng */
+.uppercase.text-xs,
+.uppercase.text-sm,
+.uppercase.text-\[9px\],
+.uppercase.text-\[9\.5px\],
+.uppercase.text-\[10px\],
+.uppercase.text-\[10\.5px\],
+.uppercase.text-\[11px\],
+.uppercase.text-\[12px\],
+.text-xs .uppercase,
+.text-sm .uppercase,
+.text-\[10px\] .uppercase,
+.text-\[11px\] .uppercase {
+  letter-spacing: 0.04em !important;
+}
+
+/* Các heading cấp thẻ (Card title) */
+.card-title-sm,
+.studio-card-title {
+  font-weight: 700 !important;
+  letter-spacing: 0.035em !important;
 }
 
 /* 3. Body text thông thường: Regular (400) */
@@ -314,13 +418,14 @@ body::before {
   box-shadow: 0 12px 28px -4px rgba(0, 0, 0, 0.08), 0 4px 10px -2px rgba(0, 0, 0, 0.04);
 }
 html.dark .bento-card {
-  background: #18181B;
-  border-color: #27272A;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+  background: #1C1C20 !important;
+  border-color: #2E2E36 !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
 }
 html.dark .bento-card:hover {
   transform: translateY(-3px);
-  box-shadow: 0 14px 30px -4px rgba(0, 0, 0, 0.8), 0 4px 10px -2px rgba(0, 0, 0, 0.5);
+  border-color: #42424E !important;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.6);
 }
 
 /* Nav Link Item - Phong cách Scribbr phẳng, không khung hộp */
@@ -649,34 +754,47 @@ html.dark *::-webkit-scrollbar-thumb:hover {
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
+
+.scrollbar-thin { scrollbar-width: thin; }
+.scrollbar-thin::-webkit-scrollbar { width: 5px; height: 5px; }
+.scrollbar-thin::-webkit-scrollbar-thumb { background: rgba(160, 160, 175, 0.25); border-radius: 4px; }
+html.dark .scrollbar-thin::-webkit-scrollbar-thumb { background: #33333D; }
+html.dark .scrollbar-thin::-webkit-scrollbar-thumb:hover { background: #42424E; }
+
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
 
-/* ==================== DARK MODE HIGH CONTRAST & SAAS POLISH ==================== */
+/* ==================== PRECISION DARK THEME (FORCE-DARK AESTHETICS CHUẨN XÁC) ====================
+   - Nền tổng thể: #121214 (đen than mềm ấm mịn màng, chống lóa mắt)
+   - Nền Card & Bento Surface: #1C1C20 (nổi khối sắc nét, chiều sâu rõ rệt)
+   - Nền Sub-container / Card con: #222228 (tạo phân tầng thị giác mạch lạc)
+   - Viền Card: #2E2E36 | Viền Input & Control: #33333D
+   - Text Hierarchy: Heading trắng tinh #FFFFFF 100%, Body xám sáng #E4E4E7, Subtext #A1A1AA (chống mờ)
+   - Accent: Cam thương hiệu #EA580C / #F97316 bảo toàn độ tương phản rực rỡ
+   ================================================================================================ */
+
 html.dark {
-  background-color: #09090B !important;
-  color: #F4F4F5 !important;
+  background-color: #121214 !important;
+  color: #E4E4E7 !important;
 }
 
 html.dark body {
-  background-color: #09090B !important;
-  color: #F4F4F5 !important;
+  background-color: #121214 !important;
+  color: #E4E4E7 !important;
 }
 
-/* Header Navbar in Dark Mode: Đồng nhất 100% màu nền đen than #09090B phẳng */
+/* Header Navbar: Đen than #121214 với viền dưới thanh mảnh #25252A */
 html.dark header {
-  background-color: rgba(9, 9, 11, 0.95) !important;
+  background-color: rgba(18, 18, 20, 0.95) !important;
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border-bottom-color: #27272A !important;
+  border-bottom-color: #25252A !important;
 }
 
-/* Nav Links Pill Container & Links: Hoàn toàn trong suốt, phẳng lì, trùng màu nền Header */
-#desktop-nav,
+/* Nav Link Item */
 html.dark #desktop-nav {
-  background-color: transparent !important;
   background: transparent !important;
   border: none !important;
   box-shadow: none !important;
@@ -690,7 +808,7 @@ html.dark .nav-link {
 }
 html.dark .nav-link:hover {
   background: transparent !important;
-  color: #FAFAFA !important;
+  color: #FFFFFF !important;
 }
 html.dark .nav-link.active {
   color: #F97316 !important;
@@ -699,183 +817,142 @@ html.dark .nav-link.active {
   border: none !important;
   box-shadow: none !important;
 }
+html.dark .nav-link.active::after {
+  background-color: #F97316 !important;
+}
 
-/* Balance Widget in Dark Mode */
+/* User Balance & Header Pills */
 html.dark #user-balance-pill {
-  background-color: rgba(255, 255, 255, 0.06) !important;
-  border-color: rgba(255, 255, 255, 0.1) !important;
+  background-color: #1C1C20 !important;
+  border-color: #2E2E36 !important;
   box-shadow: none !important;
 }
 html.dark #header-points-text {
-  color: #6EE7B7 !important;
+  color: #34D399 !important;
 }
 html.dark #header-credit-text {
   color: #34D399 !important;
 }
 
-/* Typography contrast in Dark Mode */
-html.dark .text-slate-900,
-html.dark .text-slate-800 {
-  color: #F8FAFC !important;
-}
-
-html.dark .text-slate-700,
-html.dark .text-slate-600 {
-  color: #CBD5E1 !important;
-}
-
-html.dark .text-slate-500 {
-  color: #94A3B8 !important;
-}
-
-html.dark .text-slate-400 {
-  color: #64748B !important;
-}
-
-/* Thẻ Card, Bento Card trong Dark Mode (Glassmorphism & Fine Layering) */
+/* BẢNG MÀU CARDS & BENTO SURFACES CHÍNH (#1C1C20 nổi khối rõ rệt) */
 html.dark .bento-card,
-html.dark .voucher-clean-card {
-  background: linear-gradient(180deg, rgba(22, 31, 52, 0.8) 0%, rgba(14, 20, 36, 0.9) 100%) !important;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  box-shadow: 0 4px 24px -2px rgba(0, 0, 0, 0.5), inset 0 1px 0 0 rgba(255, 255, 255, 0.08) !important;
+html.dark .voucher-clean-card,
+html.dark .studio-question-card,
+html.dark .bg-white,
+html.dark .dark\:bg-\[\#18181B\],
+html.dark .dark\:bg-stone-900,
+html.dark .dark\:bg-slate-900,
+html.dark .dark\:bg-zinc-900 {
+  background-color: #1C1C20 !important;
+  border-color: #2E2E36 !important;
 }
 
+/* Viền hover sắc nét cho các card */
 html.dark .bento-card:hover,
 html.dark .voucher-clean-card:hover {
-  border-color: rgba(99, 102, 241, 0.4) !important;
-  box-shadow: 0 16px 36px -6px rgba(0, 0, 0, 0.7), inset 0 1px 0 0 rgba(255, 255, 255, 0.15), 0 0 20px rgba(99, 102, 241, 0.12) !important;
+  border-color: #42424E !important;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.5) !important;
 }
 
-/* Thẻ Hero Bento 1: Daily Earnings & Welcome */
-html.dark .bento-card.bg-gradient-to-tr {
-  background: linear-gradient(135deg, rgba(30, 41, 59, 0.85) 0%, rgba(15, 23, 42, 0.95) 50%, rgba(49, 46, 129, 0.25) 100%) !important;
-  border: 1px solid rgba(99, 102, 241, 0.25) !important;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+/* KHUNG CON, SUB-CONTAINERS & INNER CARDS (#222228 phân tầng) */
+html.dark .bg-stone-50,
+html.dark .bg-stone-100,
+html.dark .bg-slate-50,
+html.dark .bg-slate-100,
+html.dark .dark\:bg-stone-800,
+html.dark .dark\:bg-stone-800\/90,
+html.dark .dark\:bg-stone-800\/80,
+html.dark .dark\:bg-stone-800\/50,
+html.dark .dark\:bg-stone-900\/60,
+html.dark .dark\:bg-stone-900\/80,
+html.dark .dark\:bg-zinc-800,
+html.dark .dark\:bg-slate-800 {
+  background-color: #222228 !important;
+  border-color: #2E2E36 !important;
 }
 
-/* Thẻ Hero Bento 2: Voucher Hot */
-html.dark .bento-card.bg-gradient-to-br,
-html.dark .bento-card.border-amber-200\/60 {
-  background: linear-gradient(135deg, rgba(55, 28, 10, 0.45) 0%, rgba(15, 23, 42, 0.95) 60%, rgba(26, 36, 56, 0.7) 100%) !important;
-  border: 1px solid rgba(245, 158, 11, 0.28) !important;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+/* BORDERS ĐỊNH HÌNH KHỐI (Chống nhòe, rõ nét từng góc cạnh) */
+html.dark .border-stone-200,
+html.dark .border-stone-100,
+html.dark .border-slate-200,
+html.dark .border-slate-100,
+html.dark .dark\:border-stone-800,
+html.dark .dark\:border-stone-700,
+html.dark .dark\:border-slate-800,
+html.dark .dark\:border-zinc-800 {
+  border-color: #2E2E36 !important;
 }
 
-/* Vouchers & Hot Chips trong Dark Mode */
-html.dark span.bg-amber-100 {
-  background: rgba(245, 158, 11, 0.15) !important;
-  color: #FBBF24 !important;
-  border: 1px solid rgba(245, 158, 11, 0.3) !important;
-}
-html.dark .text-amber-800 {
-  color: #FCD34D !important;
-}
-html.dark .border-amber-100 {
-  border-color: rgba(245, 158, 11, 0.15) !important;
-}
-html.dark .bg-amber-50 {
-  background: rgba(245, 158, 11, 0.1) !important;
-  border-color: rgba(245, 158, 11, 0.2) !important;
-  color: #FCD34D !important;
-}
-
-/* Badge "Khảo Sát Khả Dụng Hôm Nay" */
-html.dark span.bg-blue-50 {
-  background: rgba(56, 189, 248, 0.12) !important;
-  color: #38BDF8 !important;
-  border-color: rgba(56, 189, 248, 0.3) !important;
-}
-
-/* Điểm & Số dư nổi bật trong Dark Mode - Tối giản, không phát sáng glow */
-html.dark .text-blue-600,
-html.dark .text-blue-700,
-html.dark .text-indigo-600 {
-  color: #FB923C !important;
-}
-
-html.dark .text-emerald-700,
-html.dark .text-emerald-600 {
-  color: #10B981 !important;
-  text-shadow: none !important;
-}
-
-/* Nút Action Primary CTA trong Card (Làm bài, v.v...) - Đen/Cam tối giản, không gradient AI */
-html.dark .bento-card button.bg-slate-900,
-html.dark button.bg-slate-900:not(.nav-link) {
-  background: #27272A !important;
-  color: #FAFAFA !important;
-  border: 1px solid #3F3F46 !important;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4) !important;
-}
-html.dark .bento-card button.bg-slate-900:hover,
-html.dark button.bg-slate-900:not(.nav-link):hover {
-  background: #EA580C !important;
-  border-color: #EA580C !important;
+/* TYPOGRAPHIC HIERARCHY TƯƠNG PHẢN CAO (TRẮNG TINH & XÁM SÁNG) */
+/* 1. Tiêu đề chính, đề mục & nhãn quan trọng: Trắng tinh #FFFFFF 100% nét căng */
+html.dark h1,
+html.dark h2,
+html.dark h3,
+html.dark h4,
+html.dark h5,
+html.dark h6,
+html.dark .font-black,
+html.dark .font-extrabold,
+html.dark .text-slate-900,
+html.dark .text-stone-900,
+html.dark .text-stone-800,
+html.dark .dark\:text-white,
+html.dark .dark\:text-stone-100 {
   color: #FFFFFF !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5) !important;
 }
 
-/* Category Filter Tabs (Tất cả, Thưởng cao, Tặng Voucher) - Phân biệt rõ ràng chip đã chọn ở Dark Mode */
-html.dark .overflow-x-auto button:not(.dark\:bg-stone-100):not(.bg-stone-900):not(.bg-slate-900):not(.active-chip) {
-  background: #18181B !important;
-  border: 1px solid #27272A !important;
+/* 2. Văn bản body nội dung & mô tả chính: Xám sáng #E4E4E7 dễ đọc, dịu mắt */
+html.dark .text-stone-700,
+html.dark .text-stone-600,
+html.dark .text-slate-700,
+html.dark .text-slate-800,
+html.dark .dark\:text-stone-200,
+html.dark .dark\:text-stone-300 {
+  color: #E4E4E7 !important;
+}
+
+/* 3. Phụ đề & chú thích hỗ trợ: Xám mịn #A1A1AA (chống mù mịt/xỉn màu) */
+html.dark .text-stone-500,
+html.dark .text-stone-400,
+html.dark .text-slate-500,
+html.dark .dark\:text-stone-400,
+html.dark .dark\:text-stone-500 {
   color: #A1A1AA !important;
 }
-html.dark .overflow-x-auto button:not(.dark\:bg-stone-100):not(.bg-stone-900):not(.bg-slate-900):not(.active-chip):hover {
-  background: #27272A !important;
-  border-color: #3F3F46 !important;
-  color: #FFFFFF !important;
-}
-html.dark .overflow-x-auto button.dark\:bg-stone-100,
-html.dark .overflow-x-auto button.active-chip {
-  background: #F4F4F5 !important;
-  color: #09090B !important;
-  font-weight: 700 !important;
-  border: 1px solid #F4F4F5 !important;
-}
 
-/* Đường ray thanh tiến độ (Progress Track) trong Dark Mode */
-html.dark .bg-slate-100,
-html.dark .bg-slate-200 {
-  background-color: #27272A !important;
-  border-color: transparent !important;
-}
-
-/* Đường phân cách (Borders & Dividers) trong Dark Mode */
-html.dark .border-slate-100,
-html.dark .border-slate-200,
-html.dark .border-slate-200\/80,
-html.dark .border-slate-200\/70,
-html.dark .border-slate-200\/60,
-html.dark .border-slate-200\/50 {
-  border-color: #27272A !important;
-}
-
-/* Ô nhập liệu Input, Select, Textarea trong Dark Mode */
+/* Ô NHẬP LIỆU (INPUT, SELECT, TEXTAREA) - NỀN ĐEN THAN #161619, VIỀN #33333D, CHỮ TRẮNG TINH */
 html.dark input:not(.bg-transparent):not(.seamless-input),
 html.dark select:not(.bg-transparent):not(.seamless-input),
 html.dark textarea:not(.bg-transparent):not(.seamless-input) {
-  background-color: #18181B !important;
-  color: #F4F4F5 !important;
-  border-color: #27272A !important;
+  background-color: #161619 !important;
+  color: #FFFFFF !important;
+  border: 1px solid #33333D !important;
+  border-radius: 10px;
 }
+
 html.dark input:not(.bg-transparent):not(.seamless-input):focus,
 html.dark select:not(.bg-transparent):not(.seamless-input):focus,
 html.dark textarea:not(.bg-transparent):not(.seamless-input):focus {
   border-color: #EA580C !important;
-  box-shadow: 0 0 0 1px #EA580C !important;
+  box-shadow: 0 0 0 2px rgba(234, 88, 12, 0.25) !important;
+  outline: none !important;
 }
 
-/* Class chuyên dụng cho input trong suốt & seamless chuẩn Google Forms / Notion */
+html.dark input::placeholder,
+html.dark textarea::placeholder {
+  color: #71717A !important;
+}
+
+/* Input trong suốt liền mạch (Google Forms style title & description) */
 html.dark input.bg-transparent,
 html.dark textarea.bg-transparent,
 html.dark .seamless-input {
   background-color: transparent !important;
+  color: #FFFFFF !important;
   border-top-color: transparent !important;
   border-left-color: transparent !important;
   border-right-color: transparent !important;
+  border-bottom-color: #33333D !important;
   box-shadow: none !important;
 }
 html.dark input.bg-transparent:focus,
@@ -886,138 +963,139 @@ html.dark .seamless-input:focus {
   box-shadow: none !important;
 }
 
-/* Nút phụ / Nút hủy / Nút xám trong Dark Mode */
-html.dark .bg-slate-100:not(.nav-link),
-html.dark .bg-slate-50 {
-  background-color: rgba(255, 255, 255, 0.06) !important;
-  color: #CBD5E1 !important;
-  border: 1px solid rgba(255, 255, 255, 0.06) !important;
+/* NÚT BẤM VÀ THAO TÁC PHỤ */
+/* Nút phụ / Nút màu trắng trong Light Mode chuyển sang Đen than viền nét */
+html.dark button.bg-white,
+html.dark div.bg-white:not(.bento-card):not(.studio-question-card) {
+  background-color: #222228 !important;
+  border-color: #33333D !important;
+  color: #FFFFFF !important;
 }
-
-html.dark .hover\:bg-slate-50:hover,
-html.dark .hover\:bg-slate-100:hover,
-html.dark .hover\:bg-slate-200:hover {
-  background-color: rgba(255, 255, 255, 0.1) !important;
+html.dark button.bg-white:hover {
+  background-color: #2A2A32 !important;
+  border-color: #42424E !important;
   color: #FFFFFF !important;
 }
 
-/* Modal Popup & Dropdown Menu trong Dark Mode */
-html.dark #modal-card,
-html.dark #demo-role-dropdown {
-  background: linear-gradient(180deg, #162035 0%, #0E1525 100%) !important;
-  border: 1px solid rgba(255, 255, 255, 0.12) !important;
-  color: #F8FAFC !important;
-  box-shadow: 0 25px 60px -12px rgba(0, 0, 0, 0.85), 0 0 24px rgba(99, 102, 241, 0.15) !important;
+/* Nút phụ xám nhạt (bg-stone-100 / bg-stone-200 / bg-slate-100) */
+html.dark .bg-stone-100:not(.nav-link),
+html.dark .bg-slate-100:not(.nav-link),
+html.dark .dark\:bg-stone-800:not(.nav-link) {
+  background-color: #222228 !important;
+  border-color: #33333D !important;
+  color: #E4E4E7 !important;
+}
+html.dark .bg-stone-100:hover:not(.nav-link),
+html.dark .dark\:hover\:bg-stone-700:hover {
+  background-color: #2A2A32 !important;
+  color: #FFFFFF !important;
 }
 
-/* Modal Card Info Boxes & Summaries trong Dark Mode */
-html.dark #modal-card .bg-blue-50,
-html.dark #modal-card .bg-blue-50\/80,
-html.dark #modal-card .bg-blue-50\/70,
-html.dark #modal-card .bg-blue-50\/60 {
-  background-color: rgba(30, 58, 138, 0.28) !important;
-  border-color: rgba(59, 130, 246, 0.35) !important;
-  color: #BAE6FD !important;
+/* Primary Action CTA (Cam VibeSurvey) - Giữ trọn độ rực rỡ và sắc nét */
+html.dark .bg-orange-600 {
+  background-color: #EA580C !important;
+  color: #FFFFFF !important;
+  border-color: #EA580C !important;
+}
+html.dark .bg-orange-600:hover {
+  background-color: #C2410C !important;
+}
+
+/* Tab Filters & Quick Filter Chips */
+html.dark .overflow-x-auto button:not(.active-chip):not(.bg-orange-600) {
+  background-color: #1C1C20 !important;
+  border-color: #2E2E36 !important;
+  color: #A1A1AA !important;
+}
+html.dark .overflow-x-auto button:not(.active-chip):not(.bg-orange-600):hover {
+  background-color: #222228 !important;
+  border-color: #42424E !important;
+  color: #FFFFFF !important;
+}
+html.dark .overflow-x-auto button.active-chip {
+  background-color: #EA580C !important;
+  border-color: #EA580C !important;
+  color: #FFFFFF !important;
+  font-weight: 700 !important;
+}
+
+/* BADGES & CHIPS TRẠNG THÁI (CHUẨN CHỈNH, KHÔNG BỊ XỈN) */
+html.dark span.bg-amber-100,
+html.dark .bg-amber-50 {
+  background-color: rgba(245, 158, 11, 0.12) !important;
+  border-color: rgba(245, 158, 11, 0.28) !important;
+  color: #FBBF24 !important;
+}
+html.dark .text-amber-800,
+html.dark .text-amber-600 {
+  color: #FBBF24 !important;
+}
+
+html.dark span.bg-emerald-50,
+html.dark span.bg-emerald-100 {
+  background-color: rgba(16, 185, 129, 0.12) !important;
+  border-color: rgba(16, 185, 129, 0.28) !important;
+  color: #34D399 !important;
+}
+html.dark .text-emerald-700,
+html.dark .text-emerald-600 {
+  color: #34D399 !important;
+}
+
+html.dark span.bg-blue-50,
+html.dark span.bg-blue-100 {
+  background-color: rgba(56, 189, 248, 0.12) !important;
+  border-color: rgba(56, 189, 248, 0.28) !important;
+  color: #38BDF8 !important;
+}
+html.dark .text-blue-600,
+html.dark .text-blue-700,
+html.dark .text-indigo-600 {
+  color: #38BDF8 !important;
+}
+
+/* MODAL DIALOGS & POPUPS CHUẨN ĐỒNG BỘ */
+html.dark #modal-card,
+html.dark .modal-content,
+html.dark #demo-role-dropdown {
+  background-color: #1C1C20 !important;
+  background-image: none !important;
+  border: 1px solid #2E2E36 !important;
+  color: #E4E4E7 !important;
+  box-shadow: 0 24px 48px -8px rgba(0, 0, 0, 0.8) !important;
 }
 
 html.dark #modal-card .bg-slate-50,
-html.dark #modal-card .bg-slate-50\/80 {
-  background-color: rgba(15, 23, 42, 0.8) !important;
-  border-color: rgba(255, 255, 255, 0.08) !important;
+html.dark #modal-card .bg-stone-50,
+html.dark #modal-card .bg-slate-100,
+html.dark #modal-card .bg-stone-100 {
+  background-color: #222228 !important;
+  border-color: #2E2E36 !important;
 }
 
-html.dark #modal-card .bg-amber-50,
-html.dark #modal-card .bg-amber-50\/80,
-html.dark #modal-card .bg-amber-50\/60 {
-  background-color: rgba(120, 53, 15, 0.28) !important;
-  border-color: rgba(245, 158, 11, 0.35) !important;
-  color: #FDE68A !important;
-}
-
-/* Các nút trắng / pill trắng trong Dark Mode */
-html.dark button.bg-white,
-html.dark div.bg-white {
-  background-color: rgba(30, 41, 59, 0.85) !important;
-  border-color: rgba(255, 255, 255, 0.1) !important;
-  color: #F8FAFC !important;
-}
-html.dark button.bg-white:hover {
-  background-color: rgba(51, 65, 85, 0.95) !important;
-  border-color: rgba(99, 102, 241, 0.4) !important;
-}
-
-/* Bảng dữ liệu / Nhật ký giao dịch trong Dark Mode */
+/* BẢNG DỮ LIỆU & NHẬT KÝ GIAO DỊCH */
 html.dark table thead {
-  background-color: rgba(255, 255, 255, 0.05) !important;
-  color: #94A3B8 !important;
+  background-color: #161619 !important;
+  color: #A1A1AA !important;
+  border-bottom: 1px solid #2E2E36 !important;
+}
+html.dark table tbody tr {
+  border-bottom: 1px solid #24242A !important;
 }
 html.dark table tbody tr:hover {
-  background-color: rgba(255, 255, 255, 0.04) !important;
+  background-color: #222228 !important;
 }
 
-
-/* ==================== BẢO VỆ ĐỘ TƯƠNG PHẢN DARK MODE CHO TOÀN BỘ MODAL & TEXT ==================== */
-html.dark #modal-card {
-  background-color: #111827 !important;
-  color: #F8FAFC !important;
+/* THANH CUỘN (SCROLLBAR) MỊN MÀNG */
+html.dark * {
+  scrollbar-color: #33333D transparent;
 }
-
-html.dark #modal-card .text-slate-900,
-html.dark #modal-card h1,
-html.dark #modal-card h2,
-html.dark #modal-card h3,
-html.dark #modal-card h4 {
-  color: #FFFFFF !important;
+html.dark *::-webkit-scrollbar-thumb {
+  background: #33333D;
+  border-radius: 4px;
 }
-
-html.dark #modal-card .text-slate-800,
-html.dark #modal-card .text-slate-700 {
-  color: #E2E8F0 !important;
-}
-
-html.dark #modal-card .text-slate-500,
-html.dark #modal-card .text-slate-400 {
-  color: #94A3B8 !important;
-}
-
-html.dark #modal-card .bg-slate-100 {
-  background-color: #1F2937 !important;
-  color: #E5E7EB !important;
-}
-
-html.dark #modal-card .bg-slate-900 {
-  background-color: #2563EB !important;
-  color: #FFFFFF !important;
-}
-
-html.dark #modal-card .bg-amber-50,
-html.dark #modal-card .bg-amber-50\/70,
-html.dark #modal-card .bg-amber-50\/90 {
-  background-color: rgba(245, 158, 11, 0.12) !important;
-  border-color: rgba(245, 158, 11, 0.35) !important;
-  color: #FDE68A !important;
-}
-
-html.dark #modal-card .text-amber-950,
-html.dark #modal-card .text-slate-900.font-mono {
-  color: #FDE68A !important;
-}
-
-/* Đảm bảo toàn bộ chữ trên trang Chợ Voucher và Ví Voucher sáng rõ trong Dark Mode */
-html.dark .voucher-clean-card h3 {
-  color: #FFFFFF !important;
-}
-
-html.dark .voucher-clean-card .text-slate-900 {
-  color: #F8FAFC !important;
-}
-
-html.dark .voucher-clean-card .text-slate-600 {
-  color: #CBD5E1 !important;
-}
-
-html.dark .voucher-clean-card .text-slate-500 {
-  color: #94A3B8 !important;
+html.dark *::-webkit-scrollbar-thumb:hover {
+  background: #42424E;
 }
 
 /* Custom UI Dropdown Popover Animations */
@@ -1182,6 +1260,33 @@ html.dark textarea:-webkit-autofill {
 .studio-canvas-scroll {
   overflow-x: hidden !important;
   max-width: 100% !important;
+  scrollbar-gutter: stable;
+}
+
+/* =========================================================
+   STUDIO FLOATING ACTION TOOLBAR (THEO CON TRỎ CHUỘT HOVER)
+   Hiển thị linh hoạt theo khu vực chuột rê vào, không bị khuyết mép
+   ========================================================= */
+.studio-question-card {
+  position: relative;
+  overflow: visible;
+}
+
+.studio-floating-toolbar {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(-4px);
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.studio-question-card:hover .studio-floating-toolbar {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateX(0);
+}
+
+.studio-floating-toolbar .group\/btn:hover > span {
+  opacity: 1;
 }
 
 /* =========================================================

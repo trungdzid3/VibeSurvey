@@ -82,8 +82,9 @@ async function runSimulationTests() {
     }
   ];
 
+  const tStandard = antiFraudService.calculateStandardTime(simulationQuestions);
   const tMin = antiFraudService.calculateMinCompletionTime(simulationQuestions);
-  console.log(`ℹ️ Thời gian hoàn thành tối thiểu tính toán (T_min): ${tMin} giây`);
+  console.log(`[Standard Time] Thời gian chuẩn (T_standard): ${tStandard} giây | Tối thiểu (T_min): ${tMin} giây`);
 
   // Tính toán kinh tế học của khảo sát (Mô phỏng phân khúc tiêu chuẩn Take Rate 40%)
   const surveyEconomics = pricingService.calculateSurveyEconomics(simulationQuestions, 100, 0.40);
@@ -111,8 +112,8 @@ async function runSimulationTests() {
         q5: String(((i + 1) % 4) + 1), // Đa dạng
         q6: `Tôi rất kỳ vọng nền tảng sẽ có thêm nhiều khảo sát chất lượng cao và quy đổi thẻ cào nhanh chóng mẫu số ${i + 1}.`
       };
-      // Thời gian làm bài hợp lý: từ 1.3 * T_min đến 2.5 * T_min
-      const durationSec = Math.floor(tMin * (1.3 + (i % 10) * 0.1));
+      // Thời gian làm bài hợp lý: từ 0.65 * T_standard đến 1.15 * T_standard
+      const durationSec = Math.floor(tStandard * (0.65 + (i % 10) * 0.05));
       const res = antiFraudService.evaluateSubmission(simulationQuestions, answers, durationSec);
 
       if (res.status === 'VALIDATED') {

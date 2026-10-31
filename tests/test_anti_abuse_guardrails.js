@@ -251,7 +251,7 @@ async function runAntiAbuseTests() {
           headers: {
             'Content-Type': 'application/json',
             'X-Forwarded-For': targetSybilIp,
-            'X-Device-Fingerprint': targetDeviceFingerprint
+            'X-Device-Fingerprint': `${targetDeviceFingerprint}_${i}`
           },
           body: JSON.stringify({ email, password, name: `Sybil User ${i}` })
         });
@@ -275,7 +275,7 @@ async function runAntiAbuseTests() {
         headers: {
           'Content-Type': 'application/json',
           'X-Forwarded-For': targetSybilIp,
-          'X-Device-Fingerprint': targetDeviceFingerprint
+          'X-Device-Fingerprint': `${targetDeviceFingerprint}_4`
         },
         body: JSON.stringify({ email: `sybil_user_4_${uniqueSuffix}@vibesurvey.com`, password, name: 'Sybil User 4' })
       });
@@ -287,7 +287,7 @@ async function runAntiAbuseTests() {
         headers: {
           'Content-Type': 'application/json',
           'X-Forwarded-For': targetSybilIp,
-          'X-Device-Fingerprint': targetDeviceFingerprint
+          'X-Device-Fingerprint': `${targetDeviceFingerprint}_5`
         },
         body: JSON.stringify({ email: `sybil_user_5_${uniqueSuffix}@vibesurvey.com`, password, name: 'Sybil User 5' })
       });
