@@ -416,6 +416,105 @@ async function runAllTests() {
       assert.strictEqual(commentsInDb.count, 0);
     });
 
+    // 9. Thao luan tu do & Phan khu Sinh vien
+    await runTest('Free Discussion: Cho phep dang bai thao luan tu do khong kem khao sat (survey_id = null)', async () => {
+      const res = await fetch(`${baseUrl}/forum/posts`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${tokenNormal}`
+        },
+        body: JSON.stringify({
+          title: 'Kinh nghiem thiet ke cau hoi khao sat khong bi roi',
+          content: 'Moi nguoi thuong dat bao nhieu cau hoi trong mot bang hoi khao sat thi hop ly nhat?',
+          post_type: 'COMMUNITY'
+        })
+      });
+      assert.strictEqual(res.status, 201);
+      const data = await res.json();
+      assert.strictEqual(data.success, true);
+      assert.strictEqual(data.post_type, 'COMMUNITY');
+
+      const freePost = db.prepare('SELECT survey_id, post_type FROM forum_posts WHERE id = ?').get(data.postId);
+      assert.strictEqual(freePost.survey_id, null);
+      assert.strictEqual(freePost.post_type, 'COMMUNITY');
+
+      // Lay chi tiet bai tu do
+      const detailRes = await fetch(`${baseUrl}/forum/posts/${data.postId}`, {
+        headers: { 'Authorization': `Bearer ${tokenNormal}` }
+      });
+      const detailData = await detailRes.json();
+      assert.strictEqual(detailData.success, true);
+      assert.strictEqual(detailData.post.survey, null);
+    });
+
+    await runTest('Student Hub: Chan user chua xac thuc dang bai vao Phan khu Sinh Vien (403)', async () => {
+      const res = await fetch(`${baseUrl}/forum/posts`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${tokenNormal}`
+        },
+        body: JSON.stringify({
+          title: 'Bai viet vao goc sinh vien cua user thuong',
+          content: 'Noi dung thu nghiem kiem tra quyen sinh vien',
+          post_type: 'STUDENT'
+        })
+      });
+      assert.strictEqual(res.status, 403);
+    });
+
+    await runTest('Student Hub: Cho phep sinh vien da xac thuc dang bai vao Phan khu Sinh Vien (201)', async () => {
+      const res = await fetch(`${baseUrl}/forum/posts`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${tokenEdu}`
+        },
+        body: JSON.stringify({
+          title: 'Thao luan ve de tai tot nghiep nganh AI va Khoa hoc du lieu',
+          content: 'Co ban nao dang lam ve Computer Vision cho de tai tot nghiep khong a?',
+          post_type: 'STUDENT'
+        })
+      });
+      assert.strictEqual(res.status, 201);
+      const data = await res.json();
+      assert.strictEqual(data.success, true);
+      assert.strictEqual(data.post_type, 'STUDENT');
+    });
+
+    await runTest('Anti-Obfuscation URL: Chan link tra hinh co khoang trang quanh dau cham (400)', async () => {
+      const res = await fetch(`${baseUrl}/forum/posts`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${tokenNormal}`
+        },
+        body: JSON.stringify({
+          title: 'Thu gui link ngoai co khoang trang',
+          content: 'Cac ban vao forms . gle / abcxyz de lam khao sat giup minh nhe'
+        })
+      });
+      assert.strictEqual(res.status, 400);
+      const data = await res.json();
+      assert.strictEqual(data.code, 'EXTERNAL_LINKS_PROHIBITED');
+    });
+
+    await runTest('False Positive Guard: Khong chan nham cau thoai thong thuong', async () => {
+      const res = await fetch(`${baseUrl}/forum/posts`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${tokenNormal}`
+        },
+        body: JSON.stringify({
+          title: 'Chia se ve cach toi uu trai nghiem nguoi dung',
+          content: 'Ban co the bo qua buoc nay hoac xoa phan ghi chu de form gon hon nhe.'
+        })
+      });
+      assert.strictEqual(res.status, 201);
+    });
+
     console.log('\n===============================================================');
     console.log(`KET QUA KIEM THU: HOAN THANH ${passedTests}/${totalTests} TESTS DAT CHUAN 100%`);
     console.log('===============================================================');

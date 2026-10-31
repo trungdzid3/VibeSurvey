@@ -51,3 +51,8 @@
   - [x] Diễn đàn: Loại bỏ 100% icon sticker/emoji màu sắc, chuẩn hóa tiêu đề tinh gọn "Diễn Đàn", xóa sạch toàn bộ bài viết mock cứng, kết nối 100% dữ liệu bài viết thật từ API backend.
   - [x] Thẻ mẫu tương tác Trang Mở Đầu: Bỏ đơn vị "Xu", chuẩn hóa sang Điểm thưởng SurvHub, nút bấm dẫn sang đăng ký/đăng nhập làm bài thật.
   - [x] Widget Điểm Danh (Streak): Màu xám trung tính khi chưa điểm danh, bỏ chấm đỏ nhấp nháy, ngọn lửa bừng sáng phong cách TikTok khi đã điểm danh.
+- [x] 6. **Nâng cấp Diễn Đàn: Phân Khu Sinh Viên Riêng Biệt & Thảo Luận Tự Do Mở Rộng**
+  - [x] Cập nhật Cơ sở dữ liệu: Cho phép `survey_id` nullable, thêm `post_type` ('COMMUNITY' / 'STUDENT') và `category`.
+  - [x] Nâng cấp Backend (`forumController.js`): Hỗ trợ đăng bài tự do (khảo sát là tùy chọn), phân quyền truy cập mục sinh viên, tinh chỉnh nhận diện link trá hình an toàn không gây false positive.
+  - [x] Nâng cấp Frontend (`public/app.js`): Bổ sung 2 Tab Phân Khu (Cộng Đồng Chung vs Góc Sinh Viên), hỗ trợ modal đăng bài tự do/có khảo sát, render thẻ bài viết linh hoạt.
+  - [x] Kiểm thử tự động & Đồng bộ: Chạy `tests/test_forum_community.js` và toàn bộ 15 tầng kiểm thử, đồng bộ Android và push GitHub.

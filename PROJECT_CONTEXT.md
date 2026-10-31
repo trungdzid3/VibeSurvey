@@ -1701,3 +1701,33 @@ c:\Users\Lenovo\Downloads\Linh\
      + Đồng bộ hoàn tất sang Capacitor Android (`npm run sync:android`).
      + Toàn bộ 15/15 tầng kiểm thử tự hành đạt 100% PASS.
 
+
+
+---
+
+## Nâng Cấp Diễn Đàn: Phân Khu Sinh Viên Riêng Biệt & Mở Rộng Thảo Luận Tự Do (01/11/2026)
+1. **Bối cảnh & Yêu cầu Người dùng**:
+   - Diễn đàn không chỉ giới hạn cho sinh viên mà mở rộng cho toàn bộ cộng đồng (Cá nhân, Doanh nghiệp, Creator, Đáp viên).
+   - Thiết lập mục riêng biệt cho sinh viên (Góc Sinh Viên & Đề Tài Học Thuật) để trao đổi luận văn, NCKH và điểm Karma.
+   - Cho phép thảo luận tự do hơn: Người dùng có thể đăng bài chia sẻ kinh nghiệm, hỏi đáp, bình luận mà không bắt buộc phải có bài khảo sát đính kèm.
+   - Phòng chống gian lận link ngoài an toàn: Nhận diện link trá hình có khoảng trắng quanh dấu chấm/giao thức mà không bắt bừa các cụm từ đàm thoại thông thường (tránh false positive).
+
+2. **Chi tiết Kỹ thuật Triển khai**:
+   - **Cơ sở dữ liệu SQLite (`server/db/database.js`)**:
+     + Migration v2.7: Cập nhật bảng `forum_posts` cho phép `survey_id` nullable (`REFERENCES surveys(id)`), bổ sung cột `post_type TEXT DEFAULT 'COMMUNITY'` và `category TEXT DEFAULT 'ALL'`.
+     + Tạo index phụ trợ `idx_forum_posts_type` trên `forum_posts(post_type)`.
+   - **Backend Controller (`server/controllers/forumController.js`)**:
+     + `listPosts`: Hỗ trợ lọc theo `hub` (`COMMUNITY` vs `STUDENT`), chuyển sang `LEFT JOIN surveys` để hiển thị cả bài viết tự do. Duy trì cách ly bảo mật: Khách và user thường không nhìn thấy bài sinh viên/exchange trừ khi là chủ bài viết.
+     + `createPost`: Cho phép `survey_id` là tùy chọn. Nếu chọn Phân khu Sinh Viên (`post_type === 'STUDENT'`), bắt buộc tài khoản đã xác thực sinh viên (`is_student_verified === 1`) hoặc ADMIN.
+     + `getPost`, `addComment`, `toggleLike`: Đổi sang `LEFT JOIN surveys` để xử lý trơn tru mọi bài viết thảo luận tự do.
+     + `containsExternalLink`: Nhận diện thông minh các URL bị chèn khoảng trắng/dấu chấm ngụy trang (`forms . gle`, `http : //`, `[.]`, `(dot)`) mà không gây dương tính giả cho câu thoại đàm thoại bình thường.
+   - **Frontend UI (`public/app.js` & Android Capacitor)**:
+     + Bổ sung thanh Hub Tabs trực quan ở đầu diễn đàn: **[Tất Cả]**, **[Cộng Đồng Chung]** (Thảo luận mở), **[Góc Sinh Viên & Đề Tài]** (Học thuật & Edu Karma).
+     + Nâng cấp Scope Filter: Bổ sung bộ lọc `Thảo luận` (`DISCUSSION_ONLY`) bên cạnh `Khảo sát` và `Trao đổi Edu`.
+     + Modal Đăng Bài Mới (`openCreateForumPostModal`): Cho phép chọn Phân khu (Cộng Đồng Chung vs Góc Sinh Viên có kiểm tra quyền .edu), chọn khảo sát đính kèm là tùy chọn (mặc định thảo luận tự do).
+     + Thẻ bài viết (`renderForumPostCardHtml`): Hiển thị badge phân khu (`Góc Sinh Viên` cam hoặc `Cộng Đồng`), tự động ẩn khung khảo sát và hiển thị thông báo thảo luận mở khi bài viết không có khảo sát.
+   - **Kiểm chuẩn & Đồng bộ**:
+     + Kiểm thử chuyên biệt `tests/test_forum_community.js`: Hoàn thành 19/19 tests đạt chuẩn 100% PASS.
+     + Toàn bộ 15 tầng kiểm thử tự hành `npm test`: 100% PASS.
+     + Cú pháp JavaScript `node -c`: 100% PASS.
+     + Đồng bộ hoàn tất sang Capacitor Android qua `npm run sync:android`.

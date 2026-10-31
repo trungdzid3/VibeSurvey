@@ -1,6 +1,6 @@
 /**
  * Controller Quan Ly Dien Dan Thao Luan & Chia Se Khao Sat Noi Bo (Forum Controller)
- * SurvHub Community Board
+ * SurvHub Community Board - Hỗ trợ Thảo luận tự do & Phân khu Sinh viên
  */
 
 const crypto = require('crypto');
@@ -9,35 +9,37 @@ const db = require('../db/database');
 /**
  * Kiem tra va chan link ngoai (Anti-URL Spoofing)
  * Chặn: http://, https://, ftp://, www., forms.gle, forms.office, .com, .vn, .net, IPv4...
+ * Kèm khả năng nhận diện URL có khoảng trắng / ký tự ngụy trang quanh dấu chấm hoặc giao thức
+ * mà không gây dương tính giả cho các cụm từ đàm thoại bình thường.
  * @param {string} text Doan van ban can kiem tra
  * @returns {boolean} true neu chua link ngoai
  */
 function containsExternalLink(text) {
   if (!text || typeof text !== 'string') return false;
 
-  // 1. Giao thuc mang
-  if (/(?:https?|ftp|file):\/\//i.test(text)) return true;
+  // 1. Giao thuc mang (co the bi chen khoang trang: h t t p : / / hoac http : //)
+  if (/(?:https?|ftp|file)\s*:\s*\/\s*\//i.test(text)) return true;
 
-  // 2. Tien to www
-  if (/\bwww\.[a-z0-9-]+/i.test(text)) return true;
+  // 2. Tien to www (co the bi chen khoang trang quanh dau cham: www . example)
+  if (/\bwww\s*[\.\[\(\{]\s*[a-z0-9-]+/i.test(text)) return true;
 
-  // 3. Cac dich vu bieu mau ngoai pho bien
-  if (/(?:forms\.gle|forms\.office|forms\.microsoft|docs\.google|drive\.google)/i.test(text)) return true;
+  // 3. Cac dich vu bieu mau ngoai pho bien (co the bi chen khoang trang hoac dau cham gia mao)
+  if (/(?:forms\s*[\.\[\(\{]\s*(?:gle|office|microsoft)|docs\s*[\.\[\(\{]\s*google|drive\s*[\.\[\(\{]\s*google)/i.test(text)) return true;
 
-  // 4. Cac duoi ten mien pho bien
-  if (/\b[a-z0-9][a-z0-9-]*\.(?:com|vn|net|org|edu|gov|io|xyz|co|cc|me|info|biz|app|dev|link|site|top|online|tech|ai|asia|club|vip|pro|icu|fun|space|shop|store|live)(?:\b|\/)/i.test(text)) {
+  // 4. Cac duoi ten mien pho bien voi dau cham thuc su hoac [.] / (.) / (dot) / [dot]
+  if (/\b[a-z0-9][a-z0-9-]*\s*(?:\.|\s*\[\.\]\s*|\s*\(\.\)\s*|\s*\[dot\]\s*|\s*\(dot\)\s*)\s*(?:com|vn|net|org|edu|gov|io|xyz|co|cc|me|info|biz|app|dev|link|site|top|online|tech|ai|asia|club|vip|pro|icu|fun|space|shop|store|live)(?:\b|\/)/i.test(text)) {
     return true;
   }
 
   // 5. Dia chi IPv4
-  if (/\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b/.test(text)) return true;
+  if (/\b\d{1,3}\s*\.\s*\d{1,3}\s*\.\s*\d{1,3}\s*\.\s*\d{1,3}\b/.test(text)) return true;
 
   return false;
 }
 
 class ForumController {
   /**
-   * Lay danh sach bai viet dien dan (kem phan trang va loc bao mat Edu)
+   * Lay danh sach bai viet dien dan (kem phan trang, phan khu Hub va loc bao mat Edu)
    * GET /api/forum/posts
    */
   listPosts(req, res) {
@@ -48,6 +50,8 @@ class ForumController {
         limit = 20,
         survey_id = null,
         scope = 'all',
+        hub = 'ALL',
+        category = 'ALL',
         search = null
       } = req.query;
 
@@ -58,36 +62,58 @@ class ForumController {
       const conditions = [];
       const params = [];
 
-      // Loc rieng theo survey neu co yeu cau
+      // 1. Loc theo Phân khu (Hub): COMMUNITY vs STUDENT
+      const hubUpper = (hub || 'ALL').toUpperCase();
+      if (hubUpper === 'COMMUNITY') {
+        conditions.push('(p.post_type IS NULL OR p.post_type = \'COMMUNITY\')');
+        conditions.push('(s.is_student_exchange IS NULL OR s.is_student_exchange = 0)');
+      } else if (hubUpper === 'STUDENT') {
+        conditions.push('(p.post_type = \'STUDENT\' OR s.is_student_exchange = 1)');
+      }
+
+      // 2. Loc rieng theo survey neu co yeu cau
       if (survey_id) {
         conditions.push('p.survey_id = ?');
         params.push(survey_id);
       }
 
-      // Loc bai viet cua chinh toi neu scope = 'my_posts'
+      // 3. Loc bai viet theo scope
       if (scope === 'my_posts' && user) {
         conditions.push('p.user_id = ?');
         params.push(user.id);
+      } else if (scope === 'WITH_SURVEY') {
+        conditions.push('p.survey_id IS NOT NULL');
+      } else if (scope === 'EXCHANGE') {
+        conditions.push('(s.is_student_exchange = 1 OR p.post_type = \'STUDENT\')');
+      } else if (scope === 'DISCUSSION_ONLY') {
+        conditions.push('p.survey_id IS NULL');
       }
 
-      // Tim kiem tu khoa trong tieu de va noi dung
+      // 4. Loc theo danh muc (category)
+      if (category && category !== 'ALL') {
+        conditions.push('(p.category = ? OR s.category = ?)');
+        params.push(category, category);
+      }
+
+      // 5. Tim kiem tu khoa trong tieu de va noi dung
       if (search && typeof search === 'string' && search.trim().length > 0) {
         conditions.push('(p.title LIKE ? OR p.content LIKE ?)');
         params.push(`%${search.trim()}%`, `%${search.trim()}%`);
       }
 
-      // RÀNG BUỘC CỐT LÕI: Cach ly khao sat Trao Doi Sinh Vien (Edu Karma Exchange)
+      // 6. RÀNG BUỘC CỐT LÕI: Cach ly bai viet Sinh Vien (Edu Karma Exchange / Student Hub)
       // "Chi cho edu, edu moi hien thi, con lai khong hien thi"
       if (!user) {
-        // Khach vang lai: chi xem bai viet co khao sat khong phai exchange
+        // Khach vang lai: chi xem bai viet cong dong khong phai sinh vien
+        conditions.push('(p.post_type IS NULL OR p.post_type != \'STUDENT\')');
         conditions.push('(s.is_student_exchange IS NULL OR s.is_student_exchange = 0)');
       } else if (user.role === 'ADMIN') {
         // Admin xem duoc tat ca
       } else if (user.is_student_verified === 1) {
-        // Sinh vien da xac thuc xem duoc tat ca (ca bai thuong va bai exchange)
+        // Sinh vien da xac thuc xem duoc tat ca (ca bai thuong va bai exchange/student)
       } else {
-        // Nguoi dung thuong chua xac thuc edu: chi xem bai thuong HOAC bai do chinh minh dang
-        conditions.push('(s.is_student_exchange IS NULL OR s.is_student_exchange = 0 OR p.user_id = ?)');
+        // Nguoi dung thuong chua xac thuc edu: chi xem bai cong dong HOAC bai do chinh minh dang
+        conditions.push('(((p.post_type IS NULL OR p.post_type != \'STUDENT\') AND (s.is_student_exchange IS NULL OR s.is_student_exchange = 0)) OR p.user_id = ?)');
         params.push(user.id);
       }
 
@@ -97,7 +123,7 @@ class ForumController {
       const countSql = `
         SELECT COUNT(*) as total
         FROM forum_posts p
-        JOIN surveys s ON p.survey_id = s.id
+        LEFT JOIN surveys s ON p.survey_id = s.id
         ${whereClause}
       `;
       const totalRow = db.prepare(countSql).get(...params);
@@ -107,7 +133,7 @@ class ForumController {
       const currentUserId = user ? user.id : '';
       const listSql = `
         SELECT 
-          p.id, p.title, p.content, p.views_count, p.likes_count, p.created_at, p.updated_at,
+          p.id, p.title, p.content, p.post_type, p.category, p.views_count, p.likes_count, p.created_at, p.updated_at,
           u.id AS author_id, u.name AS author_name, u.role AS author_role, u.is_student_verified AS author_is_student_verified,
           s.id AS survey_id, s.title AS survey_title, s.description AS survey_description, s.category AS survey_category,
           s.target_responses, s.collected_responses, s.reward_points_per_response, s.cost_per_response,
@@ -116,7 +142,7 @@ class ForumController {
           EXISTS(SELECT 1 FROM forum_post_likes fpl WHERE fpl.post_id = p.id AND fpl.user_id = ?) AS is_liked
         FROM forum_posts p
         JOIN users u ON p.user_id = u.id
-        JOIN surveys s ON p.survey_id = s.id
+        LEFT JOIN surveys s ON p.survey_id = s.id
         ${whereClause}
         ORDER BY p.created_at DESC
         LIMIT ? OFFSET ?
@@ -129,6 +155,8 @@ class ForumController {
         id: row.id,
         title: row.title,
         content: row.content,
+        post_type: row.post_type || 'COMMUNITY',
+        category: row.category || 'ALL',
         views_count: row.views_count || 0,
         likes_count: row.likes_count || 0,
         comments_count: row.comments_count || 0,
@@ -141,7 +169,7 @@ class ForumController {
           role: row.author_role,
           is_student_verified: row.author_is_student_verified === 1
         },
-        survey: {
+        survey: row.survey_id ? {
           id: row.survey_id,
           title: row.survey_title,
           description: row.survey_description,
@@ -152,7 +180,7 @@ class ForumController {
           status: row.survey_status,
           is_student_exchange: row.is_student_exchange === 1,
           cover_image_url: row.survey_cover_image_url
-        }
+        } : null
       }));
 
       return res.json({
@@ -182,14 +210,14 @@ class ForumController {
 
       const postRow = db.prepare(`
         SELECT 
-          p.id, p.title, p.content, p.views_count, p.likes_count, p.created_at, p.updated_at,
+          p.id, p.title, p.content, p.post_type, p.category, p.views_count, p.likes_count, p.created_at, p.updated_at,
           u.id AS author_id, u.name AS author_name, u.role AS author_role, u.is_student_verified AS author_is_student_verified,
           s.id AS survey_id, s.title AS survey_title, s.description AS survey_description, s.category AS survey_category,
           s.target_responses, s.collected_responses, s.reward_points_per_response, s.cost_per_response,
           s.status AS survey_status, s.is_student_exchange, s.cover_image_url AS survey_cover_image_url
         FROM forum_posts p
         JOIN users u ON p.user_id = u.id
-        JOIN surveys s ON p.survey_id = s.id
+        LEFT JOIN surveys s ON p.survey_id = s.id
         WHERE p.id = ?
       `).get(id);
 
@@ -197,8 +225,9 @@ class ForumController {
         return res.status(404).json({ success: false, message: 'Khong tim thay bai viet' });
       }
 
-      // RÀNG BUỘC CỐT LÕI: Kiem tra quyen truy cap khao sat Trao Doi Sinh Vien
-      if (postRow.is_student_exchange === 1) {
+      // RÀNG BUỘC CỐT LÕI: Kiem tra quyen truy cap khao sat Trao Doi Sinh Vien / Post Type Student
+      const isEduRestricted = postRow.post_type === 'STUDENT' || postRow.is_student_exchange === 1;
+      if (isEduRestricted) {
         const isOwner = user && user.id === postRow.author_id;
         const isAdmin = user && user.role === 'ADMIN';
         const isVerifiedStudent = user && user.is_student_verified === 1;
@@ -221,7 +250,7 @@ class ForumController {
         isLiked = Boolean(likeRow);
       }
 
-      // Lay danh sach binh luan
+      // Lay danh sach binh luan kem thong tin nguoi dung
       const comments = db.prepare(`
         SELECT 
           c.id, c.content, c.created_at,
@@ -230,7 +259,9 @@ class ForumController {
         JOIN users u ON c.user_id = u.id
         WHERE c.post_id = ?
         ORDER BY c.created_at ASC
-      `).all(id).map(c => ({
+      `).all(id);
+
+      const formattedComments = comments.map(c => ({
         id: c.id,
         content: c.content,
         created_at: c.created_at,
@@ -248,9 +279,11 @@ class ForumController {
           id: postRow.id,
           title: postRow.title,
           content: postRow.content,
+          post_type: postRow.post_type || 'COMMUNITY',
+          category: postRow.category || 'ALL',
           views_count: (postRow.views_count || 0) + 1,
           likes_count: postRow.likes_count || 0,
-          comments_count: comments.length,
+          comments_count: formattedComments.length,
           is_liked: isLiked,
           created_at: postRow.created_at,
           updated_at: postRow.updated_at,
@@ -260,7 +293,7 @@ class ForumController {
             role: postRow.author_role,
             is_student_verified: postRow.author_is_student_verified === 1
           },
-          survey: {
+          survey: postRow.survey_id ? {
             id: postRow.survey_id,
             title: postRow.survey_title,
             description: postRow.survey_description,
@@ -271,19 +304,20 @@ class ForumController {
             status: postRow.survey_status,
             is_student_exchange: postRow.is_student_exchange === 1,
             cover_image_url: postRow.survey_cover_image_url
-          },
-          comments
+          } : null,
+          comments: formattedComments
         }
       });
     } catch (err) {
       console.error('Loi getPost:', err);
-      return res.status(500).json({ success: false, message: 'Loi tai chi tiet bai viet: ' + err.message });
+      return res.status(500).json({ success: false, message: 'Loi tai thong tin bai viet: ' + err.message });
     }
   }
 
   /**
    * Tao bai viet moi tren dien dan
    * POST /api/forum/posts
+   * Ho tro ca Thao luan tu do (survey_id = null) va Bai viet co dinh kem khao sat
    */
   createPost(req, res) {
     try {
@@ -292,7 +326,13 @@ class ForumController {
         return res.status(401).json({ success: false, message: 'Yeu cau dang nhap de dang bai' });
       }
 
-      const { title, content, survey_id } = req.body;
+      const {
+        title,
+        content,
+        survey_id = null,
+        post_type = 'COMMUNITY',
+        category = 'ALL'
+      } = req.body;
 
       // 1. Kiem dinh tieu de va noi dung
       if (!title || typeof title !== 'string' || title.trim().length < 3 || title.trim().length > 200) {
@@ -312,48 +352,63 @@ class ForumController {
         });
       }
 
-      // 3. RÀNG BUỘC CỐT LÕI: Bat buoc dinh kem khao sat hop le cua chinh minh
-      if (!survey_id || typeof survey_id !== 'string') {
-        return res.status(400).json({ success: false, message: 'Bài viết trên diễn đàn bắt buộc phải đính kèm một bài khảo sát hợp lệ.' });
+      let validSurveyId = null;
+      let effectivePostType = post_type === 'STUDENT' ? 'STUDENT' : 'COMMUNITY';
+
+      // 3. Neu co dinh kem khao sat: Kiem tra tinh hop le
+      if (survey_id && typeof survey_id === 'string' && survey_id.trim().length > 0) {
+        const survey = db.prepare('SELECT id, creator_id, status, is_student_exchange FROM surveys WHERE id = ?').get(survey_id.trim());
+        if (!survey) {
+          return res.status(404).json({ success: false, message: 'Khảo sát đính kèm không tồn tại.' });
+        }
+
+        if (survey.creator_id !== user.id) {
+          return res.status(403).json({
+            success: false,
+            message: 'Bạn chỉ có thể đính kèm bài khảo sát do chính bạn tạo và sở hữu.'
+          });
+        }
+
+        if (survey.status !== 'ACTIVE') {
+          return res.status(400).json({
+            success: false,
+            message: 'Khảo sát đính kèm phải đang ở trạng thái hoạt động (ACTIVE). Khảo sát đang nháp hoặc đã đóng không thể chia sẻ lên diễn đàn.'
+          });
+        }
+
+        // Neu khao sat la exchange ma user chua xac thuc sinh vien -> chan
+        if (survey.is_student_exchange === 1) {
+          if (user.is_student_verified !== 1) {
+            return res.status(403).json({
+              success: false,
+              message: 'Chỉ tài khoản sinh viên đã xác thực email trường (.edu) mới được chia sẻ khảo sát trao đổi sinh viên.'
+            });
+          }
+          effectivePostType = 'STUDENT';
+        }
+
+        validSurveyId = survey.id;
       }
 
-      const survey = db.prepare('SELECT id, creator_id, status, is_student_exchange FROM surveys WHERE id = ?').get(survey_id);
-      if (!survey) {
-        return res.status(404).json({ success: false, message: 'Khảo sát đính kèm không tồn tại.' });
-      }
-
-      if (survey.creator_id !== user.id) {
+      // 4. Kiem tra quyen dang bai vao Phan khu Sinh Vien
+      if (effectivePostType === 'STUDENT' && user.is_student_verified !== 1 && user.role !== 'ADMIN') {
         return res.status(403).json({
           success: false,
-          message: 'Bạn chỉ có thể đính kèm bài khảo sát do chính bạn tạo và sở hữu.'
-        });
-      }
-
-      if (survey.status !== 'ACTIVE') {
-        return res.status(400).json({
-          success: false,
-          message: 'Khảo sát đính kèm phải đang ở trạng thái hoạt động (ACTIVE). Khảo sát đang nháp hoặc đã đóng không thể chia sẻ lên diễn đàn.'
-        });
-      }
-
-      // Neu khao sat la exchange ma user chua xac thuc sinh vien -> chan
-      if (survey.is_student_exchange === 1 && user.is_student_verified !== 1) {
-        return res.status(403).json({
-          success: false,
-          message: 'Chỉ tài khoản sinh viên đã xác thực email trường (.edu) mới được chia sẻ khảo sát trao đổi sinh viên.'
+          message: 'Phân khu Góc Sinh Viên chỉ dành riêng cho sinh viên đã xác thực email trường (.edu).'
         });
       }
 
       const postId = crypto.randomUUID();
       db.prepare(`
-        INSERT INTO forum_posts (id, user_id, survey_id, title, content)
-        VALUES (?, ?, ?, ?, ?)
-      `).run(postId, user.id, survey_id, title.trim(), content.trim());
+        INSERT INTO forum_posts (id, user_id, survey_id, title, content, post_type, category)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+      `).run(postId, user.id, validSurveyId, title.trim(), content.trim(), effectivePostType, category || 'ALL');
 
       return res.status(201).json({
         success: true,
         message: 'Đăng bài thảo luận lên diễn đàn thành công!',
-        postId
+        postId,
+        post_type: effectivePostType
       });
     } catch (err) {
       console.error('Loi createPost:', err);
@@ -362,7 +417,7 @@ class ForumController {
   }
 
   /**
-   * Binh luan vao bai viet tren dien dan
+   * Gui binh luan vao mot bai viet tren dien dan
    * POST /api/forum/posts/:id/comments
    */
   addComment(req, res) {
@@ -389,9 +444,9 @@ class ForumController {
       }
 
       const post = db.prepare(`
-        SELECT p.id, p.user_id, s.is_student_exchange 
+        SELECT p.id, p.user_id, p.post_type, s.is_student_exchange 
         FROM forum_posts p
-        JOIN surveys s ON p.survey_id = s.id
+        LEFT JOIN surveys s ON p.survey_id = s.id
         WHERE p.id = ?
       `).get(id);
 
@@ -400,7 +455,8 @@ class ForumController {
       }
 
       // Kiem tra quyen truy cap Edu
-      if (post.is_student_exchange === 1) {
+      const isEdu = post.post_type === 'STUDENT' || post.is_student_exchange === 1;
+      if (isEdu) {
         const isOwner = user.id === post.user_id;
         const isAdmin = user.role === 'ADMIN';
         const isVerifiedStudent = user.is_student_verified === 1;
@@ -461,9 +517,9 @@ class ForumController {
       const { id } = req.params;
 
       const post = db.prepare(`
-        SELECT p.id, p.user_id, s.is_student_exchange 
+        SELECT p.id, p.user_id, p.post_type, s.is_student_exchange 
         FROM forum_posts p
-        JOIN surveys s ON p.survey_id = s.id
+        LEFT JOIN surveys s ON p.survey_id = s.id
         WHERE p.id = ?
       `).get(id);
 
@@ -472,7 +528,8 @@ class ForumController {
       }
 
       // Kiem tra quyen Edu
-      if (post.is_student_exchange === 1) {
+      const isEdu = post.post_type === 'STUDENT' || post.is_student_exchange === 1;
+      if (isEdu) {
         const isOwner = user.id === post.user_id;
         const isAdmin = user.role === 'ADMIN';
         const isVerifiedStudent = user.is_student_verified === 1;
@@ -549,7 +606,7 @@ class ForumController {
 
       // 2. De tai hot / duoc quan tam nhat tu du lieu that
       const hotTopics = db.prepare(`
-        SELECT p.id, p.title, p.views_count, p.likes_count,
+        SELECT p.id, p.title, p.post_type, p.views_count, p.likes_count,
                s.id as survey_id, s.title as survey_title, s.category as survey_category,
                (SELECT COUNT(*) FROM forum_comments fc WHERE fc.post_id = p.id) as comments_count
         FROM forum_posts p
