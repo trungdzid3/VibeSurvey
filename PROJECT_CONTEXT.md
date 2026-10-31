@@ -1633,6 +1633,28 @@ c:\Users\Lenovo\Downloads\Linh\
    - Nâng cache-buster `public/index.html` lên `4.7.6_1793470811885`.
    - Đồng bộ hoàn tất sang Capacitor Android qua `scripts/sync_capacitor.js`.
 
+---
+
+## Tái Định Vị Góc Sinh Viên & Loại Bỏ Hàng Thừa Lãng Phí Diện Tích Diễn Đàn (01/11/2026)
+1. **Bối cảnh & Yêu cầu Người dùng**:
+   - Bỏ nút "Tất Cả" trong thanh phân khu.
+   - Ẩn hoàn toàn thanh này nếu người dùng không phải sinh viên.
+   - Tái định vị Góc Sinh Viên sao cho hợp lý, không tốn thêm diện tích hàng ngang.
+
+2. **Chi tiết Kỹ thuật Triển khai**:
+   - **Xóa bỏ Hàng Ngang Hub Tabs Độc Lập**:
+     + Loại bỏ hoàn toàn container `HUB TABS: CỘNG ĐỒNG CHUNG vs GÓC SINH VIÊN & ĐỀ TÀI` nằm giữa Header và Bộ lọc, tiết kiệm hơn 70px chiều cao màn hình.
+     + Loại bỏ nút "Tất Cả" dư thừa gây nhầm lẫn với tab "Tất cả" của bộ lọc bên dưới.
+   - **Tích Hợp Gọn Gàng Lên Header Diễn Đàn Dành Riêng Cho Sinh Viên (`public/app.js`)**:
+     + Đặt cụm chuyển đổi Segmented Switch `[ Cộng Đồng | 🎓 Góc Sinh Viên Edu ]` trực tiếp trên Header, song song ngang hàng với nút `[ + Đăng Bài Mới ]`.
+     + Áp dụng kiểm tra bảo mật hiển thị: `isStudent = user && (user.is_student_verified === 1 || user.role === 'STUDENT' || (user.email && user.email.toLowerCase().includes('.edu.vn')))`.
+     + Đối với người dùng không phải sinh viên (`!isStudent`), toàn bộ cụm này hoàn toàn ẩn đi (100% hidden).
+   - **Đồng Bộ In-Place & Reset**:
+     + Cập nhật các hàm `setForumHub` và `resetForumFilters` điều phối trạng thái giữa `COMMUNITY` và `STUDENT` tại chỗ không reload trang.
+     + Đồng bộ toàn bộ sang Capacitor Android (`npm run sync:android`).
+     + Toàn bộ 15/15 tầng kiểm thử tự hành đạt 100% PASS.
+
+
 
 
 ---
@@ -1687,6 +1709,28 @@ c:\Users\Lenovo\Downloads\Linh\
    - Toàn bộ 15/15 tầng kiểm thử tự hành (`tests/run_all_tests.js`): 100% PASS.
    - Nâng cache-buster `public/index.html` lên `4.7.6_1793470811885`.
    - Đồng bộ hoàn tất sang Capacitor Android qua `scripts/sync_capacitor.js`.
+
+---
+
+## Tái Định Vị Góc Sinh Viên & Loại Bỏ Hàng Thừa Lãng Phí Diện Tích Diễn Đàn (01/11/2026)
+1. **Bối cảnh & Yêu cầu Người dùng**:
+   - Bỏ nút "Tất Cả" trong thanh phân khu.
+   - Ẩn hoàn toàn thanh này nếu người dùng không phải sinh viên.
+   - Tái định vị Góc Sinh Viên sao cho hợp lý, không tốn thêm diện tích hàng ngang.
+
+2. **Chi tiết Kỹ thuật Triển khai**:
+   - **Xóa bỏ Hàng Ngang Hub Tabs Độc Lập**:
+     + Loại bỏ hoàn toàn container `HUB TABS: CỘNG ĐỒNG CHUNG vs GÓC SINH VIÊN & ĐỀ TÀI` nằm giữa Header và Bộ lọc, tiết kiệm hơn 70px chiều cao màn hình.
+     + Loại bỏ nút "Tất Cả" dư thừa gây nhầm lẫn với tab "Tất cả" của bộ lọc bên dưới.
+   - **Tích Hợp Gọn Gàng Lên Header Diễn Đàn Dành Riêng Cho Sinh Viên (`public/app.js`)**:
+     + Đặt cụm chuyển đổi Segmented Switch `[ Cộng Đồng | 🎓 Góc Sinh Viên Edu ]` trực tiếp trên Header, song song ngang hàng với nút `[ + Đăng Bài Mới ]`.
+     + Áp dụng kiểm tra bảo mật hiển thị: `isStudent = user && (user.is_student_verified === 1 || user.role === 'STUDENT' || (user.email && user.email.toLowerCase().includes('.edu.vn')))`.
+     + Đối với người dùng không phải sinh viên (`!isStudent`), toàn bộ cụm này hoàn toàn ẩn đi (100% hidden).
+   - **Đồng Bộ In-Place & Reset**:
+     + Cập nhật các hàm `setForumHub` và `resetForumFilters` điều phối trạng thái giữa `COMMUNITY` và `STUDENT` tại chỗ không reload trang.
+     + Đồng bộ toàn bộ sang Capacitor Android (`npm run sync:android`).
+     + Toàn bộ 15/15 tầng kiểm thử tự hành đạt 100% PASS.
+
 
 
 
@@ -1851,4 +1895,26 @@ c:\Users\Lenovo\Downloads\Linh\
    - Toàn bộ 15/15 tầng kiểm thử tự hành (`tests/run_all_tests.js`): 100% PASS.
    - Nâng cache-buster `public/index.html` lên `4.7.6_1793470811885`.
    - Đồng bộ hoàn tất sang Capacitor Android qua `scripts/sync_capacitor.js`.
+
+---
+
+## Tái Định Vị Góc Sinh Viên & Loại Bỏ Hàng Thừa Lãng Phí Diện Tích Diễn Đàn (01/11/2026)
+1. **Bối cảnh & Yêu cầu Người dùng**:
+   - Bỏ nút "Tất Cả" trong thanh phân khu.
+   - Ẩn hoàn toàn thanh này nếu người dùng không phải sinh viên.
+   - Tái định vị Góc Sinh Viên sao cho hợp lý, không tốn thêm diện tích hàng ngang.
+
+2. **Chi tiết Kỹ thuật Triển khai**:
+   - **Xóa bỏ Hàng Ngang Hub Tabs Độc Lập**:
+     + Loại bỏ hoàn toàn container `HUB TABS: CỘNG ĐỒNG CHUNG vs GÓC SINH VIÊN & ĐỀ TÀI` nằm giữa Header và Bộ lọc, tiết kiệm hơn 70px chiều cao màn hình.
+     + Loại bỏ nút "Tất Cả" dư thừa gây nhầm lẫn với tab "Tất cả" của bộ lọc bên dưới.
+   - **Tích Hợp Gọn Gàng Lên Header Diễn Đàn Dành Riêng Cho Sinh Viên (`public/app.js`)**:
+     + Đặt cụm chuyển đổi Segmented Switch `[ Cộng Đồng | 🎓 Góc Sinh Viên Edu ]` trực tiếp trên Header, song song ngang hàng với nút `[ + Đăng Bài Mới ]`.
+     + Áp dụng kiểm tra bảo mật hiển thị: `isStudent = user && (user.is_student_verified === 1 || user.role === 'STUDENT' || (user.email && user.email.toLowerCase().includes('.edu.vn')))`.
+     + Đối với người dùng không phải sinh viên (`!isStudent`), toàn bộ cụm này hoàn toàn ẩn đi (100% hidden).
+   - **Đồng Bộ In-Place & Reset**:
+     + Cập nhật các hàm `setForumHub` và `resetForumFilters` điều phối trạng thái giữa `COMMUNITY` và `STUDENT` tại chỗ không reload trang.
+     + Đồng bộ toàn bộ sang Capacitor Android (`npm run sync:android`).
+     + Toàn bộ 15/15 tầng kiểm thử tự hành đạt 100% PASS.
+
 
