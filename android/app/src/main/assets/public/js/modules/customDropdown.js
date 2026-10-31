@@ -147,7 +147,10 @@
         'admin-payout-limit-menu',
         'admin-fraud-limit-menu',
         'admin-fraud-page-menu',
-        'audit-action-dropdown'
+        'audit-action-dropdown',
+        'forum-cat-dropdown-menu',
+        'forum-sort-dropdown-menu',
+        'forum-post-survey-menu'
       ];
       specificIds.forEach(id => {
         const el = document.getElementById(id);

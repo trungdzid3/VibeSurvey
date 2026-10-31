@@ -1343,76 +1343,64 @@ html.dark textarea:-webkit-autofill {
 
 
 
-/* ==================== HIỆU ỨNG CHUYỂN THEME MƯỢT MÀ (THEME TOGGLE ANIMATION) ==================== */
+/* ==================== HIỆU ỨNG NÚT CHUYỂN THEME SIÊU MƯỢT & NHẸ NHẤT (SPRING SLIDE Y) ==================== */
 #theme-toggle-btn {
   position: relative;
   overflow: hidden;
-  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.25s ease, color 0.25s ease;
+  transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform;
 }
 
 #theme-toggle-btn:hover {
-  transform: scale(1.06);
+  transform: scale(1.05);
 }
 
 #theme-toggle-btn:active {
-  transform: scale(0.90) rotate(-6deg);
+  transform: scale(0.92);
 }
 
 .theme-icon-sun,
 .theme-icon-moon {
-  transition: transform 0.38s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   will-change: transform, opacity;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 
-/* Chế độ Sáng (Light Mode): Ẩn Mặt Trời, Hiện Mặt Trăng */
+/* Chế độ Sáng (Light Mode):
+   - Mặt Trăng (Moon) ở vị trí tâm, hiển thị sắc nét
+   - Mặt Trời (Sun) chui tụt xuống dưới đáy và ẩn đi */
 html:not(.dark) .theme-icon-sun {
-  transform: rotate(90deg) scale(0);
+  transform: translateY(125%) scale(0.65);
   opacity: 0;
+  pointer-events: none;
+  transition: transform 0.24s cubic-bezier(0.4, 0, 1, 1), opacity 0.2s ease;
 }
 
 html:not(.dark) .theme-icon-moon {
-  transform: rotate(0deg) scale(1);
+  transform: translateY(0) scale(1);
   opacity: 1;
+  pointer-events: auto;
+  transition: transform 0.38s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.28s ease;
 }
 
-/* Chế độ Tối (Dark Mode): Hiện Mặt Trời Vàng Kim, Ẩn Mặt Trăng */
+/* Chế độ Tối (Dark Mode):
+   - Mặt Trời (Sun) từ dưới nhảy vọt lên tâm với hiệu ứng nảy nhẹ (spring bounce)
+   - Mặt Trăng (Moon) chui tụt xuống dưới đáy và ẩn đi */
 html.dark .theme-icon-sun {
-  transform: rotate(0deg) scale(1);
+  transform: translateY(0) scale(1);
   opacity: 1;
+  pointer-events: auto;
+  transition: transform 0.38s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.28s ease;
 }
 
 html.dark .theme-icon-moon {
-  transform: rotate(-90deg) scale(0);
+  transform: translateY(125%) scale(0.65);
   opacity: 0;
-}
-
-/* Lớp chuyển màu mượt mà toàn trang khi đổi theme */
-.theme-transitioning,
-.theme-transitioning *,
-.theme-transitioning *::before,
-.theme-transitioning *::after {
-  transition: background-color 0.32s cubic-bezier(0.16, 1, 0.3, 1),
-              border-color 0.32s cubic-bezier(0.16, 1, 0.3, 1),
-              color 0.22s cubic-bezier(0.16, 1, 0.3, 1),
-              box-shadow 0.32s cubic-bezier(0.16, 1, 0.3, 1) !important;
-  transition-delay: 0s !important;
-}
-
-/* Hiệu ứng gợn sóng hình tròn (Circular Ripple Wave) qua View Transition API */
-::view-transition-old(root),
-::view-transition-new(root) {
-  animation: none;
-  mix-blend-mode: normal;
-}
-::view-transition-old(root) {
-  z-index: 1;
-}
-::view-transition-new(root) {
-  z-index: 9999;
-}
-.dark::view-transition-old(root) {
-  z-index: 9999;
-}
-.dark::view-transition-new(root) {
-  z-index: 1;
+  pointer-events: none;
+  transition: transform 0.24s cubic-bezier(0.4, 0, 1, 1), opacity 0.2s ease;
 }

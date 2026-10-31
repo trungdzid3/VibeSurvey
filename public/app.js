@@ -463,56 +463,11 @@ const VibeApp = window.VibeApp = Object.assign(window.VibeApp, {
   toggleTheme(event) {
     this.haptic('light');
 
-    const updateState = () => {
-      const isDark = document.documentElement.classList.toggle('dark');
-      localStorage.setItem('survhub_theme', isDark ? 'dark' : 'light');
-      this.updateThemeIcon(isDark);
-      this.updateThemeLogos(isDark);
-      return isDark;
-    };
-
-    // Kiểm tra hỗ trợ View Transitions API với hiệu ứng sóng tròn (Circular Ripple Wave)
-    const isReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (!isReducedMotion && document.startViewTransition && event && typeof event.clientX === 'number') {
-      const x = event.clientX;
-      const y = event.clientY;
-      const endRadius = Math.hypot(
-        Math.max(x, window.innerWidth - x),
-        Math.max(y, window.innerHeight - y)
-      );
-
-      const transition = document.startViewTransition(() => {
-        updateState();
-      });
-
-      transition.ready.then(() => {
-        const isDark = document.documentElement.classList.contains('dark');
-        const clipPath = [
-          `circle(0px at ${x}px ${y}px)`,
-          `circle(${endRadius}px at ${x}px ${y}px)`
-        ];
-
-        document.documentElement.animate(
-          {
-            clipPath: isDark ? clipPath : [...clipPath].reverse()
-          },
-          {
-            duration: 450,
-            easing: 'cubic-bezier(0.16, 1, 0.3, 1)',
-            pseudoElement: isDark ? '::view-transition-new(root)' : '::view-transition-old(root)'
-          }
-        );
-      }).catch(() => {
-        // Dự phòng khi View Transition bị hủy
-      });
-    } else {
-      // Fallback mượt mà bằng lớp CSS theme-transitioning
-      document.documentElement.classList.add('theme-transitioning');
-      updateState();
-      setTimeout(() => {
-        document.documentElement.classList.remove('theme-transitioning');
-      }, 350);
-    }
+    const isDark = document.documentElement.classList.toggle('dark');
+    localStorage.setItem('survhub_theme', isDark ? 'dark' : 'light');
+    this.updateThemeIcon(isDark);
+    this.updateThemeLogos(isDark);
+    return isDark;
   },
 
   updateThemeIcon(isDark) {
@@ -6527,21 +6482,42 @@ if (totalCount === 0) {
       `;
     }
 
-    // 5. MENU THẢ XUỐNG (DROPDOWN)
+    // 5. MENU THẢ XUỐNG (DROPDOWN) - Chuẩn Bento Custom Dropdown Popover theo DESIGN.md Mục 5.3
     if (q.type === 'DROPDOWN') {
       const opts = q.options || [];
+      const hasAnswer = currentAnswer && opts.includes(currentAnswer);
+      const displayLabel = hasAnswer ? currentAnswer : '-- Nhấp để chọn đáp án --';
+      const ddMenuId = `dropdown-q-${q.id}-menu`;
+      const ddLabelId = `dropdown-q-${q.id}-label`;
+      const ddIconId = `dropdown-q-${q.id}-icon`;
+
       return `
         <div class="space-y-2">
-          <select onchange="VibeApp.selectSingleOption('${q.id}', encodeURIComponent(this.value))" 
-                  class="w-full p-4 rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 text-xs sm:text-sm font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500">
-            <option value="">-- Nhấp để chọn đáp án --</option>
-            ${opts.map(opt => `
-              <option value="${(opt || '').replace(/"/g, '&quot;')}" ${currentAnswer === opt ? 'selected' : ''}>
-                ${opt}
-              </option>
-            `).join('')}
-          </select>
-          <p class="text-[11px] text-stone-400">Chọn 1 tùy chọn phù hợp từ menu thả xuống</p>
+          <div class="relative">
+            <button type="button" 
+                    id="dropdown-q-${q.id}-btn"
+                    onclick="VibeApp.toggleCustomDropdown('${ddMenuId}', '${ddIconId}', event)"
+                    class="custom-dropdown-trigger w-full p-4 rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 text-xs sm:text-sm font-bold text-left flex items-center justify-between text-slate-900 dark:text-white hover:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all shadow-xs cursor-pointer">
+              <span id="${ddLabelId}" class="truncate ${hasAnswer ? 'text-slate-900 dark:text-white font-bold' : 'text-stone-400 font-medium'}">${this.escapeHtml(displayLabel)}</span>
+              <i data-lucide="chevron-down" id="${ddIconId}" class="custom-dropdown-icon w-4 h-4 text-stone-400 shrink-0 ml-2 transition-transform duration-200 pointer-events-none"></i>
+            </button>
+            <div id="${ddMenuId}" class="custom-dropdown-menu hidden absolute left-0 right-0 top-[calc(100%+6px)] z-50 bg-white dark:bg-[#1C1C20] border border-stone-200 dark:border-[#2E2E36] rounded-2xl shadow-2xl p-2 space-y-1 max-h-[260px] overflow-y-auto scrollbar-thin">
+              ${opts.map(opt => {
+                const isSelected = currentAnswer === opt;
+                const safeOpt = (opt || '').replace(/"/g, '&quot;');
+                const encOpt = encodeURIComponent(opt || '');
+                return `
+                  <button type="button" 
+                          onclick="VibeApp.selectSingleOption('${q.id}', '${encOpt}'); const lbl = document.getElementById('${ddLabelId}'); if (lbl) { lbl.textContent = '${safeOpt}'; lbl.className = 'truncate text-slate-900 dark:text-white font-bold'; } VibeApp.closeAllCustomDropdowns();"
+                          class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all text-left ${isSelected ? 'bg-orange-50 dark:bg-orange-950/40 text-orange-600 dark:text-orange-400 font-bold' : 'hover:bg-stone-100 dark:hover:bg-[#24242A] text-stone-700 dark:text-stone-200'}">
+                    <span class="truncate">${this.escapeHtml(opt)}</span>
+                    ${isSelected ? '<i data-lucide="check" class="w-4 h-4 text-orange-600 shrink-0 ml-2"></i>' : ''}
+                  </button>
+                `;
+              }).join('')}
+            </div>
+          </div>
+          <p class="text-[11px] text-stone-400">Chọn 1 tùy chọn phù hợp từ danh sách</p>
         </div>
       `;
     }
@@ -12066,17 +12042,57 @@ if (totalCount === 0) {
           </div>
           <div class="pt-2 border-t border-orange-200/60 dark:border-stone-800 flex flex-wrap items-center justify-between gap-2 text-xs">
             <span class="text-[11px] font-bold text-stone-600 dark:text-stone-400">Sau phần này:</span>
-            <select onclick="event.stopPropagation()" 
-                    onchange="VibeApp.setStudioSectionLogicTarget(${qIdx}, this.value)" 
-                    class="h-8 px-2.5 text-xs font-medium bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-lg text-stone-700 dark:text-stone-200 focus:border-orange-500 focus:outline-none max-w-[260px] truncate">
-              <option value="NEXT" ${curSectionTarget === 'NEXT' ? 'selected' : ''}>Tiếp tục đến phần tiếp theo</option>
-              ${laterSections.map(sec => {
-                const secTitle = (sec.item.content || '').trim() || `Mục ${sec.idx + 1}`;
-                const shortSecTitle = secTitle.length > 25 ? secTitle.slice(0, 25) + '...' : secTitle;
-                return `<option value="${sec.idx}" ${String(curSectionTarget) === String(sec.idx) ? 'selected' : ''}>Chuyển đến Phân đoạn: ${shortSecTitle}</option>`;
-              }).join('')}
-              <option value="SUBMIT" ${curSectionTarget === 'SUBMIT' ? 'selected' : ''}>Gửi biểu mẫu (Kết thúc)</option>
-            </select>
+            ${(() => {
+              let curSecLabel = 'Tiếp tục đến phần tiếp theo';
+              if (curSectionTarget === 'SUBMIT') {
+                curSecLabel = 'Gửi biểu mẫu (Kết thúc)';
+              } else if (curSectionTarget !== 'NEXT') {
+                const foundSec = laterSections.find(s => String(s.idx) === String(curSectionTarget));
+                if (foundSec) {
+                  const secT = (foundSec.item.content || '').trim() || `Mục ${foundSec.idx + 1}`;
+                  curSecLabel = `Phân đoạn: ${secT.length > 18 ? secT.slice(0, 18) + '...' : secT}`;
+                }
+              }
+              return `
+                <div class="relative">
+                  <button type="button" 
+                          id="sec-logic-btn-${qIdx}"
+                          onclick="event.stopPropagation(); VibeApp.toggleCustomDropdown('sec-logic-menu-${qIdx}', 'sec-logic-icon-${qIdx}', event)"
+                          class="custom-dropdown-trigger h-8 px-2.5 text-xs font-medium bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-lg text-stone-700 dark:text-stone-200 hover:border-orange-500 flex items-center justify-between gap-2 max-w-[260px] truncate shadow-2xs cursor-pointer">
+                    <span id="sec-logic-label-${qIdx}" class="truncate">${this.escapeHtml(curSecLabel)}</span>
+                    <i data-lucide="chevron-down" id="sec-logic-icon-${qIdx}" class="custom-dropdown-icon w-3.5 h-3.5 text-stone-400 shrink-0 transition-transform duration-200 pointer-events-none"></i>
+                  </button>
+                  <div id="sec-logic-menu-${qIdx}" class="custom-dropdown-menu hidden absolute right-0 top-[calc(100%+4px)] z-50 w-64 bg-white dark:bg-[#1C1C20] border border-stone-200 dark:border-[#2E2E36] rounded-xl shadow-2xl p-1 space-y-0.5 max-h-[220px] overflow-y-auto scrollbar-thin text-left">
+                    <button type="button" 
+                            onclick="event.stopPropagation(); VibeApp.setStudioSectionLogicTarget(${qIdx}, 'NEXT'); const el = document.getElementById('sec-logic-label-${qIdx}'); if (el) el.textContent = 'Tiếp tục đến phần tiếp theo'; VibeApp.closeAllCustomDropdowns();"
+                            class="w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs transition-colors ${curSectionTarget === 'NEXT' ? 'bg-orange-50 dark:bg-orange-950/40 text-orange-600 dark:text-orange-400 font-bold' : 'hover:bg-stone-100 dark:hover:bg-[#24242A] text-stone-700 dark:text-stone-200'}">
+                      <span class="truncate">Tiếp tục đến phần tiếp theo</span>
+                      ${curSectionTarget === 'NEXT' ? '<i data-lucide="check" class="w-3.5 h-3.5 text-orange-600 shrink-0"></i>' : ''}
+                    </button>
+                    ${laterSections.map(sec => {
+                      const secTitle = (sec.item.content || '').trim() || `Mục ${sec.idx + 1}`;
+                      const shortSecTitle = secTitle.length > 25 ? secTitle.slice(0, 25) + '...' : secTitle;
+                      const isCur = String(curSectionTarget) === String(sec.idx);
+                      const safeShort = (shortSecTitle).replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                      return `
+                        <button type="button" 
+                                onclick="event.stopPropagation(); VibeApp.setStudioSectionLogicTarget(${qIdx}, '${sec.idx}'); const el = document.getElementById('sec-logic-label-${qIdx}'); if (el) el.textContent = 'Phân đoạn: ${safeShort}'; VibeApp.closeAllCustomDropdowns();"
+                                class="w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs transition-colors ${isCur ? 'bg-orange-50 dark:bg-orange-950/40 text-orange-600 dark:text-orange-400 font-bold' : 'hover:bg-stone-100 dark:hover:bg-[#24242A] text-stone-700 dark:text-stone-200'}">
+                          <span class="truncate">Chuyển đến Phân đoạn: ${this.escapeHtml(shortSecTitle)}</span>
+                          ${isCur ? '<i data-lucide="check" class="w-3.5 h-3.5 text-orange-600 shrink-0"></i>' : ''}
+                        </button>
+                      `;
+                    }).join('')}
+                    <button type="button" 
+                            onclick="event.stopPropagation(); VibeApp.setStudioSectionLogicTarget(${qIdx}, 'SUBMIT'); const el = document.getElementById('sec-logic-label-${qIdx}'); if (el) el.textContent = 'Gửi biểu mẫu (Kết thúc)'; VibeApp.closeAllCustomDropdowns();"
+                            class="w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs transition-colors ${curSectionTarget === 'SUBMIT' ? 'bg-orange-50 dark:bg-orange-950/40 text-orange-600 dark:text-orange-400 font-bold' : 'hover:bg-stone-100 dark:hover:bg-[#24242A] text-stone-700 dark:text-stone-200'}">
+                      <span class="truncate">Gửi biểu mẫu (Kết thúc)</span>
+                      ${curSectionTarget === 'SUBMIT' ? '<i data-lucide="check" class="w-3.5 h-3.5 text-orange-600 shrink-0"></i>' : ''}
+                    </button>
+                  </div>
+                </div>
+              `;
+            })()}
           </div>
         </div>
       `;
@@ -12107,6 +12123,18 @@ if (totalCount === 0) {
         <div class="space-y-2 pl-2">
           ${opts.map((opt, optIdx) => {
             const curTarget = (q.logic && q.logic.options && (q.logic.options[optIdx] !== undefined ? q.logic.options[optIdx] : q.logic.options[opt])) || 'NEXT';
+            let curOptTargetLabel = 'Tiếp tục câu tiếp theo';
+            if (curTarget === 'SUBMIT') {
+              curOptTargetLabel = 'Gửi biểu mẫu (Kết thúc)';
+            } else if (curTarget !== 'NEXT') {
+              const tIdxNum = parseInt(curTarget, 10);
+              if (!isNaN(tIdxNum) && allQuestions[tIdxNum]) {
+                const tQ = allQuestions[tIdxNum];
+                const cleanT = (tQ.content || '').trim();
+                const shortT = cleanT.length > 15 ? cleanT.slice(0, 15) + '...' : (cleanT || `(Không tiêu đề)`);
+                curOptTargetLabel = tQ.type === 'SECTION_HEADER' ? `Phân đoạn: ${shortT}` : `Câu ${tIdxNum + 1}: ${shortT}`;
+              }
+            }
 
             return `
             <div class="flex items-center gap-2">
@@ -12119,21 +12147,47 @@ if (totalCount === 0) {
                      class="flex-1 p-1.5 bg-transparent border-0 border-b border-stone-200 dark:border-stone-800 focus:border-orange-600 focus:outline-none text-xs text-stone-800 dark:text-stone-200">
               
               ${isLogicEnabled ? `
-                <select onclick="event.stopPropagation()" 
-                        onchange="VibeApp.setStudioOptionLogicTarget(${qIdx}, ${optIdx}, this.value)" 
-                        class="h-7 px-2 text-[11px] font-medium bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-lg text-stone-700 dark:text-stone-300 focus:border-orange-500 focus:outline-none max-w-[180px] sm:max-w-[210px] truncate shrink-0">
-                  <option value="NEXT" ${curTarget === 'NEXT' ? 'selected' : ''}>Tiếp tục câu tiếp theo</option>
-                  ${allQuestions.map((tQ, tIdx) => {
-                    if (tIdx === qIdx) return '';
-                    const cleanTitle = (tQ.content || '').trim();
-                    const shortTitle = cleanTitle.length > 20 ? cleanTitle.slice(0, 20) + '...' : (cleanTitle || `(Không tiêu đề)`);
-                    if (tQ.type === 'SECTION_HEADER') {
-                      return `<option value="${tIdx}" ${String(curTarget) === String(tIdx) ? 'selected' : ''}>Chuyển đến Phân đoạn: ${shortTitle}</option>`;
-                    }
-                    return `<option value="${tIdx}" ${String(curTarget) === String(tIdx) ? 'selected' : ''}>Chuyển đến Câu ${tIdx + 1}: ${shortTitle}</option>`;
-                  }).join('')}
-                  <option value="SUBMIT" ${curTarget === 'SUBMIT' ? 'selected' : ''}>Gửi biểu mẫu (Kết thúc)</option>
-                </select>
+                <div class="relative shrink-0">
+                  <button type="button" 
+                          id="opt-logic-btn-${qIdx}-${optIdx}"
+                          onclick="event.stopPropagation(); VibeApp.toggleCustomDropdown('opt-logic-menu-${qIdx}-${optIdx}', 'opt-logic-icon-${qIdx}-${optIdx}', event)"
+                          class="custom-dropdown-trigger h-7 px-2 text-[11px] font-medium bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-lg text-stone-700 dark:text-stone-300 hover:border-orange-500 flex items-center justify-between gap-1 max-w-[180px] sm:max-w-[210px] truncate shadow-2xs cursor-pointer">
+                    <span id="opt-logic-label-${qIdx}-${optIdx}" class="truncate">${this.escapeHtml(curOptTargetLabel)}</span>
+                    <i data-lucide="chevron-down" id="opt-logic-icon-${qIdx}-${optIdx}" class="custom-dropdown-icon w-3 h-3 text-stone-400 shrink-0 transition-transform duration-200 pointer-events-none"></i>
+                  </button>
+                  <div id="opt-logic-menu-${qIdx}-${optIdx}" class="custom-dropdown-menu hidden absolute right-0 top-[calc(100%+4px)] z-50 w-56 bg-white dark:bg-[#1C1C20] border border-stone-200 dark:border-[#2E2E36] rounded-xl shadow-2xl p-1 space-y-0.5 max-h-[200px] overflow-y-auto scrollbar-thin text-left">
+                    <button type="button" 
+                            onclick="event.stopPropagation(); VibeApp.setStudioOptionLogicTarget(${qIdx}, ${optIdx}, 'NEXT'); const el = document.getElementById('opt-logic-label-${qIdx}-${optIdx}'); if (el) el.textContent = 'Tiếp tục câu tiếp theo'; VibeApp.closeAllCustomDropdowns();"
+                            class="w-full flex items-center justify-between px-2 py-1.5 rounded-lg text-[11px] transition-colors ${curTarget === 'NEXT' ? 'bg-orange-50 dark:bg-orange-950/40 text-orange-600 dark:text-orange-400 font-bold' : 'hover:bg-stone-100 dark:hover:bg-[#24242A] text-stone-700 dark:text-stone-200'}">
+                      <span class="truncate">Tiếp tục câu tiếp theo</span>
+                      ${curTarget === 'NEXT' ? '<i data-lucide="check" class="w-3 h-3 text-orange-600 shrink-0"></i>' : ''}
+                    </button>
+                    ${allQuestions.map((tQ, tIdx) => {
+                      if (tIdx === qIdx) return '';
+                      const cleanTitle = (tQ.content || '').trim();
+                      const shortTitle = cleanTitle.length > 20 ? cleanTitle.slice(0, 20) + '...' : (cleanTitle || `(Không tiêu đề)`);
+                      const isSec = tQ.type === 'SECTION_HEADER';
+                      const optTitle = isSec ? `Chuyển đến Phân đoạn: ${shortTitle}` : `Chuyển đến Câu ${tIdx + 1}: ${shortTitle}`;
+                      const isCur = String(curTarget) === String(tIdx);
+                      const safeTargetText = (isSec ? 'Phân đoạn: ' : 'Câu ' + (tIdx + 1) + ': ') + shortTitle;
+                      const safeEsc = safeTargetText.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                      return `
+                        <button type="button" 
+                                onclick="event.stopPropagation(); VibeApp.setStudioOptionLogicTarget(${qIdx}, ${optIdx}, '${tIdx}'); const el = document.getElementById('opt-logic-label-${qIdx}-${optIdx}'); if (el) el.textContent = '${safeEsc}'; VibeApp.closeAllCustomDropdowns();"
+                                class="w-full flex items-center justify-between px-2 py-1.5 rounded-lg text-[11px] transition-colors ${isCur ? 'bg-orange-50 dark:bg-orange-950/40 text-orange-600 dark:text-orange-400 font-bold' : 'hover:bg-stone-100 dark:hover:bg-[#24242A] text-stone-700 dark:text-stone-200'}">
+                          <span class="truncate">${this.escapeHtml(optTitle)}</span>
+                          ${isCur ? '<i data-lucide="check" class="w-3 h-3 text-orange-600 shrink-0"></i>' : ''}
+                        </button>
+                      `;
+                    }).join('')}
+                    <button type="button" 
+                            onclick="event.stopPropagation(); VibeApp.setStudioOptionLogicTarget(${qIdx}, ${optIdx}, 'SUBMIT'); const el = document.getElementById('opt-logic-label-${qIdx}-${optIdx}'); if (el) el.textContent = 'Gửi biểu mẫu (Kết thúc)'; VibeApp.closeAllCustomDropdowns();"
+                            class="w-full flex items-center justify-between px-2 py-1.5 rounded-lg text-[11px] transition-colors ${curTarget === 'SUBMIT' ? 'bg-orange-50 dark:bg-orange-950/40 text-orange-600 dark:text-orange-400 font-bold' : 'hover:bg-stone-100 dark:hover:bg-[#24242A] text-stone-700 dark:text-stone-200'}">
+                      <span class="truncate">Gửi biểu mẫu (Kết thúc)</span>
+                      ${curTarget === 'SUBMIT' ? '<i data-lucide="check" class="w-3 h-3 text-orange-600 shrink-0"></i>' : ''}
+                    </button>
+                  </div>
+                </div>
               ` : ''}
 
               ${opts.length > 2 ? `
@@ -12193,25 +12247,50 @@ if (totalCount === 0) {
 
       return `
         <div class="p-4 bg-stone-50 dark:bg-stone-900/60 rounded-xl border border-stone-200 dark:border-stone-800 space-y-4">
-          <!-- Hàng chọn thang đo chuẩn Google Forms: [ 1 v ] đến [ 5 v ] -->
+          <!-- Hàng chọn thang đo chuẩn Google Forms: [ 1 v ] đến [ 5 v ] (Custom Dropdown Bento) -->
           <div class="flex items-center gap-3 text-xs text-stone-700 dark:text-stone-300">
+            <!-- Min Opt Custom Dropdown -->
             <div class="relative">
-              <select onchange="event.stopPropagation(); VibeApp.setStudioScaleRange(${qIdx}, this.value, ${maxOpt})"
-                      class="appearance-none bg-white dark:bg-stone-800 border border-stone-300 dark:border-stone-700 rounded-lg px-3 py-1.5 pr-8 text-xs font-semibold text-stone-800 dark:text-stone-200 focus:outline-none focus:ring-1 focus:ring-orange-500 cursor-pointer">
-                <option value="0" ${minOpt === 0 ? 'selected' : ''}>0</option>
-                <option value="1" ${minOpt === 1 ? 'selected' : ''}>1</option>
-              </select>
-              <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-stone-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none"></i>
-            </div>
-            <span class="text-xs text-stone-500">đến</span>
-            <div class="relative">
-              <select onchange="event.stopPropagation(); VibeApp.setStudioScaleRange(${qIdx}, ${minOpt}, this.value)"
-                      class="appearance-none bg-white dark:bg-stone-800 border border-stone-300 dark:border-stone-700 rounded-lg px-3 py-1.5 pr-8 text-xs font-semibold text-stone-800 dark:text-stone-200 focus:outline-none focus:ring-1 focus:ring-orange-500 cursor-pointer">
-                ${[2, 3, 4, 5, 6, 7, 8, 9, 10].map(val => `
-                  <option value="${val}" ${maxOpt === val ? 'selected' : ''}>${val}</option>
+              <button type="button" 
+                      id="scale-min-btn-${qIdx}"
+                      onclick="event.stopPropagation(); VibeApp.toggleCustomDropdown('scale-min-menu-${qIdx}', 'scale-min-icon-${qIdx}', event)"
+                      class="custom-dropdown-trigger bg-white dark:bg-stone-800 border border-stone-300 dark:border-stone-700 rounded-lg px-3 py-1.5 min-w-[56px] text-xs font-semibold text-stone-800 dark:text-stone-200 hover:border-orange-500 flex items-center justify-between gap-1.5 cursor-pointer shadow-2xs">
+                <span>${minOpt}</span>
+                <i data-lucide="chevron-down" id="scale-min-icon-${qIdx}" class="custom-dropdown-icon w-3.5 h-3.5 text-stone-400 shrink-0 transition-transform duration-200 pointer-events-none"></i>
+              </button>
+              <div id="scale-min-menu-${qIdx}" class="custom-dropdown-menu hidden absolute left-0 top-[calc(100%+4px)] z-50 w-24 bg-white dark:bg-[#1C1C20] border border-stone-200 dark:border-[#2E2E36] rounded-xl shadow-2xl p-1 space-y-0.5">
+                ${[0, 1].map(v => `
+                  <button type="button" 
+                          onclick="event.stopPropagation(); VibeApp.setStudioScaleRange(${qIdx}, ${v}, ${maxOpt}); VibeApp.closeAllCustomDropdowns();"
+                          class="w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-colors ${minOpt === v ? 'bg-orange-50 dark:bg-orange-950/40 text-orange-600 dark:text-orange-400 font-bold' : 'hover:bg-stone-100 dark:hover:bg-[#24242A] text-stone-700 dark:text-stone-200'}">
+                    <span>${v}</span>
+                    ${minOpt === v ? '<i data-lucide="check" class="w-3.5 h-3.5 text-orange-600"></i>' : ''}
+                  </button>
                 `).join('')}
-              </select>
-              <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-stone-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+              </div>
+            </div>
+
+            <span class="text-xs text-stone-500 font-medium">đến</span>
+
+            <!-- Max Opt Custom Dropdown -->
+            <div class="relative">
+              <button type="button" 
+                      id="scale-max-btn-${qIdx}"
+                      onclick="event.stopPropagation(); VibeApp.toggleCustomDropdown('scale-max-menu-${qIdx}', 'scale-max-icon-${qIdx}', event)"
+                      class="custom-dropdown-trigger bg-white dark:bg-stone-800 border border-stone-300 dark:border-stone-700 rounded-lg px-3 py-1.5 min-w-[56px] text-xs font-semibold text-stone-800 dark:text-stone-200 hover:border-orange-500 flex items-center justify-between gap-1.5 cursor-pointer shadow-2xs">
+                <span>${maxOpt}</span>
+                <i data-lucide="chevron-down" id="scale-max-icon-${qIdx}" class="custom-dropdown-icon w-3.5 h-3.5 text-stone-400 shrink-0 transition-transform duration-200 pointer-events-none"></i>
+              </button>
+              <div id="scale-max-menu-${qIdx}" class="custom-dropdown-menu hidden absolute left-0 top-[calc(100%+4px)] z-50 w-24 bg-white dark:bg-[#1C1C20] border border-stone-200 dark:border-[#2E2E36] rounded-xl shadow-2xl p-1 space-y-0.5 max-h-[200px] overflow-y-auto scrollbar-thin">
+                ${[2, 3, 4, 5, 6, 7, 8, 9, 10].map(val => `
+                  <button type="button" 
+                          onclick="event.stopPropagation(); VibeApp.setStudioScaleRange(${qIdx}, ${minOpt}, ${val}); VibeApp.closeAllCustomDropdowns();"
+                          class="w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-colors ${maxOpt === val ? 'bg-orange-50 dark:bg-orange-950/40 text-orange-600 dark:text-orange-400 font-bold' : 'hover:bg-stone-100 dark:hover:bg-[#24242A] text-stone-700 dark:text-stone-200'}">
+                    <span>${val}</span>
+                    ${maxOpt === val ? '<i data-lucide="check" class="w-3.5 h-3.5 text-orange-600"></i>' : ''}
+                  </button>
+                `).join('')}
+              </div>
             </div>
           </div>
 
@@ -12709,6 +12788,24 @@ if (totalCount === 0) {
     const valMax = (val.max !== undefined && val.max !== null) ? val.max : '';
     const autoPlaceholder = val.placeholder || this.generateValidationPlaceholder(val);
 
+    const valTypeMap = {
+      NONE: 'Không giới hạn',
+      EMAIL: 'Email',
+      NUMBER: 'Số',
+      URL: 'URL',
+      LENGTH: 'Độ dài'
+    };
+    const valRuleNumberMap = {
+      IS_NUMBER: 'Là số',
+      BETWEEN: 'Trong khoảng',
+      GREATER_THAN: 'Lớn hơn',
+      LESS_THAN: 'Nhỏ hơn'
+    };
+    const valRuleLengthMap = {
+      MAX_LENGTH: 'Tối đa ký tự',
+      MIN_LENGTH: 'Tối thiểu ký tự'
+    };
+
     return `
       <div class="mt-3 p-3.5 bg-stone-50 dark:bg-stone-900/60 rounded-xl border border-stone-200 dark:border-stone-800 space-y-2.5">
         <div class="flex flex-wrap items-center justify-between gap-2">
@@ -12716,28 +12813,57 @@ if (totalCount === 0) {
             <i data-lucide="shield-check" class="w-3.5 h-3.5 text-orange-600"></i>
             <span>Giới hạn (Restrictions):</span>
           </div>
-          <select onclick="event.stopPropagation()" 
-                  onchange="VibeApp.setStudioQuestionValidationType(${qIdx}, this.value)" 
-                  class="h-7 px-2.5 text-xs font-medium bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-lg text-stone-700 dark:text-stone-200 focus:border-orange-500 focus:outline-none">
-            <option value="NONE" ${valType === 'NONE' ? 'selected' : ''}>Không giới hạn</option>
-            <option value="EMAIL" ${valType === 'EMAIL' ? 'selected' : ''}>Email</option>
-            <option value="NUMBER" ${valType === 'NUMBER' ? 'selected' : ''}>Số</option>
-            <option value="URL" ${valType === 'URL' ? 'selected' : ''}>URL</option>
-            <option value="LENGTH" ${valType === 'LENGTH' ? 'selected' : ''}>Độ dài</option>
-          </select>
+          <!-- Custom Dropdown Validation Type -->
+          <div class="relative">
+            <button type="button" 
+                    id="val-type-btn-${qIdx}"
+                    onclick="event.stopPropagation(); VibeApp.toggleCustomDropdown('val-type-menu-${qIdx}', 'val-type-icon-${qIdx}', event)"
+                    class="custom-dropdown-trigger h-7 px-2.5 text-xs font-medium bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-lg text-stone-700 dark:text-stone-200 hover:border-orange-500 flex items-center justify-between gap-1.5 cursor-pointer shadow-2xs">
+              <span>${valTypeMap[valType] || 'Không giới hạn'}</span>
+              <i data-lucide="chevron-down" id="val-type-icon-${qIdx}" class="custom-dropdown-icon w-3 h-3 text-stone-400 shrink-0 transition-transform duration-200 pointer-events-none"></i>
+            </button>
+            <div id="val-type-menu-${qIdx}" class="custom-dropdown-menu hidden absolute right-0 top-[calc(100%+4px)] z-50 w-36 bg-white dark:bg-[#1C1C20] border border-stone-200 dark:border-[#2E2E36] rounded-xl shadow-2xl p-1 space-y-0.5 text-left">
+              ${Object.entries(valTypeMap).map(([typeKey, typeLabel]) => {
+                const isCur = valType === typeKey;
+                return `
+                  <button type="button" 
+                          onclick="event.stopPropagation(); VibeApp.setStudioQuestionValidationType(${qIdx}, '${typeKey}'); VibeApp.closeAllCustomDropdowns();"
+                          class="w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs transition-colors ${isCur ? 'bg-orange-50 dark:bg-orange-950/40 text-orange-600 dark:text-orange-400 font-bold' : 'hover:bg-stone-100 dark:hover:bg-[#24242A] text-stone-700 dark:text-stone-200'}">
+                    <span>${typeLabel}</span>
+                    ${isCur ? '<i data-lucide="check" class="w-3.5 h-3.5 text-orange-600"></i>' : ''}
+                  </button>
+                `;
+              }).join('')}
+            </div>
+          </div>
         </div>
 
         ${valType === 'NUMBER' ? `
           <div class="pt-2 border-t border-stone-200/70 dark:border-stone-800 flex flex-wrap items-center gap-2 text-xs">
             <span class="text-[11px] font-bold text-stone-500">Điều kiện:</span>
-            <select onclick="event.stopPropagation()" 
-                    onchange="VibeApp.setStudioQuestionValidationRule(${qIdx}, this.value)" 
-                    class="h-7 px-2 text-xs font-medium bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-lg text-stone-700 dark:text-stone-200 focus:border-orange-500 focus:outline-none">
-              <option value="IS_NUMBER" ${valRule === 'IS_NUMBER' ? 'selected' : ''}>Là số</option>
-              <option value="BETWEEN" ${valRule === 'BETWEEN' ? 'selected' : ''}>Trong khoảng</option>
-              <option value="GREATER_THAN" ${valRule === 'GREATER_THAN' ? 'selected' : ''}>Lớn hơn</option>
-              <option value="LESS_THAN" ${valRule === 'LESS_THAN' ? 'selected' : ''}>Nhỏ hơn</option>
-            </select>
+            <!-- Custom Dropdown Validation Rule Number -->
+            <div class="relative">
+              <button type="button" 
+                      id="val-rule-btn-${qIdx}"
+                      onclick="event.stopPropagation(); VibeApp.toggleCustomDropdown('val-rule-menu-${qIdx}', 'val-rule-icon-${qIdx}', event)"
+                      class="custom-dropdown-trigger h-7 px-2 text-xs font-medium bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-lg text-stone-700 dark:text-stone-200 hover:border-orange-500 flex items-center justify-between gap-1.5 cursor-pointer shadow-2xs">
+                <span>${valRuleNumberMap[valRule] || 'Là số'}</span>
+                <i data-lucide="chevron-down" id="val-rule-icon-${qIdx}" class="custom-dropdown-icon w-3 h-3 text-stone-400 shrink-0 transition-transform duration-200 pointer-events-none"></i>
+              </button>
+              <div id="val-rule-menu-${qIdx}" class="custom-dropdown-menu hidden absolute left-0 top-[calc(100%+4px)] z-50 w-36 bg-white dark:bg-[#1C1C20] border border-stone-200 dark:border-[#2E2E36] rounded-xl shadow-2xl p-1 space-y-0.5 text-left">
+                ${Object.entries(valRuleNumberMap).map(([ruleKey, ruleLabel]) => {
+                  const isCur = valRule === ruleKey;
+                  return `
+                    <button type="button" 
+                            onclick="event.stopPropagation(); VibeApp.setStudioQuestionValidationRule(${qIdx}, '${ruleKey}'); VibeApp.closeAllCustomDropdowns();"
+                            class="w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs transition-colors ${isCur ? 'bg-orange-50 dark:bg-orange-950/40 text-orange-600 dark:text-orange-400 font-bold' : 'hover:bg-stone-100 dark:hover:bg-[#24242A] text-stone-700 dark:text-stone-200'}">
+                      <span>${ruleLabel}</span>
+                      ${isCur ? '<i data-lucide="check" class="w-3.5 h-3.5 text-orange-600"></i>' : ''}
+                    </button>
+                  `;
+                }).join('')}
+              </div>
+            </div>
 
             ${valRule === 'BETWEEN' ? `
               <div class="flex items-center gap-1.5 flex-wrap">
@@ -12784,12 +12910,29 @@ if (totalCount === 0) {
         ${valType === 'LENGTH' ? `
           <div class="pt-2 border-t border-stone-200/70 dark:border-stone-800 flex flex-wrap items-center gap-2 text-xs">
             <span class="text-[11px] font-bold text-stone-500">Quy tắc độ dài:</span>
-            <select onclick="event.stopPropagation()" 
-                    onchange="VibeApp.setStudioQuestionValidationRule(${qIdx}, this.value)" 
-                    class="h-7 px-2 text-xs font-medium bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-lg text-stone-700 dark:text-stone-200 focus:border-orange-500 focus:outline-none">
-              <option value="MAX_LENGTH" ${valRule === 'MAX_LENGTH' ? 'selected' : ''}>Tối đa ký tự</option>
-              <option value="MIN_LENGTH" ${valRule === 'MIN_LENGTH' ? 'selected' : ''}>Tối thiểu ký tự</option>
-            </select>
+            <!-- Custom Dropdown Validation Rule Length -->
+            <div class="relative">
+              <button type="button" 
+                      id="val-len-rule-btn-${qIdx}"
+                      onclick="event.stopPropagation(); VibeApp.toggleCustomDropdown('val-len-rule-menu-${qIdx}', 'val-len-rule-icon-${qIdx}', event)"
+                      class="custom-dropdown-trigger h-7 px-2 text-xs font-medium bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-lg text-stone-700 dark:text-stone-200 hover:border-orange-500 flex items-center justify-between gap-1.5 cursor-pointer shadow-2xs">
+                <span>${valRuleLengthMap[valRule] || 'Tối đa ký tự'}</span>
+                <i data-lucide="chevron-down" id="val-len-rule-icon-${qIdx}" class="custom-dropdown-icon w-3 h-3 text-stone-400 shrink-0 transition-transform duration-200 pointer-events-none"></i>
+              </button>
+              <div id="val-len-rule-menu-${qIdx}" class="custom-dropdown-menu hidden absolute left-0 top-[calc(100%+4px)] z-50 w-36 bg-white dark:bg-[#1C1C20] border border-stone-200 dark:border-[#2E2E36] rounded-xl shadow-2xl p-1 space-y-0.5 text-left">
+                ${Object.entries(valRuleLengthMap).map(([lenKey, lenLabel]) => {
+                  const isCur = valRule === lenKey;
+                  return `
+                    <button type="button" 
+                            onclick="event.stopPropagation(); VibeApp.setStudioQuestionValidationRule(${qIdx}, '${lenKey}'); VibeApp.closeAllCustomDropdowns();"
+                            class="w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs transition-colors ${isCur ? 'bg-orange-50 dark:bg-orange-950/40 text-orange-600 dark:text-orange-400 font-bold' : 'hover:bg-stone-100 dark:hover:bg-[#24242A] text-stone-700 dark:text-stone-200'}">
+                      <span>${lenLabel}</span>
+                      ${isCur ? '<i data-lucide="check" class="w-3.5 h-3.5 text-orange-600"></i>' : ''}
+                    </button>
+                  `;
+                }).join('')}
+              </div>
+            </div>
             <input type="number" value="${valMin || valMax}" 
                    onclick="event.stopPropagation()"
                    oninput="VibeApp.setStudioQuestionValidationRange(${qIdx}, this.value, this.value)"
@@ -17347,6 +17490,7 @@ escapeHtml(str) {
 
   _renderForumLayout(root) {
     const user = this.state.currentUser;
+    const isStudent = !!(user && (user.is_student_verified === 1 || user.role === 'STUDENT' || (user.email && user.email.toLowerCase().includes('.edu.vn'))));
     const posts = this.state.forumPosts || [];
     const surveys = this.state.surveys || [];
     const filter = this.state.forumFilter || { category: 'ALL', scope: 'ALL', status: 'ALL', sort: 'NEWEST', search: '' };
@@ -17385,7 +17529,24 @@ escapeHtml(str) {
               </div>
             </div>
 
-            <div class="flex items-center gap-2 shrink-0">
+            <div class="flex items-center gap-2.5 shrink-0 flex-wrap sm:flex-nowrap">
+              ${isStudent ? `
+                <!-- HUB SWITCH DÀNH RIÊNG CHO SINH VIÊN (GỌN GÀNG TRÊN HEADER) -->
+                <div class="inline-flex items-center bg-stone-100 dark:bg-stone-900 p-1 rounded-xl border border-stone-200/80 dark:border-stone-800 text-xs shadow-2xs">
+                  <button id="forum-hub-tab-community" onclick="VibeApp.setForumHub('COMMUNITY')" 
+                          class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all cursor-pointer whitespace-nowrap ${filter.hub !== 'STUDENT' ? 'bg-white dark:bg-stone-800 text-stone-900 dark:text-white font-bold shadow-2xs' : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 font-medium'}">
+                    <i data-lucide="globe" class="w-3.5 h-3.5 ${filter.hub !== 'STUDENT' ? 'text-orange-600' : ''}"></i>
+                    <span>Cộng Đồng</span>
+                  </button>
+                  <button id="forum-hub-tab-student" onclick="VibeApp.setForumHub('STUDENT')" 
+                          class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all cursor-pointer whitespace-nowrap ${filter.hub === 'STUDENT' ? 'bg-white dark:bg-stone-800 text-orange-600 dark:text-orange-400 font-bold shadow-2xs' : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 font-medium'}">
+                    <i data-lucide="graduation-cap" class="w-3.5 h-3.5 text-orange-600"></i>
+                    <span>Góc Sinh Viên</span>
+                    <span class="text-[9px] px-1.5 py-0.2 rounded-full bg-orange-100 dark:bg-orange-950/60 text-orange-600 dark:text-orange-400 font-extrabold border border-orange-200/60 dark:border-orange-800/60">Edu</span>
+                  </button>
+                </div>
+              ` : ''}
+
               <button onclick="VibeApp.openCreateForumPostModal()" class="px-5 py-2.5 rounded-xl bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold transition-all shadow-xs active:scale-95 flex items-center gap-2 cursor-pointer">
                 <i data-lucide="plus-circle" class="w-4 h-4"></i>
                 <span>Đăng Bài Mới</span>
@@ -17408,27 +17569,6 @@ escapeHtml(str) {
               <span>Liêm chính học thuật & Chuẩn IRB</span>
             </div>
           </div>
-        </div>
-
-        <!-- HUB TABS: CỘNG ĐỒNG CHUNG vs GÓC SINH VIÊN & ĐỀ TÀI -->
-        <div class="flex items-center gap-2 p-1.5 bg-stone-100 dark:bg-stone-900 rounded-2xl border border-stone-200/80 dark:border-stone-800">
-          <button id="forum-hub-tab-all" onclick="VibeApp.setForumHub('ALL')" 
-                  class="flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl ${filter.hub === 'ALL' ? 'bg-white dark:bg-stone-800 text-stone-900 dark:text-white font-bold shadow-xs' : 'text-stone-500 hover:text-stone-900 dark:hover:text-white font-medium'} transition-all cursor-pointer">
-            <i data-lucide="layers" class="w-4 h-4"></i>
-            <span class="text-xs sm:text-sm">Tất Cả</span>
-          </button>
-          <button id="forum-hub-tab-community" onclick="VibeApp.setForumHub('COMMUNITY')" 
-                  class="flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl ${filter.hub === 'COMMUNITY' ? 'bg-white dark:bg-stone-800 text-stone-900 dark:text-white font-bold shadow-xs' : 'text-stone-500 hover:text-stone-900 dark:hover:text-white font-medium'} transition-all cursor-pointer">
-            <i data-lucide="globe" class="w-4 h-4 text-orange-600"></i>
-            <span class="text-xs sm:text-sm">Cộng Đồng Chung</span>
-            <span class="hidden md:inline text-[10px] px-2 py-0.5 rounded-full bg-stone-100 dark:bg-stone-700 text-stone-600 dark:text-stone-300 font-medium">Thảo luận mở</span>
-          </button>
-          <button id="forum-hub-tab-student" onclick="VibeApp.setForumHub('STUDENT')" 
-                  class="flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl ${filter.hub === 'STUDENT' ? 'bg-white dark:bg-stone-800 text-orange-600 dark:text-orange-400 font-bold shadow-xs' : 'text-stone-500 hover:text-stone-900 dark:hover:text-white font-medium'} transition-all cursor-pointer">
-            <i data-lucide="graduation-cap" class="w-4 h-4 text-orange-600"></i>
-            <span class="text-xs sm:text-sm">Góc Sinh Viên & Đề Tài</span>
-            <span class="text-[10px] px-2 py-0.5 rounded-full bg-orange-100 dark:bg-orange-950/60 text-orange-600 dark:text-orange-400 border border-orange-200/60 dark:border-orange-800/60 font-bold">Edu Karma</span>
-          </button>
         </div>
 
         <!-- 2. THANH BỘ LỌC TINH GỌN CHUẨN DESIGN.MD -->
@@ -17479,33 +17619,70 @@ escapeHtml(str) {
             </div>
           </div>
 
-          <!-- Khối Phải: Dropdown Lĩnh Vực + Dropdown Sắp Xếp + Nút Reset -->
+          <!-- Khối Phải: Custom Dropdown Lĩnh Vực + Custom Dropdown Sắp Xếp + Nút Reset (Chuẩn Bento Mục 5.3) -->
           <div class="flex items-center gap-2 justify-end text-xs shrink-0 flex-wrap sm:flex-nowrap">
-            <!-- Dropdown Lĩnh Vực -->
-            <div class="relative flex-1 sm:flex-initial">
-              <select id="forum-category-select" 
-                      onchange="VibeApp.setForumCategoryFilter(this.value)" 
-                      class="w-full sm:w-auto h-9 pl-3 pr-8 rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50/60 dark:bg-stone-900 text-xs font-semibold text-stone-700 dark:text-stone-300 focus:outline-none focus:border-orange-500 cursor-pointer appearance-none transition-all ${filter.category !== 'ALL' ? 'border-orange-500/80 bg-orange-50/50 dark:bg-orange-950/40 text-orange-600 dark:text-orange-400 font-bold' : ''}">
-                ${categories.map(c => `
-                  <option value="${c.id}" ${filter.category === c.id ? 'selected' : ''}>
-                    ${c.id === 'ALL' ? 'Tất cả lĩnh vực' : c.label}
-                  </option>
-                `).join('')}
-              </select>
-              <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-stone-400 pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2"></i>
-            </div>
+            ${(() => {
+              const curCatObj = categories.find(c => c.id === filter.category);
+              const curCatLabel = curCatObj ? (curCatObj.id === 'ALL' ? 'Tất cả lĩnh vực' : curCatObj.label) : 'Tất cả lĩnh vực';
+              let curSortLabel = 'Mới nhất';
+              if (filter.sort === 'MOST_LIKED') curSortLabel = 'Quan tâm nhiều';
+              else if (filter.sort === 'MOST_COMMENTS') curSortLabel = 'Sôi nổi nhất';
 
-            <!-- Dropdown Sắp Xếp -->
-            <div class="relative flex-1 sm:flex-initial">
-              <select id="forum-sort-select" 
-                      onchange="VibeApp.setForumSort(this.value)" 
-                      class="w-full sm:w-auto h-9 pl-3 pr-8 rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50/60 dark:bg-stone-900 text-xs font-semibold text-stone-700 dark:text-stone-300 focus:outline-none focus:border-orange-500 cursor-pointer appearance-none transition-all">
-                <option value="NEWEST" ${filter.sort === 'NEWEST' ? 'selected' : ''}>Mới nhất</option>
-                <option value="MOST_LIKED" ${filter.sort === 'MOST_LIKED' ? 'selected' : ''}>Quan tâm nhiều</option>
-                <option value="MOST_COMMENTS" ${filter.sort === 'MOST_COMMENTS' ? 'selected' : ''}>Sôi nổi nhất</option>
-              </select>
-              <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-stone-400 pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2"></i>
-            </div>
+              return `
+                <!-- Dropdown Lĩnh Vực Chuẩn Bento -->
+                <div class="relative flex-1 sm:flex-initial">
+                  <button type="button" 
+                          id="forum-cat-btn"
+                          onclick="event.stopPropagation(); VibeApp.toggleCustomDropdown('forum-cat-dropdown-menu', 'forum-cat-icon', event)"
+                          class="custom-dropdown-trigger w-full sm:w-auto h-9 px-3.5 rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50/60 dark:bg-stone-900 text-xs font-semibold text-stone-700 dark:text-stone-300 hover:border-orange-500 flex items-center justify-between gap-2 transition-all cursor-pointer shadow-2xs ${filter.category !== 'ALL' ? 'border-orange-500/80 bg-orange-50/50 dark:bg-orange-950/40 text-orange-600 dark:text-orange-400 font-bold' : ''}">
+                    <span id="forum-cat-label" class="truncate">${this.escapeHtml(curCatLabel)}</span>
+                    <i data-lucide="chevron-down" id="forum-cat-icon" class="custom-dropdown-icon w-3.5 h-3.5 text-stone-400 shrink-0 transition-transform duration-200 pointer-events-none"></i>
+                  </button>
+                  <div id="forum-cat-dropdown-menu" class="custom-dropdown-menu hidden absolute left-0 sm:left-auto sm:right-0 top-[calc(100%+6px)] z-50 w-52 bg-white dark:bg-[#1C1C20] border border-stone-200 dark:border-[#2E2E36] rounded-xl shadow-2xl p-1.5 space-y-0.5 max-h-[260px] overflow-y-auto scrollbar-thin text-left">
+                    ${categories.map(c => {
+                      const isCur = filter.category === c.id;
+                      const label = c.id === 'ALL' ? 'Tất cả lĩnh vực' : c.label;
+                      return `
+                        <button type="button" 
+                                onclick="VibeApp.setForumCategoryFilter('${c.id}'); VibeApp.closeAllCustomDropdowns();"
+                                class="w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-colors ${isCur ? 'bg-orange-50 dark:bg-orange-950/40 text-orange-600 dark:text-orange-400 font-bold' : 'hover:bg-stone-100 dark:hover:bg-[#24242A] text-stone-700 dark:text-stone-200'}">
+                          <span class="truncate">${this.escapeHtml(label)}</span>
+                          ${isCur ? '<i data-lucide="check" class="w-3.5 h-3.5 text-orange-600 shrink-0"></i>' : ''}
+                        </button>
+                      `;
+                    }).join('')}
+                  </div>
+                </div>
+
+                <!-- Dropdown Sắp Xếp Chuẩn Bento -->
+                <div class="relative flex-1 sm:flex-initial">
+                  <button type="button" 
+                          id="forum-sort-btn"
+                          onclick="event.stopPropagation(); VibeApp.toggleCustomDropdown('forum-sort-dropdown-menu', 'forum-sort-icon', event)"
+                          class="custom-dropdown-trigger w-full sm:w-auto h-9 px-3.5 rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50/60 dark:bg-stone-900 text-xs font-semibold text-stone-700 dark:text-stone-300 hover:border-orange-500 flex items-center justify-between gap-2 transition-all cursor-pointer shadow-2xs">
+                    <span id="forum-sort-label" class="truncate">${this.escapeHtml(curSortLabel)}</span>
+                    <i data-lucide="chevron-down" id="forum-sort-icon" class="custom-dropdown-icon w-3.5 h-3.5 text-stone-400 shrink-0 transition-transform duration-200 pointer-events-none"></i>
+                  </button>
+                  <div id="forum-sort-dropdown-menu" class="custom-dropdown-menu hidden absolute right-0 top-[calc(100%+6px)] z-50 w-44 bg-white dark:bg-[#1C1C20] border border-stone-200 dark:border-[#2E2E36] rounded-xl shadow-2xl p-1.5 space-y-0.5 text-left">
+                    ${[
+                      { id: 'NEWEST', label: 'Mới nhất' },
+                      { id: 'MOST_LIKED', label: 'Quan tâm nhiều' },
+                      { id: 'MOST_COMMENTS', label: 'Sôi nổi nhất' }
+                    ].map(item => {
+                      const isCur = filter.sort === item.id;
+                      return `
+                        <button type="button" 
+                                onclick="VibeApp.setForumSort('${item.id}'); VibeApp.closeAllCustomDropdowns();"
+                                class="w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-colors ${isCur ? 'bg-orange-50 dark:bg-orange-950/40 text-orange-600 dark:text-orange-400 font-bold' : 'hover:bg-stone-100 dark:hover:bg-[#24242A] text-stone-700 dark:text-stone-200'}">
+                          <span class="truncate">${item.label}</span>
+                          ${isCur ? '<i data-lucide="check" class="w-3.5 h-3.5 text-orange-600 shrink-0"></i>' : ''}
+                        </button>
+                      `;
+                    }).join('')}
+                  </div>
+                </div>
+              `;
+            })()}
 
             <!-- Nút Reset Filter -->
             <button id="forum-reset-filter-btn" 
@@ -17753,17 +17930,28 @@ escapeHtml(str) {
 
   setForumHub(hubId) {
     this.haptic('light');
-    this.state.forumFilter = this.state.forumFilter || { category: 'ALL', scope: 'ALL', status: 'ALL', sort: 'NEWEST', search: '', hub: 'ALL' };
+    this.state.forumFilter = this.state.forumFilter || { category: 'ALL', scope: 'ALL', status: 'ALL', sort: 'NEWEST', search: '', hub: 'COMMUNITY' };
     this.state.forumFilter.hub = hubId;
 
-    const allBtn = document.getElementById('forum-hub-tab-all');
     const comBtn = document.getElementById('forum-hub-tab-community');
     const stuBtn = document.getElementById('forum-hub-tab-student');
 
-    if (allBtn && comBtn && stuBtn) {
-      allBtn.className = `flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl ${hubId === 'ALL' ? 'bg-white dark:bg-stone-800 text-stone-900 dark:text-white font-bold shadow-xs' : 'text-stone-500 hover:text-stone-900 dark:hover:text-white font-medium'} transition-all cursor-pointer`;
-      comBtn.className = `flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl ${hubId === 'COMMUNITY' ? 'bg-white dark:bg-stone-800 text-stone-900 dark:text-white font-bold shadow-xs' : 'text-stone-500 hover:text-stone-900 dark:hover:text-white font-medium'} transition-all cursor-pointer`;
-      stuBtn.className = `flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl ${hubId === 'STUDENT' ? 'bg-white dark:bg-stone-800 text-orange-600 dark:text-orange-400 font-bold shadow-xs' : 'text-stone-500 hover:text-stone-900 dark:hover:text-white font-medium'} transition-all cursor-pointer`;
+    if (comBtn && stuBtn) {
+      if (hubId === 'STUDENT') {
+        stuBtn.className = 'flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all cursor-pointer whitespace-nowrap bg-white dark:bg-stone-800 text-orange-600 dark:text-orange-400 font-bold shadow-2xs';
+        comBtn.className = 'flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all cursor-pointer whitespace-nowrap text-stone-600 dark:text-stone-400 hover:text-stone-900 font-medium';
+        const comIcon = comBtn.querySelector('i');
+        if (comIcon) comIcon.classList.remove('text-orange-600');
+        const stuIcon = stuBtn.querySelector('i');
+        if (stuIcon) stuIcon.classList.add('text-orange-600');
+      } else {
+        comBtn.className = 'flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all cursor-pointer whitespace-nowrap bg-white dark:bg-stone-800 text-stone-900 dark:text-white font-bold shadow-2xs';
+        stuBtn.className = 'flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all cursor-pointer whitespace-nowrap text-stone-600 dark:text-stone-400 hover:text-stone-900 font-medium';
+        const comIcon = comBtn.querySelector('i');
+        if (comIcon) comIcon.classList.add('text-orange-600');
+        const stuIcon = stuBtn.querySelector('i');
+        if (stuIcon) stuIcon.classList.add('text-orange-600');
+      }
     }
 
     this._updateForumFeedInPlace();
@@ -17826,7 +18014,7 @@ escapeHtml(str) {
 
   resetForumFilters() {
     this.haptic('light');
-    this.state.forumFilter = { category: 'ALL', scope: 'ALL', status: 'ALL', sort: 'NEWEST', search: '' };
+    this.state.forumFilter = { category: 'ALL', scope: 'ALL', status: 'ALL', sort: 'NEWEST', search: '', hub: 'COMMUNITY' };
     const searchInput = document.getElementById('forum-search-input');
     if (searchInput) searchInput.value = '';
     const catSelect = document.getElementById('forum-category-select');
@@ -17845,6 +18033,12 @@ escapeHtml(str) {
           ? 'px-3 py-1.5 rounded-lg transition-all cursor-pointer whitespace-nowrap bg-white dark:bg-stone-800 text-orange-600 font-bold shadow-2xs'
           : 'px-3 py-1.5 rounded-lg transition-all cursor-pointer whitespace-nowrap text-stone-600 dark:text-stone-400 hover:text-stone-900 font-medium';
       });
+    }
+    const comBtn = document.getElementById('forum-hub-tab-community');
+    const stuBtn = document.getElementById('forum-hub-tab-student');
+    if (comBtn && stuBtn) {
+      comBtn.className = 'flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all cursor-pointer whitespace-nowrap bg-white dark:bg-stone-800 text-stone-900 dark:text-white font-bold shadow-2xs';
+      stuBtn.className = 'flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all cursor-pointer whitespace-nowrap text-stone-600 dark:text-stone-400 hover:text-stone-900 font-medium';
     }
     this._updateForumFeedInPlace();
   },
@@ -18087,11 +18281,8 @@ escapeHtml(str) {
         return;
       }
 
-      const surveyOptionsHtml = activeSurveys.map(s => {
-        const isEdu = s.is_student_exchange === 1;
-        const tag = isEdu ? '[Trao Đổi Edu] ' : '';
-        return `<option value="${s.id}">${this.escapeHtml(tag + s.title)} (${s.collected_responses || 0}/${s.target_responses} mẫu)</option>`;
-      }).join('');
+      const firstSurvey = activeSurveys[0];
+      const firstSurveyTitle = firstSurvey ? ((firstSurvey.is_student_exchange === 1 ? '[Trao Đổi Edu] ' : '') + firstSurvey.title + ` (${firstSurvey.collected_responses || 0}/${firstSurvey.target_responses} mẫu)`) : '-- Chọn bài khảo sát --';
 
       this.showModal({
         title: 'Đăng Bài Viết Lên Diễn Đàn Khảo Sát',
@@ -18106,12 +18297,36 @@ escapeHtml(str) {
                      class="w-full p-2.5 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 text-xs text-stone-900 dark:text-white focus:outline-none focus:border-orange-500">
             </div>
 
+            <!-- Custom Dropdown Chọn Khảo Sát Đính Kèm Chuẩn Bento (Mục 5.3) -->
             <div class="space-y-1.5">
               <label class="font-bold text-stone-800 dark:text-stone-200">Chọn khảo sát của bạn để đính kèm (*):</label>
-              <select id="forum-post-survey-select" required
-                      class="w-full p-2.5 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 text-xs text-stone-900 dark:text-white focus:outline-none focus:border-orange-500">
-                ${surveyOptionsHtml}
-              </select>
+              <input type="hidden" id="forum-post-survey-select" value="${firstSurvey ? firstSurvey.id : ''}">
+              <div class="relative">
+                <button type="button" 
+                        id="forum-post-survey-btn"
+                        onclick="VibeApp.toggleCustomDropdown('forum-post-survey-menu', 'forum-post-survey-icon', event)"
+                        class="custom-dropdown-trigger w-full p-2.5 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 text-xs font-semibold text-stone-900 dark:text-white hover:border-orange-500 flex items-center justify-between text-left transition-all shadow-2xs cursor-pointer">
+                  <span id="forum-post-survey-label" class="truncate">${this.escapeHtml(firstSurveyTitle)}</span>
+                  <i data-lucide="chevron-down" id="forum-post-survey-icon" class="custom-dropdown-icon w-3.5 h-3.5 text-stone-400 shrink-0 ml-2 transition-transform duration-200 pointer-events-none"></i>
+                </button>
+                <div id="forum-post-survey-menu" class="custom-dropdown-menu hidden absolute left-0 right-0 top-[calc(100%+6px)] z-50 bg-white dark:bg-[#1C1C20] border border-stone-200 dark:border-[#2E2E36] rounded-xl shadow-2xl p-1.5 space-y-1 max-h-[220px] overflow-y-auto scrollbar-thin">
+                  ${activeSurveys.map((s, sIdx) => {
+                    const isEdu = s.is_student_exchange === 1;
+                    const tag = isEdu ? '[Trao Đổi Edu] ' : '';
+                    const fullTitle = `${tag}${s.title} (${s.collected_responses || 0}/${s.target_responses} mẫu)`;
+                    const isFirst = sIdx === 0;
+                    const safeFullTitle = (fullTitle).replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                    return `
+                      <button type="button" 
+                              onclick="document.getElementById('forum-post-survey-select').value = '${s.id}'; document.getElementById('forum-post-survey-label').textContent = '${safeFullTitle}'; VibeApp.closeAllCustomDropdowns();"
+                              class="w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs transition-colors hover:bg-stone-100 dark:hover:bg-[#24242A] text-left text-stone-800 dark:text-stone-200">
+                        <span class="truncate">${this.escapeHtml(fullTitle)}</span>
+                        ${isFirst ? '<i data-lucide="check" class="w-3.5 h-3.5 text-orange-600 shrink-0 ml-1.5"></i>' : ''}
+                      </button>
+                    `;
+                  }).join('')}
+                </div>
+              </div>
               <p class="text-[10.5px] text-stone-500">Chỉ hiển thị các bài khảo sát đang có trạng thái hoạt động (ACTIVE).</p>
             </div>
 

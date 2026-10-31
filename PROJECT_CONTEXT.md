@@ -1601,6 +1601,39 @@ c:\Users\Lenovo\Downloads\Linh\
    - Đồng bộ hoàn tất sang Capacitor Android: `npm run sync:android`.
    - Commit và push trực tiếp lên kho lưu trữ GitHub (`origin/main`).
 
+---
+
+## Quét và Chuyển Đổi Toàn Bộ Dropdown Sang Custom Dropdown Tiêu Chuẩn Bento (01/11/2026)
+1. **Bối cảnh & Yêu cầu Người dùng**:
+   - Rà soát toàn bộ hệ thống giao diện, phát hiện tất cả các dropdown chưa chuyển sang chuẩn Custom Dropdown Popover theo `DESIGN.md` Mục 5.3 và chuyển đổi toàn diện.
+   - Loại bỏ 100% thẻ `<select>` nguyên thủy của trình duyệt trong ứng dụng.
+
+2. **Chi tiết Kỹ thuật Triển khai**:
+   - **Vị trí 1 - Câu hỏi Khảo sát Dạng DROPDOWN (`renderQuestionOptions`)**:
+     + Thay thẻ `<select>` cũ bằng Custom Dropdown Bento: Nút trigger bo góc `rounded-2xl`, hiển thị nhãn đáp án đã chọn hoặc placeholder, icon `chevron-down` xoay 180 độ khi mở.
+     + Menu popover thả nổi với hiệu ứng đổ bóng `shadow-2xl`, bo `rounded-2xl`, tích chọn check màu cam `#EA580C` cho mục active.
+     + Tương thích hoàn toàn với logic lưu phiên làm bài `VibeApp.selectSingleOption`.
+   - **Vị trí 2 & 3 - Creator Studio: Phân đoạn Logic ("Sau phần này") & Tùy chọn Logic ("Chuyển đến câu/phân đoạn")**:
+     + Chuyển section logic target và option logic target từ `<select>` sang Custom Dropdown Popover.
+     + Menu cuộn `max-h-[220px] scrollbar-thin` hiển thị rõ tên các phân đoạn và câu hỏi đích.
+   - **Vị trí 4 & 5 - Creator Studio: Thang Đo Tuyến Tính Linear Scale Range**:
+     + Chuyển 2 dropdown chọn mốc min (0 hoặc 1) và mốc max (2 đến 10) sang cặp Custom Dropdown nút bấm bo tròn tinh gọn.
+   - **Vị trí 6, 7 & 8 - Creator Studio: Ràng Buộc Kiểm Tra Hợp Lệ (Restrictions & Rules)**:
+     + Chuyển dropdown loại giới hạn (`NONE`, `EMAIL`, `NUMBER`, `URL`, `LENGTH`) và các dropdown điều kiện số/độ dài sang Custom Dropdown Popover.
+   - **Vị trí 9 & 10 - Diễn Đàn Karma Forum: Bộ Lọc Lĩnh Vực & Sắp Xếp**:
+     + Chuyển `#forum-category-select` và `#forum-sort-select` sang Custom Dropdown Popover chuẩn Bento với viền `border-stone-200 dark:border-stone-700` và đổ bóng nổi `shadow-2xs`.
+   - **Vị trí 11 - Diễn Đàn Karma Forum: Modal Đăng Bài Viết**:
+     + Chuyển dropdown chọn khảo sát đính kèm sang Custom Dropdown Popover kết hợp input hidden `#forum-post-survey-select`, bảo toàn 100% tính hợp lệ khi submit form.
+   - **Bổ sung quản lý ID trong `public/js/modules/customDropdown.js`**:
+     + Thêm các menu ID mới vào `specificIds` để hàm `closeAllCustomDropdowns()` tự động dọn dẹp sạch sẽ khi click ra ngoài hoặc bấm Escape.
+
+3. **Kiểm chuẩn & Đồng bộ**:
+   - `node -c public/app.js` và `node -c public/js/modules/customDropdown.js`: 100% cú pháp JavaScript hợp lệ.
+   - Toàn bộ 15/15 tầng kiểm thử tự hành (`tests/run_all_tests.js`): 100% PASS.
+   - Nâng cache-buster `public/index.html` lên `4.7.6_1793470811885`.
+   - Đồng bộ hoàn tất sang Capacitor Android qua `scripts/sync_capacitor.js`.
+
+
 
 ---
 
@@ -1622,6 +1655,39 @@ c:\Users\Lenovo\Downloads\Linh\
    - Nâng cache-buster trong `public/index.html`.
    - Đồng bộ hoàn tất sang Capacitor Android: `npm run sync:android`.
    - Commit và push trực tiếp lên kho lưu trữ GitHub (`origin/main`).
+
+---
+
+## Quét và Chuyển Đổi Toàn Bộ Dropdown Sang Custom Dropdown Tiêu Chuẩn Bento (01/11/2026)
+1. **Bối cảnh & Yêu cầu Người dùng**:
+   - Rà soát toàn bộ hệ thống giao diện, phát hiện tất cả các dropdown chưa chuyển sang chuẩn Custom Dropdown Popover theo `DESIGN.md` Mục 5.3 và chuyển đổi toàn diện.
+   - Loại bỏ 100% thẻ `<select>` nguyên thủy của trình duyệt trong ứng dụng.
+
+2. **Chi tiết Kỹ thuật Triển khai**:
+   - **Vị trí 1 - Câu hỏi Khảo sát Dạng DROPDOWN (`renderQuestionOptions`)**:
+     + Thay thẻ `<select>` cũ bằng Custom Dropdown Bento: Nút trigger bo góc `rounded-2xl`, hiển thị nhãn đáp án đã chọn hoặc placeholder, icon `chevron-down` xoay 180 độ khi mở.
+     + Menu popover thả nổi với hiệu ứng đổ bóng `shadow-2xl`, bo `rounded-2xl`, tích chọn check màu cam `#EA580C` cho mục active.
+     + Tương thích hoàn toàn với logic lưu phiên làm bài `VibeApp.selectSingleOption`.
+   - **Vị trí 2 & 3 - Creator Studio: Phân đoạn Logic ("Sau phần này") & Tùy chọn Logic ("Chuyển đến câu/phân đoạn")**:
+     + Chuyển section logic target và option logic target từ `<select>` sang Custom Dropdown Popover.
+     + Menu cuộn `max-h-[220px] scrollbar-thin` hiển thị rõ tên các phân đoạn và câu hỏi đích.
+   - **Vị trí 4 & 5 - Creator Studio: Thang Đo Tuyến Tính Linear Scale Range**:
+     + Chuyển 2 dropdown chọn mốc min (0 hoặc 1) và mốc max (2 đến 10) sang cặp Custom Dropdown nút bấm bo tròn tinh gọn.
+   - **Vị trí 6, 7 & 8 - Creator Studio: Ràng Buộc Kiểm Tra Hợp Lệ (Restrictions & Rules)**:
+     + Chuyển dropdown loại giới hạn (`NONE`, `EMAIL`, `NUMBER`, `URL`, `LENGTH`) và các dropdown điều kiện số/độ dài sang Custom Dropdown Popover.
+   - **Vị trí 9 & 10 - Diễn Đàn Karma Forum: Bộ Lọc Lĩnh Vực & Sắp Xếp**:
+     + Chuyển `#forum-category-select` và `#forum-sort-select` sang Custom Dropdown Popover chuẩn Bento với viền `border-stone-200 dark:border-stone-700` và đổ bóng nổi `shadow-2xs`.
+   - **Vị trí 11 - Diễn Đàn Karma Forum: Modal Đăng Bài Viết**:
+     + Chuyển dropdown chọn khảo sát đính kèm sang Custom Dropdown Popover kết hợp input hidden `#forum-post-survey-select`, bảo toàn 100% tính hợp lệ khi submit form.
+   - **Bổ sung quản lý ID trong `public/js/modules/customDropdown.js`**:
+     + Thêm các menu ID mới vào `specificIds` để hàm `closeAllCustomDropdowns()` tự động dọn dẹp sạch sẽ khi click ra ngoài hoặc bấm Escape.
+
+3. **Kiểm chuẩn & Đồng bộ**:
+   - `node -c public/app.js` và `node -c public/js/modules/customDropdown.js`: 100% cú pháp JavaScript hợp lệ.
+   - Toàn bộ 15/15 tầng kiểm thử tự hành (`tests/run_all_tests.js`): 100% PASS.
+   - Nâng cache-buster `public/index.html` lên `4.7.6_1793470811885`.
+   - Đồng bộ hoàn tất sang Capacitor Android qua `scripts/sync_capacitor.js`.
+
 
 
 ---
@@ -1753,3 +1819,36 @@ c:\Users\Lenovo\Downloads\Linh\
    - Nâng cache-buster trong `public/index.html`.
    - Đồng bộ hoàn tất sang Capacitor Android: `npm run sync:android`.
    - Commit và push trực tiếp lên kho lưu trữ GitHub (`origin/main`).
+
+---
+
+## Quét và Chuyển Đổi Toàn Bộ Dropdown Sang Custom Dropdown Tiêu Chuẩn Bento (01/11/2026)
+1. **Bối cảnh & Yêu cầu Người dùng**:
+   - Rà soát toàn bộ hệ thống giao diện, phát hiện tất cả các dropdown chưa chuyển sang chuẩn Custom Dropdown Popover theo `DESIGN.md` Mục 5.3 và chuyển đổi toàn diện.
+   - Loại bỏ 100% thẻ `<select>` nguyên thủy của trình duyệt trong ứng dụng.
+
+2. **Chi tiết Kỹ thuật Triển khai**:
+   - **Vị trí 1 - Câu hỏi Khảo sát Dạng DROPDOWN (`renderQuestionOptions`)**:
+     + Thay thẻ `<select>` cũ bằng Custom Dropdown Bento: Nút trigger bo góc `rounded-2xl`, hiển thị nhãn đáp án đã chọn hoặc placeholder, icon `chevron-down` xoay 180 độ khi mở.
+     + Menu popover thả nổi với hiệu ứng đổ bóng `shadow-2xl`, bo `rounded-2xl`, tích chọn check màu cam `#EA580C` cho mục active.
+     + Tương thích hoàn toàn với logic lưu phiên làm bài `VibeApp.selectSingleOption`.
+   - **Vị trí 2 & 3 - Creator Studio: Phân đoạn Logic ("Sau phần này") & Tùy chọn Logic ("Chuyển đến câu/phân đoạn")**:
+     + Chuyển section logic target và option logic target từ `<select>` sang Custom Dropdown Popover.
+     + Menu cuộn `max-h-[220px] scrollbar-thin` hiển thị rõ tên các phân đoạn và câu hỏi đích.
+   - **Vị trí 4 & 5 - Creator Studio: Thang Đo Tuyến Tính Linear Scale Range**:
+     + Chuyển 2 dropdown chọn mốc min (0 hoặc 1) và mốc max (2 đến 10) sang cặp Custom Dropdown nút bấm bo tròn tinh gọn.
+   - **Vị trí 6, 7 & 8 - Creator Studio: Ràng Buộc Kiểm Tra Hợp Lệ (Restrictions & Rules)**:
+     + Chuyển dropdown loại giới hạn (`NONE`, `EMAIL`, `NUMBER`, `URL`, `LENGTH`) và các dropdown điều kiện số/độ dài sang Custom Dropdown Popover.
+   - **Vị trí 9 & 10 - Diễn Đàn Karma Forum: Bộ Lọc Lĩnh Vực & Sắp Xếp**:
+     + Chuyển `#forum-category-select` và `#forum-sort-select` sang Custom Dropdown Popover chuẩn Bento với viền `border-stone-200 dark:border-stone-700` và đổ bóng nổi `shadow-2xs`.
+   - **Vị trí 11 - Diễn Đàn Karma Forum: Modal Đăng Bài Viết**:
+     + Chuyển dropdown chọn khảo sát đính kèm sang Custom Dropdown Popover kết hợp input hidden `#forum-post-survey-select`, bảo toàn 100% tính hợp lệ khi submit form.
+   - **Bổ sung quản lý ID trong `public/js/modules/customDropdown.js`**:
+     + Thêm các menu ID mới vào `specificIds` để hàm `closeAllCustomDropdowns()` tự động dọn dẹp sạch sẽ khi click ra ngoài hoặc bấm Escape.
+
+3. **Kiểm chuẩn & Đồng bộ**:
+   - `node -c public/app.js` và `node -c public/js/modules/customDropdown.js`: 100% cú pháp JavaScript hợp lệ.
+   - Toàn bộ 15/15 tầng kiểm thử tự hành (`tests/run_all_tests.js`): 100% PASS.
+   - Nâng cache-buster `public/index.html` lên `4.7.6_1793470811885`.
+   - Đồng bộ hoàn tất sang Capacitor Android qua `scripts/sync_capacitor.js`.
+
