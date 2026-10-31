@@ -460,23 +460,78 @@ const VibeApp = window.VibeApp = Object.assign(window.VibeApp, {
     this.updateThemeLogos(isDark);
   },
 
-  toggleTheme() {
+  toggleTheme(event) {
     this.haptic('light');
 
-    const isDark = document.documentElement.classList.toggle('dark');
-    localStorage.setItem('survhub_theme', isDark ? 'dark' : 'light');
+    const updateState = () => {
+      const isDark = document.documentElement.classList.toggle('dark');
+      localStorage.setItem('survhub_theme', isDark ? 'dark' : 'light');
+      this.updateThemeIcon(isDark);
+      this.updateThemeLogos(isDark);
+      return isDark;
+    };
 
-    this.updateThemeIcon(isDark);
-    this.updateThemeLogos(isDark);
+    // Kiểm tra hỗ trợ View Transitions API với hiệu ứng sóng tròn (Circular Ripple Wave)
+    const isReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (!isReducedMotion && document.startViewTransition && event && typeof event.clientX === 'number') {
+      const x = event.clientX;
+      const y = event.clientY;
+      const endRadius = Math.hypot(
+        Math.max(x, window.innerWidth - x),
+        Math.max(y, window.innerHeight - y)
+      );
+
+      const transition = document.startViewTransition(() => {
+        updateState();
+      });
+
+      transition.ready.then(() => {
+        const isDark = document.documentElement.classList.contains('dark');
+        const clipPath = [
+          `circle(0px at ${x}px ${y}px)`,
+          `circle(${endRadius}px at ${x}px ${y}px)`
+        ];
+
+        document.documentElement.animate(
+          {
+            clipPath: isDark ? clipPath : [...clipPath].reverse()
+          },
+          {
+            duration: 450,
+            easing: 'cubic-bezier(0.16, 1, 0.3, 1)',
+            pseudoElement: isDark ? '::view-transition-new(root)' : '::view-transition-old(root)'
+          }
+        );
+      }).catch(() => {
+        // Dự phòng khi View Transition bị hủy
+      });
+    } else {
+      // Fallback mượt mà bằng lớp CSS theme-transitioning
+      document.documentElement.classList.add('theme-transitioning');
+      updateState();
+      setTimeout(() => {
+        document.documentElement.classList.remove('theme-transitioning');
+      }, 350);
+    }
   },
 
   updateThemeIcon(isDark) {
     const btn = document.getElementById('theme-toggle-btn');
     if (btn) {
-      btn.innerHTML = `<i id="theme-icon" data-lucide="${isDark ? 'sun' : 'moon'}" class="w-4 h-4 stroke-[2.2]"></i>`;
-      if (window.lucide && typeof window.lucide.createIcons === 'function') {
-        // Chỉ quét duy nhất nút theme thay vì quét toàn bộ cây DOM
-        window.lucide.createIcons({ root: btn });
+      const sun = btn.querySelector('.theme-icon-sun');
+      const moon = btn.querySelector('.theme-icon-moon');
+      if (!sun || !moon) {
+        btn.innerHTML = `
+          <span class="theme-icon-sun absolute inset-0 flex items-center justify-center text-amber-500">
+            <i data-lucide="sun" class="w-4 h-4 stroke-[2.2]"></i>
+          </span>
+          <span class="theme-icon-moon absolute inset-0 flex items-center justify-center text-stone-600 dark:text-stone-300">
+            <i data-lucide="moon" class="w-4 h-4 stroke-[2.2]"></i>
+          </span>
+        `;
+        if (window.lucide && typeof window.lucide.createIcons === 'function') {
+          window.lucide.createIcons({ root: btn });
+        }
       }
     }
   },
@@ -17222,22 +17277,30 @@ escapeHtml(str) {
     if (!root) return;
     const user = this.state.currentUser;
 
-    root.innerHTML = `
-      <div class="py-16 flex flex-col items-center justify-center text-stone-400 space-y-2">
-        <div class="animate-spin rounded-full h-8 w-8 border-2 border-stone-200 border-t-orange-600"></div>
-        <p class="text-xs text-stone-500 font-medium">Đang nạp dữ liệu diễn đàn...</p>
-      </div>
-    `;
-
-    try {
-      const res = await this.api('/forum/posts');
-      this.state.forumPosts = (res && res.posts) || [];
-    } catch (err) {
-      console.warn('Lỗi nạp bài viết diễn đàn:', err.message);
-      this.state.forumPosts = [];
+    // Chỉ hiển thị skeleton loader lần đầu khi chưa có dữ liệu trong state
+    if (!this.state.forumPosts || this.state.forumPosts.length === 0) {
+      root.innerHTML = `
+        <div class="py-16 flex flex-col items-center justify-center text-stone-400 space-y-2">
+          <div class="animate-spin rounded-full h-8 w-8 border-2 border-stone-200 border-t-orange-600"></div>
+          <p class="text-xs text-stone-500 font-medium">Đang nạp dữ liệu diễn đàn...</p>
+        </div>
+      `;
     }
 
-    // Nạp khảo sát thực tế nếu chưa có
+    try {
+      const [postsRes, lbRes] = await Promise.all([
+        this.api('/forum/posts'),
+        this.api('/forum/leaderboard').catch(() => ({ contributors: [], hotTopics: [] }))
+      ]);
+      this.state.forumPosts = (postsRes && postsRes.posts) || [];
+      this.state.forumLeaderboard = (lbRes && lbRes.contributors) || [];
+      this.state.forumHotTopics = (lbRes && lbRes.hotTopics) || [];
+    } catch (err) {
+      console.warn('Lỗi nạp bài viết diễn đàn:', err.message);
+      if (!this.state.forumPosts) this.state.forumPosts = [];
+    }
+
+    // Nạp khảo sát nếu chưa có
     if (!this.state.surveys || this.state.surveys.length === 0) {
       try {
         await this.loadSurveys();
@@ -17246,27 +17309,43 @@ escapeHtml(str) {
       }
     }
 
+    // Thiết lập trạng thái bộ lọc mặc định nếu chưa có
+    if (!this.state.forumFilter) {
+      this.state.forumFilter = {
+        category: 'ALL',
+        scope: 'ALL',
+        status: 'ALL',
+        sort: 'NEWEST',
+        search: ''
+      };
+    }
+
+    this._renderForumLayout(root);
+  },
+
+  _renderForumLayout(root) {
+    const user = this.state.currentUser;
     const posts = this.state.forumPosts || [];
     const surveys = this.state.surveys || [];
-    const openCommentIds = this.state.openCommentPostIds || [];
-    const searchQuery = (this.state.forumSearchQuery || '').toLowerCase().trim();
+    const filter = this.state.forumFilter || { category: 'ALL', scope: 'ALL', status: 'ALL', sort: 'NEWEST', search: '' };
+    const leaderboard = this.state.forumLeaderboard || [];
+    const hotTopics = this.state.forumHotTopics || [];
 
-    const filteredPosts = posts.filter(p => {
-      if (!searchQuery) return true;
-      const t = (p.title || '').toLowerCase();
-      const c = (p.content || '').toLowerCase();
-      const a = (p.author && p.author.name || '').toLowerCase();
-      const s = (p.survey && p.survey.title || '').toLowerCase();
-      return t.includes(searchQuery) || c.includes(searchQuery) || a.includes(searchQuery) || s.includes(searchQuery);
-    });
-
-    // Lọc ra các khảo sát đang active để gợi ý ở sidebar
-    const activeSurveys = surveys.filter(s => s.status === 'ACTIVE' || s.status === 'PUBLISHED' || !s.status).slice(0, 3);
+    // Các danh mục lĩnh vực nghiên cứu đa dạng
+    const categories = [
+      { id: 'ALL', label: 'Tất cả lĩnh vực' },
+      { id: 'TECH', label: 'Khoa học máy tính & AI', match: ['công nghệ', 'máy tính', 'ai', 'bach khoa', 'it'] },
+      { id: 'BUSINESS', label: 'Kinh tế & Quản trị', match: ['kinh tế', 'kinh doanh', 'neu', 'ftu', 'fmcg', 'marketing'] },
+      { id: 'SOCIAL', label: 'Khoa học Xã hội & Tâm lý', match: ['xã hội', 'tâm lý', 'hành vi', 'nhân văn'] },
+      { id: 'HEALTH', label: 'Y tế & Sức khỏe cộng đồng', match: ['y tế', 'sức khỏe', 'dược', 'y học'] },
+      { id: 'DESIGN', label: 'Thiết kế & Trải nghiệm UX', match: ['thiết kế', 'ux', 'giao diện', 'đồ họa'] },
+      { id: 'EDU', label: 'Giáo dục & Đào tạo', match: ['giáo dục', 'sinh viên', 'đào tạo', 'học thuật'] }
+    ];
 
     root.innerHTML = `
       <div class="space-y-6 max-w-6xl mx-auto pb-16 px-2 sm:px-4">
         
-        <!-- HEADER DIỄN ĐÀN: TỐI GIẢN CHUẨN DESIGN.MD (KHÔNG EMOJI, KHÔNG GẮN THÊM SURVHUB) -->
+        <!-- 1. HEADER DIỄN ĐÀN: TINH GỌN CHUẨN DESIGN.MD -->
         <div class="bg-white dark:bg-[#18181B] rounded-3xl p-6 sm:p-7 border border-stone-200/80 dark:border-stone-800 shadow-xs relative overflow-hidden space-y-4">
           <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-5 relative z-10">
             <div class="flex items-start sm:items-center gap-4">
@@ -17279,7 +17358,7 @@ escapeHtml(str) {
                   <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-orange-100 dark:bg-orange-950/60 text-orange-600 dark:text-orange-400 border border-orange-200/60 dark:border-orange-800/60 uppercase">Góc Thảo Luận & Đề Tài</span>
                 </div>
                 <p class="text-xs sm:text-sm text-stone-500 dark:text-stone-400 leading-relaxed max-w-2xl">
-                  Không gian trao đổi học thuật, đóng góp ý kiến phương pháp nghiên cứu và chia sẻ đề tài khảo sát thực tế.
+                  Không gian chia sẻ bối cảnh đề tài, trao đổi đáp viên tương hỗ và phản biện học thuật đa trường viện.
                 </p>
               </div>
             </div>
@@ -17292,11 +17371,11 @@ escapeHtml(str) {
             </div>
           </div>
 
-          <!-- THỐNG KÊ THỰC TẾ DỰA TRÊN DỮ LIỆU APP -->
+          <!-- THỐNG KÊ NHANH THỰC TẾ -->
           <div class="pt-3 flex flex-wrap items-center gap-6 border-t border-stone-100 dark:border-stone-800 text-xs text-stone-500 dark:text-stone-400">
             <div class="flex items-center gap-2">
               <span class="w-2 h-2 rounded-full bg-orange-500"></span>
-              <span><strong class="text-stone-800 dark:text-stone-200 font-bold">${posts.length}</strong> bài thảo luận</span>
+              <span><strong id="forum-metric-posts" class="text-stone-800 dark:text-stone-200 font-bold">${posts.length}</strong> bài thảo luận</span>
             </div>
             <div class="flex items-center gap-1.5">
               <i data-lucide="compass" class="w-4 h-4 text-orange-600"></i>
@@ -17304,167 +17383,193 @@ escapeHtml(str) {
             </div>
             <div class="flex items-center gap-1.5">
               <i data-lucide="shield-check" class="w-4 h-4 text-emerald-600"></i>
-              <span>Kiểm duyệt liêm chính học thuật</span>
+              <span>Liêm chính học thuật & Chuẩn IRB</span>
             </div>
           </div>
         </div>
 
-        <!-- THANH CÔNG CỤ TÌM KIẾM & BỘ LỌC CHUẨN DESIGN.MD (KHÔNG EMOJI) -->
-        <div class="space-y-3">
-          <div class="bg-white dark:bg-[#18181B] rounded-2xl border border-stone-200/80 dark:border-stone-800 p-2 sm:p-2.5 flex items-center justify-between gap-3 shadow-xs">
+        <!-- 2. HỆ THỐNG BỘ LỌC ĐA TẦNG TOÀN DIỆN (FULL FILTER SUITE) -->
+        <div class="bg-white dark:bg-[#18181B] rounded-3xl p-5 border border-stone-200/80 dark:border-stone-800 shadow-xs space-y-4">
+          
+          <!-- Hàng 1: Ô Tìm Kiếm + Bộ Lọc Phạm Vi & Sắp Xếp -->
+          <div class="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
+            <!-- Search Bar -->
             <div class="relative flex-1">
               <i data-lucide="search" class="w-4 h-4 text-stone-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none"></i>
               <input type="text" 
-                     value="${this.escapeHtml(this.state.forumSearchQuery || '')}"
-                     oninput="VibeApp.handleForumSearch(this.value)"
-                     placeholder="Tìm kiếm bài viết theo tiêu đề, tác giả, nội dung hoặc tên khảo sát..." 
-                     class="w-full pl-9 pr-3.5 py-2 rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50/50 dark:bg-stone-900 text-xs font-medium text-stone-900 dark:text-white placeholder-stone-400 focus:outline-none focus:ring-1 focus:ring-orange-500 focus:bg-white transition-all">
+                     id="forum-search-input"
+                     value="${this.escapeHtml(filter.search || '')}"
+                     oninput="VibeApp.handleForumSearchInPlace(this.value)"
+                     placeholder="Tìm kiếm theo tiêu đề, tác giả, đề tài khảo sát hoặc nội dung..." 
+                     class="w-full pl-9 pr-8 py-2 rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50/50 dark:bg-stone-900 text-xs font-medium text-stone-900 dark:text-white placeholder-stone-400 focus:outline-none focus:ring-1 focus:ring-orange-500 focus:bg-white transition-all">
+              ${filter.search ? `
+                <button onclick="document.getElementById('forum-search-input').value=''; VibeApp.handleForumSearchInPlace('')" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600 dark:hover:text-stone-200">
+                  <i data-lucide="x" class="w-3.5 h-3.5"></i>
+                </button>
+              ` : ''}
             </div>
-            <button onclick="VibeApp.renderForumView(document.getElementById('app-root'))" class="h-9 px-3 rounded-xl border border-stone-200 dark:border-stone-700 hover:bg-stone-50 dark:hover:bg-stone-800 text-stone-600 dark:text-stone-300 text-xs font-semibold transition-colors flex items-center gap-1.5 shrink-0 cursor-pointer" title="Làm mới danh sách">
-              <i data-lucide="rotate-cw" class="w-3.5 h-3.5"></i>
-              <span class="hidden sm:inline">Làm mới</span>
+
+            <!-- Phân loại phạm vi bài viết -->
+            <div class="flex items-center gap-2 flex-wrap text-xs">
+              <div class="flex items-center bg-stone-100 dark:bg-stone-900 p-1 rounded-xl border border-stone-200 dark:border-stone-800">
+                <button onclick="VibeApp.setForumScopeFilter('ALL')" class="px-3 py-1.5 rounded-lg font-bold transition-all ${filter.scope === 'ALL' ? 'bg-white dark:bg-stone-800 text-orange-600 shadow-2xs' : 'text-stone-600 dark:text-stone-400 hover:text-stone-900'}">
+                  Tất cả
+                </button>
+                <button onclick="VibeApp.setForumScopeFilter('WITH_SURVEY')" class="px-3 py-1.5 rounded-lg font-bold transition-all ${filter.scope === 'WITH_SURVEY' ? 'bg-white dark:bg-stone-800 text-orange-600 shadow-2xs' : 'text-stone-600 dark:text-stone-400 hover:text-stone-900'}">
+                  Đính kèm khảo sát
+                </button>
+                <button onclick="VibeApp.setForumScopeFilter('EXCHANGE')" class="px-3 py-1.5 rounded-lg font-bold transition-all ${filter.scope === 'EXCHANGE' ? 'bg-white dark:bg-stone-800 text-orange-600 shadow-2xs' : 'text-stone-600 dark:text-stone-400 hover:text-stone-900'}">
+                  Trao đổi sinh viên
+                </button>
+                ${user ? `
+                  <button onclick="VibeApp.setForumScopeFilter('MY_POSTS')" class="px-3 py-1.5 rounded-lg font-bold transition-all ${filter.scope === 'MY_POSTS' ? 'bg-white dark:bg-stone-800 text-orange-600 shadow-2xs' : 'text-stone-600 dark:text-stone-400 hover:text-stone-900'}">
+                    Bài của tôi
+                  </button>
+                ` : ''}
+              </div>
+
+              <!-- Sắp xếp -->
+              <select id="forum-sort-select" onchange="VibeApp.setForumSort(this.value)" class="h-9 px-3 rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50/50 dark:bg-stone-900 text-xs font-semibold text-stone-700 dark:text-stone-300 focus:outline-none focus:border-orange-500 cursor-pointer">
+                <option value="NEWEST" ${filter.sort === 'NEWEST' ? 'selected' : ''}>Mới nhất</option>
+                <option value="MOST_LIKED" ${filter.sort === 'MOST_LIKED' ? 'selected' : ''}>Quan tâm nhiều</option>
+                <option value="MOST_COMMENTS" ${filter.sort === 'MOST_COMMENTS' ? 'selected' : ''}>Sôi nổi nhất</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Hàng 2: Bộ Lọc Chuyên Ngành / Lĩnh Vực Nghiên Cứu -->
+          <div class="pt-2 border-t border-stone-100 dark:border-stone-800/80 flex items-center justify-between gap-3 flex-wrap">
+            <div class="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none text-xs flex-1">
+              <span class="text-[11px] font-bold text-stone-400 uppercase tracking-wider shrink-0 mr-1">Lĩnh vực:</span>
+              ${categories.map(c => {
+                const isActive = filter.category === c.id;
+                return `
+                  <button onclick="VibeApp.setForumCategoryFilter('${c.id}')" 
+                          class="px-3 py-1.5 rounded-full font-medium whitespace-nowrap transition-all cursor-pointer ${isActive 
+                            ? 'bg-orange-600 text-white font-bold shadow-xs' 
+                            : 'bg-stone-100/80 dark:bg-stone-800/80 text-stone-600 dark:text-stone-400 hover:bg-stone-200 dark:hover:bg-stone-700 hover:text-stone-900 dark:hover:text-white'}">
+                    ${c.label}
+                  </button>
+                `;
+              }).join('')}
+            </div>
+
+            <!-- Nút xóa bộ lọc khi có điều kiện lọc -->
+            <button id="forum-reset-filter-btn" 
+                    onclick="VibeApp.resetForumFilters()" 
+                    class="${(filter.category !== 'ALL' || filter.scope !== 'ALL' || filter.search) ? '' : 'hidden'} px-3 py-1.5 rounded-full border border-stone-200 dark:border-stone-700 hover:bg-stone-100 dark:hover:bg-stone-800 text-[11px] font-bold text-stone-500 hover:text-stone-900 transition-colors flex items-center gap-1 shrink-0 cursor-pointer">
+              <i data-lucide="rotate-ccw" class="w-3 h-3"></i>
+              <span>Đặt lại bộ lọc</span>
             </button>
           </div>
 
-          <!-- BỘ LỌC CHỦ ĐỀ CHUẨN MỰC KHÔNG EMOJI -->
-          <div class="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none text-xs">
-            <button onclick="VibeApp.handleForumFilterTag('')" class="px-3.5 py-1.5 rounded-full font-bold whitespace-nowrap transition-all cursor-pointer ${!this.state.forumSearchQuery ? 'bg-orange-600 text-white shadow-xs' : 'bg-white dark:bg-[#18181B] text-stone-600 dark:text-stone-400 border border-stone-200 dark:border-stone-800 hover:bg-stone-50'}">
-              Tất cả thảo luận
-            </button>
-            <button onclick="VibeApp.handleForumFilterTag('Bach Khoa')" class="px-3.5 py-1.5 rounded-full font-medium whitespace-nowrap transition-all cursor-pointer bg-white dark:bg-[#18181B] text-stone-600 dark:text-stone-400 border border-stone-200 dark:border-stone-800 hover:bg-stone-50 hover:text-stone-900 dark:hover:text-white">
-              Khoa học máy tính & Công nghệ
-            </button>
-            <button onclick="VibeApp.handleForumFilterTag('Trao doi')" class="px-3.5 py-1.5 rounded-full font-medium whitespace-nowrap transition-all cursor-pointer bg-white dark:bg-[#18181B] text-stone-600 dark:text-stone-400 border border-stone-200 dark:border-stone-800 hover:bg-stone-50 hover:text-stone-900 dark:hover:text-white">
-              Trao đổi đáp viên
-            </button>
-            <button onclick="VibeApp.handleForumFilterTag('Khao sat')" class="px-3.5 py-1.5 rounded-full font-medium whitespace-nowrap transition-all cursor-pointer bg-white dark:bg-[#18181B] text-stone-600 dark:text-stone-400 border border-stone-200 dark:border-stone-800 hover:bg-stone-50 hover:text-stone-900 dark:hover:text-white">
-              Đề tài đính kèm khảo sát
-            </button>
-            ${user ? `
-              <button onclick="VibeApp.handleForumFilterTag('${user.name}')" class="px-3.5 py-1.5 rounded-full font-medium whitespace-nowrap transition-all cursor-pointer bg-white dark:bg-[#18181B] text-stone-600 dark:text-stone-400 border border-stone-200 dark:border-stone-800 hover:bg-stone-50 hover:text-stone-900 dark:hover:text-white">
-                Bài viết của tôi
-              </button>
-            ` : ''}
-          </div>
         </div>
 
-        <!-- MAIN LAYOUT: FEED THẬT (8 COLS) + SIDEBAR TINH GỌN (4 COLS) -->
+        <!-- 3. MAIN LAYOUT: FEED THẬT (8 COLS) + SIDEBAR WIDGETS (4 COLS) -->
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           
-          <!-- CỘT CHÍNH: DANH SÁCH BÀI VIẾT THỰC TẾ (8 COLS) -->
-          <div class="lg:col-span-8 space-y-4">
-            
-            ${filteredPosts.length > 0 ? (
-              filteredPosts.map(post => this.renderForumPostCardHtml(post, openCommentIds.includes(post.id))).join('')
-            ) : `
-              <!-- TRẠNG THÁI TRỐNG TINH TẾ (EMPTY STATE) -->
-              <div class="bg-white dark:bg-[#18181B] rounded-3xl p-10 sm:p-12 border border-dashed border-stone-200 dark:border-stone-800 text-center space-y-4">
-                <div class="w-12 h-12 rounded-2xl bg-stone-100 dark:bg-stone-800 text-stone-400 dark:text-stone-500 flex items-center justify-center mx-auto">
-                  <i data-lucide="message-square-dashed" class="w-6 h-6 stroke-[1.8]"></i>
-                </div>
-                <div class="space-y-1.5 max-w-md mx-auto">
-                  <h3 class="text-sm font-bold text-stone-900 dark:text-white">Chưa có bài thảo luận phù hợp</h3>
-                  <p class="text-xs text-stone-500 dark:text-stone-400 leading-relaxed">
-                    ${searchQuery ? 'Không tìm thấy bài viết nào khớp với từ khóa tìm kiếm. Bạn có thể xóa bộ lọc để xem tất cả.' : 'Hãy là người đầu tiên đăng bài chia sẻ bối cảnh đề tài và kêu gọi đáp viên tham gia khảo sát!'}
-                  </p>
-                </div>
-                <div class="pt-2">
-                  <button onclick="VibeApp.openCreateForumPostModal()" class="px-5 py-2.5 rounded-xl bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold transition-all shadow-xs active:scale-95 inline-flex items-center gap-2 cursor-pointer">
-                    <i data-lucide="plus-circle" class="w-4 h-4"></i>
-                    <span>Tạo Bài Viết Mới</span>
-                  </button>
-                </div>
-              </div>
-            `}
-
+          <!-- CỘT CHÍNH: DANH SÁCH BÀI VIẾT THỰC TẾ (CẬP NHẬT MƯỢT MÀ KHÔNG RELOAD) -->
+          <div class="lg:col-span-8 space-y-4" id="forum-posts-feed-container">
+            <!-- Nội dung bài viết sẽ được render in-place qua _updateForumFeedInPlace() -->
           </div>
 
-          <!-- CỘT BÊN PHẢI: WIDGET THỰC TẾ & QUY CHUẨN CỘNG ĐỒNG (4 COLS) -->
+          <!-- CỘT BÊN PHẢI: BẢNG XẾP HẠNG & WIDGET CHUẨN DESIGN.MD (4 COLS) -->
           <aside class="lg:col-span-4 space-y-5">
 
-            <!-- WIDGET 1: QUY CHUẨN THẢO LUẬN & ĐẠO ĐỨC HỌC THUẬT -->
-            <div class="bg-white dark:bg-[#18181B] rounded-3xl p-5 sm:p-6 border border-stone-200/80 dark:border-stone-800 shadow-xs space-y-3">
-              <div class="flex items-center gap-2 text-stone-900 dark:text-white">
-                <div class="w-7 h-7 rounded-lg bg-orange-500/10 dark:bg-orange-500/20 text-orange-600 dark:text-orange-400 flex items-center justify-center shrink-0">
-                  <i data-lucide="shield-check" class="w-4 h-4 stroke-[2.2]"></i>
+            <!-- WIDGET 1: TOP HỖ TRỢ ĐIỀN FORM (BẢNG XẾP HẠNG ĐÓNG GÓP THỰC TẾ) -->
+            <div class="bg-white dark:bg-[#18181B] rounded-3xl p-5 sm:p-6 border border-stone-200/80 dark:border-stone-800 shadow-xs space-y-4">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2 text-stone-900 dark:text-white">
+                  <div class="w-7 h-7 rounded-lg bg-orange-500/10 dark:bg-orange-500/20 text-orange-600 dark:text-orange-400 flex items-center justify-center shrink-0">
+                    <i data-lucide="award" class="w-4 h-4 stroke-[2.2]"></i>
+                  </div>
+                  <h3 class="text-xs font-bold uppercase tracking-wider">Top Hỗ Trợ Điền Form</h3>
                 </div>
-                <h3 class="text-xs font-bold uppercase tracking-wider">Quy Chuẩn Thảo Luận</h3>
+                <span class="text-[10px] font-bold text-stone-400 uppercase tracking-widest font-mono">Bảng Đóng Góp</span>
               </div>
-              
-              <ul class="space-y-2 text-xs text-stone-600 dark:text-stone-400 leading-relaxed border-t border-stone-100 dark:border-stone-800/80 pt-3">
-                <li class="flex items-start gap-2">
-                  <span class="w-1.5 h-1.5 rounded-full bg-orange-600 mt-1.5 shrink-0"></span>
-                  <span><strong>Liêm chính học thuật:</strong> Cung cấp thông tin đề tài trung thực, rõ ràng mục đích nghiên cứu.</span>
-                </li>
-                <li class="flex items-start gap-2">
-                  <span class="w-1.5 h-1.5 rounded-full bg-orange-600 mt-1.5 shrink-0"></span>
-                  <span><strong>Bảo mật thông tin:</strong> Tôn trọng quyền ẩn danh của đáp viên, tuân thủ tiêu chuẩn đạo đức nghiên cứu.</span>
-                </li>
-                <li class="flex items-start gap-2">
-                  <span class="w-1.5 h-1.5 rounded-full bg-orange-600 mt-1.5 shrink-0"></span>
-                  <span><strong>Chặn liên kết rác:</strong> Hệ thống tự động ngăn chặn liên kết ngoài để bảo vệ an toàn cho thành viên.</span>
-                </li>
-              </ul>
+
+              <!-- Danh sách xếp hạng từ dữ liệu thật -->
+              <div class="space-y-2.5 border-t border-stone-100 dark:border-stone-800/80 pt-3">
+                ${leaderboard && leaderboard.length > 0 ? leaderboard.map((item, index) => {
+                  const rank = index + 1;
+                  let rankBadgeClass = 'w-6 h-6 rounded-lg text-xs font-mono font-bold flex items-center justify-center shrink-0 ';
+                  if (rank === 1) {
+                    rankBadgeClass += 'bg-orange-600 text-white shadow-xs';
+                  } else if (rank === 2) {
+                    rankBadgeClass += 'bg-stone-300 dark:bg-stone-700 text-stone-900 dark:text-white font-bold';
+                  } else if (rank === 3) {
+                    rankBadgeClass += 'bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400 font-bold';
+                  } else {
+                    rankBadgeClass += 'bg-stone-100 dark:bg-stone-800 text-stone-500';
+                  }
+
+                  const universityLabel = item.university || (item.is_student_verified ? 'Sinh viên Edu' : 'Thành viên SurvHub');
+                  const formsCount = item.completed_forms || 0;
+
+                  return `
+                    <div class="flex items-center justify-between p-2.5 rounded-2xl bg-stone-50/70 dark:bg-stone-900/50 border border-stone-100 dark:border-stone-800/80 hover:border-orange-300 dark:hover:border-orange-800 transition-all">
+                      <div class="flex items-center gap-2.5 min-w-0">
+                        <span class="${rankBadgeClass}">${rank}</span>
+                        <div class="min-w-0">
+                          <h4 class="text-xs font-bold text-stone-900 dark:text-white truncate">${this.escapeHtml(item.name || 'Thành viên')}</h4>
+                          <span class="text-[10.5px] text-stone-400 truncate block">${this.escapeHtml(universityLabel)}</span>
+                        </div>
+                      </div>
+                      <div class="text-right shrink-0 font-mono">
+                        <span class="text-xs font-bold text-orange-600 dark:text-orange-400">${formsCount}</span>
+                        <span class="text-[10px] text-stone-400 block leading-tight">form</span>
+                      </div>
+                    </div>
+                  `;
+                }).join('') : `
+                  <div class="text-center py-4 text-xs text-stone-400">Đang cập nhật xếp hạng đóng góp tuần...</div>
+                `}
+              </div>
             </div>
 
-            <!-- WIDGET 2: KHẢO SÁT THỰC TẾ ĐANG CẦN MẪU (DỮ LIỆU THẬT TỪ HỆ THỐNG) -->
-            ${activeSurveys.length > 0 ? `
-              <div class="bg-white dark:bg-[#18181B] rounded-3xl p-5 sm:p-6 border border-stone-200/80 dark:border-stone-800 shadow-xs space-y-3.5">
-                <div class="flex items-center justify-between">
-                  <div class="flex items-center gap-2 text-stone-900 dark:text-white">
-                    <div class="w-7 h-7 rounded-lg bg-orange-500/10 dark:bg-orange-500/20 text-orange-600 dark:text-orange-400 flex items-center justify-center shrink-0">
-                      <i data-lucide="compass" class="w-4 h-4 stroke-[2.2]"></i>
-                    </div>
-                    <h3 class="text-xs font-bold uppercase tracking-wider">Khảo Sát Đang Cần Mẫu</h3>
+            <!-- WIDGET 2: ĐỀ TÀI HOT TUẦN NÀY (THỰC TẾ TỪ HỆ THỐNG) -->
+            <div class="bg-white dark:bg-[#18181B] rounded-3xl p-5 sm:p-6 border border-stone-200/80 dark:border-stone-800 shadow-xs space-y-3.5">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2 text-stone-900 dark:text-white">
+                  <div class="w-7 h-7 rounded-lg bg-orange-500/10 dark:bg-orange-500/20 text-orange-600 dark:text-orange-400 flex items-center justify-center shrink-0">
+                    <i data-lucide="trending-up" class="w-4 h-4 stroke-[2.2]"></i>
                   </div>
-                  <button onclick="VibeApp.navigate('surveys')" class="text-[11px] font-bold text-orange-600 dark:text-orange-400 hover:underline cursor-pointer">
-                    Xem tất cả
-                  </button>
+                  <h3 class="text-xs font-bold uppercase tracking-wider">Đề Tài Hot Tuần Này</h3>
                 </div>
-
-                <div class="space-y-3 border-t border-stone-100 dark:border-stone-800/80 pt-3">
-                  ${activeSurveys.map(s => `
-                    <div class="p-3 rounded-2xl bg-stone-50/80 dark:bg-stone-900/60 border border-stone-200/60 dark:border-stone-800 space-y-2">
-                      <div class="flex items-start justify-between gap-2">
-                        <h4 class="text-xs font-bold text-stone-900 dark:text-white line-clamp-2 leading-snug">
-                          ${this.escapeHtml(s.title)}
-                        </h4>
-                        <span class="font-mono text-[11px] font-bold text-orange-600 dark:text-orange-400 shrink-0">
-                          +${(s.reward_points_per_response || 0).toLocaleString('vi-VN')}đ
-                        </span>
-                      </div>
-                      
-                      <div class="flex items-center justify-between pt-1">
-                        <span class="text-[10.5px] font-mono text-stone-500">
-                          ${s.collected_responses || 0}/${s.target_responses || 100} mẫu
-                        </span>
-                        <button onclick="VibeApp.startSurveySession('${s.id}')" class="px-2.5 py-1 rounded-lg bg-orange-600 hover:bg-orange-700 text-white text-[10.5px] font-bold transition-all shadow-2xs cursor-pointer">
-                          Làm bài
-                        </button>
-                      </div>
-                    </div>
-                  `).join('')}
-                </div>
+                <span class="text-[10px] font-bold text-orange-600 uppercase">Sôi Nổi</span>
               </div>
-            ` : ''}
 
-            <!-- WIDGET 3: HƯỚNG DẪN ĐĂNG BÀI HIỆU QUẢ -->
+              <div class="space-y-2 border-t border-stone-100 dark:border-stone-800/80 pt-3">
+                ${hotTopics && hotTopics.length > 0 ? hotTopics.map(t => `
+                  <div onclick="document.getElementById('forum-search-input').value='${this.escapeHtml(t.title)}'; VibeApp.handleForumSearchInPlace('${this.escapeHtml(t.title)}')" class="p-2.5 rounded-xl hover:bg-stone-50 dark:hover:bg-stone-800/60 transition-colors cursor-pointer group space-y-1">
+                    <h4 class="text-xs font-bold text-stone-800 dark:text-stone-200 group-hover:text-orange-600 transition-colors line-clamp-2 leading-snug">
+                      ${this.escapeHtml(t.title)}
+                    </h4>
+                    <div class="flex items-center gap-3 text-[10.5px] text-stone-400 font-mono">
+                      <span>${t.views_count || 0} xem</span>
+                      <span>•</span>
+                      <span>${t.likes_count || 0} thích</span>
+                      <span>•</span>
+                      <span>${t.comments_count || 0} thảo luận</span>
+                    </div>
+                  </div>
+                `).join('') : `
+                  <div class="text-center py-4 text-xs text-stone-400">Chưa có đề tài nổi bật trong tuần.</div>
+                `}
+              </div>
+            </div>
+
+            <!-- WIDGET 3: QUY CHUẨN ĐẠO ĐỨC HỌC THUẬT & LIÊM CHÍNH -->
             <div class="bg-white dark:bg-[#18181B] rounded-3xl p-5 sm:p-6 border border-stone-200/80 dark:border-stone-800 shadow-xs space-y-3">
               <div class="flex items-center gap-2 text-stone-900 dark:text-white">
                 <div class="w-7 h-7 rounded-lg bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 flex items-center justify-center shrink-0">
-                  <i data-lucide="help-circle" class="w-4 h-4 stroke-[2.2]"></i>
+                  <i data-lucide="shield-check" class="w-4 h-4 stroke-[2.2]"></i>
                 </div>
-                <h3 class="text-xs font-bold uppercase tracking-wider">Cách Gom Mẫu Nhanh</h3>
+                <h3 class="text-xs font-bold uppercase tracking-wider">Liêm Chính Nghiên Cứu</h3>
               </div>
               <p class="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">
-                Đính kèm bài khảo sát đang hoạt động vào bài thảo luận của bạn để các thành viên khác có thể nhấp vào và điền câu trả lời ngay lập tức.
+                Tất cả bài khảo sát chia sẻ trên diễn đàn đều được thẩm định tự động, bảo vệ quyền riêng tư người điền và hỗ trợ đối soát chỉ số Cronbach Alpha.
               </p>
-              <div class="pt-1">
-                <button onclick="VibeApp.navigate('create-survey')" class="w-full py-2 px-3 rounded-xl border border-stone-200 dark:border-stone-700 hover:bg-stone-50 dark:hover:bg-stone-800 text-stone-700 dark:text-stone-200 text-xs font-bold transition-colors flex items-center justify-center gap-1.5 cursor-pointer">
-                  <i data-lucide="plus" class="w-3.5 h-3.5"></i>
-                  <span>Tạo Khảo Sát Mới</span>
-                </button>
-              </div>
             </div>
 
           </aside>
@@ -17474,23 +17579,155 @@ escapeHtml(str) {
       </div>
     `;
 
+    this._updateForumFeedInPlace();
     if (window.lucide) window.lucide.createIcons();
   },
 
-      handleForumFilterTag(tag) {
-    this.haptic('light');
-    this.state.forumSearchQuery = tag;
-    this.renderForumView(document.getElementById('app-root'));
-  },
-  handleForumSearch(val) {
-    this.state.forumSearchQuery = (val || '').trim();
-    if (this._forumSearchTimeout) clearTimeout(this._forumSearchTimeout);
-    this._forumSearchTimeout = setTimeout(() => {
-      this.renderForumView(document.getElementById('app-root'));
-    }, 250);
+  // ==================== CẬP NHẬT FEED BÀI VIẾT TẠI CHỖ (SMOOTH IN-PLACE FILTERING - ZERO JANK) ====================
+  _updateForumFeedInPlace() {
+    const container = document.getElementById('forum-posts-feed-container');
+    if (!container) return;
+
+    const posts = this.state.forumPosts || [];
+    const filter = this.state.forumFilter || { category: 'ALL', scope: 'ALL', status: 'ALL', sort: 'NEWEST', search: '' };
+    const user = this.state.currentUser;
+    const openCommentIds = this.state.openCommentPostIds || [];
+
+    // Danh mục match map
+    const catMap = {
+      TECH: ['công nghệ', 'máy tính', 'ai', 'bach khoa', 'it', 'phần mềm'],
+      BUSINESS: ['kinh tế', 'kinh doanh', 'neu', 'ftu', 'fmcg', 'marketing', 'tài chính'],
+      SOCIAL: ['xã hội', 'tâm lý', 'hành vi', 'nhân văn'],
+      HEALTH: ['y tế', 'sức khỏe', 'dược', 'y học'],
+      DESIGN: ['thiết kế', 'ux', 'giao diện', 'đồ họa'],
+      EDU: ['giáo dục', 'sinh viên', 'đào tạo', 'học thuật']
+    };
+
+    const searchKeyword = (filter.search || '').toLowerCase().trim();
+
+    // 1. Lọc theo từ khóa tìm kiếm
+    let filtered = posts.filter(p => {
+      if (!searchKeyword) return true;
+      const t = (p.title || '').toLowerCase();
+      const c = (p.content || '').toLowerCase();
+      const a = (p.author && p.author.name || '').toLowerCase();
+      const s = (p.survey && p.survey.title || '').toLowerCase();
+      return t.includes(searchKeyword) || c.includes(searchKeyword) || a.includes(searchKeyword) || s.includes(searchKeyword);
+    });
+
+    // 2. Lọc theo phạm vi (Scope)
+    if (filter.scope === 'WITH_SURVEY') {
+      filtered = filtered.filter(p => p.survey && p.survey.id);
+    } else if (filter.scope === 'EXCHANGE') {
+      filtered = filtered.filter(p => p.survey && (p.survey.is_student_exchange === 1 || p.survey.is_student_exchange === true));
+    } else if (filter.scope === 'MY_POSTS' && user) {
+      filtered = filtered.filter(p => p.author && p.author.id === user.id);
+    }
+
+    // 3. Lọc theo lĩnh vực (Category)
+    if (filter.category !== 'ALL' && catMap[filter.category]) {
+      const keywords = catMap[filter.category];
+      filtered = filtered.filter(p => {
+        const text = ((p.title || '') + ' ' + (p.content || '') + ' ' + (p.survey && p.survey.category || '')).toLowerCase();
+        return keywords.some(kw => text.includes(kw));
+      });
+    }
+
+    // 4. Sắp xếp (Sort)
+    if (filter.sort === 'MOST_LIKED') {
+      filtered.sort((a, b) => (b.likes_count || 0) - (a.likes_count || 0));
+    } else if (filter.sort === 'MOST_COMMENTS') {
+      filtered.sort((a, b) => (b.comments_count || 0) - (a.comments_count || 0));
+    } else {
+      // Mới nhất (NEWEST)
+      filtered.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+    }
+
+    // 5. Cập nhật số bài matching trên header metric
+    const metricPosts = document.getElementById('forum-metric-posts');
+    if (metricPosts) {
+      metricPosts.textContent = `${filtered.length}/${posts.length}`;
+    }
+
+    // 6. Hiển thị / Ẩn nút Reset filter
+    const resetBtn = document.getElementById('forum-reset-filter-btn');
+    if (resetBtn) {
+      if (filter.category !== 'ALL' || filter.scope !== 'ALL' || filter.search) {
+        resetBtn.classList.remove('hidden');
+      } else {
+        resetBtn.classList.add('hidden');
+      }
+    }
+
+    // 7. Render danh sách bài viết mượt mà không giật cục (Smooth Fade-in)
+    if (filtered.length > 0) {
+      container.innerHTML = filtered.map(post => this.renderForumPostCardHtml(post, openCommentIds.includes(post.id))).join('');
+    } else {
+      container.innerHTML = `
+        <div class="bg-white dark:bg-[#18181B] rounded-3xl p-10 sm:p-12 border border-dashed border-stone-200 dark:border-stone-800 text-center space-y-4 transition-all">
+          <div class="w-12 h-12 rounded-2xl bg-stone-100 dark:bg-stone-800 text-stone-400 dark:text-stone-500 flex items-center justify-center mx-auto">
+            <i data-lucide="message-square-dashed" class="w-6 h-6 stroke-[1.8]"></i>
+          </div>
+          <div class="space-y-1.5 max-w-md mx-auto">
+            <h3 class="text-sm font-bold text-stone-900 dark:text-white">Không có bài thảo luận phù hợp bộ lọc</h3>
+            <p class="text-xs text-stone-500 dark:text-stone-400 leading-relaxed">
+              ${searchKeyword ? 'Không tìm thấy kết quả phù hợp với từ khóa tìm kiếm.' : 'Không có bài thảo luận nào trong danh mục hoặc phạm vi đã chọn.'}
+            </p>
+          </div>
+          <div class="pt-2 flex items-center justify-center gap-2">
+            <button onclick="VibeApp.resetForumFilters()" class="px-4 py-2 rounded-xl border border-stone-200 dark:border-stone-700 hover:bg-stone-50 dark:hover:bg-stone-800 text-stone-700 dark:text-stone-200 text-xs font-bold transition-all cursor-pointer">
+              Đặt Lại Bộ Lọc
+            </button>
+            <button onclick="VibeApp.openCreateForumPostModal()" class="px-4 py-2 rounded-xl bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold transition-all shadow-xs cursor-pointer">
+              Đăng Bài Mới
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
+    if (window.lucide) window.lucide.createIcons();
   },
 
-  renderForumPostCardHtml(post, isOpenComments = false) {
+  handleForumSearchInPlace(val) {
+    this.state.forumFilter = this.state.forumFilter || { category: 'ALL', scope: 'ALL', status: 'ALL', sort: 'NEWEST', search: '' };
+    this.state.forumFilter.search = (val || '').trim();
+    if (this._forumSearchTimeout) clearTimeout(this._forumSearchTimeout);
+    this._forumSearchTimeout = setTimeout(() => {
+      this._updateForumFeedInPlace();
+    }, 150);
+  },
+
+  setForumCategoryFilter(catId) {
+    this.haptic('light');
+    this.state.forumFilter = this.state.forumFilter || { category: 'ALL', scope: 'ALL', status: 'ALL', sort: 'NEWEST', search: '' };
+    this.state.forumFilter.category = catId;
+    this._renderForumLayout(document.getElementById('app-root'));
+  },
+
+  setForumScopeFilter(scopeId) {
+    this.haptic('light');
+    this.state.forumFilter = this.state.forumFilter || { category: 'ALL', scope: 'ALL', status: 'ALL', sort: 'NEWEST', search: '' };
+    this.state.forumFilter.scope = scopeId;
+    this._renderForumLayout(document.getElementById('app-root'));
+  },
+
+  setForumSort(sortVal) {
+    this.haptic('light');
+    this.state.forumFilter = this.state.forumFilter || { category: 'ALL', scope: 'ALL', status: 'ALL', sort: 'NEWEST', search: '' };
+    this.state.forumFilter.sort = sortVal;
+    this._updateForumFeedInPlace();
+  },
+
+  resetForumFilters() {
+    this.haptic('light');
+    this.state.forumFilter = { category: 'ALL', scope: 'ALL', status: 'ALL', sort: 'NEWEST', search: '' };
+    const searchInput = document.getElementById('forum-search-input');
+    if (searchInput) searchInput.value = '';
+    this._renderForumLayout(document.getElementById('app-root'));
+  },
+
+    renderForumPostCardHtml(post, isOpenComments = false) {
     const user = this.state.currentUser;
     const isOwner = user && user.id === post.author.id;
     const isAdmin = user && user.role === 'ADMIN';

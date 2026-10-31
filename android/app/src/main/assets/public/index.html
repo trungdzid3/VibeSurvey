@@ -62,7 +62,7 @@
   <script src="https://unpkg.com/lucide@latest"></script>
 
   <!-- Custom Stylesheet -->
-  <link rel="stylesheet" href="/styles.css?v=4.7.6_1793466837536">
+  <link rel="stylesheet" href="/styles.css?v=4.7.6_1793467279172">
 </head>
 <body class="bg-[#FFF8F5] dark:bg-[#121214] text-slate-800 dark:text-stone-100 min-h-screen flex flex-col font-sans selection:bg-orange-500 selection:text-white antialiased safe-bottom">
   <!-- ==================== STITCH AMBIENT ATMOSPHERIC GLOWS ==================== -->
@@ -120,8 +120,13 @@
           
 
           <!-- Theme Toggle Button (Light/Dark Mode) -->
-          <button id="theme-toggle-btn" onclick="VibeApp.toggleTheme()" class="w-9 h-9 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 flex items-center justify-center transition-colors active:scale-95 flex-shrink-0" title="Chuyển chế độ Sáng / Tối">
-            <i id="theme-icon" data-lucide="moon" class="w-4 h-4 stroke-[2]"></i>
+          <button id="theme-toggle-btn" onclick="VibeApp.toggleTheme(event)" class="relative w-9 h-9 rounded-xl hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-600 dark:text-stone-300 flex items-center justify-center transition-colors active:scale-90 flex-shrink-0 cursor-pointer overflow-hidden" title="Chuyển chế độ Sáng / Tối" aria-label="Đổi giao diện Sáng / Tối">
+            <span class="theme-icon-sun absolute inset-0 flex items-center justify-center text-amber-500">
+              <i data-lucide="sun" class="w-4 h-4 stroke-[2.2]"></i>
+            </span>
+            <span class="theme-icon-moon absolute inset-0 flex items-center justify-center text-stone-600 dark:text-stone-300">
+              <i data-lucide="moon" class="w-4 h-4 stroke-[2.2]"></i>
+            </span>
           </button>
 
           <!-- Edu Karma Badge on Header (Chỉ sinh viên đã xác thực mới hiển thị) -->
@@ -552,6 +557,6 @@
   <script src="/js/modules/adminAnalyticsModule.js?v=4.0.0_1793300000"></script>
 
   <!-- Application Main Script -->
-  <script src="/app.js?v=4.7.6_1793466837536"></script>
+  <script src="/app.js?v=4.7.6_1793467279172"></script>
 </body>
 </html>

@@ -1611,3 +1611,29 @@ c:\Users\Lenovo\Downloads\Linh\
    - Nâng cache-buster trong `public/index.html`.
    - Đồng bộ hoàn tất sang Capacitor Android: `npm run sync:android`.
    - Commit và push trực tiếp lên kho lưu trữ GitHub (`origin/main`).
+
+
+---
+
+## Nâng Cấp Hiệu Ứng Chuyển Đổi Giao Diện Sáng / Tối Mượt Mà Chuẩn Cao Cấp (01/11/2026)
+1. **Bối cảnh & Yêu cầu Người dùng**:
+   - Nút đổi theme trước đây thay đổi icon đột ngột bằng `innerHTML`, tạo cảm giác giật cục và đơn điệu.
+   - Người dùng yêu cầu tạo animation mượt mà khi bấm nút đổi theme thay vì đổi icon đơn điệu.
+
+2. **Chi tiết Kỹ thuật Triển khai**:
+   - **Cấu trúc Dual-Icon Morphing & Rotation trong nút Theme (`public/index.html` & `public/styles.css`)**:
+     + Nút `#theme-toggle-btn` chuyển sang cấu trúc lồng 2 icon độc lập: Icon Mặt Trời (`.theme-icon-sun`, màu vàng kim hổ phách `#F59E0B`) và Icon Mặt Trăng (`.theme-icon-moon`).
+     + Cơ chế xoay lật đa trục bằng GPU (`cubic-bezier(0.34, 1.56, 0.64, 1)`):
+       * Chế độ Sáng (Light): Mặt trăng hiển thị nguyên bản (`scale(1) rotate(0deg)`), mặt trời thu nhỏ và xoay giấu đi (`scale(0) rotate(90deg)`).
+       * Chế độ Tối (Dark): Mặt trời xoay vào trung tâm (`scale(1) rotate(0deg)`), mặt trăng xoay lùi và thu nhỏ (`scale(0) rotate(-90deg)`).
+     + Nút bấm phản hồi vật lý lò xo khi hover (`scale(1.06)`) và click active (`scale(0.90) rotate(-6deg)`).
+   - **Hiệu ứng Gợn Sóng Toàn Màn Hình (Circular Ripple Wave via View Transition API)**:
+     + Trong `toggleTheme(event)` tại `public/app.js`: Tận dụng `document.startViewTransition` kết hợp tọa độ con trỏ chuột (`event.clientX`, `event.clientY`).
+     + Khi người dùng nhấn nút, một vòng tròn ánh sáng/bóng tối lan tỏa từ vị trí nút ra toàn bộ màn hình theo dạng clip-path bán kính `Math.hypot`, thời lượng 450ms mượt mà chuẩn 60 FPS.
+     + Fallback mượt mà: Với các trình duyệt chưa hỗ trợ View Transition API hoặc khi bật chế độ giảm chuyển động (`prefers-reduced-motion`), hệ thống tự động kích hoạt lớp `.theme-transitioning` làm mềm màu nền, màu chữ và đường viền trong 320ms.
+
+3. **Kiểm chuẩn & Đồng bộ**:
+   - `node -c public/app.js`: 100% cú pháp JavaScript hợp lệ.
+   - Cập nhật số phiên bản cache-buster trong `public/index.html`.
+   - Đồng bộ hoàn tất sang Capacitor Android: `npm run sync:android`.
+   - Commit và push trực tiếp lên kho lưu trữ GitHub (`origin/main`).

@@ -519,6 +519,57 @@ class ForumController {
   }
 
   /**
+   * Lay bang xep hang dong gop dien form & de tai hot tren dien dan
+   * GET /api/forum/leaderboard
+   */
+  getLeaderboard(req, res) {
+    try {
+      // 1. Top thanh vien dong gop dien form nhieu nhat tu du lieu that
+      let topContributors = db.prepare(`
+        SELECT u.id, u.name, u.role, u.is_student_verified, u.university,
+               COUNT(r.id) as completed_forms,
+               COALESCE(SUM(r.points_rewarded), 0) as total_points
+        FROM users u
+        LEFT JOIN responses r ON r.respondent_id = u.id AND r.status = 'COMPLETED'
+        WHERE u.role != 'ADMIN'
+        GROUP BY u.id
+        ORDER BY completed_forms DESC, total_points DESC
+        LIMIT 5
+      `).all();
+
+      if (!topContributors || topContributors.length === 0) {
+        topContributors = db.prepare(`
+          SELECT id, name, role, is_student_verified, university,
+                 0 as completed_forms, 0 as total_points
+          FROM users
+          WHERE role != 'ADMIN'
+          LIMIT 5
+        `).all();
+      }
+
+      // 2. De tai hot / duoc quan tam nhat tu du lieu that
+      const hotTopics = db.prepare(`
+        SELECT p.id, p.title, p.views_count, p.likes_count,
+               s.id as survey_id, s.title as survey_title, s.category as survey_category,
+               (SELECT COUNT(*) FROM forum_comments fc WHERE fc.post_id = p.id) as comments_count
+        FROM forum_posts p
+        LEFT JOIN surveys s ON p.survey_id = s.id
+        ORDER BY (p.views_count + p.likes_count * 3 + (SELECT COUNT(*) FROM forum_comments fc WHERE fc.post_id = p.id) * 2) DESC
+        LIMIT 4
+      `).all();
+
+      return res.json({
+        success: true,
+        contributors: topContributors,
+        hotTopics: hotTopics
+      });
+    } catch (err) {
+      console.error('Loi getLeaderboard:', err);
+      return res.status(500).json({ success: false, message: 'Loi lay bang xep hang: ' + err.message });
+    }
+  }
+
+  /**
    * Xoa bai viet tren dien dan
    * DELETE /api/forum/posts/:id
    */

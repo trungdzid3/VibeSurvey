@@ -129,6 +129,7 @@ router.patch('/admin/bug-reports/:id', authenticateToken, requireRole(['ADMIN'])
 router.delete('/admin/bug-reports/:id', authenticateToken, requireRole(['ADMIN']), (req, res) => bugReportController.deleteBugReport(req, res));
 
 // === 8. Tuyến Đường Diễn Đàn Thảo Luận & Chia Sẻ Khảo Sát (Forum Community Board) ===
+router.get('/forum/leaderboard', optionalAuthenticateToken, (req, res) => forumController.getLeaderboard(req, res));
 router.get('/forum/posts', optionalAuthenticateToken, (req, res) => forumController.listPosts(req, res));
 router.post('/forum/posts', authenticateToken, (req, res) => forumController.createPost(req, res));
 router.get('/forum/posts/:id', optionalAuthenticateToken, (req, res) => forumController.getPost(req, res));
