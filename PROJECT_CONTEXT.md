@@ -1574,3 +1574,25 @@ c:\Users\Lenovo\Downloads\Linh\
    - Nâng cache-buster trong `public/index.html`.
    - Đồng bộ hoàn tất sang Capacitor Android: `npm run sync:android`.
    - Commit và push trực tiếp lên kho lưu trữ GitHub (`origin/main`).
+
+
+---
+
+## Tăng Kích Thước Bộ Tài Sản 3D Vector SVG Lên Cỡ Lớn Ở Góc Trên Bên Phải (01/11/2026)
+1. **Bối cảnh & Yêu cầu Người dùng**:
+   - Hình ảnh ví da và voucher & xu ở kích thước cũ (`w-32 sm:w-38`) hơi nhỏ khi đặt trong thẻ Bento lớn `min-h-[260px]`.
+   - Người dùng yêu cầu tăng kích thước to hơn để hiển thị rõ ràng, nổi bật các chi tiết thiết kế.
+
+2. **Chi tiết Kỹ thuật Triển khai**:
+   - **Tăng kích thước và tinh chỉnh tọa độ trong `public/app.js`**:
+     + Thẻ Point: Đổi class từ `right-2 sm:right-4 top-2 sm:top-3.5 w-32 sm:w-38` sang `right-1 sm:right-3 top-1 sm:top-2 w-44 sm:w-52 h-auto object-contain pointer-events-none select-none z-0 opacity-40 dark:opacity-20 drop-shadow-sm`.
+     + Thẻ Credit: Đổi class từ `right-2 sm:right-4 top-2 sm:top-3.5 w-32 sm:w-38` sang `right-1 sm:right-3 top-1 sm:top-2 w-44 sm:w-52 h-auto object-contain pointer-events-none select-none z-0 opacity-40 dark:opacity-20`.
+   - **Hiệu ứng thị giác**:
+     + Chiều rộng tăng lên 176px trên di động và 208px trên máy tính/tablet, các chi tiết 2 thẻ thò ra, quai bấm và chồng đồng xu 3D hiện lên rõ nét và đầy đặn hơn.
+     + Không gây xung đột hay đè chữ số dư, giữ nguyên độ mờ dịu mắt và khả năng tương tác mượt mà.
+
+3. **Kiểm chuẩn & Đồng bộ**:
+   - `node -c public/app.js`: 100% cú pháp JavaScript hợp lệ.
+   - Nâng cache-buster trong `public/index.html`.
+   - Đồng bộ hoàn tất sang Capacitor Android: `npm run sync:android`.
+   - Commit và push trực tiếp lên kho lưu trữ GitHub (`origin/main`).
