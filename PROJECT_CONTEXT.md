@@ -1456,3 +1456,51 @@ c:\Users\Lenovo\Downloads\Linh\
    - `npm test`: Toàn bộ 15/15 tầng kiểm thử đạt 100.0% PASS.
    - `npm run sync:android`: Hoàn tất đồng bộ mã nguồn sang Capacitor Android.
    - Đẩy toàn bộ thay đổi lên nhánh chính GitHub (`origin/main`).
+
+
+---
+
+## Tái Thiết Kế Bộ Tài Sản 3D Vector SVG Cho Thẻ Point và Thẻ Credit Chuẩn Theo Mẫu Ảnh (31/10/2026)
+1. **Bối cảnh & Yêu cầu Người dùng**:
+   - Về lại phần hình ảnh minh họa cho Ví và Cụm Xu & Voucher trên 2 thẻ Bento trên cùng của trang Ví & Rút Tiền.
+   - Tạo các tệp SVG bám sát theo 2 ảnh mẫu người dùng cung cấp:
+     + Ảnh 1: Chiếc ví da nằm ngang bo tròn 4 góc mềm mại, trên đỉnh có 2 chiếc thẻ ATM/tín dụng thò ra chéo góc, cạnh phải có quai cài nắp bấm có đường rãnh cách ly trắng và cúc tròn ở giữa. Chuyển toàn bộ sang tông màu cam Sunset ấm áp.
+     + Ảnh 2: Minh họa phong cách 2.5D gồm tấm vé coupon có khuyết bán nguyệt và dấu % nổi bật, phía trước bên trái là chồng 4 đồng xu hình trụ, phía sau có 2 đồng xu nghiêng đứng lấp ló, phía trước bên phải có 1 đồng xu nằm bẹt. Chuyển toàn bộ sang tông màu cam và vàng kim.
+   - Vị trí & Độ mờ: Bố trí ở vị trí sêm sêm với hộp quà ở thẻ Khảo sát (bám góc phải dưới `-bottom-2 sm:-bottom-4 -right-3 sm:-right-5`, kích thước `w-38 sm:w-44`, độ mờ thanh thoát `opacity-40 dark:opacity-20`, cắt chìm tự nhiên ra mép ngoài nhờ `overflow-hidden`, tuyệt đối không đè lên chữ số dư hay cản trở nút bấm).
+
+2. **Chi tiết Kỹ thuật Triển khai**:
+   - **Tài sản Pure Vector SVG (Không dùng thẻ image, nền trong suốt)**:
+     + `wallet_3d_master.svg` & `wallet_3d_clean.svg`: Thân ví chữ nhật bo tròn lớn (`rx="22"`), gradient cam ấm `#FB923C -> #EA580C -> #C2410C`, vệt phản quang 3D và đường khâu viền tinh tế. Hai thẻ tín dụng thò ra chéo góc (-22 độ và -9 độ) tông kem vàng và cam đào sáng. Quai cài ví bên phải bo tròn có lớp viền rãnh trắng cách ly và cúc bấm tròn trắng. Đáy tiếp đất chạm sàn viewBox `220 160` (y=151).
+     + `coins_coupon_3d_master.svg` & `coins_coupon_3d_clean.svg`: Tấm vé coupon cam đào/san hô có vết khuyết bán nguyệt trên đỉnh và dấu `%` nổi bật. Chồng 4 đồng xu hình trụ kim loại vàng kim (`#FEF08A -> #FACC15 -> #B45309`) phía trước bên trái, 2 đồng xu nghiêng đứng phía sau (-26 độ và +32 độ) và 1 đồng xu nằm bẹt phía trước bên phải.
+   - **Tích hợp giao diện Frontend (`public/app.js`)**:
+     + Thẻ Point: Nhúng `<img src="/assets/3d/wallet_3d_master.svg" class="absolute -right-3 sm:-right-5 -bottom-2 sm:-bottom-4 w-38 sm:w-44 h-auto object-contain pointer-events-none select-none z-0 opacity-40 dark:opacity-20 drop-shadow-sm" />`.
+     + Thẻ Credit: Nhúng `<img src="/assets/3d/coins_coupon_3d_master.svg" class="absolute -right-2 sm:-right-4 -bottom-2 sm:-bottom-4 w-38 sm:w-44 h-auto object-contain pointer-events-none select-none z-0 opacity-40 dark:opacity-20" />`.
+     + Cả hai thẻ đều có `pointer-events-none select-none z-0` và container `overflow-hidden`, đảm bảo giao diện sắc nét, phản hồi cảm ứng mượt mà.
+
+3. **Kết quả Kiểm chuẩn & Nghiệm thu**:
+   - Kiểm tra cú pháp JavaScript: `node -c public/app.js` đạt mã 0 (hợp lệ 100%).
+   - Kiểm tra tính hợp lệ XML/SVG: Toàn bộ 18 tệp SVG đều hợp lệ, không chứa thẻ `<image>`.
+   - Kiểm thử tự hành: Chạy `npm test` vượt qua toàn bộ 15/15 tầng kiểm thử (100.0% PASS).
+   - Nâng cache-buster trong `public/index.html`.
+   - Đồng bộ hoàn tất sang Capacitor Android: `npm run sync:android`.
+   - Bảo toàn tệp cấu hình workspace `survey-platform.code-workspace`.
+
+
+---
+
+## CẬP NHẬT: TỐI ƯU HÓA BIỂU TƯỢNG LOGO WEB CHỮ S (GIỮ NGUYÊN HÌNH KHỐI GỐC & XÓA CHỮ SURVHUB)
+- **Yêu cầu**: Xóa dòng chữ "SurvHub" bên dưới, giữ nguyên 100% hình tượng chữ S màu cam gốc từ ảnh người dùng tạo, không làm sai lệch chi tiết dải ruy-băng/màu sắc; tối ưu kích thước và căn giữa chuẩn tỉ lệ logo web.
+- **Triển khai kỹ thuật**:
+  1. Xóa hoàn toàn vùng chữ "SurvHub" bên dưới (từ hàng 590 trở xuống), giữ nguyên vẹn 100% pixel và dải gradient màu cam gốc của biểu tượng chữ S.
+  2. Tách nền trong suốt với thuật toán khử viền trắng chuẩn xác (unblending alpha matting), bảo toàn độ sắc nét và chuyển màu chống răng cưa (anti-aliasing).
+  3. Căn giữa quang học (optical center cx=132.2, cy=158.9) và tinh chỉnh kích thước biểu tượng chiếm ~82% chiều cao khung canvas hình vuông (target height 420px trên canvas 512x512) để khi thu nhỏ về kích thước navbar (32x32px, 28x28px) hay favicon (48x48px, 32x32px), biểu tượng luôn nổi bật, rõ nét và cân đối.
+  4. Xuất bộ tài nguyên logo toàn diện:
+     - `public/logo.png` & `public/logo-512.png`: 512x512 Master Transparent PNG.
+     - `public/logo-white.png`: 512x512 trên nền trắng thuần khiết.
+     - `public/logo-1024.png`: 1024x1024 High-res Transparent PNG.
+     - `public/logo-original-clean.png`: 1024x1024 gốc đã xóa chữ SurvHub.
+     - `public/icon-512.png`, `public/icon-192.png`: App Icons cho Web App/PWA.
+     - `public/favicon.png` & `public/favicon.ico`: Favicon đa kích thước (16/32/48).
+     - `public/logo-light.svg`, `public/logo-dark.svg`, `public/logo.svg`, `public/favicon.svg`: Định dạng SVG nhúng lossless.
+  5. Đồng bộ toàn bộ tài nguyên logo và bộ icon mipmap (mdpi, hdpi, xhdpi, xxhdpi, xxxhdpi) sang dự án Android (`android/app/src/main/res/` và `android/app/src/main/assets/public/`).
+- **Kiểm thử**: Syntax check Node.js và Python đều PASS 100%.
