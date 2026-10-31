@@ -1552,3 +1552,25 @@ c:\Users\Lenovo\Downloads\Linh\
 - **Kiểm tra**:
   - `logo-light.svg`, `logo-dark.svg`, `logo.svg`, `favicon.svg` hoàn toàn KHÔNG chứa thẻ `<image>`, 100% là vector `<path>` và `<linearGradient>`.
   - Syntax check Node.js & Python: PASS.
+
+
+---
+
+## Điều Chỉnh Vị Trí Bộ Tài Sản Vector SVG Ví và Xu Coupon Lên Góc Trên Bên Phải (01/11/2026)
+1. **Bối cảnh & Yêu cầu Người dùng**:
+   - Khi đặt ở góc phải dưới (`-bottom-2 sm:-bottom-4`), tài sản SVG bị đè một phần bởi thanh tiến độ và nút bấm CTA ("Đổi thưởng / Rút tiền" và "Nạp Credit").
+   - Người dùng yêu cầu chuyển vị trí ví và xu & voucher lên **góc trên bên phải** (`top-right`) của cả 2 thẻ Bento (Thẻ Point và Thẻ Credit).
+
+2. **Chi tiết Kỹ thuật Triển khai**:
+   - **Tối ưu vị trí trong `public/app.js`**:
+     + Thẻ Point: Đổi class từ `-bottom-2 sm:-bottom-4 -right-3 sm:-right-5 w-38 sm:w-44` sang `right-2 sm:right-4 top-2 sm:top-3.5 w-32 sm:w-38 h-auto object-contain pointer-events-none select-none z-0 opacity-40 dark:opacity-20 drop-shadow-sm`.
+     + Thẻ Credit: Đổi class từ `-bottom-2 sm:-bottom-4 -right-2 sm:-right-4 w-38 sm:w-44` sang `right-2 sm:right-4 top-2 sm:top-3.5 w-32 sm:w-38 h-auto object-contain pointer-events-none select-none z-0 opacity-40 dark:opacity-20`.
+   - **Hiệu ứng thị giác**:
+     + Đặt gọn gàng tại khoảng trống góc trên bên phải, song song ngang hàng với Badge "POINT CỦA BẠN" và tiêu đề "CREDIT".
+     + Không bị che khuất bởi các nút CTA ở chân thẻ, giữ nguyên bố cục cân xứng và độ mờ mượt mà.
+
+3. **Kiểm chuẩn & Đồng bộ**:
+   - `node -c public/app.js`: 100% cú pháp JavaScript hợp lệ.
+   - Nâng cache-buster trong `public/index.html`.
+   - Đồng bộ hoàn tất sang Capacitor Android: `npm run sync:android`.
+   - Commit và push trực tiếp lên kho lưu trữ GitHub (`origin/main`).

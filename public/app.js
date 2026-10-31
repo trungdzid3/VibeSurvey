@@ -358,7 +358,7 @@ const VibeApp = window.VibeApp = Object.assign(window.VibeApp, {
   state: {
     token: localStorage.getItem('survhub_token') || localStorage.getItem('vibesurvey_token') || null,
     currentUser: null,
-    currentTab: 'surveys',
+    currentTab: 'home',
     mobileStudioActiveTab: 'CANVAS', // 'CANVAS' (Soạn câu hỏi) | 'SIDEBAR' (Cài đặt & ngân sách)
     categoryFilter: 'ALL',
     searchQuery: '',
@@ -882,6 +882,9 @@ const VibeApp = window.VibeApp = Object.assign(window.VibeApp, {
     if (!this.state.token && (!savedTab || savedTab === 'surveys')) {
       savedTab = 'home';
     }
+    if (!this.state.token) {
+      this.state.currentTab = savedTab || 'home';
+    }
     if (this.state.token && cachedUserJson) {
       try {
         this.state.currentUser = JSON.parse(cachedUserJson);
@@ -1049,9 +1052,11 @@ const VibeApp = window.VibeApp = Object.assign(window.VibeApp, {
     this.state.streakInfo = null;
 
     this.renderNavigation();
-    if (!this.state.currentTab || ['creator-surveys', 'wallet', 'admin-overview', 'admin-payouts', 'admin-fraud', 'profile'].includes(this.state.currentTab)) {
+    // Đối với khách chưa đăng nhập, trang mặc định luôn là Trang Chủ Mở Đầu (home) thay thế hoàn toàn màn hình khảo sát cũ
+    if (!this.state.currentTab || this.state.currentTab === 'surveys' || ['creator-surveys', 'wallet', 'admin-overview', 'admin-payouts', 'admin-fraud', 'profile'].includes(this.state.currentTab)) {
       this.state.currentTab = 'home';
     }
+    this.renderNavigation();
     this.navigate(this.state.currentTab);
   },
 
@@ -3319,41 +3324,35 @@ const VibeApp = window.VibeApp = Object.assign(window.VibeApp, {
     const streakCount = streak ? (streak.current_streak || 0) : 0;
     const hasCheckedIn = streak ? streak.has_checked_in_today : false;
 
-    // Chỉ hiển thị số như TikTok Streak
+    // Luôn ẩn hoàn toàn chấm đỏ nhấp nháy theo chỉ đạo của người dùng
+    if (streakDot) {
+      streakDot.classList.add('hidden');
+      streakDot.style.display = 'none';
+    }
+
     streakText.textContent = streakCount;
 
-    // Đổi màu chuẩn TikTok Streak
-    if (streakCount > 0) {
-      // Đang có streak: Màu cam lửa rực rỡ đặc trưng
-      streakBtn.className = 'h-8 flex items-center gap-1 px-2.5 rounded-full border border-orange-300 dark:border-orange-800 bg-orange-50/90 dark:bg-orange-950/40 text-orange-600 dark:text-orange-400 hover:bg-orange-100 dark:hover:bg-orange-900/50 transition-all active:scale-95 flex-shrink-0 cursor-pointer select-none text-xs font-mono font-bold shadow-xs';
+    // PHONG CÁCH TIKTOK STREAK:
+    // - Khi CHƯA điểm danh: Màu xám bạc trung tính, ngọn lửa nét mỏng màu xám, số xám, không có chấm đỏ.
+    // - Khi ĐÃ điểm danh: Bừng sáng ngọn lửa rực rỡ màu cam/đỏ TikTok (lửa tô màu, viền gradient sáng, số cam lửa đậm nét).
+    if (hasCheckedIn) {
+      // ĐÃ ĐIỂM DANH HÔM NAY: Ngọn lửa TikTok bừng sáng rực rỡ
+      streakBtn.className = 'h-8 flex items-center gap-1.5 px-2.5 rounded-full border border-orange-400/80 dark:border-orange-500/80 bg-gradient-to-r from-orange-500/10 via-rose-500/10 to-amber-500/10 dark:from-orange-950/40 dark:to-rose-950/40 text-orange-600 dark:text-orange-400 shadow-[0_0_12px_rgba(249,115,22,0.2)] hover:shadow-[0_0_16px_rgba(249,115,22,0.3)] transition-all active:scale-95 flex-shrink-0 cursor-pointer select-none text-xs font-mono font-black';
       if (streakFlame) {
         streakFlame.className = 'relative flex items-center justify-center text-orange-600 dark:text-orange-400';
+        streakFlame.innerHTML = `<i data-lucide="flame" class="w-4 h-4 fill-orange-500 text-rose-500 stroke-orange-600 drop-shadow-xs"></i>`;
       }
-
-      if (hasCheckedIn) {
-        if (streakDot) streakDot.classList.add('hidden');
-        streakBtn.title = `Chuỗi hiện tại: ${streakCount} ngày liên tiếp (Đã điểm danh hôm nay)`;
-      } else {
-        // Chưa điểm danh hôm nay: hiện chấm đỏ cam nhấp nháy nhắc nhở giữ chuỗi
-        if (streakDot) streakDot.classList.remove('hidden');
-        streakBtn.title = `Chuỗi hiện tại: ${streakCount} ngày (Chưa điểm danh hôm nay - Bấm để giữ chuỗi!)`;
-      }
+      streakBtn.title = `Đã điểm danh hôm nay! Chuỗi: ${streakCount} ngày liên tiếp`;
     } else {
-      // Chưa có streak (0 ngày): Màu xám bạc trung tính nhẹ nhàng, không chiếm spotlight
-      streakBtn.className = 'h-8 flex items-center gap-1 px-2 rounded-full border border-stone-200 dark:border-stone-800 bg-stone-100/80 dark:bg-stone-800/60 text-stone-400 dark:text-stone-500 hover:text-stone-700 dark:hover:text-stone-200 hover:border-stone-300 dark:hover:border-stone-700 transition-all active:scale-95 flex-shrink-0 cursor-pointer select-none text-xs font-mono font-bold';
+      // CHƯA ĐIỂM DANH: Màu xám trung tính nhẹ nhàng, không gây khó chịu
+      streakBtn.className = 'h-8 flex items-center gap-1.5 px-2.5 rounded-full border border-stone-200 dark:border-stone-800 bg-stone-100/80 dark:bg-stone-800/60 text-stone-400 dark:text-stone-500 hover:text-stone-700 dark:hover:text-stone-300 hover:border-stone-300 dark:hover:border-stone-700 transition-all active:scale-95 flex-shrink-0 cursor-pointer select-none text-xs font-mono font-bold';
       if (streakFlame) {
         streakFlame.className = 'relative flex items-center justify-center text-stone-400 dark:text-stone-500';
+        streakFlame.innerHTML = `<i data-lucide="flame" class="w-3.5 h-3.5 stroke-[2]"></i>`;
       }
-      if (streakDot) {
-        if (!hasCheckedIn) {
-          streakDot.classList.remove('hidden');
-        } else {
-          streakDot.classList.add('hidden');
-        }
-      }
-      streakBtn.title = hasCheckedIn
-        ? 'Đã điểm danh hôm nay'
-        : 'Chưa có chuỗi ngày (Bấm để điểm danh nhận 50 điểm)';
+      streakBtn.title = streakCount > 0 
+        ? `Chuỗi: ${streakCount} ngày (Chưa điểm danh hôm nay - Bấm để giữ chuỗi)`
+        : 'Điểm danh hàng ngày (Bấm để nhận 50 điểm)';
     }
 
     if (window.lucide) lucide.createIcons();
@@ -3870,6 +3869,7 @@ const VibeApp = window.VibeApp = Object.assign(window.VibeApp, {
     let tabs = [];
     if (!user) {
       tabs = [
+        { id: 'home', label: 'Trang Chủ', icon: 'home' },
         { id: 'surveys', label: 'Khảo Sát', icon: 'compass' },
         { id: 'forum', label: 'Diễn Đàn', icon: 'messages-square' },
         { id: 'create-survey', label: 'Tạo Khảo Sát', icon: 'plus-circle' },
@@ -4022,8 +4022,10 @@ const VibeApp = window.VibeApp = Object.assign(window.VibeApp, {
 
     try {
       switch (tabId) {
-        case 'surveys':
         case 'home':
+          await this.renderHomeView(root);
+          break;
+        case 'surveys':
           await this.renderSurveysView(root);
           break;
         case 'forum':
@@ -7912,7 +7914,7 @@ if (totalCount === 0) {
           
           <!-- THẺ 1 (TRÁI): POINT CỦA BẠN (SUNSET ORANGE GRADIENT CARD) -->
           <div class="rounded-3xl p-6 sm:p-7 text-white flex flex-col justify-between shadow-sm relative overflow-hidden bg-gradient-to-br from-orange-500 via-orange-500 to-amber-500 min-h-[260px]">
-            <img src="/assets/3d/wallet_3d_master.svg" class="absolute -right-3 sm:-right-5 -bottom-2 sm:-bottom-4 w-38 sm:w-44 h-auto object-contain pointer-events-none select-none z-0 opacity-40 dark:opacity-20 drop-shadow-sm" alt="3D Orange Wallet" />
+            <img src="/assets/3d/wallet_3d_master.svg" class="absolute right-2 sm:right-4 top-2 sm:top-3.5 w-32 sm:w-38 h-auto object-contain pointer-events-none select-none z-0 opacity-40 dark:opacity-20 drop-shadow-sm" alt="3D Orange Wallet" />
             <!-- Nội dung Thẻ Point -->
             <div class="relative z-10">
               <!-- Badge Point của bạn -->
@@ -7962,7 +7964,7 @@ if (totalCount === 0) {
 
           <!-- THẺ 2 (PHẢI): CREDIT DOANH NGHIỆP (WHITE MODERN CARD) -->
           <div class="bg-white dark:bg-[#18181B] rounded-3xl p-6 sm:p-7 border border-stone-200/80 dark:border-stone-800 shadow-sm flex flex-col justify-between relative overflow-hidden min-h-[260px]">
-            <img src="/assets/3d/coins_coupon_3d_master.svg" class="absolute -right-2 sm:-right-4 -bottom-2 sm:-bottom-4 w-38 sm:w-44 h-auto object-contain pointer-events-none select-none z-0 opacity-40 dark:opacity-20" alt="3D Coins and Coupon" />
+            <img src="/assets/3d/coins_coupon_3d_master.svg" class="absolute right-2 sm:right-4 top-2 sm:top-3.5 w-32 sm:w-38 h-auto object-contain pointer-events-none select-none z-0 opacity-40 dark:opacity-20" alt="3D Coins and Coupon" />
             <!-- Nội dung Thẻ Credit -->
             <div class="relative z-10">
               <div class="flex items-center gap-2">
