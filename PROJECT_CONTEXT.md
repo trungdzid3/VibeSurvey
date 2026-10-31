@@ -1637,3 +1637,33 @@ c:\Users\Lenovo\Downloads\Linh\
    - Cập nhật số phiên bản cache-buster trong `public/index.html`.
    - Đồng bộ hoàn tất sang Capacitor Android: `npm run sync:android`.
    - Commit và push trực tiếp lên kho lưu trữ GitHub (`origin/main`).
+
+
+---
+
+## Nâng Cấp Bộ Lọc Diễn Đàn In-Place Mượt Mà, Khôi Phục Bảng Xếp Hạng & Hoàn Thiện Giao Diện Stitch (01/11/2026)
+1. **Bối cảnh & Yêu cầu Người dùng**:
+   - Diễn đàn khi ấn lọc bị giật cục, reload toàn trang; yêu cầu chuyển sang bộ lọc đa tầng toàn diện thay vì chỉ có vài chip đơn điệu.
+   - Khôi phục Bảng Xếp Hạng Đóng Góp (Top Hỗ Trợ Điền Form) và Đề Tài Hot Tuần Này theo Stitch, liên kết API dữ liệu thật từ SQLite, không dùng dữ liệu demo rác hay emoji/sticker lòe loẹt.
+   - Nút điểm danh (Streak widget): khi chưa điểm danh hiển thị màu xám trung tính (bỏ chấm đỏ nhấp nháy), khi đã điểm danh thì bừng sáng ngọn lửa rực rỡ phong cách TikTok.
+   - Thẻ mẫu tương tác trang mở đầu: chuyển đổi đơn vị Xu sang Điểm chuẩn SurvHub, nút bấm dẫn sang Modal Đăng ký/Đăng nhập.
+   - Áp dụng nền màu Stitch `#FFF8F5` cùng các dải ambient atmospheric glow nhẹ nhàng cho toàn bộ các trang ở Light mode.
+
+2. **Chi tiết Kỹ thuật Triển khai**:
+   - **Backend API (`server/controllers/forumController.js` & `server/routes/api.js`)**:
+     + Bổ sung endpoint `GET /api/forum/leaderboard`: Truy vấn top 5 người dùng hoàn thành nhiều khảo sát nhất (`respondent_id = u.id AND r.status = 'COMPLETED'`) và thống kê các đề tài thảo luận sôi nổi nhất tuần.
+   - **Frontend In-Place Filter & Leaderboard (`public/app.js`)**:
+     + Chia tách layout tĩnh và feed động qua `_renderForumLayout` và `_updateForumFeedInPlace`: Khi chuyển đổi chuyên ngành hoặc phạm vi, DOM chỉ cập nhật danh sách bài viết trong feed container, hoàn toàn không chớp nháy (zero-jank).
+     + Hệ thống bộ lọc đa tầng: 7 chuyên ngành nghiên cứu, 4 phạm vi bài viết (`Tất cả`, `Có đính kèm khảo sát`, `Trao đổi đáp viên`, `Bài viết của tôi`), 3 tiêu chí sắp xếp (`Mới nhất`, `Nhiều lượt thích`, `Nhiều thảo luận`), ô tìm kiếm realtime và nút đặt lại bộ lọc.
+     + Cột Sidebar chuẩn `DESIGN.md`: Khôi phục Widget Bảng Xếp Hạng Top Hỗ Trợ Điền Form (Hạng 1 badge cam `#EA580C`, Hạng 2-3 badge xám bạc) và Đề Tài Hot Tuần Này.
+     + Nút Streak Header: Hiển thị xám trung tính khi chưa điểm danh (`text-neutral-400 border-neutral-300`), bừng sáng ngọn lửa rực rỡ phong cách TikTok (`from-orange-500 via-rose-500 to-amber-500`) khi đã điểm danh.
+     + Thẻ mẫu tương tác Trang mở đầu: Chuẩn hóa thành `+1.500 Điểm`, nút chuyển hướng gọi `openAuthModal('register')` kích hoạt đăng ký tài khoản.
+   - **Nền Giao Diện Toàn Trang (`public/index.html`)**:
+     + Cập nhật màu nền body thành `bg-[#FFF8F5] dark:bg-[#121214]`.
+     + Bổ sung 3 khối Stitch ambient atmospheric glow gradient mờ mịn tạo chiều sâu tinh tế.
+
+3. **Kiểm chuẩn & Đồng bộ**:
+   - Cú pháp `node -c public/app.js`, `node -c server/controllers/forumController.js`, `node -c server/routes/api.js`: 100% PASS.
+   - Bộ kiểm thử tự hành 15/15 tầng: 100% PASS.
+   - Đồng bộ hoàn tất sang Capacitor Android: `npm run sync:android`.
+   - Cam kết và đồng bộ lên GitHub: `git push origin main`.
