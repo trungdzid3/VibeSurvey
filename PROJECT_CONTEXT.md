@@ -1941,3 +1941,23 @@ c:\Users\Lenovo\Downloads\Linh\
    - Nâng cache-buster trong `public/index.html`.
    - Đồng bộ hoàn tất sang Capacitor Android: `npm run sync:android`.
    - Commit và push trực tiếp lên kho lưu trữ GitHub (`origin/main`).
+
+
+---
+
+## Đặt Chiếc Ví Da Lên Góc Trên Bên Phải Thẻ Point Với Kích Thước Nhỏ Gọn (01/11/2026)
+1. **Bối cảnh & Yêu cầu Người dùng**:
+   - Người dùng xác nhận yêu cầu đưa chiếc ví da lên góc trên bên phải thay vì để ở góc dưới ("cho lên góc trên chứ ở dưới làm gì").
+   - Mục tiêu: Chiếc ví da nằm ở góc trên bên phải của Thẻ Point với tỷ lệ vừa vặn (`w-32 sm:w-38`), không bị phóng to che lấp số dư lớn hay thanh tiến độ đổi thưởng.
+
+2. **Chi tiết Kỹ thuật Triển khai**:
+   - **Tối ưu vị trí ví da trong `public/app.js`**:
+     + Thẻ Point: Đổi class từ `-bottom-2 sm:-bottom-4 -right-3 sm:-right-5 w-38 sm:w-44` sang `right-2 sm:right-4 top-2 sm:top-3.5 w-32 sm:w-38 h-auto object-contain pointer-events-none select-none z-0 opacity-40 dark:opacity-20 drop-shadow-sm`.
+     + Đặt gọn gàng ở góc trên bên phải, song song ngang hàng với huy hiệu "POINT CỦA BẠN".
+     + Thẻ Credit: Giữ nguyên vị trí góc trên bên phải với khoảng đệm an toàn (`-right-2 sm:-right-4 top-1 sm:top-2.5 w-36 sm:w-44`).
+
+3. **Kiểm chuẩn & Đồng bộ**:
+   - `node -c public/app.js`: 100% cú pháp JavaScript hợp lệ.
+   - Nâng cache-buster trong `public/index.html`.
+   - Đồng bộ hoàn tất sang Capacitor Android: `npm run sync:android`.
+   - Commit và push trực tiếp lên kho lưu trữ GitHub (`origin/main`).
