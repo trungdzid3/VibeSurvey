@@ -1678,3 +1678,26 @@ c:\Users\Lenovo\Downloads\Linh\
    - Bộ kiểm thử tự hành 15/15 tầng: 100% PASS.
    - Đồng bộ hoàn tất sang Capacitor Android: `npm run sync:android`.
    - Cam kết và đồng bộ lên GitHub: `git push origin main`.
+
+
+---
+
+## Tinh Gọn Bộ Lọc Diễn Đàn Chuẩn Bento & Chuẩn Hóa Tiêu Đề Tab Trình Duyệt SurvHub (01/11/2026)
+1. **Bối cảnh & Yêu cầu Người dùng**:
+   - Tiêu đề tab trình duyệt dài bị cắt xén (`SurvHub • Nền Tảng Khảo Sát & N...`), yêu cầu đổi thành ngắn gọn duy nhất: `SurvHub`.
+   - Bộ lọc Diễn đàn cũ cồng kềnh với 2 hàng, hàng 2 có chữ "LĨNH VỰC:" và 7 chip nút dài ngoằng tràn viền kèm thanh cuộn màu xám (scrollbar) xấu xí; yêu cầu thiết kế lại gọn gàng hơn.
+
+2. **Chi tiết Kỹ thuật Triển khai**:
+   - **Chuẩn hóa Tiêu đề Tab Trình duyệt (`public/index.html`)**:
+     + Đổi thẻ `<title>` thành `<title>SurvHub</title>`.
+   - **Tái thiết kế Bộ Lọc Diễn Đàn Tinh Gọn (Single Compact Bento Bar - `public/app.js`)**:
+     + Gom toàn bộ các công cụ lọc vào một khối Bento bo góc tròn mềm (`rounded-2xl p-2 sm:p-2.5`):
+       * Bên trái: Ô tìm kiếm súc tích (`w-full sm:w-60 md:w-64`, placeholder: "Tìm kiếm bài viết, đề tài...") kèm nút xóa nhanh, kết hợp Segmented Scope Tabs tinh gọn (`Tất cả` | `Khảo sát` | `Trao đổi` | `Của tôi`).
+       * Bên phải: Dropdown Lĩnh Vực / Chuyên Ngành (`#forum-category-select`) gom 7 chuyên ngành vào menu thả xuống sạch sẽ, Dropdown Sắp Xếp (`#forum-sort-select`), và nút Đặt lại bộ lọc (`#forum-reset-filter-btn`).
+     + Loại bỏ hoàn toàn hàng chip thứ hai và thanh cuộn ngang xám (zero-scrollbar).
+     + Nâng cấp các hàm `setForumCategoryFilter`, `setForumScopeFilter`, `resetForumFilters` cập nhật 100% in-place mà không gây giật cục hay re-render layout.
+   - **Nâng Cache-Buster & Đồng Bộ**:
+     + Nâng cache-buster lên `v=4.7.8_1793469300000`.
+     + Đồng bộ hoàn tất sang Capacitor Android (`npm run sync:android`).
+     + Toàn bộ 15/15 tầng kiểm thử tự hành đạt 100% PASS.
+

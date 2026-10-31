@@ -17409,78 +17409,84 @@ escapeHtml(str) {
           </div>
         </div>
 
-        <!-- 2. HỆ THỐNG BỘ LỌC ĐA TẦNG TOÀN DIỆN (FULL FILTER SUITE) -->
-        <div class="bg-white dark:bg-[#18181B] rounded-3xl p-5 border border-stone-200/80 dark:border-stone-800 shadow-xs space-y-4">
+        <!-- 2. THANH BỘ LỌC TINH GỌN CHUẨN DESIGN.MD -->
+        <div class="bg-white dark:bg-[#18181B] rounded-2xl p-2 sm:p-2.5 border border-stone-200/80 dark:border-stone-800 shadow-xs flex flex-col md:flex-row items-stretch md:items-center justify-between gap-2.5">
           
-          <!-- Hàng 1: Ô Tìm Kiếm + Bộ Lọc Phạm Vi & Sắp Xếp -->
-          <div class="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
+          <!-- Khối Trái: Ô Tìm Kiếm + Phân Loại Phạm Vi -->
+          <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 flex-1 min-w-0">
             <!-- Search Bar -->
-            <div class="relative flex-1">
+            <div class="relative w-full sm:w-60 md:w-64 shrink-0">
               <i data-lucide="search" class="w-4 h-4 text-stone-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none"></i>
               <input type="text" 
                      id="forum-search-input"
                      value="${this.escapeHtml(filter.search || '')}"
                      oninput="VibeApp.handleForumSearchInPlace(this.value)"
-                     placeholder="Tìm kiếm theo tiêu đề, tác giả, đề tài khảo sát hoặc nội dung..." 
+                     placeholder="Tìm kiếm bài viết, đề tài..." 
                      class="w-full pl-9 pr-8 py-2 rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50/50 dark:bg-stone-900 text-xs font-medium text-stone-900 dark:text-white placeholder-stone-400 focus:outline-none focus:ring-1 focus:ring-orange-500 focus:bg-white transition-all">
               ${filter.search ? `
-                <button onclick="document.getElementById('forum-search-input').value=''; VibeApp.handleForumSearchInPlace('')" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600 dark:hover:text-stone-200">
+                <button onclick="document.getElementById('forum-search-input').value=''; VibeApp.handleForumSearchInPlace('')" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 cursor-pointer">
                   <i data-lucide="x" class="w-3.5 h-3.5"></i>
                 </button>
               ` : ''}
             </div>
 
-            <!-- Phân loại phạm vi bài viết -->
-            <div class="flex items-center gap-2 flex-wrap text-xs">
-              <div class="flex items-center bg-stone-100 dark:bg-stone-900 p-1 rounded-xl border border-stone-200 dark:border-stone-800">
-                <button onclick="VibeApp.setForumScopeFilter('ALL')" class="px-3 py-1.5 rounded-lg font-bold transition-all ${filter.scope === 'ALL' ? 'bg-white dark:bg-stone-800 text-orange-600 shadow-2xs' : 'text-stone-600 dark:text-stone-400 hover:text-stone-900'}">
-                  Tất cả
+            <!-- Segmented Scope Tabs: Tất cả | Khảo sát | Trao đổi | Của tôi -->
+            <div id="forum-scope-buttons-wrapper" class="flex items-center bg-stone-100 dark:bg-stone-900 p-1 rounded-xl border border-stone-200/80 dark:border-stone-800 text-xs overflow-x-auto no-scrollbar">
+              <button data-scope="ALL" onclick="VibeApp.setForumScopeFilter('ALL')" 
+                      class="px-3 py-1.5 rounded-lg transition-all cursor-pointer whitespace-nowrap ${filter.scope === 'ALL' ? 'bg-white dark:bg-stone-800 text-orange-600 font-bold shadow-2xs' : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 font-medium'}">
+                Tất cả
+              </button>
+              <button data-scope="WITH_SURVEY" onclick="VibeApp.setForumScopeFilter('WITH_SURVEY')" 
+                      class="px-3 py-1.5 rounded-lg transition-all cursor-pointer whitespace-nowrap ${filter.scope === 'WITH_SURVEY' ? 'bg-white dark:bg-stone-800 text-orange-600 font-bold shadow-2xs' : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 font-medium'}">
+                Khảo sát
+              </button>
+              <button data-scope="EXCHANGE" onclick="VibeApp.setForumScopeFilter('EXCHANGE')" 
+                      class="px-3 py-1.5 rounded-lg transition-all cursor-pointer whitespace-nowrap ${filter.scope === 'EXCHANGE' ? 'bg-white dark:bg-stone-800 text-orange-600 font-bold shadow-2xs' : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 font-medium'}">
+                Trao đổi
+              </button>
+              ${user ? `
+                <button data-scope="MY_POSTS" onclick="VibeApp.setForumScopeFilter('MY_POSTS')" 
+                        class="px-3 py-1.5 rounded-lg transition-all cursor-pointer whitespace-nowrap ${filter.scope === 'MY_POSTS' ? 'bg-white dark:bg-stone-800 text-orange-600 font-bold shadow-2xs' : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 font-medium'}">
+                  Của tôi
                 </button>
-                <button onclick="VibeApp.setForumScopeFilter('WITH_SURVEY')" class="px-3 py-1.5 rounded-lg font-bold transition-all ${filter.scope === 'WITH_SURVEY' ? 'bg-white dark:bg-stone-800 text-orange-600 shadow-2xs' : 'text-stone-600 dark:text-stone-400 hover:text-stone-900'}">
-                  Đính kèm khảo sát
-                </button>
-                <button onclick="VibeApp.setForumScopeFilter('EXCHANGE')" class="px-3 py-1.5 rounded-lg font-bold transition-all ${filter.scope === 'EXCHANGE' ? 'bg-white dark:bg-stone-800 text-orange-600 shadow-2xs' : 'text-stone-600 dark:text-stone-400 hover:text-stone-900'}">
-                  Trao đổi sinh viên
-                </button>
-                ${user ? `
-                  <button onclick="VibeApp.setForumScopeFilter('MY_POSTS')" class="px-3 py-1.5 rounded-lg font-bold transition-all ${filter.scope === 'MY_POSTS' ? 'bg-white dark:bg-stone-800 text-orange-600 shadow-2xs' : 'text-stone-600 dark:text-stone-400 hover:text-stone-900'}">
-                    Bài của tôi
-                  </button>
-                ` : ''}
-              </div>
+              ` : ''}
+            </div>
+          </div>
 
-              <!-- Sắp xếp -->
-              <select id="forum-sort-select" onchange="VibeApp.setForumSort(this.value)" class="h-9 px-3 rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50/50 dark:bg-stone-900 text-xs font-semibold text-stone-700 dark:text-stone-300 focus:outline-none focus:border-orange-500 cursor-pointer">
+          <!-- Khối Phải: Dropdown Lĩnh Vực + Dropdown Sắp Xếp + Nút Reset -->
+          <div class="flex items-center gap-2 justify-end text-xs shrink-0 flex-wrap sm:flex-nowrap">
+            <!-- Dropdown Lĩnh Vực -->
+            <div class="relative flex-1 sm:flex-initial">
+              <select id="forum-category-select" 
+                      onchange="VibeApp.setForumCategoryFilter(this.value)" 
+                      class="w-full sm:w-auto h-9 pl-3 pr-8 rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50/60 dark:bg-stone-900 text-xs font-semibold text-stone-700 dark:text-stone-300 focus:outline-none focus:border-orange-500 cursor-pointer appearance-none transition-all ${filter.category !== 'ALL' ? 'border-orange-500/80 bg-orange-50/50 dark:bg-orange-950/40 text-orange-600 dark:text-orange-400 font-bold' : ''}">
+                ${categories.map(c => `
+                  <option value="${c.id}" ${filter.category === c.id ? 'selected' : ''}>
+                    ${c.id === 'ALL' ? 'Tất cả lĩnh vực' : c.label}
+                  </option>
+                `).join('')}
+              </select>
+              <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-stone-400 pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2"></i>
+            </div>
+
+            <!-- Dropdown Sắp Xếp -->
+            <div class="relative flex-1 sm:flex-initial">
+              <select id="forum-sort-select" 
+                      onchange="VibeApp.setForumSort(this.value)" 
+                      class="w-full sm:w-auto h-9 pl-3 pr-8 rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50/60 dark:bg-stone-900 text-xs font-semibold text-stone-700 dark:text-stone-300 focus:outline-none focus:border-orange-500 cursor-pointer appearance-none transition-all">
                 <option value="NEWEST" ${filter.sort === 'NEWEST' ? 'selected' : ''}>Mới nhất</option>
                 <option value="MOST_LIKED" ${filter.sort === 'MOST_LIKED' ? 'selected' : ''}>Quan tâm nhiều</option>
                 <option value="MOST_COMMENTS" ${filter.sort === 'MOST_COMMENTS' ? 'selected' : ''}>Sôi nổi nhất</option>
               </select>
-            </div>
-          </div>
-
-          <!-- Hàng 2: Bộ Lọc Chuyên Ngành / Lĩnh Vực Nghiên Cứu -->
-          <div class="pt-2 border-t border-stone-100 dark:border-stone-800/80 flex items-center justify-between gap-3 flex-wrap">
-            <div class="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none text-xs flex-1">
-              <span class="text-[11px] font-bold text-stone-400 uppercase tracking-wider shrink-0 mr-1">Lĩnh vực:</span>
-              ${categories.map(c => {
-                const isActive = filter.category === c.id;
-                return `
-                  <button onclick="VibeApp.setForumCategoryFilter('${c.id}')" 
-                          class="px-3 py-1.5 rounded-full font-medium whitespace-nowrap transition-all cursor-pointer ${isActive 
-                            ? 'bg-orange-600 text-white font-bold shadow-xs' 
-                            : 'bg-stone-100/80 dark:bg-stone-800/80 text-stone-600 dark:text-stone-400 hover:bg-stone-200 dark:hover:bg-stone-700 hover:text-stone-900 dark:hover:text-white'}">
-                    ${c.label}
-                  </button>
-                `;
-              }).join('')}
+              <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-stone-400 pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2"></i>
             </div>
 
-            <!-- Nút xóa bộ lọc khi có điều kiện lọc -->
+            <!-- Nút Reset Filter -->
             <button id="forum-reset-filter-btn" 
                     onclick="VibeApp.resetForumFilters()" 
-                    class="${(filter.category !== 'ALL' || filter.scope !== 'ALL' || filter.search) ? '' : 'hidden'} px-3 py-1.5 rounded-full border border-stone-200 dark:border-stone-700 hover:bg-stone-100 dark:hover:bg-stone-800 text-[11px] font-bold text-stone-500 hover:text-stone-900 transition-colors flex items-center gap-1 shrink-0 cursor-pointer">
-              <i data-lucide="rotate-ccw" class="w-3 h-3"></i>
-              <span>Đặt lại bộ lọc</span>
+                    title="Đặt lại bộ lọc"
+                    class="${(filter.category !== 'ALL' || filter.scope !== 'ALL' || filter.search) ? '' : 'hidden'} h-9 px-2.5 rounded-xl border border-stone-200 dark:border-stone-700 hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-500 hover:text-stone-900 dark:hover:text-stone-200 transition-colors flex items-center justify-center shrink-0 cursor-pointer">
+              <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
             </button>
           </div>
 
@@ -17723,14 +17729,39 @@ escapeHtml(str) {
     this.haptic('light');
     this.state.forumFilter = this.state.forumFilter || { category: 'ALL', scope: 'ALL', status: 'ALL', sort: 'NEWEST', search: '' };
     this.state.forumFilter.category = catId;
-    this._renderForumLayout(document.getElementById('app-root'));
+    
+    // Cập nhật giao diện select không cần re-render layout
+    const catSelect = document.getElementById('forum-category-select');
+    if (catSelect) {
+      catSelect.value = catId;
+      if (catId !== 'ALL') {
+        catSelect.classList.add('border-orange-500/80', 'bg-orange-50/50', 'dark:bg-orange-950/40', 'text-orange-600', 'dark:text-orange-400', 'font-bold');
+      } else {
+        catSelect.classList.remove('border-orange-500/80', 'bg-orange-50/50', 'dark:bg-orange-950/40', 'text-orange-600', 'dark:text-orange-400', 'font-bold');
+      }
+    }
+    this._updateForumFeedInPlace();
   },
 
   setForumScopeFilter(scopeId) {
     this.haptic('light');
     this.state.forumFilter = this.state.forumFilter || { category: 'ALL', scope: 'ALL', status: 'ALL', sort: 'NEWEST', search: '' };
     this.state.forumFilter.scope = scopeId;
-    this._renderForumLayout(document.getElementById('app-root'));
+    
+    // Cập nhật tab Scope tại chỗ
+    const scopeContainer = document.getElementById('forum-scope-buttons-wrapper');
+    if (scopeContainer) {
+      const btns = scopeContainer.querySelectorAll('button[data-scope]');
+      btns.forEach(btn => {
+        const isAct = btn.getAttribute('data-scope') === scopeId;
+        if (isAct) {
+          btn.className = 'px-3 py-1.5 rounded-lg transition-all cursor-pointer whitespace-nowrap bg-white dark:bg-stone-800 text-orange-600 font-bold shadow-2xs';
+        } else {
+          btn.className = 'px-3 py-1.5 rounded-lg transition-all cursor-pointer whitespace-nowrap text-stone-600 dark:text-stone-400 hover:text-stone-900 font-medium';
+        }
+      });
+    }
+    this._updateForumFeedInPlace();
   },
 
   setForumSort(sortVal) {
@@ -17745,10 +17776,27 @@ escapeHtml(str) {
     this.state.forumFilter = { category: 'ALL', scope: 'ALL', status: 'ALL', sort: 'NEWEST', search: '' };
     const searchInput = document.getElementById('forum-search-input');
     if (searchInput) searchInput.value = '';
-    this._renderForumLayout(document.getElementById('app-root'));
+    const catSelect = document.getElementById('forum-category-select');
+    if (catSelect) {
+      catSelect.value = 'ALL';
+      catSelect.classList.remove('border-orange-500/80', 'bg-orange-50/50', 'dark:bg-orange-950/40', 'text-orange-600', 'dark:text-orange-400', 'font-bold');
+    }
+    const sortSelect = document.getElementById('forum-sort-select');
+    if (sortSelect) sortSelect.value = 'NEWEST';
+    const scopeContainer = document.getElementById('forum-scope-buttons-wrapper');
+    if (scopeContainer) {
+      const btns = scopeContainer.querySelectorAll('button[data-scope]');
+      btns.forEach(btn => {
+        const isAct = btn.getAttribute('data-scope') === 'ALL';
+        btn.className = isAct 
+          ? 'px-3 py-1.5 rounded-lg transition-all cursor-pointer whitespace-nowrap bg-white dark:bg-stone-800 text-orange-600 font-bold shadow-2xs'
+          : 'px-3 py-1.5 rounded-lg transition-all cursor-pointer whitespace-nowrap text-stone-600 dark:text-stone-400 hover:text-stone-900 font-medium';
+      });
+    }
+    this._updateForumFeedInPlace();
   },
 
-    renderForumPostCardHtml(post, isOpenComments = false) {
+  renderForumPostCardHtml(post, isOpenComments = false) {
     const user = this.state.currentUser;
     const isOwner = user && user.id === post.author.id;
     const isAdmin = user && user.role === 'ADMIN';
