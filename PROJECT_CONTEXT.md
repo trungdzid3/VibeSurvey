@@ -1961,3 +1961,24 @@ c:\Users\Lenovo\Downloads\Linh\
    - Nâng cache-buster trong `public/index.html`.
    - Đồng bộ hoàn tất sang Capacitor Android: `npm run sync:android`.
    - Commit và push trực tiếp lên kho lưu trữ GitHub (`origin/main`).
+
+
+---
+
+## Tinh Chỉnh Kích Thước Ví Da Lớn Hơn Vừa Vặn Trên Thẻ Point (01/11/2026)
+1. **Bối cảnh & Yêu cầu Người dùng**:
+   - Sau khi đưa lên góc trên bên phải, kích thước `w-32 sm:w-38` trông hơi bé.
+   - Người dùng yêu cầu điều chỉnh chiếc ví to hơn một chút ("lại bé quá rồi, to hơn tí").
+
+2. **Chi tiết Kỹ thuật Triển khai**:
+   - **Tối ưu kích thước ví da trong `public/app.js`**:
+     + Thẻ Point: Nâng class từ `right-2 sm:right-4 top-2 sm:top-3.5 w-32 sm:w-38` lên `right-1.5 sm:right-3 top-1.5 sm:top-2.5 w-38 sm:w-44 h-auto object-contain pointer-events-none select-none z-0 opacity-40 dark:opacity-20 drop-shadow-sm`.
+     + Chiều rộng tăng lên 152px trên di động và 176px trên máy tính (tăng ~20% kích thước so với bản trước).
+     + Tỷ lệ hiển thị vừa vặn, các đường nét thẻ ATM thò ra và cúc bấm kim loại hiện lên rõ nét và đầy đặn, đồng thời vẫn giữ được khoảng cách thoáng với số dư "Point" và không tràn xuống thanh tiến độ.
+     + Đồng bộ hoàn hảo với kích thước của Thẻ Credit (`sm:w-44`).
+
+3. **Kiểm chuẩn & Đồng bộ**:
+   - `node -c public/app.js`: 100% cú pháp JavaScript hợp lệ.
+   - Nâng cache-buster trong `public/index.html`.
+   - Đồng bộ hoàn tất sang Capacitor Android: `npm run sync:android`.
+   - Commit và push trực tiếp lên kho lưu trữ GitHub (`origin/main`).

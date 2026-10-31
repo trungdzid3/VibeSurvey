@@ -73,7 +73,7 @@ Hệ thống kết hợp hài hòa giữa **Giá Sàn Tối Thiểu ($P_{\text{s
 | Phân khúc Tài khoản | Độ dài Bảng hỏi | Giá Sàn Tối Thiểu ($P_{\text{sàn}}$) | Thù lao Người điền ở Mức Sàn ($R_{\text{sàn}}$) | Phí Sàn cơ sở ở Mức Sàn ($F_{\text{sàn}}$) | Phụ phí Bộ lọc & Auto-Screener | Giới hạn Quy mô Mẫu |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
 | **1. GÓI SINH VIÊN**<br>*(Profile 100% + Email `.edu.vn`)* | - Ngắn ($\le 10$ câu)<br>- Vừa ($11 - 25$ câu)<br>- Dài ($> 25$ câu) | - **`400 Credit`**<br>- **`500 Credit`**<br>- **`600 Credit`** | - Có dùng lượt free: **`280 / 360 / 430 Point`**<br>- Không dùng lượt free: **`350 / 450 / 540 Point`** | **10% - 12%**<br>*(40đ - 60đ/mẫu — Sàn luôn lãi cơ sở)* | - Đại trà: **`0đ`**<br>- Có lọc: **`+100đ/mẫu`** *(+50đ cho đáp viên, +50đ về sàn)* | Tối đa **`300 mẫu / bài`**<br>*(Tối đa 3 bài/học kỳ)* |
-| **2. GÓI CÁ NHÂN**<br>*(Người dùng thường)* | - Ngắn ($\le 10$ câu)<br>- Vừa ($11 - 25$ câu)<br>- Dài ($> 25$ câu) | - **`800 Credit`**<br>- **`1.000 Credit`**<br>- **`1.200 Credit`** | - Có dùng 25 lượt free bài đầu: Chia theo Credit thực nạp<br>- Chuẩn không dùng free: **`600 / 750 / 900 Point`** | **25%**<br>*(200đ - 300đ/mẫu)* | - Đại trà: **`0đ`**<br>- Có lọc: **`+200đ/mẫu`** *(+150đ cho đáp viên, +50đ về sàn)* | Tối đa **`500 mẫu / bài`** |
+| **2. GÓI CÁ NHÂN**<br>*(Người dùng thường)* | - Ngắn ($\le 10$ câu)<br>- Vừa ($11 - 25$ câu)<br>- Dài ($> 25$ câu) | - **`800 Credit`**<br>- **`1.000 Credit`**<br>- **`1.200 Credit`** | - Có dùng 25 lượt free bài đầu (đơn 50 mẫu): **`300 / 375 / 450 Point`**<br>- Chuẩn không dùng free: **`600 / 750 / 900 Point`** | **25%**<br>*(200đ - 300đ/mẫu)* | - Đại trà: **`0đ`**<br>- Có lọc: **`+200đ/mẫu`** *(+150đ cho đáp viên, +50đ về sàn)* | Tối đa **`500 mẫu / bài`** |
 | **3. GÓI DOANH NGHIỆP**<br>*(Công ty, Startup, Shop)* | - Ngắn ($\le 10$ câu)<br>- Vừa ($11 - 25$ câu)<br>- Dài ($> 25$ câu) | - **`1.500 Credit`**<br>- **`2.000 Credit`**<br>- **`2.500 Credit`** | - **`1.000 Point`**<br>- **`1.300 Point`**<br>- **`1.600 Point`** | **33% - 36% giá gốc**<br>*(hoặc 23,5% - 27,8% sau chiết khấu lớn)* | **Miễn phí 100%**<br>*(Bao gồm lọc thương mại sâu & Auto-Screener)* | **Không giới hạn**<br>*(5.000+ mẫu)* |
 
 #### B. Ba Nấc Giá Đề Xuất Theo Thời Gian Gom Mẫu (SLA) & Tự Do Tăng Thưởng (Creator Boost)
@@ -170,7 +170,7 @@ Hạ ngưỡng nạp tối thiểu xuống **`20.000 VNĐ`** và cập nhật b�
      - **Lần 2**: Nếu chọn đúng ở lần 2 $\rightarrow$ Vẫn công nhận **Hợp lệ 100% (`VALIDATED`)** và không trừ điểm uy tín. Chỉ khi **chọn sai cả 2 lần liên tiếp** mới đánh trượt **`REJECTED_FRAUD`** và trừ **`-12.0 điểm uy tín`**.
 
 #### Chốt chặn 3: Phát hiện Chọn 1 Cột Thẳng Hàng (`Straight-lining Variance`)
-- Với bài khảo sát có từ **5 câu hỏi thang đo (`LIKERT_SCALE` / `RATING_STARS`)** trở lên:
+- Với bài khảo sát có từ **4 câu hỏi trắc nghiệm / thang đo (`SINGLE_CHOICE`, `DROPDOWN`, `LIKERT_SCALE`, `RATING_STARS`) hoặc 5 hàng trong câu hỏi Lưới (`CHOICE_GRID`)** trở lên:
   - Tính phương sai toán học $\sigma^2$ của dãy giá trị đã chọn.
   - Nếu $\sigma^2 = 0$ (chọn 1 cột duy nhất từ đầu đến cuối) $\rightarrow$ Đánh dấu **Nghi vấn (`SUSPICIOUS`)**, trừ **`-5.0 điểm uy tín`**.
 
@@ -185,7 +185,7 @@ Hạ ngưỡng nạp tối thiểu xuống **`20.000 VNĐ`** và cập nhật b�
 - **Biến động điểm uy tín (`trust_score`)**:
   - Hoàn thành bài hợp lệ (`VALIDATED`): **`+2.0 điểm`** (tối đa `100.0`).
   - Dừng ở câu hỏi sàng lọc (`SCREENED_OUT`): **`+0.2 điểm`** (nhận `0 Point` tiền mặt).
-  - Bài làm bị gắn cờ Nghi vấn (`SUSPICIOUS`): **`-5.0 điểm`**.
+  - Bài làm bị gắn cờ Nghi vấn (`SUSPICIOUS`): **`-5.0 điểm`**. Cơ chế giải ngân: Vẫn giải ngân thưởng theo thang điểm uy tín hiện tại của người dùng (nếu $40 \le S < 80$ thì bị khấu trừ lũy tiến tương ứng) để không tạo nghẽn tắc backlog duyệt tay cho Admin; nếu liên tục vi phạm khiến $S < 40$ tài khoản sẽ tự động bị khóa vĩnh viễn (`BAN`).
   - Bài làm bị Từ chối (`REJECTED_FRAUD`): **`-12.0 điểm`** (nhận `0 Point`).
 - **Công thức tính Điểm thưởng thực nhận theo `trust_score` ($S$)**:
   1. **Vùng Chuẩn / Tốt ($80 \le S \le 100$)**:
@@ -288,3 +288,23 @@ Khi chủ khảo sát chủ động bấm **`[Đóng / Huỷ khảo sát]`** tr�
    - Hệ thống sẽ **tính lại chi phí của số mẫu đã thu theo đúng đơn giá chuẩn chưa giảm** (`actual_cost = collected_responses * cost_per_response_standard`) và **khấu trừ phí gói dịch vụ Ghim VIP / Push đã kích hoạt (`40.000 Credit`)** từ số dư ký quỹ thực nạp, với hàm chặn dưới `0` an toàn:
      $$\text{FinalRefund} = \max\Big(0,\; \min\big(\text{escrow\_locked\_balance},\; \text{TotalEscrow}_{\text{thực nạp}} - \text{actual\_cost} - 40.000\big)\Big)$$
    - Quy tắc này triệt tiêu hoàn toàn kẽ hở đăng số lượng ảo để lấy giá rẻ và dịch vụ miễn phí.
+
+---
+
+## PHẦN 5: HẠ TẦNG ORACLE ALWAYS FREE & 7 QUY TẮC BẤT BIẾN KINH TẾ CHI PHÍ THẬT
+
+### 5.1. Cấu Hình Hạ Tầng Đám Mây Miễn Phí (Oracle Always Free + Cloudflare Tunnel)
+- **Máy chủ ứng dụng**: 01 VM ARM Ampere A1 (2 OCPU / 6 GB RAM, Ubuntu LTS 24.04).
+- **Mạng & Bảo mật**: Chạy `cloudflared` (Cloudflare Tunnel) trỏ tới `localhost:3000`, không mở port 80/443 ra Internet công cộng, ẩn hoàn toàn địa chỉ IP thật của máy chủ.
+- **Tên miền**: Tên miền miễn phí DigitalPlat (`survhub.dpdns.org` hoặc `.us.kg`) trỏ NS về Cloudflare DNS.
+- **Quản lý tiến trình**: `pm2` tự động khởi động cùng hệ thống; `crontab` chạy 3 tác vụ định kỳ (quét hết hạn khảo sát `expires_at`, hạ ghim sau 7 ngày `pinned_until`, và làm mới 30 lượt free cho Sinh viên vào ngày 01 đầu tháng).
+- **Sao lưu định kỳ**: `sqlite3 .backup` và đồng bộ qua `rclone` lên Oracle Object Storage (10 GB miễn phí).
+
+### 5.2. Bảy Quy Tắc Bất Biến Chống Lỗ Sàn Tuyệt Đối Trong Mã Nguồn (Code-Level Invariants)
+1. **Bất biến Hậu thuẫn 1:1**: Mọi `Point` được giải ngân đều có tiền mặt hậu thuẫn từ Escrow thực thu sau khi trừ `TakeRate`.
+2. **Bất biến Giá vốn Voucher**: Giá bán `Credit` của mọi Voucher / thẻ cào trong Kho Sàn bắt buộc phải $\ge$ Giá vốn tiền mặt thực tế mua vào. Tuyệt đối không bán giảm giá Voucher dưới giá vốn.
+3. **Triệt tiêu Nguồn cung Ảo**: Xóa bỏ hoàn toàn cơ chế tự động sinh 25 mã (`auto-replenish`) trong `voucherService.js`. Kho hết mã chuyển sang trạng thái disabled `[Hết mã]`.
+4. **Phí Hạ tầng `VOUCHER_ONLY`**: Khảo sát thuần Voucher bắt buộc thu phí hạ tầng `400đ - 600đ / mẫu`, đảm bảo doanh thu sàn luôn $\ge$ chi phí gửi email và push thông báo.
+5. **Hạch toán Chi phí Rút tiền**: Mọi khoản phí chuyển khoản ngân hàng do sàn chịu phải được ghi nhận vào tài khoản chi phí `PLATFORM_PAYOUT_COST` trên sổ cái kép, tự động đối soát: $\text{Tổng Take Rate} - \text{Tổng Payout Cost} - \text{Infra} > 0$.
+6. **Khóa Van Tiền Mặt Khuyến Mãi**: Tiền thưởng nạp (2% - 10%) và thưởng đổi chéo (+5%) chỉ được phát hành dưới dạng `Credit` (Ví tạo khảo sát), tuyệt đối không cấp bằng `Point` tiền mặt.
+7. **Chặn Thất Thoát Vi Phạm**: Điểm an ủi Screen-out cố định `0đ` (chỉ cộng điểm uy tín); áp dụng trần rút thẻ cào `200.000đ / ngày` đối với tài khoản mới tạo dưới 30 ngày.

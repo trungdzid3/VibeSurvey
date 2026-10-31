@@ -101,7 +101,18 @@ class ForumController {
         params.push(`%${search.trim()}%`, `%${search.trim()}%`);
       }
 
-      // 6. RÀNG BUỘC CỐT LÕI: Cach ly bai viet Sinh Vien (Edu Karma Exchange / Student Hub)
+      // 6. RÀNG BUỘC KIỂM DUYỆT (Micro Sentinel Shadowban Filter)
+      // Bài viết bị ẩn chỉ hiển thị cho Admin hoặc chính tác giả bài viết
+      if (!user) {
+        conditions.push('(p.is_hidden IS NULL OR p.is_hidden = 0)');
+      } else if (user.role === 'ADMIN') {
+        // Admin xem duoc tat ca ca bai bi an
+      } else {
+        conditions.push('(p.is_hidden IS NULL OR p.is_hidden = 0 OR p.user_id = ?)');
+        params.push(user.id);
+      }
+
+      // 7. RÀNG BUỘC CỐT LÕI: Cach ly bai viet Sinh Vien (Edu Karma Exchange / Student Hub)
       // "Chi cho edu, edu moi hien thi, con lai khong hien thi"
       if (!user) {
         // Khach vang lai: chi xem bai viet cong dong khong phai sinh vien

@@ -461,3 +461,43 @@ Với các khảo sát có gắn kèm Voucher (V mã) nhưng khi đóng bài m�
 6. Đưa 3 cronjob của Phần V vào `crontab`: (a) quét `expires_at` → auto-close + hoàn tiền escrow; (b) hạ ghim `pinned_until` quá 7 ngày; (c) ngày 01 làm mới 30 lượt miễn phí Sinh viên.
 7. Backup hằng ngày: `sqlite3 .backup` + `rclone` lên Oracle Object Storage (10GB Always Free).
 8. Gia cố bảo mật: `unattended-upgrades`, `fail2ban`, SSH key-only. Giữ Render chạy song song 1–2 tuần làm fallback URL rồi mới tắt.
+
+---
+
+## PHẦN VII: KINH TẾ CHI PHÍ THẬT & 7 QUY TẮC BẤT BIẾN CHỐNG LỖ SÀN (NẠP, VOUCHER, BANKING, THẺ CÀO, HẠ TẦNG)
+
+Để loại trừ 100% rủi ro sàn bị âm tiền thật khi vận hành, toàn bộ mô hình kinh tế được tính toán theo nguyên tắc bảo thủ nhất (giả định mọi chiết khấu sỉ bằng 0%, mọi phí rút đều lấy trần):
+
+### 1. Phân Tích Dòng Chi Phí Tiền Mặt Thực Tế Theo Từng Kênh
+
+| Hạng mục chi phí | Chi phí thực tế thị trường Việt Nam (2025 – 2026) | Cơ chế sàn bù đắp & Bảo vệ an toàn |
+| :--- | :--- | :--- |
+| **1. Cổng nạp tiền (`VietQR / Chuyển khoản`)** | - **VietQR / PayOS**: ~`0%` (miễn phí hoặc ngân hàng tài trợ).<br>- **VNPay-QR**: `0,6% – 0,88%` / giao dịch.<br>- **Ví MoMo**: `~1%` / giao dịch. | Phí cổng nạp tối đa chỉ `~1%`, trừ trực tiếp vào dòng tiền thu vào. Với Take Rate thấp nhất là `10%` (Gói Sinh Viên), sàn vẫn còn dư tối thiểu `+9%` lợi nhuận gộp. |
+| **2. Kênh rút tiền ngân hàng (`VietQR / MoMo`)** | - **Tài khoản doanh nghiệp (TPBank, Techcombank)**: Miễn phí chuyển khoản 24/7 trọn đời.<br>- **Ngân hàng khác (NAPAS 24/7)**: `1.100đ – 3.300đ` / giao dịch; mốc lớn `5.000đ` (như Indovina). | - **Mốc nhỏ 50k**: Người rút chịu phí `2.000đ` (nhận `48.000đ`), sàn chỉ chi trả thực `48.000đ` + phí ngân hàng $\rightarrow$ hòa vốn cổng.<br>- **Mốc chuẩn $\ge 100k$**: Sàn miễn phí rút, chi phí ngân hàng tối đa `3.300đ` (chỉ chiếm $\le 3,3\%$ mệnh giá rút), nằm trọn vẹn trong khoản Take Rate $\ge 10\%$ đã trích trước. |
+| **3. Đổi thẻ cào điện thoại (`Viettel, Vina, Mobi`)** | - Chiết khấu đại lý chính thức chỉ `2% – 5%` (MobiFone) hoặc mua lẻ bằng đúng `100%` mệnh giá. | Giả định kế toán bảo thủ: **Giá vốn thẻ cào = `100%` mệnh giá** (mua 10k chi đúng 10k). Vì 10k Point đã được hậu thuẫn từ Escrow sau khi trích Take Rate $\ge 10\%$, sàn không bao giờ lỗ. Đặt trần rút thẻ cào `200.000đ / ngày` cho tài khoản mới dưới 30 ngày để chống rút sạch khi bị hack. |
+| **4. Đổi E-Voucher Thương hiệu (`Shopee, Grab, Phúc Long, Highlands`)** | - Không có kênh đại lý sỉ chính thức chiết khấu sâu (nguồn giá rẻ trên mạng là hàng thanh lý, không hóa đơn VAT). | - **Bản chất kinh tế 1:1**: `100.000.000đ` Point đổi đúng `2.000` voucher 50k là **hòa vốn từng mã, đúng thiết kế** (sàn không bù 1 đồng nào).<br>- **Lợi nhuận sàn nằm ở Escrow trích trước**: Để có `100 triệu` Point trong hệ thống, Creator phải nạp `111,1 triệu` (SV) hoặc `133,3 triệu` (Cá nhân) $\rightarrow$ Sàn đã giữ lại từ `11,1 triệu` đến `33,3 triệu` tiền lời ròng trước khi người dùng đổi voucher.<br>- **Bỏ vĩnh viễn cơ chế `auto-replenish 25 mã`**: Hết voucher kho sàn thì hiển thị *"Hết mã"*, chỉ bổ sung khi mua thêm bằng tiền thật. |
+| **5. Chi phí duy trì hạ tầng hàng tháng** | - **Oracle Always Free**: `0đ` (2 OCPU / 6GB ARM, 10TB băng thông).<br>- **Cloudflare & Tên miền DigitalPlat**: `0đ`.<br>- **Email Brevo**: `0đ` (300 mail/ngày free). Khi vượt dùng Brevo Lite `~250k - 380k VNĐ / tháng`.<br>- **Tuyệt đối không dùng SMS OTP**: Chặn chi phí Brandname `500đ - 800đ / tin`. | Chi phí cố định hàng tháng gần như bằng `0đ`. Khi hệ thống tăng trưởng có chi phí email (~300k/tháng), chỉ cần doanh thu của 1-2 đơn hàng khảo sát là bù đắp toàn bộ chi phí hạ tầng của cả tháng. |
+
+### 2. Bảng Tính Chứng Minh Kịch Bản Xấu Nhất (Stress-Test: 100% Gói Sinh Viên, 100% Rút Ngân Hàng)
+
+Xét trường hợp cực đoan và bất lợi nhất cho sàn: Toàn bộ đơn hàng đều là **Gói Sinh Viên (Take Rate thấp nhất = 10%)**, 100% người dùng **rút tiền qua Ngân hàng mốc 100k (Sàn chịu phí chuyển khoản)**, cổng nạp mất phí `1%`, và email chạm trần gói trả phí:
+
+| Khoản mục thu / chi | Tỷ lệ % trên doanh thu | Số tiền trên mỗi 1.000.000 VNĐ xử lý |
+| :--- | :--- | :--- |
+| **Doanh thu phí sàn đã trích trước (`Take Rate 10%`)** | **`+10,0%`** | **`+100.000 VNĐ`** |
+| Phí cổng thanh toán nhận tiền nạp (trần 1%) | `-1,0%` | `-10.000 VNĐ` |
+| Phí chuyển khoản ngân hàng NAPAS 24/7 (10 lệnh x 3.300đ) | `-3,3%` | `-33.000 VNĐ` |
+| Chi phí hạ tầng phân bổ (Email Brevo Lite) | `-1,0%` | `-10.000 VNĐ` |
+| **Lợi nhuận ròng tối thiểu của Sàn (Biên an toàn cuối cùng)** | **`+4,7%`** | **`+47.000 VNĐ` (LÃI DƯƠNG)** |
+
+*Kết luận: Ngay cả ở kịch bản khắc nghiệt nhất, sàn vẫn đạt biên lợi nhuận ròng dương **`+4,7%`**. Với Gói Cá Nhân (25%) và Doanh Nghiệp (33%-36%), biên lợi nhuận ròng đạt từ **`+19,7%` đến `+30,7%`**.*
+
+### 3. Bảy Quy Tắc Bất Biến Chống Lỗ Sàn Tuyệt Đối (Enforced In Code)
+
+1. **Bất biến Hậu thuẫn 1:1**: Tổng số `Point` giải ngân không bao giờ vượt quá `Credit thực thu x (1 - TakeRate)`. Mọi Point phát hành đều có 100% tiền mặt hậu thuẫn.
+2. **Bất biến Giá vốn Voucher**: Giá bán `Credit` của mọi Voucher / thẻ cào trong Kho Sàn bắt buộc phải $\ge$ Giá vốn tiền mặt thực tế mua vào. Tuyệt đối không bán giảm giá Voucher dưới giá vốn.
+3. **Triệt tiêu Nguồn cung Ảo**: Xóa bỏ hoàn toàn cơ chế tự động sinh 25 mã (`auto-replenish`) trong `voucherService.js`. Kho hết mã chuyển sang trạng thái disabled `[Hết mã]`.
+4. **Phí Hạ tầng `VOUCHER_ONLY`**: Khảo sát thuần Voucher bắt buộc thu phí hạ tầng `400đ - 600đ / mẫu`, đảm bảo doanh thu sàn luôn $\ge$ chi phí gửi email và push thông báo.
+5. **Hạch toán Chi phí Rút tiền**: Mọi khoản phí chuyển khoản ngân hàng do sàn chịu phải được ghi nhận vào tài khoản chi phí `PLATFORM_PAYOUT_COST` trên sổ cái kép, tự động đối soát: $\text{Tổng Take Rate} - \text{Tổng Payout Cost} - \text{Infra} > 0$.
+6. **Khóa Van Tiền Mặt Khuyến Mãi**: Tiền thưởng nạp (2% - 10%) và thưởng đổi chéo (+5%) chỉ được phát hành dưới dạng `Credit` (Ví tạo khảo sát), tuyệt đối không cấp bằng `Point` tiền mặt.
+7. **Chặn Thất Thoát Vi Phạm**: Điểm an ủi Screen-out cố định `0đ` (chỉ cộng điểm uy tín); áp dụng trần rút thẻ cào `200.000đ / ngày` đối với tài khoản mới tạo dưới 30 ngày.

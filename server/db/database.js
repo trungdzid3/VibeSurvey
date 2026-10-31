@@ -336,6 +336,9 @@ function initSchema() {
       content TEXT NOT NULL,
       post_type TEXT DEFAULT 'COMMUNITY',
       category TEXT DEFAULT 'ALL',
+      is_hidden INTEGER DEFAULT 0,
+      is_audited INTEGER DEFAULT 0,
+      audit_flag TEXT DEFAULT NULL,
       views_count INTEGER DEFAULT 0,
       likes_count INTEGER DEFAULT 0,
       created_at TEXT DEFAULT CURRENT_TIMESTAMP,
@@ -353,6 +356,8 @@ function initSchema() {
       post_id TEXT NOT NULL REFERENCES forum_posts(id) ON DELETE CASCADE,
       user_id TEXT NOT NULL REFERENCES users(id),
       content TEXT NOT NULL,
+      is_hidden INTEGER DEFAULT 0,
+      is_audited INTEGER DEFAULT 0,
       created_at TEXT DEFAULT CURRENT_TIMESTAMP
     );
 
@@ -560,6 +565,9 @@ function initSchema() {
       content TEXT NOT NULL,
       post_type TEXT DEFAULT 'COMMUNITY',
       category TEXT DEFAULT 'ALL',
+      is_hidden INTEGER DEFAULT 0,
+      is_audited INTEGER DEFAULT 0,
+      audit_flag TEXT DEFAULT NULL,
       views_count INTEGER DEFAULT 0,
       likes_count INTEGER DEFAULT 0,
       created_at TEXT DEFAULT CURRENT_TIMESTAMP,
@@ -584,7 +592,14 @@ function initSchema() {
       user_id TEXT NOT NULL REFERENCES users(id),
       created_at TEXT DEFAULT CURRENT_TIMESTAMP,
       PRIMARY KEY(post_id, user_id)
-    );`
+    );`,
+    'ALTER TABLE forum_posts ADD COLUMN is_hidden INTEGER DEFAULT 0;',
+    'ALTER TABLE forum_posts ADD COLUMN is_audited INTEGER DEFAULT 0;',
+    'ALTER TABLE forum_posts ADD COLUMN audit_flag TEXT DEFAULT NULL;',
+    'ALTER TABLE forum_comments ADD COLUMN is_hidden INTEGER DEFAULT 0;',
+    'ALTER TABLE forum_comments ADD COLUMN is_audited INTEGER DEFAULT 0;',
+    'CREATE INDEX IF NOT EXISTS idx_forum_posts_audited ON forum_posts(is_audited, is_hidden);',
+    'CREATE INDEX IF NOT EXISTS idx_forum_comments_audited ON forum_comments(is_audited, is_hidden);'
   ];
 
   for (const sql of migrations) {
