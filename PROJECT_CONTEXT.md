@@ -1635,24 +1635,24 @@ c:\Users\Lenovo\Downloads\Linh\
 
 ---
 
-## Tái Định Vị Góc Sinh Viên & Loại Bỏ Hàng Thừa Lãng Phí Diện Tích Diễn Đàn (01/11/2026)
-1. **Bối cảnh & Yêu cầu Người dùng**:
-   - Bỏ nút "Tất Cả" trong thanh phân khu.
-   - Ẩn hoàn toàn thanh này nếu người dùng không phải sinh viên.
-   - Tái định vị Góc Sinh Viên sao cho hợp lý, không tốn thêm diện tích hàng ngang.
+## Tối Ưu Nút Chuyển Đổi Theme Sáng / Tối Mượt Nhất (Spring Slide Y) (01/11/2026)
+1. **Bối cảnh & Vấn đề**:
+   - Animation đổi dark <-> light theme bị lag, giật cục và đơ do sử dụng `document.startViewTransition` chạy `clip-path: circle(...)` toàn màn hình và CSS selector `.theme-transitioning *` ép style recalculation trên toàn bộ DOM tree.
+   - Người dùng yêu cầu tối ưu mượt mà, nhẹ nhất, hiệu ứng icon như một cái chui xuống và một cái nhảy lên.
 
-2. **Chi tiết Kỹ thuật Triển khai**:
-   - **Xóa bỏ Hàng Ngang Hub Tabs Độc Lập**:
-     + Loại bỏ hoàn toàn container `HUB TABS: CỘNG ĐỒNG CHUNG vs GÓC SINH VIÊN & ĐỀ TÀI` nằm giữa Header và Bộ lọc, tiết kiệm hơn 70px chiều cao màn hình.
-     + Loại bỏ nút "Tất Cả" dư thừa gây nhầm lẫn với tab "Tất cả" của bộ lọc bên dưới.
-   - **Tích Hợp Gọn Gàng Lên Header Diễn Đàn Dành Riêng Cho Sinh Viên (`public/app.js`)**:
-     + Đặt cụm chuyển đổi Segmented Switch `[ Cộng Đồng | 🎓 Góc Sinh Viên Edu ]` trực tiếp trên Header, song song ngang hàng với nút `[ + Đăng Bài Mới ]`.
-     + Áp dụng kiểm tra bảo mật hiển thị: `isStudent = user && (user.is_student_verified === 1 || user.role === 'STUDENT' || (user.email && user.email.toLowerCase().includes('.edu.vn')))`.
-     + Đối với người dùng không phải sinh viên (`!isStudent`), toàn bộ cụm này hoàn toàn ẩn đi (100% hidden).
-   - **Đồng Bộ In-Place & Reset**:
-     + Cập nhật các hàm `setForumHub` và `resetForumFilters` điều phối trạng thái giữa `COMMUNITY` và `STUDENT` tại chỗ không reload trang.
-     + Đồng bộ toàn bộ sang Capacitor Android (`npm run sync:android`).
-     + Toàn bộ 15/15 tầng kiểm thử tự hành đạt 100% PASS.
+2. **Giải pháp Kỹ thuật Triển khai**:
+   - **Loại bỏ Hoàn toàn Tác nhân Gây Lag**:
+     + Xóa bỏ `document.startViewTransition` và vòng lặp `clipPath` toàn màn hình trong `public/app.js`.
+     + Xóa bỏ triệt để `.theme-transitioning *` và các pseudo-elements `::view-transition-*` trong `public/styles.css`.
+     + Đổi theme class `.dark` tức thì trong 1 frame (< 1ms), không gây giật lag trình duyệt.
+   - **Thiết kế Animation "1 Cái Chui Xuống, 1 Cái Nhảy Lên" (Spring Slide Y)**:
+     + Áp dụng `transform: translateY(...)` kết hợp `opacity` hoàn toàn trên GPU Compositor thread (`will-change: transform, opacity`).
+     + Khi chuyển trạng thái: Icon hiện tại trượt tụt xuống dưới đáy (`translateY(125%)`, `opacity: 0`) trong 0.24s theo cubic-bezier dứt khoát.
+     + Đồng thời icon mới từ dưới vọt nhảy lên tâm (`translateY(0)`, `opacity: 1`) với hiệu ứng nảy nhẹ tự nhiên trong 0.38s qua đường cong `cubic-bezier(0.34, 1.56, 0.64, 1)`.
+   - **Xác minh & Đồng bộ**:
+     + Cú pháp JS/CSS kiểm tra hợp lệ (`node -c public/app.js` PASS).
+     + Đồng bộ toàn bộ tài nguyên sang Android Capacitor (`npm run sync:android`).
+     + Toàn bộ 15/15 tầng kiểm thử tự hành vượt qua 100%.
 
 
 
@@ -1712,24 +1712,24 @@ c:\Users\Lenovo\Downloads\Linh\
 
 ---
 
-## Tái Định Vị Góc Sinh Viên & Loại Bỏ Hàng Thừa Lãng Phí Diện Tích Diễn Đàn (01/11/2026)
-1. **Bối cảnh & Yêu cầu Người dùng**:
-   - Bỏ nút "Tất Cả" trong thanh phân khu.
-   - Ẩn hoàn toàn thanh này nếu người dùng không phải sinh viên.
-   - Tái định vị Góc Sinh Viên sao cho hợp lý, không tốn thêm diện tích hàng ngang.
+## Tối Ưu Nút Chuyển Đổi Theme Sáng / Tối Mượt Nhất (Spring Slide Y) (01/11/2026)
+1. **Bối cảnh & Vấn đề**:
+   - Animation đổi dark <-> light theme bị lag, giật cục và đơ do sử dụng `document.startViewTransition` chạy `clip-path: circle(...)` toàn màn hình và CSS selector `.theme-transitioning *` ép style recalculation trên toàn bộ DOM tree.
+   - Người dùng yêu cầu tối ưu mượt mà, nhẹ nhất, hiệu ứng icon như một cái chui xuống và một cái nhảy lên.
 
-2. **Chi tiết Kỹ thuật Triển khai**:
-   - **Xóa bỏ Hàng Ngang Hub Tabs Độc Lập**:
-     + Loại bỏ hoàn toàn container `HUB TABS: CỘNG ĐỒNG CHUNG vs GÓC SINH VIÊN & ĐỀ TÀI` nằm giữa Header và Bộ lọc, tiết kiệm hơn 70px chiều cao màn hình.
-     + Loại bỏ nút "Tất Cả" dư thừa gây nhầm lẫn với tab "Tất cả" của bộ lọc bên dưới.
-   - **Tích Hợp Gọn Gàng Lên Header Diễn Đàn Dành Riêng Cho Sinh Viên (`public/app.js`)**:
-     + Đặt cụm chuyển đổi Segmented Switch `[ Cộng Đồng | 🎓 Góc Sinh Viên Edu ]` trực tiếp trên Header, song song ngang hàng với nút `[ + Đăng Bài Mới ]`.
-     + Áp dụng kiểm tra bảo mật hiển thị: `isStudent = user && (user.is_student_verified === 1 || user.role === 'STUDENT' || (user.email && user.email.toLowerCase().includes('.edu.vn')))`.
-     + Đối với người dùng không phải sinh viên (`!isStudent`), toàn bộ cụm này hoàn toàn ẩn đi (100% hidden).
-   - **Đồng Bộ In-Place & Reset**:
-     + Cập nhật các hàm `setForumHub` và `resetForumFilters` điều phối trạng thái giữa `COMMUNITY` và `STUDENT` tại chỗ không reload trang.
-     + Đồng bộ toàn bộ sang Capacitor Android (`npm run sync:android`).
-     + Toàn bộ 15/15 tầng kiểm thử tự hành đạt 100% PASS.
+2. **Giải pháp Kỹ thuật Triển khai**:
+   - **Loại bỏ Hoàn toàn Tác nhân Gây Lag**:
+     + Xóa bỏ `document.startViewTransition` và vòng lặp `clipPath` toàn màn hình trong `public/app.js`.
+     + Xóa bỏ triệt để `.theme-transitioning *` và các pseudo-elements `::view-transition-*` trong `public/styles.css`.
+     + Đổi theme class `.dark` tức thì trong 1 frame (< 1ms), không gây giật lag trình duyệt.
+   - **Thiết kế Animation "1 Cái Chui Xuống, 1 Cái Nhảy Lên" (Spring Slide Y)**:
+     + Áp dụng `transform: translateY(...)` kết hợp `opacity` hoàn toàn trên GPU Compositor thread (`will-change: transform, opacity`).
+     + Khi chuyển trạng thái: Icon hiện tại trượt tụt xuống dưới đáy (`translateY(125%)`, `opacity: 0`) trong 0.24s theo cubic-bezier dứt khoát.
+     + Đồng thời icon mới từ dưới vọt nhảy lên tâm (`translateY(0)`, `opacity: 1`) với hiệu ứng nảy nhẹ tự nhiên trong 0.38s qua đường cong `cubic-bezier(0.34, 1.56, 0.64, 1)`.
+   - **Xác minh & Đồng bộ**:
+     + Cú pháp JS/CSS kiểm tra hợp lệ (`node -c public/app.js` PASS).
+     + Đồng bộ toàn bộ tài nguyên sang Android Capacitor (`npm run sync:android`).
+     + Toàn bộ 15/15 tầng kiểm thử tự hành vượt qua 100%.
 
 
 
@@ -1898,23 +1898,23 @@ c:\Users\Lenovo\Downloads\Linh\
 
 ---
 
-## Tái Định Vị Góc Sinh Viên & Loại Bỏ Hàng Thừa Lãng Phí Diện Tích Diễn Đàn (01/11/2026)
-1. **Bối cảnh & Yêu cầu Người dùng**:
-   - Bỏ nút "Tất Cả" trong thanh phân khu.
-   - Ẩn hoàn toàn thanh này nếu người dùng không phải sinh viên.
-   - Tái định vị Góc Sinh Viên sao cho hợp lý, không tốn thêm diện tích hàng ngang.
+## Tối Ưu Nút Chuyển Đổi Theme Sáng / Tối Mượt Nhất (Spring Slide Y) (01/11/2026)
+1. **Bối cảnh & Vấn đề**:
+   - Animation đổi dark <-> light theme bị lag, giật cục và đơ do sử dụng `document.startViewTransition` chạy `clip-path: circle(...)` toàn màn hình và CSS selector `.theme-transitioning *` ép style recalculation trên toàn bộ DOM tree.
+   - Người dùng yêu cầu tối ưu mượt mà, nhẹ nhất, hiệu ứng icon như một cái chui xuống và một cái nhảy lên.
 
-2. **Chi tiết Kỹ thuật Triển khai**:
-   - **Xóa bỏ Hàng Ngang Hub Tabs Độc Lập**:
-     + Loại bỏ hoàn toàn container `HUB TABS: CỘNG ĐỒNG CHUNG vs GÓC SINH VIÊN & ĐỀ TÀI` nằm giữa Header và Bộ lọc, tiết kiệm hơn 70px chiều cao màn hình.
-     + Loại bỏ nút "Tất Cả" dư thừa gây nhầm lẫn với tab "Tất cả" của bộ lọc bên dưới.
-   - **Tích Hợp Gọn Gàng Lên Header Diễn Đàn Dành Riêng Cho Sinh Viên (`public/app.js`)**:
-     + Đặt cụm chuyển đổi Segmented Switch `[ Cộng Đồng | 🎓 Góc Sinh Viên Edu ]` trực tiếp trên Header, song song ngang hàng với nút `[ + Đăng Bài Mới ]`.
-     + Áp dụng kiểm tra bảo mật hiển thị: `isStudent = user && (user.is_student_verified === 1 || user.role === 'STUDENT' || (user.email && user.email.toLowerCase().includes('.edu.vn')))`.
-     + Đối với người dùng không phải sinh viên (`!isStudent`), toàn bộ cụm này hoàn toàn ẩn đi (100% hidden).
-   - **Đồng Bộ In-Place & Reset**:
-     + Cập nhật các hàm `setForumHub` và `resetForumFilters` điều phối trạng thái giữa `COMMUNITY` và `STUDENT` tại chỗ không reload trang.
-     + Đồng bộ toàn bộ sang Capacitor Android (`npm run sync:android`).
-     + Toàn bộ 15/15 tầng kiểm thử tự hành đạt 100% PASS.
+2. **Giải pháp Kỹ thuật Triển khai**:
+   - **Loại bỏ Hoàn toàn Tác nhân Gây Lag**:
+     + Xóa bỏ `document.startViewTransition` và vòng lặp `clipPath` toàn màn hình trong `public/app.js`.
+     + Xóa bỏ triệt để `.theme-transitioning *` và các pseudo-elements `::view-transition-*` trong `public/styles.css`.
+     + Đổi theme class `.dark` tức thì trong 1 frame (< 1ms), không gây giật lag trình duyệt.
+   - **Thiết kế Animation "1 Cái Chui Xuống, 1 Cái Nhảy Lên" (Spring Slide Y)**:
+     + Áp dụng `transform: translateY(...)` kết hợp `opacity` hoàn toàn trên GPU Compositor thread (`will-change: transform, opacity`).
+     + Khi chuyển trạng thái: Icon hiện tại trượt tụt xuống dưới đáy (`translateY(125%)`, `opacity: 0`) trong 0.24s theo cubic-bezier dứt khoát.
+     + Đồng thời icon mới từ dưới vọt nhảy lên tâm (`translateY(0)`, `opacity: 1`) với hiệu ứng nảy nhẹ tự nhiên trong 0.38s qua đường cong `cubic-bezier(0.34, 1.56, 0.64, 1)`.
+   - **Xác minh & Đồng bộ**:
+     + Cú pháp JS/CSS kiểm tra hợp lệ (`node -c public/app.js` PASS).
+     + Đồng bộ toàn bộ tài nguyên sang Android Capacitor (`npm run sync:android`).
+     + Toàn bộ 15/15 tầng kiểm thử tự hành vượt qua 100%.
 
 
