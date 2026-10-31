@@ -515,6 +515,113 @@ async function runAllTests() {
       assert.strictEqual(res.status, 201);
     });
 
+    // =========================================================================
+    // CAC TEST MO RONG: MICRO AI SENTINEL & SHADOWBAN KIEM DUYET DINH KY
+    // =========================================================================
+    const forumSentinelService = require('../server/services/forumSentinelService');
+
+    await runTest('Micro AI Sentinel: Phat hien ky tu nguy trang homoglyphs va chuoi link cach quang', async () => {
+      // Chuỗi lách luật tinh vi: homoglyphs + ký tự lạ + tên miền rút gọn
+      const analysis1 = forumSentinelService.analyzeContent(
+        'Khao sat ve tieu dung',
+        'Cac ban vao bit(dot)ly/khao-sat-2026 giup minh nhe'
+      );
+      assert.strictEqual(analysis1.isViolation, true);
+      assert.strictEqual(analysis1.flag, 'FLAGGED_SHORTENER_URL');
+
+      const analysis2 = forumSentinelService.analyzeContent(
+        'Xin y kien ve de tai tot nghiep',
+        'Vui long xoa dau cach de lay link: f o r m s . g l e / t e s t 1 2 3'
+      );
+      assert.strictEqual(analysis2.isViolation, true);
+      assert.strictEqual(analysis2.flag, 'FLAGGED_DISGUISED_SURVEY_URL');
+    });
+
+    await runTest('Micro AI Sentinel: Khong bao dong gia voi van ban thao luan tu do thuan tuy', async () => {
+      const cleanAnalysis = forumSentinelService.analyzeContent(
+        'Kinh nghiem hoc lap trinh',
+        'Minh thay viec thiet ke he thong co ban nen chu trong vao ACID va kiem thu unit test day du.'
+      );
+      assert.strictEqual(cleanAnalysis.isViolation, false);
+      assert.strictEqual(cleanAnalysis.flag, 'CLEAN');
+    });
+
+    let flaggedPostId = null;
+    await runTest('Micro AI Sentinel: Quet dinh ky tu dong an bai viet vi pham va tru trust_score tac gia', async () => {
+      // 1. Tạo một bài viết trực tiếp vào DB giả lập việc lách qua bộ lọc ban đầu
+      flaggedPostId = crypto.randomUUID();
+      const initialUser = db.prepare('SELECT trust_score FROM users WHERE id = ?').get(idNormal);
+      const initialScore = initialUser.trust_score || 100.0;
+
+      db.prepare(`
+        INSERT INTO forum_posts (id, user_id, title, content, post_type, category, is_audited, is_hidden)
+        VALUES (?, ?, ?, ?, ?, ?, 0, 0)
+      `).run(
+        flaggedPostId,
+        idNormal,
+        'Nho moi nguoi giup khao sat gap',
+        'Cac ban vao forms . office . com / r / abcdef de lam giup minh nhe',
+        'COMMUNITY',
+        'ALL'
+      );
+
+      // 2. Chạy chu trình quét thủ công của Sentinel
+      const scanResult = forumSentinelService.scanPendingPosts(100);
+      assert.ok(scanResult.scanned >= 1);
+      assert.ok(scanResult.violations >= 1);
+
+      // 3. Kiểm tra bài viết đã được cập nhật is_hidden = 1 và audit_flag chuẩn
+      const postAfter = db.prepare('SELECT is_hidden, is_audited, audit_flag FROM forum_posts WHERE id = ?').get(flaggedPostId);
+      assert.strictEqual(postAfter.is_hidden, 1);
+      assert.strictEqual(postAfter.is_audited, 1);
+      assert.strictEqual(postAfter.audit_flag, 'FLAGGED_DISGUISED_SURVEY_URL');
+
+      // 4. Kiểm tra điểm uy tín trust_score của tác giả đã bị khấu trừ (-15 điểm)
+      const userAfter = db.prepare('SELECT trust_score FROM users WHERE id = ?').get(idNormal);
+      assert.strictEqual(userAfter.trust_score, Math.max(0, initialScore - 15.0));
+
+      // 5. Kiểm tra log kiểm duyệt admin_audit_logs đã được lưu trữ
+      const auditLog = db.prepare('SELECT * FROM admin_audit_logs WHERE target_id = ?').get(flaggedPostId);
+      assert.ok(auditLog, 'Phai co ban ghi audit log');
+      assert.strictEqual(auditLog.action, 'AUTO_HIDE_DISGUISED_URL');
+      assert.strictEqual(auditLog.admin_id, 'SYSTEM_SENTINEL');
+    });
+
+    await runTest('Shadowban Access Control: Nguoi dung khac khong the xem bai viet bi an', async () => {
+      // Người dùng khác (idEdu) gọi getPost tới bài bị ẩn -> phải nhận lỗi 403
+      const resOther = await fetch(`${baseUrl}/forum/posts/${flaggedPostId}`, {
+        headers: { 'Authorization': `Bearer ${tokenEdu}` }
+      });
+      assert.strictEqual(resOther.status, 403);
+      const dataOther = await resOther.json();
+      assert.strictEqual(dataOther.success, false);
+
+      // Người dùng khác gọi listPosts -> bài bị ẩn không xuất hiện trong danh sách
+      const resList = await fetch(`${baseUrl}/forum/posts`, {
+        headers: { 'Authorization': `Bearer ${tokenEdu}` }
+      });
+      assert.strictEqual(resList.status, 200);
+      const dataList = await resList.json();
+      const existsInList = dataList.posts.some(p => p.id === flaggedPostId);
+      assert.strictEqual(existsInList, false, 'Bai viet bi an khong duoc xuat hien trong danh sach cua nguoi khac');
+
+      // Chính tác giả (idNormal) xem bài của mình -> vẫn truy cập được kèm nhãn is_hidden = true
+      const resOwner = await fetch(`${baseUrl}/forum/posts/${flaggedPostId}`, {
+        headers: { 'Authorization': `Bearer ${tokenNormal}` }
+      });
+      assert.strictEqual(resOwner.status, 200);
+      const dataOwner = await resOwner.json();
+      assert.strictEqual(dataOwner.post.is_hidden, true);
+
+      // Admin xem bài bị ẩn -> vẫn xem được bình thường
+      const resAdmin = await fetch(`${baseUrl}/forum/posts/${flaggedPostId}`, {
+        headers: { 'Authorization': `Bearer ${tokenAdmin}` }
+      });
+      assert.strictEqual(resAdmin.status, 200);
+      const dataAdmin = await resAdmin.json();
+      assert.strictEqual(dataAdmin.post.is_hidden, true);
+    });
+
     console.log('\n===============================================================');
     console.log(`KET QUA KIEM THU: HOAN THANH ${passedTests}/${totalTests} TESTS DAT CHUAN 100%`);
     console.log('===============================================================');

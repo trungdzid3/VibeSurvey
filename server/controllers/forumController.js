@@ -144,12 +144,12 @@ class ForumController {
       const currentUserId = user ? user.id : '';
       const listSql = `
         SELECT 
-          p.id, p.title, p.content, p.post_type, p.category, p.views_count, p.likes_count, p.created_at, p.updated_at,
+          p.id, p.title, p.content, p.post_type, p.category, p.is_hidden, p.audit_flag, p.views_count, p.likes_count, p.created_at, p.updated_at,
           u.id AS author_id, u.name AS author_name, u.role AS author_role, u.is_student_verified AS author_is_student_verified,
           s.id AS survey_id, s.title AS survey_title, s.description AS survey_description, s.category AS survey_category,
           s.target_responses, s.collected_responses, s.reward_points_per_response, s.cost_per_response,
           s.status AS survey_status, s.is_student_exchange, s.cover_image_url AS survey_cover_image_url,
-          (SELECT COUNT(*) FROM forum_comments fc WHERE fc.post_id = p.id) AS comments_count,
+          (SELECT COUNT(*) FROM forum_comments fc WHERE fc.post_id = p.id AND (fc.is_hidden IS NULL OR fc.is_hidden = 0)) AS comments_count,
           EXISTS(SELECT 1 FROM forum_post_likes fpl WHERE fpl.post_id = p.id AND fpl.user_id = ?) AS is_liked
         FROM forum_posts p
         JOIN users u ON p.user_id = u.id
@@ -168,6 +168,8 @@ class ForumController {
         content: row.content,
         post_type: row.post_type || 'COMMUNITY',
         category: row.category || 'ALL',
+        is_hidden: row.is_hidden === 1,
+        audit_flag: row.audit_flag || null,
         views_count: row.views_count || 0,
         likes_count: row.likes_count || 0,
         comments_count: row.comments_count || 0,
@@ -221,7 +223,7 @@ class ForumController {
 
       const postRow = db.prepare(`
         SELECT 
-          p.id, p.title, p.content, p.post_type, p.category, p.views_count, p.likes_count, p.created_at, p.updated_at,
+          p.id, p.title, p.content, p.post_type, p.category, p.is_hidden, p.audit_flag, p.views_count, p.likes_count, p.created_at, p.updated_at,
           u.id AS author_id, u.name AS author_name, u.role AS author_role, u.is_student_verified AS author_is_student_verified,
           s.id AS survey_id, s.title AS survey_title, s.description AS survey_description, s.category AS survey_category,
           s.target_responses, s.collected_responses, s.reward_points_per_response, s.cost_per_response,
@@ -236,11 +238,20 @@ class ForumController {
         return res.status(404).json({ success: false, message: 'Khong tim thay bai viet' });
       }
 
+      // RÀNG BUỘC KIỂM DUYỆT: Kiểm tra trạng thái ẩn của bài viết
+      const isOwner = user && user.id === postRow.author_id;
+      const isAdmin = user && user.role === 'ADMIN';
+
+      if (postRow.is_hidden === 1 && !isOwner && !isAdmin) {
+        return res.status(403).json({
+          success: false,
+          message: 'Bài viết này đã bị tạm ẩn do vi phạm tiêu chuẩn cộng đồng về liên kết ngoài.'
+        });
+      }
+
       // RÀNG BUỘC CỐT LÕI: Kiem tra quyen truy cap khao sat Trao Doi Sinh Vien / Post Type Student
       const isEduRestricted = postRow.post_type === 'STUDENT' || postRow.is_student_exchange === 1;
       if (isEduRestricted) {
-        const isOwner = user && user.id === postRow.author_id;
-        const isAdmin = user && user.role === 'ADMIN';
         const isVerifiedStudent = user && user.is_student_verified === 1;
 
         if (!isOwner && !isAdmin && !isVerifiedStudent) {
@@ -261,20 +272,23 @@ class ForumController {
         isLiked = Boolean(likeRow);
       }
 
-      // Lay danh sach binh luan kem thong tin nguoi dung
+      // Lay danh sach binh luan kem thong tin nguoi dung (loc bo binh luan bi an ngoai tru tac gia hoac admin)
+      const currentUserIdForComments = user ? user.id : '';
+      const isAdminFlag = isAdmin ? 1 : 0;
       const comments = db.prepare(`
         SELECT 
-          c.id, c.content, c.created_at,
+          c.id, c.content, c.created_at, c.is_hidden,
           u.id AS user_id, u.name AS user_name, u.role AS user_role, u.is_student_verified AS user_is_student_verified
         FROM forum_comments c
         JOIN users u ON c.user_id = u.id
-        WHERE c.post_id = ?
+        WHERE c.post_id = ? AND (c.is_hidden IS NULL OR c.is_hidden = 0 OR c.user_id = ? OR ? = 1)
         ORDER BY c.created_at ASC
-      `).all(id);
+      `).all(id, currentUserIdForComments, isAdminFlag);
 
       const formattedComments = comments.map(c => ({
         id: c.id,
         content: c.content,
+        is_hidden: c.is_hidden === 1,
         created_at: c.created_at,
         author: {
           id: c.user_id,
@@ -292,6 +306,8 @@ class ForumController {
           content: postRow.content,
           post_type: postRow.post_type || 'COMMUNITY',
           category: postRow.category || 'ALL',
+          is_hidden: postRow.is_hidden === 1,
+          audit_flag: postRow.audit_flag || null,
           views_count: (postRow.views_count || 0) + 1,
           likes_count: postRow.likes_count || 0,
           comments_count: formattedComments.length,

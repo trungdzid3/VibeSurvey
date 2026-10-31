@@ -105,6 +105,8 @@ app.use((err, req, res, next) => {
   });
 });
 
+const forumSentinelService = require('./services/forumSentinelService');
+
 if (require.main === module) {
   const PORT = config.PORT;
   app.listen(PORT, () => {
@@ -112,7 +114,10 @@ if (require.main === module) {
     console.log(`[MAY CHU] SurvHub Server dang chay tai: http://localhost:${PORT}`);
     console.log(`[THIET BI] Hybrid Mobile App san sang qua Capacitor Android`);
     console.log(`[BAO MAT] Anti-Fraud Engine va Double-Entry Ledger: KICH HOAT`);
+    console.log(`[GIAM SAT] Micro AI Sentinel quet dinh ky Dien Dan: KICH HOAT`);
     console.log(`=======================================================`);
+    // Khoi dong tien trinh quet ngam dinh ky dien dan
+    forumSentinelService.startPeriodicScan(60000);
   });
 }
 

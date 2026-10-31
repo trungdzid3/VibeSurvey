@@ -18134,6 +18134,13 @@ escapeHtml(str) {
           ` : ''}
         </div>
 
+        ${post.is_hidden ? `
+          <div class="px-3.5 py-2.5 rounded-2xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/60 text-red-700 dark:text-red-400 text-xs flex items-center gap-2">
+            <i data-lucide="shield-alert" class="w-4 h-4 shrink-0"></i>
+            <span><strong>Tạm ẩn:</strong> Bài viết này đang bị ẩn khỏi cộng đồng do hệ thống Sentinel phát hiện dấu hiệu chia sẻ liên kết ngoài trá hình.</span>
+          </div>
+        ` : ''}
+
         <!-- TIÊU ĐỀ & NỘI DUNG CHIA SẺ -->
         <div class="space-y-2">
           <h2 class="text-base sm:text-lg font-bold text-stone-900 dark:text-white leading-snug">

@@ -145,12 +145,21 @@ class ForumSentinelService {
     }
 
     // 4. Quét tên miền mục tiêu khi bị phân tách bằng khoảng trắng hoặc ký tự rác
-    // Tạo bản rút gọn toàn bộ khoảng trắng và ký tự ngăn cách trong phạm vi nghi vấn
+    // Tạo bản rút gọn toàn bộ khoảng trắng, ký tự ngăn cách và cả dấu chấm/gạch chéo
     const strippedNoSpaces = deobf.replace(/[\s\*\_\-\#\~\^\`\(\)\[\]\{\}\<\>]/g, '');
+    const strippedAll = deobf.replace(/[\s\*\_\-\#\~\^\`\(\)\[\]\{\}\<\>\.\/]/g, '');
 
     for (const domain of this.targetDomains) {
       const domainClean = domain.replace(/[\.\/]/g, '');
-      if (strippedNoSpaces.includes(domainClean)) {
+      if (deobf.includes(domain) || strippedNoSpaces.includes(domain) || strippedAll.includes(domainClean)) {
+        if (domain === 'bit.ly' || domain === 'tinyurl.com' || domain === 'cutt.ly' || domain === 'shorturl.at') {
+          return {
+            isViolation: true,
+            flag: 'FLAGGED_SHORTENER_URL',
+            reason: `Phát hiện dịch vụ rút gọn liên kết ngụy trang (${domain}).`,
+            matchedSnippet: domain
+          };
+        }
         return {
           isViolation: true,
           flag: 'FLAGGED_DISGUISED_SURVEY_URL',
@@ -200,12 +209,13 @@ class ForumSentinelService {
    * Quét và xử lý các bài viết diễn đàn chưa kiểm duyệt
    * @param {number} limit Số lượng bài viết quét trong mỗi đợt
    */
-  scanPendingPosts(limit = 50) {
+  scanPendingPosts(limit = 100) {
     try {
       const posts = db.prepare(`
         SELECT id, user_id, title, content, created_at
         FROM forum_posts
         WHERE is_audited = 0 OR is_audited IS NULL
+        ORDER BY created_at DESC
         LIMIT ?
       `).all(limit);
 
@@ -295,6 +305,7 @@ class ForumSentinelService {
         SELECT id, post_id, user_id, content, created_at
         FROM forum_comments
         WHERE is_audited = 0 OR is_audited IS NULL
+        ORDER BY created_at DESC
         LIMIT ?
       `).all(limit);
 

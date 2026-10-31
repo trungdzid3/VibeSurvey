@@ -1605,6 +1605,33 @@ c:\Users\Lenovo\Downloads\Linh\
 
 ---
 
+## CẬP NHẬT TIẾN ĐỘ: MỞ RỘNG DIỄN ĐÀN THẢO LUẬN TỰ DO & MICRO AI SENTINEL QUÉT NGẦM CHỐNG LINK TRÁ HÌNH (THÁNG 11/2026)
+
+### 1. Tháo dỡ Rào Cản Tạo Bài Viết Diễn Đàn (Free Discussion Enablement)
+- **Vấn đề đã khắc phục**: Modal tạo bài trong `public/app.js` từng chặn người dùng không có khảo sát đang hoạt động (`activeSurveys.length === 0`).
+- **Giải pháp triển khai**:
+  + Tháo bỏ điều kiện chặn form, cho phép bất kỳ thành viên nào cũng có thể mở modal đăng bài thảo luận tự do.
+  + Thêm tùy chọn `-- Thảo luận tự do (Không đính kèm khảo sát) --` với `survey_id = null`.
+  + Giao diện bài viết tự do tự động chuyển sang hiển thị nhãn `Thảo luận cộng đồng` thay vì thẻ khảo sát đính kèm.
+
+### 2. Triển Khai Micro AI Sentinel Quét Định Kỳ Chống Link Trá Hình (forumSentinelService.js)
+- **Kiến trúc & Giải thuật De-obfuscation 3 tầng**:
+  + **Tầng 1 (Unicode & Homoglyph Normalization)**: Loại bỏ zero-width invisible characters (`\u200B`, `\uFEFF`), ánh xạ các ký tự Cyrillic/đồng dạng (`а`, `е`, `о`, `р`, `с`, `v`, `і`,...) về chuẩn ASCII Latin.
+  + **Tầng 2 (Unmasking Dấu Chấm & Gạch Chéo)**: Chuyển đổi các biến thể `[.]`, `(.)`, `dot`, `cham`, `[dot]`, `slash`, `xuyet`, `gach` về ký tự phân cách chuẩn.
+  + **Tầng 3 (Domain Strip & Evasion Heuristics)**: Xóa khoảng trắng và ký tự ngụy trang (`*`, `_`, `#`, `~`, `-`) để bắt các domain mục tiêu (`forms.gle`, `forms.office.com`, `docs.google.com/forms`, `bit.ly`, `tinyurl.com`, `t.me`, `zalo.me`,...). Đồng thời phát hiện các mẫu câu hướng dẫn lách luật ("xoá dấu cách", "bỏ space", "bỏ khoảng trắng").
+- **Cơ chế Kiểm soát & Xử lý Vi phạm (Shadowban Engine)**:
+  + Tự động gắn cờ `is_hidden = 1, is_audited = 1, audit_flag = 'FLAGGED_DISGUISED_SURVEY_URL'`.
+  + Tự động khấu trừ **-15 điểm uy tín (`trust_score`)** của tác giả vi phạm.
+  + Ghi nhật ký vào `admin_audit_logs` với danh tính `SYSTEM_SENTINEL`.
+  + Bài viết bị ẩn chỉ hiển thị riêng cho tác giả (kèm cảnh báo đỏ) và Admin; toàn bộ người dùng khác trên sàn không thể nhìn thấy trong danh sách hoặc truy cập trực tiếp (trả về 403).
+
+### 3. Kiểm Chuẩn Chất Lượng & Đồng Bộ
+- Bổ sung 4 bài test kiểm thử mở rộng cho Sentinel và Shadowban vào `tests/test_forum_community.js` (23/23 tests PASS).
+- Chạy toàn diện 15/15 Test Suites (`npm test`): **100% PASS** (22.89s).
+- Đồng bộ toàn vẹn tài nguyên sang Android: `npm run sync:android`.
+
+---
+
 ## Quét và Chuyển Đổi Toàn Bộ Dropdown Sang Custom Dropdown Tiêu Chuẩn Bento (01/11/2026)
 1. **Bối cảnh & Yêu cầu Người dùng**:
    - Rà soát toàn bộ hệ thống giao diện, phát hiện tất cả các dropdown chưa chuyển sang chuẩn Custom Dropdown Popover theo `DESIGN.md` Mục 5.3 và chuyển đổi toàn diện.
@@ -1679,6 +1706,33 @@ c:\Users\Lenovo\Downloads\Linh\
    - Nâng cache-buster trong `public/index.html`.
    - Đồng bộ hoàn tất sang Capacitor Android: `npm run sync:android`.
    - Commit và push trực tiếp lên kho lưu trữ GitHub (`origin/main`).
+
+---
+
+## CẬP NHẬT TIẾN ĐỘ: MỞ RỘNG DIỄN ĐÀN THẢO LUẬN TỰ DO & MICRO AI SENTINEL QUÉT NGẦM CHỐNG LINK TRÁ HÌNH (THÁNG 11/2026)
+
+### 1. Tháo dỡ Rào Cản Tạo Bài Viết Diễn Đàn (Free Discussion Enablement)
+- **Vấn đề đã khắc phục**: Modal tạo bài trong `public/app.js` từng chặn người dùng không có khảo sát đang hoạt động (`activeSurveys.length === 0`).
+- **Giải pháp triển khai**:
+  + Tháo bỏ điều kiện chặn form, cho phép bất kỳ thành viên nào cũng có thể mở modal đăng bài thảo luận tự do.
+  + Thêm tùy chọn `-- Thảo luận tự do (Không đính kèm khảo sát) --` với `survey_id = null`.
+  + Giao diện bài viết tự do tự động chuyển sang hiển thị nhãn `Thảo luận cộng đồng` thay vì thẻ khảo sát đính kèm.
+
+### 2. Triển Khai Micro AI Sentinel Quét Định Kỳ Chống Link Trá Hình (forumSentinelService.js)
+- **Kiến trúc & Giải thuật De-obfuscation 3 tầng**:
+  + **Tầng 1 (Unicode & Homoglyph Normalization)**: Loại bỏ zero-width invisible characters (`\u200B`, `\uFEFF`), ánh xạ các ký tự Cyrillic/đồng dạng (`а`, `е`, `о`, `р`, `с`, `v`, `і`,...) về chuẩn ASCII Latin.
+  + **Tầng 2 (Unmasking Dấu Chấm & Gạch Chéo)**: Chuyển đổi các biến thể `[.]`, `(.)`, `dot`, `cham`, `[dot]`, `slash`, `xuyet`, `gach` về ký tự phân cách chuẩn.
+  + **Tầng 3 (Domain Strip & Evasion Heuristics)**: Xóa khoảng trắng và ký tự ngụy trang (`*`, `_`, `#`, `~`, `-`) để bắt các domain mục tiêu (`forms.gle`, `forms.office.com`, `docs.google.com/forms`, `bit.ly`, `tinyurl.com`, `t.me`, `zalo.me`,...). Đồng thời phát hiện các mẫu câu hướng dẫn lách luật ("xoá dấu cách", "bỏ space", "bỏ khoảng trắng").
+- **Cơ chế Kiểm soát & Xử lý Vi phạm (Shadowban Engine)**:
+  + Tự động gắn cờ `is_hidden = 1, is_audited = 1, audit_flag = 'FLAGGED_DISGUISED_SURVEY_URL'`.
+  + Tự động khấu trừ **-15 điểm uy tín (`trust_score`)** của tác giả vi phạm.
+  + Ghi nhật ký vào `admin_audit_logs` với danh tính `SYSTEM_SENTINEL`.
+  + Bài viết bị ẩn chỉ hiển thị riêng cho tác giả (kèm cảnh báo đỏ) và Admin; toàn bộ người dùng khác trên sàn không thể nhìn thấy trong danh sách hoặc truy cập trực tiếp (trả về 403).
+
+### 3. Kiểm Chuẩn Chất Lượng & Đồng Bộ
+- Bổ sung 4 bài test kiểm thử mở rộng cho Sentinel và Shadowban vào `tests/test_forum_community.js` (23/23 tests PASS).
+- Chạy toàn diện 15/15 Test Suites (`npm test`): **100% PASS** (22.89s).
+- Đồng bộ toàn vẹn tài nguyên sang Android: `npm run sync:android`.
 
 ---
 
@@ -1868,6 +1922,33 @@ c:\Users\Lenovo\Downloads\Linh\
 
 ---
 
+## CẬP NHẬT TIẾN ĐỘ: MỞ RỘNG DIỄN ĐÀN THẢO LUẬN TỰ DO & MICRO AI SENTINEL QUÉT NGẦM CHỐNG LINK TRÁ HÌNH (THÁNG 11/2026)
+
+### 1. Tháo dỡ Rào Cản Tạo Bài Viết Diễn Đàn (Free Discussion Enablement)
+- **Vấn đề đã khắc phục**: Modal tạo bài trong `public/app.js` từng chặn người dùng không có khảo sát đang hoạt động (`activeSurveys.length === 0`).
+- **Giải pháp triển khai**:
+  + Tháo bỏ điều kiện chặn form, cho phép bất kỳ thành viên nào cũng có thể mở modal đăng bài thảo luận tự do.
+  + Thêm tùy chọn `-- Thảo luận tự do (Không đính kèm khảo sát) --` với `survey_id = null`.
+  + Giao diện bài viết tự do tự động chuyển sang hiển thị nhãn `Thảo luận cộng đồng` thay vì thẻ khảo sát đính kèm.
+
+### 2. Triển Khai Micro AI Sentinel Quét Định Kỳ Chống Link Trá Hình (forumSentinelService.js)
+- **Kiến trúc & Giải thuật De-obfuscation 3 tầng**:
+  + **Tầng 1 (Unicode & Homoglyph Normalization)**: Loại bỏ zero-width invisible characters (`\u200B`, `\uFEFF`), ánh xạ các ký tự Cyrillic/đồng dạng (`а`, `е`, `о`, `р`, `с`, `v`, `і`,...) về chuẩn ASCII Latin.
+  + **Tầng 2 (Unmasking Dấu Chấm & Gạch Chéo)**: Chuyển đổi các biến thể `[.]`, `(.)`, `dot`, `cham`, `[dot]`, `slash`, `xuyet`, `gach` về ký tự phân cách chuẩn.
+  + **Tầng 3 (Domain Strip & Evasion Heuristics)**: Xóa khoảng trắng và ký tự ngụy trang (`*`, `_`, `#`, `~`, `-`) để bắt các domain mục tiêu (`forms.gle`, `forms.office.com`, `docs.google.com/forms`, `bit.ly`, `tinyurl.com`, `t.me`, `zalo.me`,...). Đồng thời phát hiện các mẫu câu hướng dẫn lách luật ("xoá dấu cách", "bỏ space", "bỏ khoảng trắng").
+- **Cơ chế Kiểm soát & Xử lý Vi phạm (Shadowban Engine)**:
+  + Tự động gắn cờ `is_hidden = 1, is_audited = 1, audit_flag = 'FLAGGED_DISGUISED_SURVEY_URL'`.
+  + Tự động khấu trừ **-15 điểm uy tín (`trust_score`)** của tác giả vi phạm.
+  + Ghi nhật ký vào `admin_audit_logs` với danh tính `SYSTEM_SENTINEL`.
+  + Bài viết bị ẩn chỉ hiển thị riêng cho tác giả (kèm cảnh báo đỏ) và Admin; toàn bộ người dùng khác trên sàn không thể nhìn thấy trong danh sách hoặc truy cập trực tiếp (trả về 403).
+
+### 3. Kiểm Chuẩn Chất Lượng & Đồng Bộ
+- Bổ sung 4 bài test kiểm thử mở rộng cho Sentinel và Shadowban vào `tests/test_forum_community.js` (23/23 tests PASS).
+- Chạy toàn diện 15/15 Test Suites (`npm test`): **100% PASS** (22.89s).
+- Đồng bộ toàn vẹn tài nguyên sang Android: `npm run sync:android`.
+
+---
+
 ## Quét và Chuyển Đổi Toàn Bộ Dropdown Sang Custom Dropdown Tiêu Chuẩn Bento (01/11/2026)
 1. **Bối cảnh & Yêu cầu Người dùng**:
    - Rà soát toàn bộ hệ thống giao diện, phát hiện tất cả các dropdown chưa chuyển sang chuẩn Custom Dropdown Popover theo `DESIGN.md` Mục 5.3 và chuyển đổi toàn diện.
@@ -1942,6 +2023,33 @@ c:\Users\Lenovo\Downloads\Linh\
    - Đồng bộ hoàn tất sang Capacitor Android: `npm run sync:android`.
    - Commit và push trực tiếp lên kho lưu trữ GitHub (`origin/main`).
 
+---
+
+## CẬP NHẬT TIẾN ĐỘ: MỞ RỘNG DIỄN ĐÀN THẢO LUẬN TỰ DO & MICRO AI SENTINEL QUÉT NGẦM CHỐNG LINK TRÁ HÌNH (THÁNG 11/2026)
+
+### 1. Tháo dỡ Rào Cản Tạo Bài Viết Diễn Đàn (Free Discussion Enablement)
+- **Vấn đề đã khắc phục**: Modal tạo bài trong `public/app.js` từng chặn người dùng không có khảo sát đang hoạt động (`activeSurveys.length === 0`).
+- **Giải pháp triển khai**:
+  + Tháo bỏ điều kiện chặn form, cho phép bất kỳ thành viên nào cũng có thể mở modal đăng bài thảo luận tự do.
+  + Thêm tùy chọn `-- Thảo luận tự do (Không đính kèm khảo sát) --` với `survey_id = null`.
+  + Giao diện bài viết tự do tự động chuyển sang hiển thị nhãn `Thảo luận cộng đồng` thay vì thẻ khảo sát đính kèm.
+
+### 2. Triển Khai Micro AI Sentinel Quét Định Kỳ Chống Link Trá Hình (forumSentinelService.js)
+- **Kiến trúc & Giải thuật De-obfuscation 3 tầng**:
+  + **Tầng 1 (Unicode & Homoglyph Normalization)**: Loại bỏ zero-width invisible characters (`\u200B`, `\uFEFF`), ánh xạ các ký tự Cyrillic/đồng dạng (`а`, `е`, `о`, `р`, `с`, `v`, `і`,...) về chuẩn ASCII Latin.
+  + **Tầng 2 (Unmasking Dấu Chấm & Gạch Chéo)**: Chuyển đổi các biến thể `[.]`, `(.)`, `dot`, `cham`, `[dot]`, `slash`, `xuyet`, `gach` về ký tự phân cách chuẩn.
+  + **Tầng 3 (Domain Strip & Evasion Heuristics)**: Xóa khoảng trắng và ký tự ngụy trang (`*`, `_`, `#`, `~`, `-`) để bắt các domain mục tiêu (`forms.gle`, `forms.office.com`, `docs.google.com/forms`, `bit.ly`, `tinyurl.com`, `t.me`, `zalo.me`,...). Đồng thời phát hiện các mẫu câu hướng dẫn lách luật ("xoá dấu cách", "bỏ space", "bỏ khoảng trắng").
+- **Cơ chế Kiểm soát & Xử lý Vi phạm (Shadowban Engine)**:
+  + Tự động gắn cờ `is_hidden = 1, is_audited = 1, audit_flag = 'FLAGGED_DISGUISED_SURVEY_URL'`.
+  + Tự động khấu trừ **-15 điểm uy tín (`trust_score`)** của tác giả vi phạm.
+  + Ghi nhật ký vào `admin_audit_logs` với danh tính `SYSTEM_SENTINEL`.
+  + Bài viết bị ẩn chỉ hiển thị riêng cho tác giả (kèm cảnh báo đỏ) và Admin; toàn bộ người dùng khác trên sàn không thể nhìn thấy trong danh sách hoặc truy cập trực tiếp (trả về 403).
+
+### 3. Kiểm Chuẩn Chất Lượng & Đồng Bộ
+- Bổ sung 4 bài test kiểm thử mở rộng cho Sentinel và Shadowban vào `tests/test_forum_community.js` (23/23 tests PASS).
+- Chạy toàn diện 15/15 Test Suites (`npm test`): **100% PASS** (22.89s).
+- Đồng bộ toàn vẹn tài nguyên sang Android: `npm run sync:android`.
+
 
 ---
 
@@ -1961,6 +2069,33 @@ c:\Users\Lenovo\Downloads\Linh\
    - Nâng cache-buster trong `public/index.html`.
    - Đồng bộ hoàn tất sang Capacitor Android: `npm run sync:android`.
    - Commit và push trực tiếp lên kho lưu trữ GitHub (`origin/main`).
+
+---
+
+## CẬP NHẬT TIẾN ĐỘ: MỞ RỘNG DIỄN ĐÀN THẢO LUẬN TỰ DO & MICRO AI SENTINEL QUÉT NGẦM CHỐNG LINK TRÁ HÌNH (THÁNG 11/2026)
+
+### 1. Tháo dỡ Rào Cản Tạo Bài Viết Diễn Đàn (Free Discussion Enablement)
+- **Vấn đề đã khắc phục**: Modal tạo bài trong `public/app.js` từng chặn người dùng không có khảo sát đang hoạt động (`activeSurveys.length === 0`).
+- **Giải pháp triển khai**:
+  + Tháo bỏ điều kiện chặn form, cho phép bất kỳ thành viên nào cũng có thể mở modal đăng bài thảo luận tự do.
+  + Thêm tùy chọn `-- Thảo luận tự do (Không đính kèm khảo sát) --` với `survey_id = null`.
+  + Giao diện bài viết tự do tự động chuyển sang hiển thị nhãn `Thảo luận cộng đồng` thay vì thẻ khảo sát đính kèm.
+
+### 2. Triển Khai Micro AI Sentinel Quét Định Kỳ Chống Link Trá Hình (forumSentinelService.js)
+- **Kiến trúc & Giải thuật De-obfuscation 3 tầng**:
+  + **Tầng 1 (Unicode & Homoglyph Normalization)**: Loại bỏ zero-width invisible characters (`\u200B`, `\uFEFF`), ánh xạ các ký tự Cyrillic/đồng dạng (`а`, `е`, `о`, `р`, `с`, `v`, `і`,...) về chuẩn ASCII Latin.
+  + **Tầng 2 (Unmasking Dấu Chấm & Gạch Chéo)**: Chuyển đổi các biến thể `[.]`, `(.)`, `dot`, `cham`, `[dot]`, `slash`, `xuyet`, `gach` về ký tự phân cách chuẩn.
+  + **Tầng 3 (Domain Strip & Evasion Heuristics)**: Xóa khoảng trắng và ký tự ngụy trang (`*`, `_`, `#`, `~`, `-`) để bắt các domain mục tiêu (`forms.gle`, `forms.office.com`, `docs.google.com/forms`, `bit.ly`, `tinyurl.com`, `t.me`, `zalo.me`,...). Đồng thời phát hiện các mẫu câu hướng dẫn lách luật ("xoá dấu cách", "bỏ space", "bỏ khoảng trắng").
+- **Cơ chế Kiểm soát & Xử lý Vi phạm (Shadowban Engine)**:
+  + Tự động gắn cờ `is_hidden = 1, is_audited = 1, audit_flag = 'FLAGGED_DISGUISED_SURVEY_URL'`.
+  + Tự động khấu trừ **-15 điểm uy tín (`trust_score`)** của tác giả vi phạm.
+  + Ghi nhật ký vào `admin_audit_logs` với danh tính `SYSTEM_SENTINEL`.
+  + Bài viết bị ẩn chỉ hiển thị riêng cho tác giả (kèm cảnh báo đỏ) và Admin; toàn bộ người dùng khác trên sàn không thể nhìn thấy trong danh sách hoặc truy cập trực tiếp (trả về 403).
+
+### 3. Kiểm Chuẩn Chất Lượng & Đồng Bộ
+- Bổ sung 4 bài test kiểm thử mở rộng cho Sentinel và Shadowban vào `tests/test_forum_community.js` (23/23 tests PASS).
+- Chạy toàn diện 15/15 Test Suites (`npm test`): **100% PASS** (22.89s).
+- Đồng bộ toàn vẹn tài nguyên sang Android: `npm run sync:android`.
 
 
 ---
@@ -1982,3 +2117,30 @@ c:\Users\Lenovo\Downloads\Linh\
    - Nâng cache-buster trong `public/index.html`.
    - Đồng bộ hoàn tất sang Capacitor Android: `npm run sync:android`.
    - Commit và push trực tiếp lên kho lưu trữ GitHub (`origin/main`).
+
+---
+
+## CẬP NHẬT TIẾN ĐỘ: MỞ RỘNG DIỄN ĐÀN THẢO LUẬN TỰ DO & MICRO AI SENTINEL QUÉT NGẦM CHỐNG LINK TRÁ HÌNH (THÁNG 11/2026)
+
+### 1. Tháo dỡ Rào Cản Tạo Bài Viết Diễn Đàn (Free Discussion Enablement)
+- **Vấn đề đã khắc phục**: Modal tạo bài trong `public/app.js` từng chặn người dùng không có khảo sát đang hoạt động (`activeSurveys.length === 0`).
+- **Giải pháp triển khai**:
+  + Tháo bỏ điều kiện chặn form, cho phép bất kỳ thành viên nào cũng có thể mở modal đăng bài thảo luận tự do.
+  + Thêm tùy chọn `-- Thảo luận tự do (Không đính kèm khảo sát) --` với `survey_id = null`.
+  + Giao diện bài viết tự do tự động chuyển sang hiển thị nhãn `Thảo luận cộng đồng` thay vì thẻ khảo sát đính kèm.
+
+### 2. Triển Khai Micro AI Sentinel Quét Định Kỳ Chống Link Trá Hình (forumSentinelService.js)
+- **Kiến trúc & Giải thuật De-obfuscation 3 tầng**:
+  + **Tầng 1 (Unicode & Homoglyph Normalization)**: Loại bỏ zero-width invisible characters (`\u200B`, `\uFEFF`), ánh xạ các ký tự Cyrillic/đồng dạng (`а`, `е`, `о`, `р`, `с`, `v`, `і`,...) về chuẩn ASCII Latin.
+  + **Tầng 2 (Unmasking Dấu Chấm & Gạch Chéo)**: Chuyển đổi các biến thể `[.]`, `(.)`, `dot`, `cham`, `[dot]`, `slash`, `xuyet`, `gach` về ký tự phân cách chuẩn.
+  + **Tầng 3 (Domain Strip & Evasion Heuristics)**: Xóa khoảng trắng và ký tự ngụy trang (`*`, `_`, `#`, `~`, `-`) để bắt các domain mục tiêu (`forms.gle`, `forms.office.com`, `docs.google.com/forms`, `bit.ly`, `tinyurl.com`, `t.me`, `zalo.me`,...). Đồng thời phát hiện các mẫu câu hướng dẫn lách luật ("xoá dấu cách", "bỏ space", "bỏ khoảng trắng").
+- **Cơ chế Kiểm soát & Xử lý Vi phạm (Shadowban Engine)**:
+  + Tự động gắn cờ `is_hidden = 1, is_audited = 1, audit_flag = 'FLAGGED_DISGUISED_SURVEY_URL'`.
+  + Tự động khấu trừ **-15 điểm uy tín (`trust_score`)** của tác giả vi phạm.
+  + Ghi nhật ký vào `admin_audit_logs` với danh tính `SYSTEM_SENTINEL`.
+  + Bài viết bị ẩn chỉ hiển thị riêng cho tác giả (kèm cảnh báo đỏ) và Admin; toàn bộ người dùng khác trên sàn không thể nhìn thấy trong danh sách hoặc truy cập trực tiếp (trả về 403).
+
+### 3. Kiểm Chuẩn Chất Lượng & Đồng Bộ
+- Bổ sung 4 bài test kiểm thử mở rộng cho Sentinel và Shadowban vào `tests/test_forum_community.js` (23/23 tests PASS).
+- Chạy toàn diện 15/15 Test Suites (`npm test`): **100% PASS** (22.89s).
+- Đồng bộ toàn vẹn tài nguyên sang Android: `npm run sync:android`.
