@@ -1530,3 +1530,25 @@ c:\Users\Lenovo\Downloads\Linh\
      + `auto_github_sync: true`
      + Remote: `origin https://github.com/trungdzid3/VibeSurvey.git` (nhánh `main`).
      + Đã tự động commit và đẩy mã nguồn hoàn chỉnh lên GitHub.
+
+
+---
+
+## CẬP NHẬT: TẠO LẠI TOÀN BỘ LOGO THÀNH PURE VECTOR SVG (KHÔNG DÙNG THẺ IMAGE / CẮT ẢNH)
+- **Yêu cầu người dùng**: "đừng cắt ảnh, tạo lại svg chứ" -> Không dùng ảnh nhúng `<image>`, chuyển toàn bộ biểu tượng chữ S thành mã vector toán học SVG nguyên bản (`<path>`, `<linearGradient>`), loại bỏ hoàn toàn chữ SurvHub bên dưới và căn chỉnh tỉ lệ chuẩn logo web.
+- **Triển khai kỹ thuật**:
+  1. Phân tích giải phẫu hình học 4 dải ruy-băng tạo thành biểu tượng chữ S (Top Ribbon, Upper Loop, Lower Loop, Bottom Ribbon) đối xứng xoay 180 độ.
+  2. Bắt các góc nhọn hình học (slanted cut corners và tips) để giữ độ sắc nét tự nhiên, đồng thời áp dụng thuật toán làm mịn phân đoạn đường cong Gaussian kết hợp nội suy Bezier bậc 3 (Cubic Bezier Splines) để loại bỏ hoàn toàn hiện tượng bậc thang pixel (raster staircasing).
+  3. Xây dựng dải màu vector sắc thái chính xác:
+     - Dải ruy-băng trên: `#FD7839 -> #FE8B2B -> #FB9B29`.
+     - Vòng cung trên-trái: `#FD7839 -> #FF6C43 -> #F54A38`.
+     - Vòng cung dưới-phải: `#FF7530 -> #FF842F -> #FFA024`.
+     - Dải ruy-băng dưới: `#FF5252 -> #FF624E -> #FE763A`.
+  4. Xuất bộ tệp Pure Vector SVG siêu nhẹ (<6 KB):
+     - `public/logo-light.svg` (5.7 KB) & `public/logo.svg`: Pure Vector SVG cho Light mode.
+     - `public/logo-dark.svg` (6.0 KB): Pure Vector SVG có hiệu ứng phát quang ấm dịu (ambient glow) cho Dark mode.
+     - `public/favicon.svg` (5.7 KB): Vector favicon cho trình duyệt hiện đại.
+  5. Kết xuất đồng bộ các tệp raster đa kích thước trực tiếp từ bản vẽ vector chuẩn xác bằng Chrome Headless Engine (`logo.png`, `icon-512.png`, `icon-192.png`, `favicon.png`, `favicon.ico`, `android/mipmap`).
+- **Kiểm tra**:
+  - `logo-light.svg`, `logo-dark.svg`, `logo.svg`, `favicon.svg` hoàn toàn KHÔNG chứa thẻ `<image>`, 100% là vector `<path>` và `<linearGradient>`.
+  - Syntax check Node.js & Python: PASS.
